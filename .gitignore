@@ -1,0 +1,36 @@
+# Dependencies (we keep prototypes dependency-free, but local tooling may use these)
+node_modules/
+package-lock.json
+bun.lockb
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+npm-debug.log*
+
+# Build output (in case any prototype adds a build step later)
+dist/
+build/
+out/
+.next/
+
+# Env / secrets
+.env
+.env.local
+.env.*.local
+
+# Temporary files
+*.tmp
+*.bak
+.cache/

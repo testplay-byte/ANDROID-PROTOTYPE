@@ -1,0 +1,309 @@
+/* =========================================================================
+   _template / styles.css
+   The base stylesheet for every prototype. Implements the phone frame,
+   the design tokens from docs/design-standards.md, and a few components.
+   Copy this into a new prototype and extend — don't import across prototypes.
+   ========================================================================= */
+
+/* ---- Design tokens ----------------------------------------------------- */
+:root {
+  /* spacing (4pt grid) */
+  --space-xs: 4px;
+  --space-sm: 8px;
+  --space-md: 12px;
+  --space-lg: 16px;
+  --space-xl: 24px;
+  --space-2xl: 32px;
+  --space-3xl: 48px;
+
+  /* type scale */
+  --fs-caption: 12px;
+  --fs-body: 14px;
+  --fs-subtitle: 16px;
+  --fs-title: 18px;
+  --fs-h2: 22px;
+  --fs-h1: 28px;
+  --fs-display: 34px;
+
+  /* radius */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-pill: 999px;
+
+  /* motion */
+  --ease: cubic-bezier(.2,.7,.2,1);
+  --dur-fast: 150ms;
+  --dur: 250ms;
+
+  /* light theme colors (default) */
+  --color-bg: #ffffff;
+  --color-surface: #f7f7f8;
+  --color-surface-2: #ffffff;
+  --color-text: #1a1a1a;
+  --color-text-muted: #6b7280;
+  --color-primary: #0d9488;
+  --color-primary-fg: #ffffff;
+  --color-border: #e5e7eb;
+  --color-danger: #dc2626;
+  --color-success: #16a34a;
+  --color-warn: #d97706;
+}
+
+[data-theme="dark"] {
+  --color-bg: #121212;
+  --color-surface: #1c1c1e;
+  --color-surface-2: #242427;
+  --color-text: #f5f5f7;
+  --color-text-muted: #9ca3af;
+  --color-primary: #2dd4bf;
+  --color-primary-fg: #06231f;
+  --color-border: #2c2c2e;
+}
+
+/* ---- Reset ------------------------------------------------------------- */
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; height: 100%; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  color: var(--color-text);
+  background: #6b7280; /* stage backdrop on desktop */
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+ul { margin: 0; padding: 0; list-style: none; }
+
+/* ---- Stage + device frame --------------------------------------------- */
+.stage {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--space-xl);
+}
+.device {
+  position: relative;
+  width: 390px;
+  height: 844px;
+  background: var(--color-bg);
+  border-radius: 44px;
+  box-shadow: 0 0 0 11px #0c0c0e, 0 0 0 12px #2a2a2e, 0 30px 60px -20px rgba(0,0,0,.6);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+/* collapse to full screen on real mobile */
+@media (max-width: 480px) {
+  .stage { padding: 0; }
+  .device {
+    width: 100%;
+    height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+/* ---- Status bar -------------------------------------------------------- */
+.statusbar {
+  height: 44px;
+  padding: 0 var(--space-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--fs-subtitle);
+  font-weight: 600;
+  flex: 0 0 auto;
+  color: var(--color-text);
+}
+.statusbar__icons { display: inline-flex; gap: var(--space-sm); align-items: center; }
+
+/* ---- Screen viewport --------------------------------------------------- */
+.screen {
+  flex: 1 1 auto;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+/* ---- Views (screens) --------------------------------------------------- */
+.view {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  transform: translateX(8px);
+  pointer-events: none;
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.view--active {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+
+/* ---- App bar ----------------------------------------------------------- */
+.appbar {
+  height: 56px;
+  padding: 0 var(--space-md);
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  background: var(--color-bg);
+  border-bottom: 1px solid var(--color-border);
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+.appbar__title {
+  font-size: var(--fs-title);
+  font-weight: 600;
+  margin: 0;
+  flex: 1 1 auto;
+}
+
+/* ---- Content ----------------------------------------------------------- */
+.content {
+  padding: var(--space-lg);
+  padding-bottom: 96px; /* room for bottom nav */
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+}
+.eyebrow {
+  margin: 0;
+  font-size: var(--fs-caption);
+  text-transform: uppercase;
+  letter-spacing: .08em;
+  color: var(--color-primary);
+  font-weight: 700;
+}
+.hero {
+  margin: 0;
+  font-size: var(--fs-h1);
+  line-height: 1.2;
+  font-weight: 700;
+}
+.lead {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--fs-body);
+}
+code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .9em;
+  background: var(--color-surface);
+  padding: 1px 6px;
+  border-radius: 6px;
+}
+
+/* ---- Card -------------------------------------------------------------- */
+.card {
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-md);
+}
+.card__head { display: flex; align-items: center; justify-content: space-between; gap: var(--space-sm); }
+.card__title { margin: 0; font-size: var(--fs-subtitle); font-weight: 600; }
+.card__text { margin: 0; color: var(--color-text-muted); }
+
+/* ---- Badge ------------------------------------------------------------- */
+.badge {
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+}
+.badge--success { color: var(--color-success); background: color-mix(in srgb, var(--color-success) 14%, transparent); }
+
+/* ---- Buttons ----------------------------------------------------------- */
+.btn {
+  min-height: 44px;
+  padding: 0 var(--space-lg);
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: var(--fs-body);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  transition: transform var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease);
+  align-self: flex-start;
+}
+.btn:active { transform: scale(.97); }
+.btn--primary { background: var(--color-primary); color: var(--color-primary-fg); }
+.btn--secondary { background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); }
+
+.iconbtn {
+  width: 40px; height: 40px;
+  border-radius: var(--radius-pill);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--color-text);
+  transition: background var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.iconbtn:hover { background: var(--color-surface); }
+.iconbtn:active { transform: scale(.94); }
+.iconbtn--ghost { visibility: hidden; } /* spacer to balance appbar */
+
+/* ---- List -------------------------------------------------------------- */
+.list { display: flex; flex-direction: column; }
+.list__row {
+  min-height: 52px;
+  padding: var(--space-md) 0;
+  display: flex; align-items: center; justify-content: space-between;
+  border-bottom: 1px solid var(--color-border);
+  cursor: pointer;
+  transition: background var(--dur-fast) var(--ease);
+}
+.list__row:last-child { border-bottom: none; }
+.list__row:active { background: var(--color-surface); }
+.list__meta { color: var(--color-text-muted); font-variant-numeric: tabular-nums; }
+
+/* ---- Bottom nav -------------------------------------------------------- */
+.bottomnav {
+  position: absolute;
+  left: 0; right: 0; bottom: 0;
+  height: calc(56px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--color-border);
+  display: flex;
+  z-index: 5;
+}
+.bottomnav__item {
+  flex: 1 1 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px;
+  color: var(--color-text-muted);
+  font-size: var(--fs-caption);
+  font-weight: 600;
+  transition: color var(--dur-fast) var(--ease);
+}
+.bottomnav__item.is-active { color: var(--color-primary); }
+
+/* ---- Home indicator ---------------------------------------------------- */
+.home-indicator {
+  height: 5px;
+  width: 134px;
+  border-radius: var(--radius-pill);
+  background: var(--color-text);
+  opacity: .35;
+  margin: 0 auto var(--space-sm);
+  flex: 0 0 auto;
+}
+
+/* ---- Reduced motion ---------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

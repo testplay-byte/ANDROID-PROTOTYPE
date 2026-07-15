@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Prototype — _template</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <!-- Page background + centered device (desktop). Collapses to full-screen on mobile. -->
+  <div class="stage">
+    <div class="device" id="device">
+
+      <!-- Status bar (decorative) -->
+      <div class="statusbar">
+        <span class="statusbar__time" id="clock">9:41</span>
+        <span class="statusbar__icons" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M2 22h2v-6H2zM6 22h2V10H6zM10 22h2V2h-2zM14 22h2v-9h-2zM18 22h2V6h-2z"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M2 17h20v3H2zM4 12l2 2 3-3 3 3 3-3 3 3 2-2-5-5-3 3-3-3-3 3-2-2z"/></svg>
+          <svg width="20" height="16" viewBox="0 0 24 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="2" width="20" height="12" rx="3"/><rect x="3" y="4" width="14" height="8" rx="1" fill="currentColor"/><rect x="22" y="6" width="1.5" height="4" rx=".5" fill="currentColor"/></svg>
+        </span>
+      </div>
+
+      <!-- Screen viewport -->
+      <main class="screen" id="screen">
+
+        <!-- ===== Screen: Home ===== -->
+        <section class="view view--active" data-view="home" aria-label="Home screen">
+          <header class="appbar">
+            <h1 class="appbar__title">Prototype</h1>
+            <button class="iconbtn" id="themeToggle" aria-label="Toggle theme">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </button>
+          </header>
+
+          <div class="content">
+            <p class="eyebrow">Template</p>
+            <h2 class="hero">This is your starting screen.</h2>
+            <p class="lead">Edit this file to build your prototype. Replace copy, add screens, wire up navigation.</p>
+
+            <div class="card">
+              <div class="card__head">
+                <h3 class="card__title">Sample card</h3>
+                <span class="badge badge--success">Active</span>
+              </div>
+              <p class="card__text">Cards use <code>--space-lg</code> padding, 12px radius, subtle border.</p>
+              <button class="btn btn--primary" data-goto="detail">Open detail →</button>
+            </div>
+
+            <div class="card">
+              <h3 class="card__title">Interactive list</h3>
+              <ul class="list" id="demoList">
+                <li class="list__row"><span>Tap an item</span><span class="list__meta">0</span></li>
+                <li class="list__row"><span>It counts up</span><span class="list__meta">0</span></li>
+                <li class="list__row"><span>Try it</span><span class="list__meta">0</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- ===== Screen: Detail ===== -->
+        <section class="view" data-view="detail" aria-label="Detail screen">
+          <header class="appbar">
+            <button class="iconbtn" data-goto="home" aria-label="Back">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+            </button>
+            <h1 class="appbar__title">Detail</h1>
+            <span class="iconbtn iconbtn--ghost" aria-hidden="true"></span>
+          </header>
+
+          <div class="content">
+            <h2 class="hero">Detail screen</h2>
+            <p class="lead">A second view. Navigation is handled in <code>script.js</code> via <code>data-goto</code>.</p>
+            <button class="btn btn--secondary" data-goto="home">← Back home</button>
+          </div>
+        </section>
+
+        <!-- Bottom navigation -->
+        <nav class="bottomnav" aria-label="Primary">
+          <button class="bottomnav__item is-active" data-goto="home">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+            <span>Home</span>
+          </button>
+          <button class="bottomnav__item" data-goto="detail">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            <span>Detail</span>
+          </button>
+        </nav>
+
+      </main>
+
+      <!-- Home indicator -->
+      <div class="home-indicator" aria-hidden="true"></div>
+    </div>
+  </div>
+
+  <script src="./script.js"></script>
+</body>
+</html>

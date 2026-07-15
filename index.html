@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>ANDROID-PROTOTYPE — Mobile UI Prototypes</title>
+  <meta name="description" content="Interactive mobile UI prototypes, deployed via GitHub Pages." />
+  <style>
+    :root {
+      --bg: #0f172a;
+      --surface: #1e293b;
+      --surface-2: #273449;
+      --text: #f1f5f9;
+      --muted: #94a3b8;
+      --primary: #2dd4bf;
+      --primary-fg: #042f2e;
+      --border: #334155;
+      --radius: 14px;
+    }
+    [data-theme="light"] {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --surface-2: #f1f5f9;
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #0d9488;
+      --primary-fg: #ffffff;
+      --border: #e2e8f0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 48px 24px 96px; }
+    header { margin-bottom: 40px; }
+    .badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
+      color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 14%, transparent);
+      padding: 4px 10px; border-radius: 999px;
+    }
+    h1 { font-size: clamp(28px, 5vw, 40px); margin: 16px 0 8px; letter-spacing: -.02em; }
+    .sub { color: var(--muted); font-size: 16px; max-width: 60ch; }
+    .toolbar { display: flex; justify-content: space-between; align-items: center; margin: 32px 0 16px; gap: 12px; flex-wrap: wrap; }
+    .toolbar h2 { margin: 0; font-size: 20px; }
+    .theme-btn {
+      background: var(--surface); color: var(--text); border: 1px solid var(--border);
+      border-radius: 999px; padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
+      transition: transform .12s ease, background .12s ease;
+    }
+    .theme-btn:hover { background: var(--surface-2); }
+    .theme-btn:active { transform: scale(.96); }
+
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px;
+      display: flex; flex-direction: column; gap: 10px;
+      text-decoration: none; color: inherit;
+      transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    }
+    .card:hover { transform: translateY(-2px); border-color: var(--primary); box-shadow: 0 12px 30px -18px rgba(0,0,0,.5); }
+    .card__thumb {
+      aspect-ratio: 9 / 16;
+      background: var(--surface-2);
+      border-radius: 10px;
+      display: grid; place-items: center;
+      color: var(--muted);
+      font-size: 13px;
+      overflow: hidden;
+    }
+    .card__title { font-size: 16px; font-weight: 700; margin: 0; }
+    .card__desc { font-size: 13px; color: var(--muted); margin: 0; }
+    .card__meta { display: flex; gap: 8px; align-items: center; margin-top: auto; font-size: 12px; }
+    .pill { padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
+
+    .empty {
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      padding: 32px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .links { margin-top: 40px; display: flex; gap: 16px; flex-wrap: wrap; }
+    .links a { color: var(--primary); text-decoration: none; font-weight: 600; font-size: 14px; }
+    .links a:hover { text-decoration: underline; }
+    footer { margin-top: 64px; color: var(--muted); font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <span class="badge">● Mobile UI Prototypes</span>
+      <h1>ANDROID-PROTOTYPE</h1>
+      <p class="sub">Interactive, fully functional mobile app UI prototypes — viewable in the browser, deployed via GitHub Pages. Each prototype is a real, clickable interface, not a static screenshot.</p>
+    </header>
+
+    <div class="toolbar">
+      <h2>Prototypes</h2>
+      <button class="theme-btn" id="themeBtn" aria-label="Toggle theme">◐ Theme</button>
+    </div>
+
+    <!--
+      PROTOTYPE GALLERY
+      To add a prototype, copy a <a class="card">…</a> block and update:
+      href, title, description, thumb, status pill.
+      Keep this in sync with prototypes/navigation.md.
+    -->
+    <div class="grid" id="grid">
+      <a class="card" href="prototypes/_template/">
+        <div class="card__thumb">
+          <span>📱 phone frame</span>
+        </div>
+        <h3 class="card__title">Starter Template</h3>
+        <p class="card__desc">The scaffold every new prototype is copied from. Phone frame, 2 views, bottom nav, theme toggle.</p>
+        <div class="card__meta">
+          <span class="pill">reference</span>
+          <span class="pill">HTML/CSS/JS</span>
+        </div>
+      </a>
+
+      <!-- New prototypes go here. Example:
+      <a class="card" href="prototypes/food-delivery-checkout/">
+        <div class="card__thumb"><span>🛒 checkout</span></div>
+        <h3 class="card__title">Food Delivery Checkout</h3>
+        <p class="card__desc">Cart → address → payment → confirmation flow.</p>
+        <div class="card__meta"><span class="pill">review</span><span class="pill">HTML/CSS/JS</span></div>
+      </a>
+      -->
+    </div>
+
+    <div class="empty" id="emptyNote" hidden>
+      No real prototypes yet. The first one will appear here once built.
+    </div>
+
+    <div class="links">
+      <a href="STARTUP.md">📋 Startup guide</a>
+      <a href="navigation.md">🧭 Navigation map</a>
+      <a href="prototypes/navigation.md">🗂 Prototype index</a>
+      <a href="docs/workflow.md">⚙️ Workflow</a>
+      <a href="https://github.com/testplay-byte/ANDROID-PROTOTYPE">📦 Source on GitHub</a>
+    </div>
+
+    <footer>
+      Maintained as an AI-navigable workspace. Every directory has a <code>navigation.md</code>.
+    </footer>
+  </div>
+
+  <script>
+    (function () {
+      const root = document.documentElement;
+      const btn = document.getElementById("themeBtn");
+      function set(t) { root.setAttribute("data-theme", t); try { localStorage.setItem("gallery-theme", t); } catch (e) {} }
+      try { const s = localStorage.getItem("gallery-theme"); if (s) set(s); } catch (e) {}
+      btn.addEventListener("click", function () {
+        set(root.getAttribute("data-theme") === "dark" ? "light" : "dark");
+      });
+    })();
+  </script>
+</body>
+</html>
