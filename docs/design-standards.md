@@ -7,14 +7,16 @@
 ## 1. The phone frame
 
 - **Viewport size:** 390 × 844 px (a common modern phone viewport).
-- **Device shell:** rounded corners **36px** (slightly less rounded, per feedback), 10px dark bezel + 1px edge, soft drop shadow on desktop.
-- **Status bar:** 40px tall, decorative only. Layout left→center→right: `[ time ] [ ● punch-hole camera ] [ signal · wifi · bluetooth · battery% ]`. See `docs/template-rules.md` §2 for the full spec.
-- **Punch-hole:** 11px centered circle mimicking the front camera.
-- **Battery:** percentage + glyph; fill width scales to the %; tints danger below 15%.
+- **Device shell:** rounded corners **28px** (less rounded, per feedback), **5px** dark bezel + 1px edge (thinner, per feedback), soft drop shadow on desktop.
+- **Status bar:** 36px tall, decorative only. Layout left→center→right: `[ time ] [ ● punch-hole ] [ wifi · signal · portrait-battery · battery% ]`. See `docs/template-rules.md` §2 for the full spec.
+- **Punch-hole:** 10px centered circle mimicking the front camera.
+- **Wi-Fi:** 3 arcs, 2 bright (outermost dim) — moderate connection.
+- **Signal:** 4 bars, 2 bright (taller bars) — ~50% strength.
+- **Battery:** **portrait (vertical)** orientation; fill grows from bottom; percentage shown to the right; tints danger below 15%.
 - **Screen area:** fills the rest; scrolls independently; overflow hidden on the shell.
 - **Bottom safe area:** 34px reserved for gestures / home indicator.
-- **Desktop preview:** device centered, neutral gray page background so attention stays on the device.
-- **Mobile preview:** frame collapses to full viewport (no device chrome) so it feels native.
+- **Desktop preview:** device centered with **left and right info panels** showing screen list, stats, and mini-charts. Warm-cream page background.
+- **Mobile preview:** frame collapses to full viewport (no device chrome, panels hidden) so it feels native.
 
 The template in `prototypes/_template/` implements this. Copy it; don't reinvent. Authoritative rules live in `docs/template-rules.md`.
 

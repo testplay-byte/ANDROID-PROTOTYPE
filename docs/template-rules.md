@@ -11,13 +11,13 @@
 | Spec                  | Value                                       |
 |-----------------------|---------------------------------------------|
 | Viewport              | 390 × 844 px                                |
-| Device corner radius  | **36px** (slightly less rounded, per feedback) |
-| Bezel                 | 10px dark ring (`#0c0c0e`) + 1px edge (`#2a2a2e`) |
+| Device corner radius  | **28px** (less rounded, per feedback)       |
+| Bezel                 | **5px** dark ring + 1px edge (thinner, per feedback) |
 | Device shadow         | soft drop shadow for depth on desktop       |
-| Desktop stage         | centered, neutral gray background so attention stays on the device |
+| Desktop stage         | centered, warm-cream background; side info panels on left & right |
 | Mobile (<480px)       | frame collapses to full viewport, no chrome |
 
-**Rule:** Don't make the corners more rounded than 36px. The user specifically asked for *less* rounding. If a future brief asks for "more rounded", confirm first (🟦).
+**Rule:** Don't make the corners more rounded than 28px. The user specifically asked for *less* rounding. If a future brief asks for "more rounded", confirm first (🟦).
 
 ---
 
@@ -26,29 +26,31 @@
 The status bar is **decorative** — it sells the "this is a phone" illusion. It must contain, left → center → right:
 
 ```
-[ time ]        [ ● punch-hole ]        [ signal  wifi  bluetooth  battery% ]
+[ time ]        [ ● punch-hole ]        [ wifi  signal  battery  battery% ]
 ```
 
 ### 2.1 Time (left)
 - Live, updates every 30s.
 - 12-hour format, tabular-nums, font-weight 600, size ~13px.
-- Min-width reserved so the center punch-hole stays centered when minutes change.
 
 ### 2.2 Punch-hole camera (center)
-- An 11px circle, centered absolutely in the status bar.
+- A 10px circle, centered absolutely in the status bar.
 - Dark radial gradient (mimics glass over a front camera).
 - `pointer-events: none` — never interactive.
 
-### 2.3 System icons (right), in this order
-1. **Mobile data signal** — 4 ascending bars. Use the template's SVG.
-2. **Wi-Fi** — three-arc fan. Use the template's SVG.
-3. **Bluetooth** — the rune glyph. Use the template's SVG.
-4. **Battery** — percentage number + `%` + a battery glyph whose fill width scales to the percentage.
+### 2.3 System icons (right), in this order (left to right)
+1. **Wi-Fi** — 3 arcs total. **2 of 3 bright** (outermost arc dim). Represents a moderate connection.
+2. **Mobile data signal** — 4 bars total. **2 of 4 bright** (the two taller bars; the two shorter bars are dim). Represents ~50% signal strength.
+3. **Battery** — **portrait (vertical) orientation**. A vertical rectangle with a nub at the top and a fill that grows from the bottom.
+4. **Battery percentage** — shown **to the right** of the battery glyph (e.g., `87%`).
 
-### 2.4 Battery behavior
-- The fill `<rect>` width is driven from the percentage by `script.js`.
+> **No Bluetooth icon.** Removed per feedback.
+
+### 2.4 Battery behavior (portrait)
+- The fill `<rect>` `y` and `height` are driven from the percentage by `script.js`.
+- Fill grows from the **bottom** upward (portrait orientation).
 - Below 15%, the fill tints with `--color-danger`.
-- Default demo value: 87%. A real prototype may swap in `navigator.getBattery()` if it wants live data — but that's optional.
+- Default demo value: 87%.
 
 ### 2.5 Status bar rules
 - Never let real content overlap the status bar.
@@ -62,7 +64,7 @@ The status bar is **decorative** — it sells the "this is a phone" illusion. It
 - Every prototype uses CSS custom properties (tokens) defined in `:root`.
 - Light and dark themes via `data-theme="light|dark"` on `<html>`.
 - Theme toggle persists in `localStorage`.
-- Default primary is teal (`#0d9488`) in the template — a prototype **may override `--color-primary`** to match its brand, but must keep all other tokens.
+- Default primary is orange (`#f05100` light / `#fe6a00` dark) matching the homepage warm-cream palette. A prototype **may override `--color-primary`** to match its brand, but must keep all other tokens.
 - See `docs/design-standards.md` for the full token list.
 
 ---
@@ -72,22 +74,21 @@ The status bar is **decorative** — it sells the "this is a phone" illusion. It
 **Problem the user reported:** pressing a button and dragging the mouse upward selects/copies text instead of scrolling. This must never happen on chrome.
 
 ### Rule
-- The **entire device** is `user-select: none` by default (set on `.device`).
-- **Only `.content`** (the scrollable screen body) is `user-select: text`, so users can still copy real content.
-- Interactive elements that live inside `.content` (`.btn`, `.list__row`) **re-assert** `user-select: none` explicitly, because they would otherwise inherit `text` from `.content`.
+- The **entire page** (`body`) is `user-select: none`. No text in a prototype is selectable — prototypes behave like real apps.
+- A global `selectstart` event listener in `script.js` cancels any remaining selection attempts (except inside `<input>`/`<textarea>`).
+- A global `dragstart` listener prevents drag-to-select entirely.
 
 ### What this achieves
-- Dragging starting on a button/nav item → never selects text.
-- Dragging starting on a paragraph in content → selects text (expected).
+- Dragging from any element (button, card, text, nav) → **never** selects text.
 - Scrolling works normally everywhere.
+- Inputs (search fields) still allow text entry.
 
 ### Implementation checklist (already in the template)
-- [x] `.device { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }`
-- [x] `.content { user-select: text; -webkit-user-select: text; }`
-- [x] `.btn, .list__row { user-select: none; -webkit-user-select: none; }`
-- [x] `.btn { -webkit-user-drag: none; }`
+- [x] `body { user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }`
+- [x] `document.addEventListener('selectstart', …)` — cancels unless target is an input.
+- [x] `document.addEventListener('dragstart', …)` — cancels all drag.
 
-**When you build a new interactive component inside `.content`, add `user-select: none` to it.**
+**Prototypes are not for reading/copying text. They are for simulating app interaction.**
 
 ---
 
