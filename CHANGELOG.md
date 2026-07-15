@@ -7,6 +7,22 @@
 
 ## [Unreleased]
 
+### 2025-01-15 — Template v5 (scoped theming, thicker bezel, bigger punch-hole) + detailed docs
+
+**Template (`prototypes/_template/`) — v5:**
+- **Scoped theming (CRITICAL fix):** the app's dark mode toggle now changes ONLY the device's theme, never the whole page. `data-theme` is set on `.device`, not `<html>`. CSS variables split into two layers: page-level (`--stage-bg`, `--sb-*`) on `:root` (fixed), app-level (`--color-*`, `--chart-*`) on `.device` (changes with theme). The page background, side panels, and body text stay light when the app goes dark.
+- **Bezel slightly thicker:** 3px → **5px** (per feedback: "not too much but just a little bit thicker").
+- **Punch-hole bigger:** 10px → **13px** (per feedback).
+- **Adaptive bezel color:** near-black (`#1a1612`) in light mode (stays black, per user); medium-gray (`#3a3530`) in dark mode — visible against both the light page and the dark app screen, doesn't interfere with either.
+- JS: `setTheme` now sets `data-theme` on `device` element; localStorage key changed to `proto-app-theme` (separate from any page theme).
+
+**Docs (highly detailed):**
+- New `docs/theme-architecture.md` — full explanation of the page/app theme separation, token tables, architecture diagram, what-NOT-to-do list, testing steps.
+- `docs/template-rules.md` — new §9 Theming architecture (CRITICAL); updated bezel (5px) and punch-hole (13px) specs.
+- `docs/preferences.md` — added dark mode scoping rule with user's exact words; updated bezel and punch-hole specs.
+- `docs/design-standards.md` — updated bezel (5px), punch-hole (13px), added bezel color and theming notes.
+- `docs/navigation.md` — added theme-architecture.md to the index.
+
 ### 2025-01-15 — Homepage pill nav + template v4 (thin bezel, fixed signal, smaller battery, no scrollbar, mobile fullscreen)
 
 **Homepage (`index.html`):**

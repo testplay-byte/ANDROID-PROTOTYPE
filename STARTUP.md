@@ -180,6 +180,7 @@ Reply with A or B to continue.
 | Learn the tech stack                   | `docs/tech-stack.md`                   |
 | Learn UI/UX standards                  | `docs/design-standards.md`             |
 | Read the prototype template rules      | `docs/template-rules.md`               |
+| Understand the theme architecture      | `docs/theme-architecture.md`           |
 | Understand deployment                  | `docs/github-pages.md`                 |
 | See the notification protocol (memory) | `docs/notification-protocol.md`        |
 | Reuse a UI component                   | `templates/components/`                |

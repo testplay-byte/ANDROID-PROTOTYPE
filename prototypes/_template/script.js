@@ -55,19 +55,25 @@
   var initial = (location.hash || "#home").slice(1);
   goTo(document.querySelector('[data-view="' + initial + '"]') ? initial : "home");
 
-  /* ---- Theme toggle ---------------------------------------------------- */
+  /* ---- Theme toggle (scoped to .device, NOT <html>) -------------------- */
+  /* The app's dark mode toggle changes ONLY the device's theme, never the
+     whole page. data-theme is set on the .device element, and CSS variables
+     inside .device cascade to its children. The page (stage, side panels)
+     stays in its own fixed theme. See docs/theme-architecture.md. */
   var themeToggle = document.getElementById("themeToggle");
-  var root = document.documentElement;
+  var device = document.getElementById("device");
 
   function setTheme(theme) {
-    root.setAttribute("data-theme", theme);
-    try { localStorage.setItem("proto-theme", theme); } catch (_) {}
+    if (!device) return;
+    device.setAttribute("data-theme", theme);
+    try { localStorage.setItem("proto-app-theme", theme); } catch (_) {}
   }
-  try { var saved = localStorage.getItem("proto-theme"); if (saved) setTheme(saved); } catch (_) {}
+  try { var saved = localStorage.getItem("proto-app-theme"); if (saved) setTheme(saved); } catch (_) {}
 
   if (themeToggle) {
     themeToggle.addEventListener("click", function () {
-      setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark");
+      var current = device ? device.getAttribute("data-theme") : "light";
+      setTheme(current === "dark" ? "light" : "dark");
     });
   }
 
@@ -179,8 +185,8 @@
   /* ---- Mobile fullscreen toggle --------------------------------------- */
   // On mobile, the device fills the screen by default (native app feel).
   // The floating button toggles between fullscreen and framed view.
+  // `device` is already defined above (theme toggle section).
   var fsToggle = document.getElementById("fsToggle");
-  var device = document.getElementById("device");
   var fsExpand = document.getElementById("fsIconExpand");
   var fsShrink = document.getElementById("fsIconShrink");
 

@@ -7,16 +7,18 @@
 ## 1. The phone frame
 
 - **Viewport size:** 390 × 844 px (a common modern phone viewport).
-- **Device shell:** rounded corners **32px**, **3px** thin dark bezel + 0.5px edge, soft drop shadow on desktop.
+- **Device shell:** rounded corners **32px**, **5px** dark bezel + 0.5px edge (slightly thicker per feedback), soft drop shadow on desktop.
 - **Status bar:** 36px tall, decorative only. Layout left→center→right: `[ time ] [ ● punch-hole ] [ wifi · signal · portrait-battery · battery% ]`. See `docs/template-rules.md` §2 for the full spec.
-- **Punch-hole:** 10px centered circle mimicking the front camera.
+- **Punch-hole:** **13px** centered circle (bigger per feedback) mimicking the front camera.
 - **Wi-Fi:** 3 arcs, 2 bright (outermost dim) — moderate connection.
 - **Signal:** 4 bars, **LEFT 2 bright, RIGHT 2 dim** — weak/moderate strength.
 - **Battery:** **portrait (vertical)**, small (8×16px); fill grows from bottom; percentage shown to the right; tints danger below 15%.
 - **Screen area:** fills the rest; scrolls independently; overflow hidden on the shell.
 - **Bottom safe area:** 34px reserved for gestures / home indicator.
 - **Desktop preview:** device centered with **left and right info panels** showing screen list, stats, and mini-charts. Warm-cream page background.
-- **Mobile preview:** frame collapses to full viewport (no device chrome, panels hidden) so it feels native.
+- **Bezel color:** near-black (`#1a1612`) in light mode; adaptive medium-gray (`#3a3530`) in dark mode (visible against both backgrounds). See `docs/theme-architecture.md`.
+- **Theming:** app theme is scoped to `.device` (`data-theme` on the device element, NOT `<html>`). The page never turns dark when the app toggle is pressed. See `docs/theme-architecture.md`.
+- **Mobile preview:** frame collapses to full viewport (no device chrome, panels hidden) so it feels native. A floating button toggles back to framed view.
 
 The template in `prototypes/_template/` implements this. Copy it; don't reinvent. Authoritative rules live in `docs/template-rules.md`.
 

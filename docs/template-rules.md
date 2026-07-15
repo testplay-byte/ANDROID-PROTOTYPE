@@ -12,7 +12,7 @@
 |-----------------------|---------------------------------------------|
 | Viewport              | 390 × 844 px                                |
 | Device corner radius  | **32px**                                     |
-| Bezel                 | **3px** dark ring + 0.5px edge (thin, per feedback) |
+| Bezel                 | **5px** dark ring + 0.5px edge (slightly thicker than v4, per feedback) |
 | Device shadow         | soft drop shadow for depth on desktop       |
 | Desktop stage         | centered, warm-cream background; side info panels on left & right |
 | Mobile (<480px)       | frame collapses to full viewport, no chrome |
@@ -34,7 +34,7 @@ The status bar is **decorative** — it sells the "this is a phone" illusion. It
 - 12-hour format, tabular-nums, font-weight 600, size ~13px.
 
 ### 2.2 Punch-hole camera (center)
-- A 10px circle, centered absolutely in the status bar.
+- A **13px** circle (bigger per feedback), centered absolutely in the status bar.
 - Dark radial gradient (mimics glass over a front camera).
 - `pointer-events: none` — never interactive.
 
@@ -125,7 +125,20 @@ On mobile (≤480px), the prototype switches from "framed device" to **full-scre
 
 ---
 
-## 9. What to copy vs. what to change
+## 9. Theming architecture (CRITICAL)
+
+The app's theme is **scoped to the `.device` element**, NOT set on `<html>`. This is the most important architectural rule:
+
+- `data-theme` is set on `<div class="device" data-theme="light|dark">` only.
+- The page (stage background, side panels, body text) uses **page-level tokens** (`--stage-bg`, `--sb-*`) defined on `:root` that **never change** with the app toggle.
+- The app (device screen, cards, text, buttons) uses **app-level tokens** (`--color-*`, `--chart-*`) defined on `.device`, overridden by `.device[data-theme="dark"]`.
+- The device bezel color adapts: near-black (`#1a1612`) in light mode, medium-gray (`#3a3530`) in dark mode — visible against both backgrounds.
+- **Never** set `data-theme` on `<html>`. **Never** define `--color-*` on `:root`.
+- See [`docs/theme-architecture.md`](./theme-architecture.md) for the full explanation and token tables.
+
+---
+
+## 10. What to copy vs. what to change
 
 ### Copy as-is
 - The phone frame, status bar, punch-hole, system icons, battery logic.
@@ -147,7 +160,7 @@ On mobile (≤480px), the prototype switches from "framed device" to **full-scre
 
 ---
 
-## 10. Accessibility (unchanged from design-standards)
+## 11. Accessibility (unchanged from design-standards)
 
 - Semantic HTML, keyboard reachable, visible focus.
 - `aria-label` on icon-only buttons.

@@ -34,13 +34,14 @@
 ## 2. Prototype template (the phone mockup)
 
 ### Device frame
-- **Thin bezel**: 3px (not 5px, not 10px). The user finds thick bezels ugly.
+- **Bezel**: 5px (slightly thicker than v4's 3px). The user found 3px too thin. 5px is the sweet spot — visible but not bulky.
 - **Corner radius**: 32px (not too rounded, not too sharp).
 - Device shadow: soft drop shadow for depth.
+- **Bezel color**: near-black (`#1a1612`) in light mode ("stays as black, which is perfect"). In dark mode, shifts to medium-gray (`#3a3530`) — adaptive, visible against both the light page and the dark app screen.
 
 ### Status bar (left → center → right)
 1. **Time** (left) — 12-hour, tabular-nums, ~13px, live clock.
-2. **Punch-hole camera** (center) — 10px circle, dark radial gradient.
+2. **Punch-hole camera** (center) — **13px** circle (bigger per feedback), dark radial gradient.
 3. **Right icons** (left to right):
    - **Wi-Fi** — 3 arcs, 2 bright (outermost dim).
    - **Mobile signal** — 4 bars, **LEFT 2 bright, RIGHT 2 dim** (`opacity: 0.3`). NOT the other way around.
@@ -53,6 +54,15 @@
 - Global `selectstart` + `dragstart` listeners cancel any remaining selection.
 - Only `<input>` / `<textarea>` allow text entry.
 - The user hates drag-to-copy behavior — this must never happen.
+
+### Dark mode scoping (CRITICAL)
+- The app's dark mode toggle changes **ONLY the device's theme**, never the whole page.
+- `data-theme` is set on the `.device` element, NOT on `<html>`.
+- The page (stage background, side panels, body text) uses page-level tokens (`--stage-bg`, `--sb-*`) that never change.
+- The app (device screen, cards, text) uses app-level tokens (`--color-*`) scoped to `.device`.
+- The device bezel adapts: black in light mode, medium-gray in dark mode.
+- **The user's exact words:** "Make sure that the whole page never turns into dark mode when a user presses a button inside the app. The app is a different part from the actual web page so only the app's theme color should change."
+- See `docs/theme-architecture.md` for the full architecture.
 
 ### Scrollbar
 - **No visible scrollbar** anywhere — not on the app screen, not on side panels.

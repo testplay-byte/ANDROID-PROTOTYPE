@@ -1,12 +1,13 @@
 /* =========================================================================
-   _template / styles.css  —  v3
-   Phone frame with side panels, new status bar, richer components.
-   See docs/template-rules.md for the rules this implements.
+   _template / styles.css  —  v5
+   Scoped theming: app theme (data-theme on .device) is SEPARATE from the
+   page theme. The app's dark mode toggle only affects the device, never
+   the surrounding page, side panels, or stage background.
+   See docs/theme-architecture.md for the full explanation.
    ========================================================================= */
 
-/* ---- Design tokens ----------------------------------------------------- */
+/* ---- Shared tokens (spacing, type, radius, motion) -------------------- */
 :root {
-  /* spacing (4pt grid) */
   --space-xs: 4px;
   --space-sm: 8px;
   --space-md: 12px;
@@ -14,7 +15,6 @@
   --space-xl: 24px;
   --space-2xl: 32px;
 
-  /* type scale */
   --fs-caption: 12px;
   --fs-body: 14px;
   --fs-subtitle: 16px;
@@ -22,18 +22,33 @@
   --fs-h2: 22px;
   --fs-h1: 28px;
 
-  /* radius */
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
   --radius-pill: 999px;
 
-  /* motion */
   --ease: cubic-bezier(.2,.7,.2,1);
   --dur-fast: 150ms;
   --dur: 250ms;
+}
 
-  /* light theme (matches homepage warm-cream palette) */
+/* ---- Page-level tokens (FIXED — never changes with app theme) --------- */
+/* The stage background, side panels, and page text stay in light mode
+   regardless of what the app's theme toggle does. The user explicitly
+   requires: "the whole page never turns into dark mode when a user
+   presses a button inside the app." */
+:root {
+  --stage-bg: #ebe1d2;       /* page background behind the device */
+  --sb-bg: #f9f2ea;          /* side panel card background */
+  --sb-muted: #e9decf;       /* side panel muted surface */
+  --sb-border: #d7cec1;      /* side panel border */
+  --sb-text: #1e1a13;        /* side panel text */
+  --sb-text-muted: #5d574e;  /* side panel muted text */
+}
+
+/* ---- App-level tokens (scoped to .device — changes with data-theme) --- */
+/* Light theme (default) */
+.device {
   --color-bg: #f2e8da;
   --color-surface: #e9decf;
   --color-surface-2: #f9f2ea;
@@ -50,20 +65,13 @@
   --chart-4: #f2a618;
   --chart-5: #f0503d;
 
-  /* side-panel palette (slightly lighter than bg) */
-  --sb-bg: #f9f2ea;
-  --sb-muted: #e9decf;
-  --sb-border: #d7cec1;
-  --sb-text: #1e1a13;
-  --sb-text-muted: #5d574e;
-
-  /* device frame */
-  --device-bezel: #181512;
+  /* Device frame — black in light mode (per user: "stays as black, perfect") */
+  --device-bezel: #1a1612;
   --device-edge: #2a2521;
-  --stage-bg: #ebe1d2;
 }
 
-[data-theme="dark"] {
+/* Dark theme — ONLY affects .device and its descendants */
+.device[data-theme="dark"] {
   --color-bg: #12100e;
   --color-surface: #282521;
   --color-surface-2: #1c1916;
@@ -73,16 +81,17 @@
   --color-primary-fg: #181512;
   --color-border: #36322e;
   --color-success: #43c07a;
+  --chart-1: #fe6a00;
+  --chart-2: #43c07a;
+  --chart-3: #608da4;
+  --chart-4: #f0b135;
+  --chart-5: #f75f4c;
 
-  --sb-bg: #1c1916;
-  --sb-muted: #282521;
-  --sb-border: #36322e;
-  --sb-text: #ebe7e2;
-  --sb-text-muted: #a29e98;
-
-  --device-bezel: #0a0908;
-  --device-edge: #1c1916;
-  --stage-bg: #0e0c0b;
+  /* Device frame — adaptive: a medium-dark that's visible against BOTH
+     the light page background and the dark app screen. Not pure black
+     (would blend with dark app bg), not too light (would clash). */
+  --device-bezel: #3a3530;
+  --device-edge: #4a4540;
 }
 
 /* ---- Reset ------------------------------------------------------------- */
@@ -92,8 +101,8 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   font-size: var(--fs-body);
   line-height: 1.5;
-  color: var(--color-text);
-  background: var(--stage-bg);
+  color: var(--sb-text);       /* page-level text color (NOT the app's --color-text) */
+  background: var(--stage-bg); /* page background — stays light always */
   -webkit-font-smoothing: antialiased;
   /* Entire page is non-selectable: prototypes behave like real apps.
      See docs/template-rules.md §text-selection. */
@@ -202,14 +211,15 @@ input { font: inherit; }
 .screeninfo__desc { font-size: 12px; color: var(--sb-text-muted); line-height: 1.5; }
 
 /* ---- Device frame ----------------------------------------------------- */
-/* Thin bezel (3px) + 1px edge, per feedback. */
+/* Bezel 5px (slightly thicker than v4's 3px, per feedback: "not too much
+/*   but just a little bit thicker"). + 0.5px edge for definition. */
 .device {
   position: relative;
   width: 390px;
   height: 844px;
   background: var(--color-bg);
   border-radius: 32px;
-  box-shadow: 0 0 0 3px var(--device-bezel), 0 0 0 3.5px var(--device-edge), 0 24px 60px -16px rgba(0,0,0,.4);
+  box-shadow: 0 0 0 5px var(--device-bezel), 0 0 0 5.5px var(--device-edge), 0 24px 60px -16px rgba(0,0,0,.4);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -234,7 +244,7 @@ input { font: inherit; }
   width: 390px !important;
   height: 844px !important;
   border-radius: 32px !important;
-  box-shadow: 0 0 0 3px var(--device-bezel), 0 0 0 3.5px var(--device-edge), 0 24px 60px -16px rgba(0,0,0,.4) !important;
+  box-shadow: 0 0 0 5px var(--device-bezel), 0 0 0 5.5px var(--device-edge), 0 24px 60px -16px rgba(0,0,0,.4) !important;
 }
 
 /* Floating fullscreen toggle (mobile only) */
@@ -274,12 +284,12 @@ input { font: inherit; }
 }
 .statusbar__time { font-variant-numeric: tabular-nums; }
 
-/* Punch-hole camera — centered */
+/* Punch-hole camera — centered, 13px (bigger per feedback) */
 .statusbar__punchhole {
   position: absolute;
   left: 50%; top: 50%;
   transform: translate(-50%, -50%);
-  width: 10px; height: 10px;
+  width: 13px; height: 13px;
   border-radius: 50%;
   background: radial-gradient(circle at 35% 30%, #2b2b30 0%, #060608 70%);
   box-shadow: inset 0 0 0 .5px rgba(255,255,255,.08);

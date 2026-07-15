@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en" data-theme="light">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -47,8 +47,8 @@
       </div>
     </aside>
 
-    <!-- ============ DEVICE ============ -->
-    <div class="device" id="device">
+    <!-- ============ DEVICE (data-theme scoped HERE, not on <html>) ============ -->
+    <div class="device" id="device" data-theme="light">
 
       <!-- Status bar: time (left) | punch-hole (center) | wifi signal battery % (right) -->
       <div class="statusbar">
