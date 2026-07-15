@@ -45,6 +45,8 @@ ANDROID-PROTOTYPE/
         └── deploy.yml      ← GitHub Pages auto-deploy on push.
 ```
 
+> **Homepage design language:** the root `index.html` follows the approved warm-cream theme (cream `#f2e8da` bg, dark `#231e18` primary, orange `#f05100` chart accents) with a split top nav and a hero + stat cards + charts layout. Do not revert to a generic/blue look. See `docs/template-rules.md` for prototype-frame rules.
+
 **Rule:** Every directory that contains project content has its own `navigation.md`. When in doubt about where something is, read the nearest `navigation.md`.
 
 ---
@@ -177,8 +179,9 @@ Reply with A or B to continue.
 | Start a new prototype                  | `prototypes/_template/` + `docs/workflow.md` |
 | Learn the tech stack                   | `docs/tech-stack.md`                   |
 | Learn UI/UX standards                  | `docs/design-standards.md`             |
+| Read the prototype template rules      | `docs/template-rules.md`               |
 | Understand deployment                  | `docs/github-pages.md`                 |
-| See the notification protocol          | `docs/notification-protocol.md`        |
+| See the notification protocol (memory) | `docs/notification-protocol.md`        |
 | Reuse a UI component                   | `templates/components/`                |
 | Grab shared icons/fonts                | `assets/`                              |
 | See what changed recently              | `CHANGELOG.md`                         |

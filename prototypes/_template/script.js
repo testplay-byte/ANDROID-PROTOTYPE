@@ -73,6 +73,21 @@
   tick();
   setInterval(tick, 1000 * 30);
 
+  /* ---- Battery indicator (demo: static %, fill scales to match) -------- */
+  // A real prototype can replace `pct` with navigator.getBattery() if desired.
+  (function () {
+    const pctEl = document.getElementById("battPct");
+    const fillEl = document.getElementById("battFill");
+    if (!pctEl || !fillEl) return;
+    const pct = Math.max(0, Math.min(100, parseInt(pctEl.textContent, 10) || 87));
+    pctEl.textContent = pct;
+    // The fill rect lives in a 24x13 viewBox; usable width ~18 (x=2..20).
+    const w = Math.round((pct / 100) * 18);
+    fillEl.setAttribute("width", String(w));
+    // Low-battery tint
+    fillEl.style.fill = pct <= 15 ? "var(--color-danger)" : "";
+  })();
+
   /* ---- Demo: counting list -------------------------------------------- */
   const list = document.getElementById("demoList");
   if (list) {

@@ -8,9 +8,9 @@
 
 | File           | What it is                                                         |
 |----------------|--------------------------------------------------------------------|
-| `index.html`   | Entry point: phone frame + 2 sample views (home, detail) + bottom nav. |
-| `styles.css`   | Design tokens + frame + components (appbar, card, list, buttons, bottom nav). |
-| `script.js`    | View routing (`data-goto`), theme toggle, live clock, demo list.   |
+| `index.html`   | Entry point: phone frame (36px corners, punch-hole) + 2 sample views + bottom nav. |
+| `styles.css`   | Design tokens + frame + status bar (signal/wifi/bt/battery) + components. |
+| `script.js`    | View routing (`data-goto`), theme toggle, live clock, battery fill, demo list. |
 | `navigation.md`| This file.                                                         |
 | `README.md`    | Short description of the template.                                 |
 

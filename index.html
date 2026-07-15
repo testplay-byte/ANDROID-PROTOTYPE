@@ -2,166 +2,567 @@
 <html lang="en" data-theme="light">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>ANDROID-PROTOTYPE — Mobile UI Prototypes</title>
-  <meta name="description" content="Interactive mobile UI prototypes, deployed via GitHub Pages." />
+  <meta name="description" content="Interactive, fully functional mobile UI prototypes — viewable in the browser, deployed via GitHub Pages." />
   <style>
+    /* =====================================================================
+       Design tokens — lifted from the approved AIO-STUFF reference palette.
+       Warm cream/beige light theme; inverted dark theme. Orange chart
+       accents. Do not swap to indigo/blue.
+       ===================================================================== */
     :root {
-      --bg: #0f172a;
-      --surface: #1e293b;
-      --surface-2: #273449;
-      --text: #f1f5f9;
-      --muted: #94a3b8;
-      --primary: #2dd4bf;
-      --primary-fg: #042f2e;
-      --border: #334155;
-      --radius: 14px;
+      --radius: 10px;            /* .625rem */
+      --background: #f2e8da;
+      --foreground: #1e1a13;
+      --card: #f9f2ea;
+      --card-foreground: #1e1a13;
+      --primary: #231e18;
+      --primary-foreground: #f9f2ea;
+      --secondary: #e9decf;
+      --secondary-foreground: #231e18;
+      --muted: #e9decf;
+      --muted-foreground: #5d574e;
+      --accent: #e8dccc;
+      --accent-foreground: #231e18;
+      --destructive: #de2024;
+      --border: #d7cec1;
+      --input: #d7cec1;
+      --ring: #807970;
+      --chart-1: #f05100;        /* orange */
+      --chart-2: #0fa05c;        /* green  */
+      --chart-3: #3d6a7f;        /* teal   */
+      --chart-4: #f2a618;        /* amber  */
+      --chart-5: #f0503d;        /* red    */
+      --shadow-sm: 0 1px 2px 0 rgba(35,30,24,.05);
+      --shadow-md: 0 4px 12px -2px rgba(35,30,24,.10);
     }
-    [data-theme="light"] {
-      --bg: #f8fafc;
-      --surface: #ffffff;
-      --surface-2: #f1f5f9;
-      --text: #0f172a;
-      --muted: #64748b;
-      --primary: #0d9488;
-      --primary-fg: #ffffff;
-      --border: #e2e8f0;
+    [data-theme="dark"] {
+      --background: #12100e;
+      --foreground: #ebe7e2;
+      --card: #1c1916;
+      --card-foreground: #ebe7e2;
+      --primary: #e1ddd8;
+      --primary-foreground: #181512;
+      --secondary: #282521;
+      --secondary-foreground: #ebe7e2;
+      --muted: #23201d;
+      --muted-foreground: #a29e98;
+      --accent: #2b2825;
+      --accent-foreground: #ebe7e2;
+      --destructive: #f75c61;
+      --border: rgba(54,50,46,.6);
+      --input: rgba(54,50,46,.6);
+      --ring: #75716b;
+      --chart-1: #fe6a00;
+      --chart-2: #43c07a;
+      --chart-3: #608da4;
+      --chart-4: #f0b135;
+      --chart-5: #f75f4c;
+      --shadow-sm: 0 1px 2px 0 rgba(0,0,0,.4);
+      --shadow-md: 0 4px 12px -2px rgba(0,0,0,.5);
     }
+
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      line-height: 1.6;
-      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: var(--background);
+      color: var(--foreground);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+      transition: background .25s ease, color .25s ease;
     }
-    .wrap { max-width: 920px; margin: 0 auto; padding: 48px 24px 96px; }
-    header { margin-bottom: 40px; }
-    .badge {
-      display: inline-flex; align-items: center; gap: 6px;
-      font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase;
-      color: var(--primary);
-      background: color-mix(in srgb, var(--primary) 14%, transparent);
-      padding: 4px 10px; border-radius: 999px;
-    }
-    h1 { font-size: clamp(28px, 5vw, 40px); margin: 16px 0 8px; letter-spacing: -.02em; }
-    .sub { color: var(--muted); font-size: 16px; max-width: 60ch; }
-    .toolbar { display: flex; justify-content: space-between; align-items: center; margin: 32px 0 16px; gap: 12px; flex-wrap: wrap; }
-    .toolbar h2 { margin: 0; font-size: 20px; }
-    .theme-btn {
-      background: var(--surface); color: var(--text); border: 1px solid var(--border);
-      border-radius: 999px; padding: 8px 14px; font-size: 13px; font-weight: 600; cursor: pointer;
-      transition: transform .12s ease, background .12s ease;
-    }
-    .theme-btn:hover { background: var(--surface-2); }
-    .theme-btn:active { transform: scale(.96); }
+    a { color: inherit; text-decoration: none; }
+    button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+    .wrap { max-width: 1120px; margin: 0 auto; padding: 0 24px; }
 
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
-    .card {
-      background: var(--surface);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 20px;
-      display: flex; flex-direction: column; gap: 10px;
-      text-decoration: none; color: inherit;
-      transition: transform .15s ease, border-color .15s ease, box-shadow .15s ease;
+    /* ---- Top navigation (split) ----------------------------------------- */
+    .topnav {
+      position: sticky; top: 0; z-index: 50;
+      background: color-mix(in srgb, var(--background) 85%, transparent);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
     }
-    .card:hover { transform: translateY(-2px); border-color: var(--primary); box-shadow: 0 12px 30px -18px rgba(0,0,0,.5); }
-    .card__thumb {
-      aspect-ratio: 9 / 16;
-      background: var(--surface-2);
-      border-radius: 10px;
-      display: grid; place-items: center;
-      color: var(--muted);
-      font-size: 13px;
-      overflow: hidden;
+    .topnav__inner {
+      max-width: 1120px; margin: 0 auto; padding: 0 24px;
+      height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
     }
-    .card__title { font-size: 16px; font-weight: 700; margin: 0; }
-    .card__desc { font-size: 13px; color: var(--muted); margin: 0; }
-    .card__meta { display: flex; gap: 8px; align-items: center; margin-top: auto; font-size: 12px; }
-    .pill { padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--muted); border: 1px solid var(--border); }
+    .brand { display: inline-flex; align-items: center; gap: 10px; }
+    .brand__logo {
+      display: inline-flex; width: 36px; height: 36px; align-items: center; justify-content: center;
+      border-radius: 10px; background: var(--primary); color: var(--primary-foreground);
+      transition: transform .15s ease;
+    }
+    .brand:hover .brand__logo { transform: scale(1.05); }
+    .brand__text { display: flex; flex-direction: column; line-height: 1; }
+    .brand__name { font-size: 15px; font-weight: 700; letter-spacing: -.01em; }
+    .brand__sub { margin-top: 3px; font-size: 11px; color: var(--muted-foreground); }
+    .topnav__right { display: inline-flex; align-items: center; gap: 6px; }
+    .navbtn {
+      display: inline-flex; height: 36px; align-items: center; gap: 8px;
+      border-radius: 10px; padding: 0 12px; font-size: 14px; font-weight: 500;
+      color: var(--foreground); transition: background .15s ease, color .15s ease;
+    }
+    .navbtn:hover { background: var(--accent); color: var(--accent-foreground); }
+    .navbtn--icon { width: 36px; padding: 0; justify-content: center; }
+    .navbtn .lbl { display: none; }
+    @media (min-width: 640px) { .navbtn .lbl { display: inline; } }
 
-    .empty {
-      border: 1px dashed var(--border);
-      border-radius: var(--radius);
-      padding: 32px;
-      text-align: center;
-      color: var(--muted);
+    /* ---- Hero ----------------------------------------------------------- */
+    .hero { padding: 64px 0 24px; }
+    .eyebrow {
+      display: inline-block; margin: 0 0 12px;
+      font-size: 13px; font-weight: 600; color: var(--muted-foreground);
     }
-    .links { margin-top: 40px; display: flex; gap: 16px; flex-wrap: wrap; }
-    .links a { color: var(--primary); text-decoration: none; font-weight: 600; font-size: 14px; }
+    .hero h1 {
+      margin: 0; font-size: clamp(30px, 5vw, 48px); line-height: 1.08;
+      font-weight: 700; letter-spacing: -.025em; max-width: 16ch;
+    }
+    .hero__lead {
+      margin: 18px 0 0; max-width: 62ch; font-size: clamp(15px, 1.6vw, 18px);
+      color: var(--muted-foreground); line-height: 1.6;
+    }
+
+    /* ---- Stat cards (4-up) --------------------------------------------- */
+    .stats {
+      margin-top: 28px;
+      display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px;
+    }
+    @media (min-width: 900px) { .stats { grid-template-columns: repeat(4, 1fr); } }
+    .stat {
+      display: flex; flex-direction: column; gap: 8px;
+      border: 1px solid var(--border); background: var(--card);
+      border-radius: 12px; padding: 18px;
+    }
+    .stat__head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .stat__icon {
+      display: inline-flex; width: 32px; height: 32px; align-items: center; justify-content: center;
+      border-radius: 8px; background: var(--secondary); color: var(--secondary-foreground);
+    }
+    .stat__label {
+      font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .06em;
+      color: var(--muted-foreground);
+    }
+    .stat__value { display: flex; align-items: baseline; gap: 6px; }
+    .stat__num { font-size: 26px; font-weight: 700; letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+    .stat__hint { font-size: 12px; color: var(--muted-foreground); }
+
+    /* ---- Two-up: bars + donut ------------------------------------------ */
+    .twoup { margin-top: 16px; display: grid; grid-template-columns: 1fr; gap: 16px; }
+    @media (min-width: 900px) { .twoup { grid-template-columns: 1fr 1fr; } }
+    .panel {
+      border: 1px solid var(--border); background: var(--card);
+      border-radius: 12px; padding: 24px; display: flex; flex-direction: column;
+    }
+    .panel__head { margin-bottom: 16px; display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+    .panel__title { margin: 0; font-size: 14px; font-weight: 600; letter-spacing: -.01em; }
+    .panel__hint { font-size: 11px; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+
+    /* bars */
+    .bars { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 12px; }
+    .bar { display: flex; align-items: center; gap: 12px; }
+    .bar__icon {
+      display: inline-flex; width: 24px; height: 24px; flex: 0 0 auto;
+      align-items: center; justify-content: center; border-radius: 6px;
+      background: var(--muted); color: var(--muted-foreground);
+    }
+    .bar__label { width: 112px; flex: 0 0 auto; font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .bar__track { flex: 1 1 auto; height: 8px; border-radius: 999px; background: var(--muted); overflow: hidden; }
+    .bar__fill { height: 100%; border-radius: 999px; transition: width .6s cubic-bezier(.2,.7,.2,1); }
+    .bar__count { width: 24px; flex: 0 0 auto; text-align: right; font-size: 13px; font-variant-numeric: tabular-nums; color: var(--muted-foreground); }
+
+    /* donut */
+    .donut-wrap { display: flex; flex: 1; flex-direction: column; align-items: center; gap: 20px; }
+    @media (min-width: 560px) { .donut-wrap { flex-direction: row; align-items: center; gap: 24px; } }
+    .donut { position: relative; width: 180px; height: 180px; flex: 0 0 auto; }
+    .donut svg { transform: rotate(-90deg); }
+    .donut__center {
+      position: absolute; inset: 0; display: flex; flex-direction: column;
+      align-items: center; justify-content: center; pointer-events: none;
+    }
+    .donut__num { font-size: 24px; font-weight: 700; font-variant-numeric: tabular-nums; }
+    .donut__cap { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; color: var(--muted-foreground); }
+    .legend { list-style: none; margin: 0; padding: 0; flex: 1; width: 100%; display: flex; flex-direction: column; gap: 6px; }
+    .legend__row { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+    .legend__dot { width: 12px; height: 12px; border-radius: 999px; flex: 0 0 auto; }
+    .legend__name { flex: 1; font-weight: 500; }
+    .legend__val { font-variant-numeric: tabular-nums; color: var(--muted-foreground); }
+
+    /* ---- CTA ----------------------------------------------------------- */
+    .cta { margin: 32px 0 0; display: flex; flex-direction: column; gap: 12px; }
+    @media (min-width: 640px) { .cta { flex-direction: row; align-items: center; gap: 16px; } }
+    .cta__btn {
+      display: inline-flex; height: 48px; align-items: center; gap: 10px;
+      border-radius: 12px; background: var(--primary); color: var(--primary-foreground);
+      padding: 0 24px; font-size: 16px; font-weight: 600; box-shadow: var(--shadow-sm);
+      transition: background .15s ease, box-shadow .15s ease, transform .12s ease;
+    }
+    .cta__btn:hover { background: color-mix(in srgb, var(--primary) 90%, var(--foreground)); box-shadow: var(--shadow-md); }
+    .cta__btn:active { transform: translateY(1px); }
+    .cta__btn svg { transition: transform .15s ease; }
+    .cta__btn:hover svg { transform: translateX(3px); }
+    .cta__note { font-size: 14px; color: var(--muted-foreground); }
+
+    /* ---- Section divider ----------------------------------------------- */
+    .section { padding: 56px 0 24px; }
+    .section__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 24px; }
+    .section__title { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -.02em; }
+    .section__hint { font-size: 13px; color: var(--muted-foreground); }
+
+    /* ---- Prototype showcase cards -------------------------------------- */
+    /* Phone silhouette in the center, info panels on the left and right
+       (per feedback). Collapses to a vertical stack on small screens.     */
+    .showcase { display: flex; flex-direction: column; gap: 24px; }
+    .show {
+      border: 1px solid var(--border); background: var(--card);
+      border-radius: 16px; padding: 24px;
+      display: grid; grid-template-columns: 1fr; gap: 20px;
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+    .show:hover { border-color: var(--ring); box-shadow: var(--shadow-md); }
+    @media (min-width: 760px) { .show { grid-template-columns: 1fr auto 1fr; align-items: center; gap: 28px; } }
+
+    .show__info { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+    .show__info--right { align-items: flex-start; }
+    @media (min-width: 760px) { .show__info--right { align-items: flex-end; text-align: right; } }
+
+    .show__name { margin: 0; font-size: 18px; font-weight: 700; letter-spacing: -.01em; }
+    .show__desc { margin: 0; font-size: 13px; color: var(--muted-foreground); line-height: 1.55; max-width: 42ch; }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+    @media (min-width: 760px) { .show__info--right .tags { justify-content: flex-end; } }
+    .tag {
+      font-size: 11px; font-weight: 600; padding: 3px 9px; border-radius: 999px;
+      background: var(--secondary); color: var(--secondary-foreground); border: 1px solid var(--border);
+    }
+    .tag--status { background: color-mix(in srgb, var(--chart-1) 16%, transparent); color: var(--chart-1); border-color: transparent; }
+
+    .kv { display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
+    .kv__row { display: flex; align-items: center; gap: 8px; color: var(--muted-foreground); }
+    @media (min-width: 760px) { .show__info--right .kv__row { justify-content: flex-end; } }
+    .kv__row b { color: var(--foreground); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+    .openlink {
+      margin-top: 4px; display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; font-weight: 600; color: var(--chart-1);
+    }
+    .openlink svg { transition: transform .15s ease; }
+    .openlink:hover svg { transform: translateX(3px); }
+
+    /* the phone silhouette (decorative) */
+    .phone {
+      width: 150px; height: 300px; flex: 0 0 auto; position: relative; margin: 0 auto;
+      background: linear-gradient(160deg, var(--secondary), var(--accent));
+      border: 8px solid var(--primary); border-radius: 26px;
+      box-shadow: var(--shadow-md); overflow: hidden; cursor: pointer;
+      transition: transform .2s ease;
+    }
+    .phone:hover { transform: translateY(-3px); }
+    .phone__screen { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 10px 8px; gap: 6px; }
+    .phone__statusbar { display: flex; justify-content: space-between; align-items: center; height: 14px; padding: 0 4px; font-size: 7px; font-weight: 700; color: var(--foreground); }
+    .phone__punchhole { width: 5px; height: 5px; border-radius: 50%; background: var(--primary); }
+    .phone__appbar { height: 14px; border-radius: 3px; background: color-mix(in srgb, var(--foreground) 10%, transparent); }
+    .phone__line { height: 7px; border-radius: 3px; background: color-mix(in srgb, var(--foreground) 8%, transparent); }
+    .phone__line--w70 { width: 70%; }
+    .phone__line--w50 { width: 50%; }
+    .phone__card { margin-top: 2px; border-radius: 5px; background: color-mix(in srgb, var(--foreground) 6%, transparent); padding: 5px; display: flex; flex-direction: column; gap: 4px; }
+    .phone__pill { height: 12px; width: 40px; border-radius: 999px; background: var(--chart-1); align-self: flex-start; }
+    .phone__nav { margin-top: auto; height: 16px; border-top: 1px solid color-mix(in srgb, var(--foreground) 10%, transparent); display: flex; align-items: center; justify-content: space-around; }
+    .phone__nav span { width: 8px; height: 8px; border-radius: 2px; background: color-mix(in srgb, var(--foreground) 20%, transparent); }
+    .phone__nav span:first-child { background: var(--chart-1); }
+
+    /* ---- Links strip --------------------------------------------------- */
+    .links { margin-top: 40px; display: flex; flex-wrap: wrap; gap: 20px; }
+    .links a { display: inline-flex; align-items: center; gap: 6px; font-size: 14px; font-weight: 600; color: var(--chart-1); }
     .links a:hover { text-decoration: underline; }
-    footer { margin-top: 64px; color: var(--muted); font-size: 12px; }
+
+    /* ---- Footer -------------------------------------------------------- */
+    footer { margin-top: 72px; border-top: 1px solid var(--border); padding: 28px 0; color: var(--muted-foreground); font-size: 12px; }
+    footer .wrap { display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between; align-items: center; }
+
+    /* ---- Empty state --------------------------------------------------- */
+    .empty {
+      border: 1px dashed var(--border); border-radius: 16px; padding: 36px;
+      text-align: center; color: var(--muted-foreground); font-size: 14px;
+    }
+
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <span class="badge">● Mobile UI Prototypes</span>
-      <h1>ANDROID-PROTOTYPE</h1>
-      <p class="sub">Interactive, fully functional mobile app UI prototypes — viewable in the browser, deployed via GitHub Pages. Each prototype is a real, clickable interface, not a static screenshot.</p>
-    </header>
 
-    <div class="toolbar">
-      <h2>Prototypes</h2>
-      <button class="theme-btn" id="themeBtn" aria-label="Toggle theme">◐ Theme</button>
-    </div>
-
-    <!--
-      PROTOTYPE GALLERY
-      To add a prototype, copy a <a class="card">…</a> block and update:
-      href, title, description, thumb, status pill.
-      Keep this in sync with prototypes/navigation.md.
-    -->
-    <div class="grid" id="grid">
-      <a class="card" href="prototypes/_template/">
-        <div class="card__thumb">
-          <span>📱 phone frame</span>
-        </div>
-        <h3 class="card__title">Starter Template</h3>
-        <p class="card__desc">The scaffold every new prototype is copied from. Phone frame, 2 views, bottom nav, theme toggle.</p>
-        <div class="card__meta">
-          <span class="pill">reference</span>
-          <span class="pill">HTML/CSS/JS</span>
-        </div>
+  <!-- =================== Top navigation (split) =================== -->
+  <header class="topnav">
+    <div class="topnav__inner">
+      <a class="brand" href="./" aria-label="ANDROID-PROTOTYPE home">
+        <span class="brand__logo" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="6" y="2" width="12" height="20" rx="3"/>
+            <path d="M11 18h2"/>
+            <path d="M9 6h6"/>
+          </svg>
+        </span>
+        <span class="brand__text">
+          <span class="brand__name">ANDROID-PROTOTYPE</span>
+          <span class="brand__sub">mobile UI · prototypes · design</span>
+        </span>
       </a>
-
-      <!-- New prototypes go here. Example:
-      <a class="card" href="prototypes/food-delivery-checkout/">
-        <div class="card__thumb"><span>🛒 checkout</span></div>
-        <h3 class="card__title">Food Delivery Checkout</h3>
-        <p class="card__desc">Cart → address → payment → confirmation flow.</p>
-        <div class="card__meta"><span class="pill">review</span><span class="pill">HTML/CSS/JS</span></div>
-      </a>
-      -->
+      <nav class="topnav__right" aria-label="Site">
+        <a class="navbtn" href="https://github.com/testplay-byte/ANDROID-PROTOTYPE" target="_blank" rel="noopener noreferrer" aria-label="GitHub repository">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+          <span class="lbl">Repo</span>
+        </a>
+        <button class="navbtn navbtn--icon" id="themeBtn" aria-label="Switch to dark mode">
+          <svg id="iconSun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+          <svg id="iconMoon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+      </nav>
     </div>
+  </header>
 
-    <div class="empty" id="emptyNote" hidden>
-      No real prototypes yet. The first one will appear here once built.
+  <main class="wrap">
+
+    <!-- =================== Hero =================== -->
+    <section class="hero" id="top">
+      <p class="eyebrow">A curated, navigable prototype workspace</p>
+      <h1>Interactive mobile UI prototypes, live in your browser.</h1>
+      <p class="hero__lead">A growing set of fully functional mobile app interfaces — real, clickable screens with navigation, state, and theming — built to validate look-and-feel on the web before committing to a native Android build. Every prototype is self-contained and deployed via GitHub Pages.</p>
+
+      <!-- 4 stat cards -->
+      <div class="stats">
+        <div class="stat">
+          <div class="stat__head">
+            <span class="stat__icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></svg></span>
+            <span class="stat__label">Prototypes</span>
+          </div>
+          <div class="stat__value"><span class="stat__num">1</span><span class="stat__hint">and growing</span></div>
+        </div>
+        <div class="stat">
+          <div class="stat__head">
+            <span class="stat__icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></span>
+            <span class="stat__label">Screens</span>
+          </div>
+          <div class="stat__value"><span class="stat__num">2</span><span class="stat__hint">in template</span></div>
+        </div>
+        <div class="stat">
+          <div class="stat__head">
+            <span class="stat__icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z"/><path d="M12 22V12"/><path d="m3.3 7 8.7 5 8.7-5"/></svg></span>
+            <span class="stat__label">Components</span>
+          </div>
+          <div class="stat__value"><span class="stat__num">6</span><span class="stat__hint">reusable</span></div>
+        </div>
+        <div class="stat">
+          <div class="stat__head">
+            <span class="stat__icon" aria-hidden="true"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg></span>
+            <span class="stat__label">Last updated</span>
+          </div>
+          <div class="stat__value"><span class="stat__num">2025-01-15</span></div>
+        </div>
+      </div>
+
+      <!-- two-up: bars + donut -->
+      <div class="twoup">
+        <!-- Bars: template feature categories -->
+        <div class="panel">
+          <div class="panel__head">
+            <h2 class="panel__title">Template features by category</h2>
+            <span class="panel__hint">21 total · hover for detail</span>
+          </div>
+          <ul class="bars">
+            <li class="bar" title="Status bar: time, punch-hole, signal, Wi-Fi, Bluetooth, battery — 6 features">
+              <span class="bar__icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 22h2v-6H2zM6 22h2V10H6zM10 22h2V2h-2zM14 22h2v-9h-2zM18 22h2V6h-2z"/></svg></span>
+              <span class="bar__label">Status bar</span>
+              <span class="bar__track"><span class="bar__fill" style="width:100%;background:var(--chart-1)"></span></span>
+              <span class="bar__count">6</span>
+            </li>
+            <li class="bar" title="Frame & layout: device shell, status bar, app bar, content, bottom nav — 5 features">
+              <span class="bar__icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="6" y="2" width="12" height="20" rx="3"/></svg></span>
+              <span class="bar__label">Frame & layout</span>
+              <span class="bar__track"><span class="bar__fill" style="width:83%;background:var(--chart-4)"></span></span>
+              <span class="bar__count">5</span>
+            </li>
+            <li class="bar" title="Components: button, card, list, badge, appbar, bottomnav — 6 features">
+              <span class="bar__icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></span>
+              <span class="bar__label">Components</span>
+              <span class="bar__track"><span class="bar__fill" style="width:100%;background:var(--chart-2)"></span></span>
+              <span class="bar__count">6</span>
+            </li>
+            <li class="bar" title="Theming: light/dark tokens, persisted toggle — 2 features">
+              <span class="bar__icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+              <span class="bar__label">Theming</span>
+              <span class="bar__track"><span class="bar__fill" style="width:33%;background:var(--chart-3)"></span></span>
+              <span class="bar__count">2</span>
+            </li>
+            <li class="bar" title="Accessibility: semantic HTML, keyboard nav, reduced-motion, ARIA — 2 features">
+              <span class="bar__icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16h.01"/></svg></span>
+              <span class="bar__label">Accessibility</span>
+              <span class="bar__track"><span class="bar__fill" style="width:33%;background:var(--chart-5)"></span></span>
+              <span class="bar__count">2</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Donut: repo file mix -->
+        <div class="panel">
+          <div class="panel__head">
+            <h2 class="panel__title">Repository file mix</h2>
+            <span class="panel__hint">share of 19 files · hover a slice</span>
+          </div>
+          <div class="donut-wrap">
+            <div class="donut" role="img" aria-label="Repository file distribution">
+              <svg width="180" height="180" viewBox="0 0 180 180">
+                <circle cx="90" cy="90" r="76" fill="none" stroke="var(--muted)" stroke-width="28"/>
+                <!-- Markdown 12/19 = 63.2% -->
+                <circle cx="90" cy="90" r="76" fill="none" stroke="var(--chart-1)" stroke-width="28" stroke-dasharray="301.6 477.5" stroke-dashoffset="0"/>
+                <!-- HTML 2/19 = 10.5% -->
+                <circle cx="90" cy="90" r="76" fill="none" stroke="var(--chart-4)" stroke-width="28" stroke-dasharray="50.3 477.5" stroke-dashoffset="-301.6"/>
+                <!-- CSS 1/19 = 5.3% -->
+                <circle cx="90" cy="90" r="76" fill="none" stroke="var(--chart-2)" stroke-width="28" stroke-dasharray="25.1 477.5" stroke-dashoffset="-351.9"/>
+                <!-- JS 1/19 = 5.3% -->
+                <circle cx="90" cy="90" r="76" fill="none" stroke="var(--chart-3)" stroke-width="28" stroke-dasharray="25.1 477.5" stroke-dashoffset="-377.0"/>
+                <!-- YAML 1/19 = 5.3% -->
+                <circle cx="90" cy="90" r="76" fill="none" stroke="var(--chart-5)" stroke-width="28" stroke-dasharray="25.1 477.5" stroke-dashoffset="-402.1"/>
+                <!-- Other 2/19 = 10.5% -->
+                <circle cx="90" cy="90" r="76" fill="none" stroke="var(--ring)" stroke-width="28" stroke-dasharray="50.3 477.5" stroke-dashoffset="-427.2"/>
+              </svg>
+              <div class="donut__center">
+                <span class="donut__num">19</span>
+                <span class="donut__cap">files</span>
+              </div>
+            </div>
+            <ul class="legend">
+              <li class="legend__row"><span class="legend__dot" style="background:var(--chart-1)"></span><span class="legend__name">Markdown</span><span class="legend__val">12</span></li>
+              <li class="legend__row"><span class="legend__dot" style="background:var(--chart-4)"></span><span class="legend__name">HTML</span><span class="legend__val">2</span></li>
+              <li class="legend__row"><span class="legend__dot" style="background:var(--chart-2)"></span><span class="legend__name">CSS</span><span class="legend__val">1</span></li>
+              <li class="legend__row"><span class="legend__dot" style="background:var(--chart-3)"></span><span class="legend__name">JavaScript</span><span class="legend__val">1</span></li>
+              <li class="legend__row"><span class="legend__dot" style="background:var(--chart-5)"></span><span class="legend__name">YAML config</span><span class="legend__val">1</span></li>
+              <li class="legend__row"><span class="legend__dot" style="background:var(--ring)"></span><span class="legend__name">Other</span><span class="legend__val">2</span></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- CTA -->
+      <div class="cta">
+        <a class="cta__btn" href="#prototypes">Browse prototypes
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+        </a>
+        <p class="cta__note">Open any prototype to see a live, interactive phone-frame UI. The first real prototype lands here as soon as you send a brief.</p>
+      </div>
+    </section>
+
+    <!-- =================== Prototypes gallery =================== -->
+    <section class="section" id="prototypes">
+      <div class="section__head">
+        <h2 class="section__title">Prototypes</h2>
+        <span class="section__hint">live & interactive — click a phone to open</span>
+      </div>
+
+      <div class="showcase">
+        <!--
+          PROTOTYPE SHOWCASE CARD
+          Layout: [left info] [phone silhouette] [right info]
+          To add a prototype, copy this <article> and update the fields.
+          Keep in sync with prototypes/navigation.md.
+        -->
+        <article class="show">
+          <!-- LEFT info -->
+          <div class="show__info show__info--left">
+            <span class="tag tag--status">reference</span>
+            <h3 class="show__name">Starter Template</h3>
+            <p class="show__desc">The scaffold every new prototype is copied from. A real, clickable phone frame with two switchable views, bottom navigation, dark/light theming, and a live status bar.</p>
+            <div class="tags">
+              <span class="tag">HTML</span>
+              <span class="tag">CSS</span>
+              <span class="tag">JS</span>
+            </div>
+          </div>
+
+          <!-- CENTER phone silhouette (links to the prototype) -->
+          <a class="phone" href="prototypes/_template/" aria-label="Open Starter Template prototype">
+            <span class="phone__screen">
+              <span class="phone__statusbar"><span>9:41</span><span class="phone__punchhole"></span><span>87%</span></span>
+              <span class="phone__appbar"></span>
+              <span class="phone__line phone__line--w70"></span>
+              <span class="phone__line"></span>
+              <span class="phone__line phone__line--w50"></span>
+              <span class="phone__card">
+                <span class="phone__pill"></span>
+                <span class="phone__line phone__line--w70"></span>
+                <span class="phone__line phone__line--w50"></span>
+              </span>
+              <span class="phone__nav"><span></span><span></span><span></span><span></span></span>
+            </span>
+          </a>
+
+          <!-- RIGHT info -->
+          <div class="show__info show__info--right">
+            <div class="kv">
+              <div class="kv__row"><b>2</b>&nbsp;screens</div>
+              <div class="kv__row"><b>6</b>&nbsp;components</div>
+              <div class="kv__row">updated&nbsp;<b>2025-01-15</b></div>
+            </div>
+            <a class="openlink" href="prototypes/_template/">Open prototype
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+          </div>
+        </article>
+
+        <!-- New prototypes go here. Example:
+        <article class="show">
+          <div class="show__info show__info--left">
+            <span class="tag tag--status">review</span>
+            <h3 class="show__name">Food Delivery Checkout</h3>
+            <p class="show__desc">Cart → address → payment → confirmation flow.</p>
+            <div class="tags"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JS</span></div>
+          </div>
+          <a class="phone" href="prototypes/food-delivery-checkout/"> … </a>
+          <div class="show__info show__info--right"> … </div>
+        </article>
+        -->
+      </div>
+
+      <div class="empty" id="emptyNote" hidden>
+        No real prototypes yet — the first one will appear here once built.
+      </div>
+
+      <div class="links">
+        <a href="STARTUP.md">📋 Startup guide</a>
+        <a href="navigation.md">🧭 Navigation map</a>
+        <a href="prototypes/navigation.md">🗂 Prototype index</a>
+        <a href="docs/workflow.md">⚙️ Workflow</a>
+        <a href="docs/template-rules.md">📐 Template rules</a>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <span>ANDROID-PROTOTYPE · maintained as an AI-navigable workspace. Every directory has a <code>navigation.md</code>.</span>
+      <span><a href="https://github.com/testplay-byte/ANDROID-PROTOTYPE" target="_blank" rel="noopener" style="color:var(--chart-1);font-weight:600">Source on GitHub →</a></span>
     </div>
-
-    <div class="links">
-      <a href="STARTUP.md">📋 Startup guide</a>
-      <a href="navigation.md">🧭 Navigation map</a>
-      <a href="prototypes/navigation.md">🗂 Prototype index</a>
-      <a href="docs/workflow.md">⚙️ Workflow</a>
-      <a href="https://github.com/testplay-byte/ANDROID-PROTOTYPE">📦 Source on GitHub</a>
-    </div>
-
-    <footer>
-      Maintained as an AI-navigable workspace. Every directory has a <code>navigation.md</code>.
-    </footer>
-  </div>
+  </footer>
 
   <script>
     (function () {
-      const root = document.documentElement;
-      const btn = document.getElementById("themeBtn");
-      function set(t) { root.setAttribute("data-theme", t); try { localStorage.setItem("gallery-theme", t); } catch (e) {} }
-      try { const s = localStorage.getItem("gallery-theme"); if (s) set(s); } catch (e) {}
+      "use strict";
+      var root = document.documentElement;
+      var btn = document.getElementById("themeBtn");
+      var sun = document.getElementById("iconSun");
+      var moon = document.getElementById("iconMoon");
+
+      function setTheme(t) {
+        root.setAttribute("data-theme", t);
+        btn.setAttribute("aria-label", t === "dark" ? "Switch to light mode" : "Switch to dark mode");
+        sun.style.display = t === "dark" ? "none" : "block";
+        moon.style.display = t === "dark" ? "block" : "none";
+        try { localStorage.setItem("gallery-theme", t); } catch (e) {}
+      }
+      try { var s = localStorage.getItem("gallery-theme"); if (s) setTheme(s); } catch (e) {}
       btn.addEventListener("click", function () {
-        set(root.getAttribute("data-theme") === "dark" ? "light" : "dark");
+        setTheme(root.getAttribute("data-theme") === "dark" ? "light" : "dark");
       });
     })();
   </script>

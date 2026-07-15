@@ -87,11 +87,17 @@ ul { margin: 0; padding: 0; list-style: none; }
   width: 390px;
   height: 844px;
   background: var(--color-bg);
-  border-radius: 44px;
-  box-shadow: 0 0 0 11px #0c0c0e, 0 0 0 12px #2a2a2e, 0 30px 60px -20px rgba(0,0,0,.6);
+  border-radius: 36px;            /* slightly less rounded per feedback */
+  box-shadow: 0 0 0 10px #0c0c0e, 0 0 0 11px #2a2a2e, 0 30px 60px -20px rgba(0,0,0,.6);
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  /* Chrome (status bar, app bar, bottom nav, buttons) is never selectable.
+     Only .content text below is selectable. Prevents drag-to-copy when
+     pressing a button and dragging. See docs/template-rules.md §text-selection. */
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 /* collapse to full screen on real mobile */
@@ -107,17 +113,54 @@ ul { margin: 0; padding: 0; list-style: none; }
 
 /* ---- Status bar -------------------------------------------------------- */
 .statusbar {
-  height: 44px;
-  padding: 0 var(--space-xl);
+  position: relative;
+  height: 40px;
+  padding: 0 var(--space-lg);
   display: flex;
   align-items: center;
   justify-content: space-between;
-  font-size: var(--fs-subtitle);
+  font-size: 13px;
   font-weight: 600;
+  letter-spacing: .01em;
   flex: 0 0 auto;
   color: var(--color-text);
+  z-index: 4;
 }
-.statusbar__icons { display: inline-flex; gap: var(--space-sm); align-items: center; }
+.statusbar__time { font-variant-numeric: tabular-nums; min-width: 44px; }
+
+/* Punch-hole front camera, centered in the status bar */
+.statusbar__punchhole {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #2b2b30 0%, #060608 70%);
+  box-shadow: inset 0 0 0 .5px rgba(255,255,255,.06), 0 0 0 .5px rgba(0,0,0,.5);
+  pointer-events: none;
+}
+
+.statusbar__icons {
+  display: inline-flex;
+  gap: 6px;
+  align-items: center;
+}
+.statusbar__icons .ic { display: block; }
+
+/* Battery group: percentage + glyph */
+.battery {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+  font-size: 12px;
+  font-weight: 600;
+}
+.battery__pct-sign { opacity: .7; margin-left: -1px; }
+.battery .ic-batt { color: var(--color-text); }
+.battery__fill { fill: var(--color-text); }
 
 /* ---- Screen viewport --------------------------------------------------- */
 .screen {
@@ -175,6 +218,9 @@ ul { margin: 0; padding: 0; list-style: none; }
   display: flex;
   flex-direction: column;
   gap: var(--space-lg);
+  /* Actual screen content stays selectable so users can copy text. */
+  user-select: text;
+  -webkit-user-select: text;
 }
 .eyebrow {
   margin: 0;
@@ -239,6 +285,9 @@ code {
   gap: var(--space-sm);
   transition: transform var(--dur-fast) var(--ease), background var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease);
   align-self: flex-start;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
 }
 .btn:active { transform: scale(.97); }
 .btn--primary { background: var(--color-primary); color: var(--color-primary-fg); }
@@ -264,6 +313,8 @@ code {
   border-bottom: 1px solid var(--color-border);
   cursor: pointer;
   transition: background var(--dur-fast) var(--ease);
+  user-select: none;
+  -webkit-user-select: none;
 }
 .list__row:last-child { border-bottom: none; }
 .list__row:active { background: var(--color-surface); }

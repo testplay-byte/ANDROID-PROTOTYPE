@@ -1,6 +1,33 @@
 # docs/notification-protocol.md — ntfy.sh Notification Protocol
 
-> **Mandatory.** Every task completion triggers a notification to the user via ntfy.sh.
+> **MANDATORY MEMORY FILE.** This is the single source of truth for *how to notify the user*.
+> Any AI agent working in this repo **must** read this file and follow it on **every** task completion.
+> Do not invent your own format. Do not skip notifications. This file is the rule.
+
+---
+
+## ⚠️ ALWAYS REMEMBER (the 30-second version)
+
+1. **Every task you complete — big or small — sends a notification.** No exceptions.
+2. **Topic:** `TASKISDONE` → endpoint `https://ntfy.sh/TASKISDONE`
+3. **Format:** line 1 = **exactly 8 emojis** of one color. Line 2 = blank. Line 3+ = your message.
+4. **Colors:** 🟩 success · 🟥 error · 🟦 paused/need input · 🟧 processing.
+5. **Send with `curl`** (command template below — copy, edit the body, run).
+
+### Copy-paste command (success)
+```bash
+curl -H "Title: ANDROID-PROTOTYPE" -H "Tags: white_check_mark" \
+  -d "🟩🟩🟩🟩🟩🟩🟩🟩
+
+Task complete: <one-line summary>.
+- <what you did>
+- <where: file/URL>
+- <what's next>
+Live: <URL if relevant>" \
+  https://ntfy.sh/TASKISDONE
+```
+
+That's it. Read the rest of this file only if you need the error/paused/processing variants or the rationale.
 
 ---
 

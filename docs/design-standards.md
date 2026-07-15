@@ -7,14 +7,16 @@
 ## 1. The phone frame
 
 - **Viewport size:** 390 × 844 px (a common modern phone viewport).
-- **Device shell:** rounded corners (~40px), subtle border + shadow on desktop.
-- **Status bar:** 44px tall, shows time / signal / battery. Decorative only.
+- **Device shell:** rounded corners **36px** (slightly less rounded, per feedback), 10px dark bezel + 1px edge, soft drop shadow on desktop.
+- **Status bar:** 40px tall, decorative only. Layout left→center→right: `[ time ] [ ● punch-hole camera ] [ signal · wifi · bluetooth · battery% ]`. See `docs/template-rules.md` §2 for the full spec.
+- **Punch-hole:** 11px centered circle mimicking the front camera.
+- **Battery:** percentage + glyph; fill width scales to the %; tints danger below 15%.
 - **Screen area:** fills the rest; scrolls independently; overflow hidden on the shell.
 - **Bottom safe area:** 34px reserved for gestures / home indicator.
-- **Desktop preview:** device centered, max-width ~420px, vertically centered with page background.
+- **Desktop preview:** device centered, neutral gray page background so attention stays on the device.
 - **Mobile preview:** frame collapses to full viewport (no device chrome) so it feels native.
 
-The template in `prototypes/_template/` implements this. Copy it; don't reinvent.
+The template in `prototypes/_template/` implements this. Copy it; don't reinvent. Authoritative rules live in `docs/template-rules.md`.
 
 ---
 
