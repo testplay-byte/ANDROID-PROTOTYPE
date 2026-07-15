@@ -13,7 +13,8 @@
 | `design-standards.md`         | Mobile UI/UX standards: spacing, type scale, color, touch targets, the phone frame. |
 | `github-pages.md`             | How deployment works, how to find live URLs, how to troubleshoot.    |
 | `notification-protocol.md`    | **MANDATORY MEMORY FILE.** The ntfy.sh protocol: topic, colors, format, copy-paste commands. |
-| `template-rules.md`           | The rules every prototype built from `_template/` must follow (frame, status bar, text-selection). |
+| `preferences.md`              | **MANDATORY MEMORY FILE.** All accumulated user design preferences. Read before designing anything. |
+| `template-rules.md`           | The rules every prototype built from `_template/` must follow (frame, status bar, text-selection, scrollbar, mobile). |
 | `git-conventions.md`          | Branch, commit message, and PR conventions.                         |
 
 ---

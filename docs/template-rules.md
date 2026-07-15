@@ -11,8 +11,8 @@
 | Spec                  | Value                                       |
 |-----------------------|---------------------------------------------|
 | Viewport              | 390 × 844 px                                |
-| Device corner radius  | **28px** (less rounded, per feedback)       |
-| Bezel                 | **5px** dark ring + 1px edge (thinner, per feedback) |
+| Device corner radius  | **32px**                                     |
+| Bezel                 | **3px** dark ring + 0.5px edge (thin, per feedback) |
 | Device shadow         | soft drop shadow for depth on desktop       |
 | Desktop stage         | centered, warm-cream background; side info panels on left & right |
 | Mobile (<480px)       | frame collapses to full viewport, no chrome |
@@ -40,8 +40,8 @@ The status bar is **decorative** — it sells the "this is a phone" illusion. It
 
 ### 2.3 System icons (right), in this order (left to right)
 1. **Wi-Fi** — 3 arcs total. **2 of 3 bright** (outermost arc dim). Represents a moderate connection.
-2. **Mobile data signal** — 4 bars total. **2 of 4 bright** (the two taller bars; the two shorter bars are dim). Represents ~50% signal strength.
-3. **Battery** — **portrait (vertical) orientation**. A vertical rectangle with a nub at the top and a fill that grows from the bottom.
+2. **Mobile data signal** — 4 bars total. **LEFT 2 bars bright** (the two shorter bars on the left); **RIGHT 2 bars dim** (the two taller bars on the right, `opacity: 0.3`). Represents a weak/moderate connection.
+3. **Battery** — **portrait (vertical) orientation**, small (8×16px). A vertical rectangle with a nub at the top and a fill that grows from the bottom.
 4. **Battery percentage** — shown **to the right** of the battery glyph (e.g., `87%`).
 
 > **No Bluetooth icon.** Removed per feedback.
@@ -102,17 +102,30 @@ The status bar is **decorative** — it sells the "this is a phone" illusion. It
 
 ---
 
-## 6. Layout anatomy (top → bottom inside the device)
+## 6. Scrollbar handling
 
-1. Status bar (40px) — decorative, non-selectable.
-2. App bar (56px) — screen title + actions, sticky, non-selectable.
-3. Content (flex, scrollable) — the actual screen; **selectable text**.
-4. Bottom nav (56px + safe area) — primary destinations; non-selectable.
-5. Home indicator (5px pill) — non-selectable.
+- **No visible scrollbar** anywhere in the prototype — not on the screen content, not on side panels.
+- Implemented via `scrollbar-width: none` (Firefox) + `::-webkit-scrollbar { display: none }` (Chrome/Safari).
+- Scrolling still works (touch, wheel, trackpad) — the scrollbar is just invisible.
+
+## 7. Mobile full-screen experience
+
+On mobile (≤480px), the prototype switches from "framed device" to **full-screen native app** mode:
+- Device frame, bezel, and rounded corners are removed.
+- The app fills the entire viewport (`100dvh`).
+- A floating button (bottom-right) lets the user toggle back to **framed view** if they want to see the device chrome.
+- This gives mobile users a real app experience instead of a tiny phone-in-a-phone.
+
+## 8. Side panels (desktop only)
+
+- **Left panel**: prototype name, description, clickable screen list (syncs with device), tech tags.
+- **Right panel**: screen info (updates on view change), component donut, interaction bars, stats.
+- Panels are **hidden on screens <1024px** — on mobile/tablet, only the device shows.
+- Panels flank the device horizontally (left and right), never top/bottom.
 
 ---
 
-## 7. What to copy vs. what to change
+## 9. What to copy vs. what to change
 
 ### Copy as-is
 - The phone frame, status bar, punch-hole, system icons, battery logic.
@@ -134,7 +147,7 @@ The status bar is **decorative** — it sells the "this is a phone" illusion. It
 
 ---
 
-## 8. Accessibility (unchanged from design-standards)
+## 10. Accessibility (unchanged from design-standards)
 
 - Semantic HTML, keyboard reachable, visible focus.
 - `aria-label` on icon-only buttons.

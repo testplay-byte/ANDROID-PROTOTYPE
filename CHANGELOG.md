@@ -7,6 +7,26 @@
 
 ## [Unreleased]
 
+### 2025-01-15 — Homepage pill nav + template v4 (thin bezel, fixed signal, smaller battery, no scrollbar, mobile fullscreen)
+
+**Homepage (`index.html`):**
+- Top nav: both brand and button group now sit in **pill-shaped containers** (rounded-xl, border, card bg, shadow, backdrop-blur) — copied exactly from the AIO-STUFF reference. Two disconnected pills, no full-width bar.
+
+**Template (`prototypes/_template/`) — v4:**
+- Device bezel reduced 5px→**3px** (thinner, per feedback).
+- Device corner radius set to **32px**.
+- Battery icon made **smaller** (8×16px) and cleaner.
+- **Fixed signal bars**: LEFT 2 bars now bright, RIGHT 2 bars dim (was reversed).
+- **Hidden scrollbar** everywhere: app screens, side panels. Uses `scrollbar-width: none` + `::-webkit-scrollbar { display: none }`.
+- **Mobile full-screen**: on ≤480px, the app fills the entire viewport (no device frame). A floating button lets users toggle back to framed view.
+- Added `docs/preferences.md` — mandatory memory file capturing all user design preferences.
+
+**Docs:**
+- New `docs/preferences.md` (MANDATORY MEMORY FILE): all accumulated preferences — nav pills, hero 2-line, no footer, thin bezel, signal direction, portrait battery, no scrollbar, mobile fullscreen, color palette, references.
+- `docs/template-rules.md`: updated frame specs (32px, 3px bezel), signal bar direction (left bright), added §6 scrollbar, §7 mobile fullscreen, §8 side panels.
+- `docs/design-standards.md`: updated to match.
+- `docs/navigation.md`: added preferences.md to the index.
+
 ### 2025-01-15 — Homepage nav/hero cleanup + template v3 (new status bar, side panels, more screens)
 
 **Homepage (`index.html`):**

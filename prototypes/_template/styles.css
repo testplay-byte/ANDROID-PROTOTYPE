@@ -126,7 +126,11 @@ input { font: inherit; }
   gap: 16px;
   max-height: calc(100dvh - 56px);
   overflow-y: auto;
+  /* Hide scrollbar on side panels too */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+.sidepanel::-webkit-scrollbar { display: none; }
 .sidepanel__badge {
   align-self: flex-start;
   font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em;
@@ -198,13 +202,14 @@ input { font: inherit; }
 .screeninfo__desc { font-size: 12px; color: var(--sb-text-muted); line-height: 1.5; }
 
 /* ---- Device frame ----------------------------------------------------- */
+/* Thin bezel (3px) + 1px edge, per feedback. */
 .device {
   position: relative;
   width: 390px;
   height: 844px;
   background: var(--color-bg);
-  border-radius: 28px;                /* less rounded per feedback */
-  box-shadow: 0 0 0 5px var(--device-bezel), 0 0 0 6px var(--device-edge), 0 24px 60px -16px rgba(0,0,0,.45);
+  border-radius: 32px;
+  box-shadow: 0 0 0 3px var(--device-bezel), 0 0 0 3.5px var(--device-edge), 0 24px 60px -16px rgba(0,0,0,.4);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -212,6 +217,10 @@ input { font: inherit; }
   user-select: none;
   -webkit-user-select: none;
 }
+
+/* ---- Mobile: full-screen native experience ---- */
+/* On mobile, the device frame is removed and the app fills the screen.
+   A floating "Exit fullscreen" button lets the user go back to framed view. */
 @media (max-width: 480px) {
   .device {
     width: 100%;
@@ -219,6 +228,33 @@ input { font: inherit; }
     border-radius: 0;
     box-shadow: none;
   }
+}
+/* When user explicitly requests framed view on mobile, add .device--framed */
+.device--framed {
+  width: 390px !important;
+  height: 844px !important;
+  border-radius: 32px !important;
+  box-shadow: 0 0 0 3px var(--device-bezel), 0 0 0 3.5px var(--device-edge), 0 24px 60px -16px rgba(0,0,0,.4) !important;
+}
+
+/* Floating fullscreen toggle (mobile only) */
+.fs-toggle {
+  display: none;
+  position: fixed;
+  bottom: calc(58px + env(safe-area-inset-bottom, 0px) + 12px);
+  right: 12px;
+  z-index: 100;
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  border: none;
+  align-items: center; justify-content: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,.25);
+  cursor: pointer;
+}
+@media (max-width: 480px) {
+  .fs-toggle { display: inline-flex; }
 }
 
 /* ---- Status bar -------------------------------------------------------- */
@@ -257,13 +293,13 @@ input { font: inherit; }
 }
 .statusbar__icons .ic { display: block; }
 
-/* Battery: portrait glyph + % to its right */
+/* Battery: portrait glyph (smaller) + % to its right */
 .battery {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
+  gap: 2px;
   font-variant-numeric: tabular-nums;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 600;
 }
 .battery__pct { line-height: 1; }
@@ -280,7 +316,7 @@ input { font: inherit; }
   background: var(--color-bg);
 }
 
-/* ---- Views (screens) --------------------------------------------------- */
+/* ---- Views (screens) — hidden scrollbar ---- */
 .view {
   position: absolute;
   inset: 0;
@@ -292,7 +328,11 @@ input { font: inherit; }
   transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  /* Hide scrollbar completely — no ugly scrollbar on the right */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
+.view::-webkit-scrollbar { display: none; }
 .view--active { opacity: 1; transform: none; pointer-events: auto; }
 
 /* ---- App bar ----------------------------------------------------------- */

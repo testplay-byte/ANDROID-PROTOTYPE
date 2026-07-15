@@ -84,14 +84,15 @@
   setInterval(tick, 1000 * 30);
 
   /* ---- Portrait battery fill ------------------------------------------ */
-  // Portrait battery: body inner y=4..19 (height 15). Fill grows from bottom.
+  // Portrait battery viewBox 8x16. Inner body: y=3..14 (height 11).
+  // Fill grows from bottom (y=14) upward.
   (function () {
     var pctEl = document.getElementById("battPct");
     var fillEl = document.getElementById("battFill");
     if (!pctEl || !fillEl) return;
     var pct = Math.max(0, Math.min(100, parseInt(pctEl.textContent, 10) || 87));
     pctEl.textContent = pct;
-    var innerTop = 4, innerBottom = 19, innerH = innerBottom - innerTop; // 15
+    var innerTop = 3, innerBottom = 14, innerH = innerBottom - innerTop; // 11
     var fh = Math.round((pct / 100) * innerH);
     var fy = innerBottom - fh;
     fillEl.setAttribute("y", String(fy));
@@ -174,4 +175,22 @@
     e.preventDefault();
   });
   document.addEventListener("dragstart", function (e) { e.preventDefault(); });
+
+  /* ---- Mobile fullscreen toggle --------------------------------------- */
+  // On mobile, the device fills the screen by default (native app feel).
+  // The floating button toggles between fullscreen and framed view.
+  var fsToggle = document.getElementById("fsToggle");
+  var device = document.getElementById("device");
+  var fsExpand = document.getElementById("fsIconExpand");
+  var fsShrink = document.getElementById("fsIconShrink");
+
+  if (fsToggle && device) {
+    var isFramed = false;
+    fsToggle.addEventListener("click", function () {
+      isFramed = !isFramed;
+      device.classList.toggle("device--framed", isFramed);
+      fsExpand.style.display = isFramed ? "none" : "block";
+      fsShrink.style.display = isFramed ? "block" : "none";
+    });
+  }
 })();
