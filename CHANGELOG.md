@@ -7,6 +7,37 @@
 
 ## [Unreleased]
 
+### 2025-01-15 — Anime App prototype (v1.0) — 7 screens, AniList integration
+
+**New prototype:** `prototypes/anime-app/` — a fully interactive mobile anime discovery & streaming app.
+
+**Screens (7 total):**
+- **Home** — hero carousel (auto-rotating, 5 trending), continue watching, trending grid, popular this season, top rated
+- **Library** — status tabs (all/watching/completed/plan/dropped), grid/list/compact view toggle, sort by title/score/date
+- **History** — continue watching section + recent episodes list with progress bars, clear history
+- **Search** — debounced AniList search with genre chips (multi-select), year, season, format, sort filters
+- **Settings** — theme (dark/light), accent color (5 options: pink/coral/amber/green/violet), player prefs (autoplay, skip intro, quality), library defaults (layout, sort), playback tracking, data management — ALL persist in localStorage and apply live
+- **Detail** (pushed) — banner, cover, title, score, status, genres, expandable synopsis, episode list, add-to-library toggle
+- **Player** (pushed) — mock video player with play/pause, seek bar, skip intro, prev/next episode, fullscreen, auto-progress, episode list below
+
+**Data:**
+- AniList GraphQL API (`https://graphql.anilist.co`) — real covers, titles, scores, descriptions, genres
+- Library/History/Settings in localStorage
+- Mock video player (blank with poster + controls, no real streaming)
+
+**Design:**
+- Dark-first theme (`#0d0c11` bg) with sakura pink accent (`#e85d75`)
+- 5 swappable accent colors via settings
+- Scoped theming (app toggle doesn't affect page — see `docs/theme-architecture.md`)
+- Built on v6 template architecture (click-drag scroll, fullscreen API, no scrollbar, no text selection)
+
+**Workflow:**
+- Developed on `feat/anime-app` branch, merged to `main` via `--no-ff`
+- Updated `prototypes/navigation.md` index with new entry
+- Added anime-app card to homepage gallery (`index.html`)
+
+**Live:** https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/anime-app/
+
 ### 2025-01-15 — Documentation pass (v7): comprehensive docs for next AI agent
 
 **Goal:** Make the repository fully self-documenting so any future AI agent can understand the project, the rules, and how to build a prototype without guessing.

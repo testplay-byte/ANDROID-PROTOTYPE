@@ -10,8 +10,9 @@
 | Folder        | Name            | Status        | Tech            | Live URL | Notes |
 |---------------|-----------------|---------------|-----------------|----------|-------|
 | `_template/`  | Starter template | reference    | HTML/CSS/JS     | [open](https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/_template/) | Copy to start a new prototype. |
+| `anime-app/`  | Anime App       | review        | HTML/CSS/JS + AniList API | [open](https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/anime-app/) | 7-screen anime discovery & streaming app. Real AniList data, mock player, full settings. |
 
-> No real prototypes yet. The first one you create goes here as a new row.
+> The first real prototype (`anime-app/`) is live and in review status.
 
 ---
 
