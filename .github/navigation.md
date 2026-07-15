@@ -24,4 +24,4 @@ See [`../docs/github-pages.md`](../docs/github-pages.md) for URLs and troublesho
 
 ---
 
-*Last updated: repository initialization.*
+*Last updated: documentation pass (v7).*

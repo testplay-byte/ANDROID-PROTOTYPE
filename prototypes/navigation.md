@@ -36,4 +36,4 @@
 
 ---
 
-*Last updated: repository initialization.*
+*Last updated: documentation pass (v7) — template upgraded to v6 (4 screens, scoped theming, click-drag scroll, fullscreen API).*

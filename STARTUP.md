@@ -31,16 +31,30 @@ ANDROID-PROTOTYPE/
 ├── README.md               ← Public landing page for GitHub.
 ├── navigation.md           ← Root navigation map (every folder + what's in it).
 ├── CHANGELOG.md            ← Running log of notable changes.
+├── index.html              ← Homepage / prototypes gallery (GitHub Pages root).
 ├── docs/                   ← All documentation (workflow, standards, deploy, etc.).
-│   └── navigation.md
+│   ├── navigation.md       ← Index of docs/.
+│   ├── agent-quickstart.md ← 2-minute fast-start for any AI agent.
+│   ├── prototype-blueprint.md ← Step-by-step guide to build a new prototype.
+│   ├── repo-map.md         ← Visual annotated tree of the entire repo.
+│   ├── workflow.md         ← High-level prototype workflow.
+│   ├── tech-stack.md       ← Allowed tech + rationale.
+│   ├── design-standards.md ← UI/UX standards (spacing, type, color, frame).
+│   ├── template-rules.md   ← Rules every prototype follows.
+│   ├── theme-architecture.md ← CRITICAL: app theme scoped to .device.
+│   ├── preferences.md      ← MANDATORY MEMORY: all user design preferences.
+│   ├── notification-protocol.md ← MANDATORY: how to notify via ntfy.sh.
+│   ├── github-pages.md     ← Deployment guide + troubleshooting.
+│   └── git-conventions.md  ← Branch, commit, PR conventions.
 ├── prototypes/             ← THE ACTUAL PROTOTYPES. One folder per prototype.
 │   ├── navigation.md       ← Index of all prototypes (status, links, tech).
-│   └── _template/          ← Copy this to start a new prototype.
+│   └── _template/          ← Copy this to start a new prototype (v6).
 ├── templates/              ← Reusable UI fragments (components, screen shells).
 │   └── navigation.md
 ├── assets/                 ← Shared static assets (icons, fonts, images).
 │   └── navigation.md
 └── .github/
+    ├── navigation.md
     └── workflows/
         └── deploy.yml      ← GitHub Pages auto-deploy on push.
 ```
@@ -72,14 +86,15 @@ See `docs/tech-stack.md` for the full rationale and allowed libraries.
 
 ## 5. How to Create a New Prototype (Quick Start)
 
-1. **Read** `docs/workflow.md` for the full process.
+1. **Read** [`docs/prototype-blueprint.md`](./docs/prototype-blueprint.md) for the detailed step-by-step.
 2. **Copy** `prototypes/_template/` → `prototypes/<your-prototype-name>/`.
 3. **Edit** the `index.html`, `styles.css`, `script.js` inside.
 4. **Fill in** the prototype's own `navigation.md` and `README.md`.
 5. **Register** the new prototype in `prototypes/navigation.md` (the index).
-6. **Commit & push** to `main`. GitHub Actions auto-deploys to Pages.
-7. **Verify** the live URL (see `docs/github-pages.md`).
-8. **Notify** the user via ntfy.sh (see §7 below).
+6. **Add a card** to the root `index.html` gallery (optional, for real prototypes).
+7. **Commit & push** to `main`. GitHub Actions auto-deploys to Pages.
+8. **Verify** the live URL (see [`docs/github-pages.md`](./docs/github-pages.md)).
+9. **Notify** the user via ntfy.sh (see §7 below).
 
 Naming convention: `kebab-case`, descriptive. Example: `prototypes/food-delivery-checkout/`.
 
@@ -175,12 +190,16 @@ Reply with A or B to continue.
 | You want to...                         | Go to                                  |
 |----------------------------------------|----------------------------------------|
 | Understand the project                 | You're here. Then `navigation.md`.     |
+| **Get productive fast (2-min guide)**  | [`docs/agent-quickstart.md`](./docs/agent-quickstart.md) |
+| **See the full repo map**              | [`docs/repo-map.md`](./docs/repo-map.md) |
 | See all prototypes                     | `prototypes/navigation.md`             |
-| Start a new prototype                  | `prototypes/_template/` + `docs/workflow.md` |
+| **Build a new prototype (detailed)**   | [`docs/prototype-blueprint.md`](./docs/prototype-blueprint.md) |
+| Start a new prototype (high-level)     | `prototypes/_template/` + `docs/workflow.md` |
 | Learn the tech stack                   | `docs/tech-stack.md`                   |
 | Learn UI/UX standards                  | `docs/design-standards.md`             |
 | Read the prototype template rules      | `docs/template-rules.md`               |
 | Understand the theme architecture      | `docs/theme-architecture.md`           |
+| **Read user design preferences**       | `docs/preferences.md`                  |
 | Understand deployment                  | `docs/github-pages.md`                 |
 | See the notification protocol (memory) | `docs/notification-protocol.md`        |
 | Reuse a UI component                   | `templates/components/`                |
@@ -200,4 +219,4 @@ Reply with A or B to continue.
 
 ---
 
-*Last updated: repository initialization. Maintained by the AI agent currently working on the repo.*
+*Last updated: documentation pass (v7) — added agent-quickstart, prototype-blueprint, repo-map; updated for template v6.*

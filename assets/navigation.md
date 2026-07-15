@@ -40,4 +40,4 @@ No shared assets yet. Add when a real need arises.
 
 ---
 
-*Last updated: repository initialization.*
+*Last updated: documentation pass (v7) — still empty; add assets when a real need arises.*

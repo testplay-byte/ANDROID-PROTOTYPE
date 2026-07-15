@@ -8,7 +8,10 @@
 
 | File                          | What it covers                                                      |
 |-------------------------------|---------------------------------------------------------------------|
-| `workflow.md`                 | Step-by-step process for creating, updating, and retiring a prototype. |
+| `agent-quickstart.md`         | **2-minute fast-start** for any AI agent. Read this first if you're new. |
+| `prototype-blueprint.md`      | **Step-by-step guide** to build a new prototype (detailed).         |
+| `repo-map.md`                 | **Visual annotated tree** of the entire repository.                 |
+| `workflow.md`                 | High-level prototype workflow (create → update → retire).           |
 | `tech-stack.md`               | The allowed tech for prototypes and *why* each choice was made.      |
 | `design-standards.md`         | Mobile UI/UX standards: spacing, type scale, color, touch targets, the phone frame. |
 | `github-pages.md`             | How deployment works, how to find live URLs, how to troubleshoot.    |
@@ -22,14 +25,17 @@
 
 ## Reading order for a new agent
 
-1. [`../STARTUP.md`](../STARTUP.md)
-2. [`../navigation.md`](../navigation.md)
-3. This file.
-4. [`workflow.md`](./workflow.md) — so you know how to make a prototype.
-5. [`template-rules.md`](./template-rules.md) — the rules every prototype follows.
-6. [`design-standards.md`](./design-standards.md) — so your prototype looks right.
-7. [`notification-protocol.md`](./notification-protocol.md) — so you notify correctly.
+1. [`../STARTUP.md`](../STARTUP.md) — master context
+2. [`agent-quickstart.md`](./agent-quickstart.md) — 2-minute fast-start
+3. [`repo-map.md`](./repo-map.md) — see where everything is
+4. [`preferences.md`](./preferences.md) — user's design preferences (MANDATORY)
+5. [`template-rules.md`](./template-rules.md) — the rules every prototype follows
+6. [`theme-architecture.md`](./theme-architecture.md) — how theming works (CRITICAL)
+7. [`prototype-blueprint.md`](./prototype-blueprint.md) — how to build a prototype
+8. [`notification-protocol.md`](./notification-protocol.md) — how to notify the user
+9. [`workflow.md`](./workflow.md) — high-level process
+10. [`design-standards.md`](./design-standards.md) — UI/UX specs (reference as needed)
 
 ---
 
-*Last updated: added template-rules.md; promoted notification-protocol.md to mandatory memory file.*
+*Last updated: documentation pass (v7) — added agent-quickstart, prototype-blueprint, repo-map; updated reading order.*

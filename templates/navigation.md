@@ -29,4 +29,4 @@ This folder is scaffolded but contains no fragments yet. Add them as patterns re
 
 ---
 
-*Last updated: repository initialization.*
+*Last updated: documentation pass (v7) — still empty; add fragments as patterns repeat across prototypes.*

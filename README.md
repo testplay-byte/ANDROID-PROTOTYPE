@@ -15,8 +15,9 @@ Each prototype is a self-contained static web app (HTML + CSS + JS) served direc
 ## Start here
 
 - **New to the repo?** Read [`STARTUP.md`](./STARTUP.md) first — it is the master context file.
-- **Looking for something specific?** Check [`navigation.md`](./navigation.md) — the root index.
-- **Want to build a prototype?** See [`docs/workflow.md`](./docs/workflow.md) and copy [`prototypes/_template/`](./prototypes/_template/).
+- **Want a 2-minute overview?** Read [`docs/agent-quickstart.md`](./docs/agent-quickstart.md).
+- **Looking for something specific?** Check [`navigation.md`](./navigation.md) or [`docs/repo-map.md`](./docs/repo-map.md).
+- **Want to build a prototype?** Read [`docs/prototype-blueprint.md`](./docs/prototype-blueprint.md) and copy [`prototypes/_template/`](./prototypes/_template/).
 
 ---
 
@@ -35,16 +36,18 @@ See [`prototypes/navigation.md`](./prototypes/navigation.md) for the full, curre
 
 ```
 .
-├── STARTUP.md          # Master context — read first
-├── navigation.md       # Root navigation map
-├── docs/               # Documentation (workflow, standards, deploy)
-├── prototypes/         # The prototypes (one folder each)
-├── templates/          # Reusable UI components & screen shells
-├── assets/             # Shared icons, fonts, images
-└── .github/workflows/  # GitHub Pages auto-deploy
+├── STARTUP.md              # Master context — read first
+├── navigation.md           # Root navigation map
+├── index.html              # Homepage / prototypes gallery (live)
+├── docs/                   # All documentation (12 files)
+├── prototypes/             # The prototypes (one folder each)
+│   └── _template/          # Starter template (v6) — copy to begin
+├── templates/              # Reusable UI components & screen shells
+├── assets/                 # Shared icons, fonts, images
+└── .github/workflows/      # GitHub Pages auto-deploy
 ```
 
-Every directory has its own `navigation.md` explaining its contents.
+Every directory has its own `navigation.md` explaining its contents. See [`docs/repo-map.md`](./docs/repo-map.md) for the full annotated tree.
 
 ---
 

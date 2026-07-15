@@ -7,6 +7,29 @@
 
 ## [Unreleased]
 
+### 2025-01-15 — Documentation pass (v7): comprehensive docs for next AI agent
+
+**Goal:** Make the repository fully self-documenting so any future AI agent can understand the project, the rules, and how to build a prototype without guessing.
+
+**New documentation files:**
+- `docs/agent-quickstart.md` — 2-minute fast-start guide condensing everything an agent needs to begin work.
+- `docs/prototype-blueprint.md` — detailed, step-by-step blueprint for building a new prototype (11 steps + common pitfalls table).
+- `docs/repo-map.md` — visual annotated tree of the entire repository, with quick-lookup tables and a navigation-file chain diagram.
+
+**Updated documentation:**
+- `STARTUP.md` — expanded the repository layout tree to show all 12 doc files + `index.html`; added new docs to the quick-lookup table; updated "Last updated" line; added prototype-blueprint as the first step in "How to Create a New Prototype".
+- `navigation.md` (root) — fixed the `.github/` link (was broken); added `index.html` to top-level files table; added links to agent-quickstart, repo-map, prototype-blueprint, preferences, theme-architecture; updated "Last updated".
+- `docs/navigation.md` — added the 3 new docs to the files table; rewrote the reading order to be a 10-step progressive path; updated "Last updated".
+- `prototypes/_template/navigation.md` — completely rewritten to reflect v6 (4 screens, 32px corners, 5px bezel, 13px punch-hole, scoped theming, click-drag scroll, fullscreen API, no Bluetooth, side panels, what NOT to change).
+- `prototypes/_template/README.md` — rewritten with v6 features and correct links.
+- `prototypes/navigation.md` — updated "Last updated".
+- `templates/navigation.md` — updated "Last updated".
+- `assets/navigation.md` — updated "Last updated".
+- `.github/navigation.md` — updated "Last updated".
+- `README.md` — added links to agent-quickstart, repo-map, prototype-blueprint; updated the repository structure tree to include `index.html` and `_template/` v6.
+
+**Result:** The repository now has 12 documentation files in `docs/` + 7 `navigation.md` files across directories + `STARTUP.md` + `README.md` + `CHANGELOG.md`. Any AI agent can start from `STARTUP.md` → `docs/agent-quickstart.md` → `docs/repo-map.md` and find anything in under 2 minutes.
+
 ### 2025-01-15 — Template v6 (click-drag scroll + real Fullscreen API)
 
 **Template (`prototypes/_template/`) — v6:**

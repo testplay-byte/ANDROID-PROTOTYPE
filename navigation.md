@@ -13,6 +13,7 @@
 | `README.md`      | Public GitHub landing page.                                     |
 | `navigation.md`  | This file — the root index.                                     |
 | `CHANGELOG.md`   | Running log of notable changes (append on every task).          |
+| `index.html`     | Homepage / prototypes gallery (served at the GitHub Pages root).|
 | `.gitignore`     | Git ignore rules.                                               |
 
 ---
@@ -25,7 +26,7 @@
 | `prototypes/`     | **The actual prototypes.** One folder per prototype.               | [`prototypes/navigation.md`](./prototypes/navigation.md) |
 | `templates/`      | Reusable UI fragments: components, screen shells.                  | [`templates/navigation.md`](./templates/navigation.md) |
 | `assets/`         | Shared static assets: icons, fonts, images.                        | [`assets/navigation.md`](./assets/navigation.md) |
-| `.github/`        | GitHub config: Actions workflows, issue templates.                 | (see `.github/` contents) |
+| `.github/`        | GitHub config: Actions workflows, issue templates.                 | [`.github/navigation.md`](./.github/navigation.md) |
 
 ---
 
@@ -34,10 +35,16 @@
 | You want to...                          | Go to                                                                 |
 |-----------------------------------------|-----------------------------------------------------------------------|
 | Understand the whole project            | [`STARTUP.md`](./STARTUP.md)                                          |
+| **Get productive fast (2-min guide)**   | [`docs/agent-quickstart.md`](./docs/agent-quickstart.md)              |
+| **See the full repo map**               | [`docs/repo-map.md`](./docs/repo-map.md)                              |
 | Find a specific prototype               | [`prototypes/navigation.md`](./prototypes/navigation.md)              |
-| Start a new prototype                   | [`prototypes/_template/`](./prototypes/_template/) + [`docs/workflow.md`](./docs/workflow.md) |
+| **Build a new prototype (detailed)**    | [`docs/prototype-blueprint.md`](./docs/prototype-blueprint.md)        |
+| Start a new prototype (high-level)      | [`prototypes/_template/`](./prototypes/_template/) + [`docs/workflow.md`](./docs/workflow.md) |
 | Learn the tech stack                    | [`docs/tech-stack.md`](./docs/tech-stack.md)                          |
 | Learn the UI/UX design standards        | [`docs/design-standards.md`](./docs/design-standards.md)              |
+| Read the prototype template rules       | [`docs/template-rules.md`](./docs/template-rules.md)                  |
+| Understand the theme architecture       | [`docs/theme-architecture.md`](./docs/theme-architecture.md)          |
+| **Read user design preferences**        | [`docs/preferences.md`](./docs/preferences.md)                        |
 | Understand GitHub Pages deployment      | [`docs/github-pages.md`](./docs/github-pages.md)                      |
 | Read the notification protocol          | [`docs/notification-protocol.md`](./docs/notification-protocol.md)    |
 | Reuse a UI component                    | [`templates/navigation.md`](./templates/navigation.md)                |
@@ -54,4 +61,4 @@
 
 ---
 
-*Last updated: repository initialization.*
+*Last updated: documentation pass (v7) — added agent-quickstart, prototype-blueprint, repo-map; fixed .github link.*
