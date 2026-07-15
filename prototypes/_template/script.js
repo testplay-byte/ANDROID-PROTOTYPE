@@ -173,30 +173,139 @@
     });
   });
 
-  /* ---- Prevent drag-to-select on the entire document ------------------ */
-  // Extra safety: cancel native selection-drag globally.
-  document.addEventListener("selectstart", function (e) {
-    // Allow selection only inside inputs (so the search field works).
-    if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
-    e.preventDefault();
-  });
-  document.addEventListener("dragstart", function (e) { e.preventDefault(); });
+  /* ---- Text selection: handled by CSS, not JS blockers ---------------- */
+  /* The body has `user-select: none` in CSS (set in styles.css), which
+     prevents text selection without blocking scroll/drag gestures. We do
+     NOT add global selectstart/dragstart listeners here because they were
+     preventing click-drag-to-scroll on desktop (see the scroll module below).
+     Inputs/textareas re-enable selection via their own CSS rule. */
 
-  /* ---- Mobile fullscreen toggle --------------------------------------- */
-  // On mobile, the device fills the screen by default (native app feel).
-  // The floating button toggles between fullscreen and framed view.
-  // `device` is already defined above (theme toggle section).
-  var fsToggle = document.getElementById("fsToggle");
-  var fsExpand = document.getElementById("fsIconExpand");
-  var fsShrink = document.getElementById("fsIconShrink");
+  /* ---- Click-drag-to-scroll on the device (desktop) ------------------- */
+  /* On desktop, the user wants to scroll the device screen by clicking and
+     dragging (like dragging a scrollbar with the mouse). Native wheel/touch
+     scrolling already works; this adds the missing drag gesture.
+     We only activate this on non-touch devices (pointer: fine) so we don't
+     interfere with native touch scrolling on mobile. */
+  (function () {
+    var finePointer = window.matchMedia("(pointer: fine)").matches;
+    if (!finePointer || !device) return;
 
-  if (fsToggle && device) {
-    var isFramed = false;
-    fsToggle.addEventListener("click", function () {
-      isFramed = !isFramed;
-      device.classList.toggle("device--framed", isFramed);
-      fsExpand.style.display = isFramed ? "none" : "block";
-      fsShrink.style.display = isFramed ? "block" : "none";
+    var dragViews = Array.prototype.slice.call(device.querySelectorAll(".view"));
+    var dragTargets = [device.querySelector(".screen")].concat(dragViews).filter(Boolean);
+
+    dragTargets.forEach(function (el) {
+      var dragging = false;
+      var startX = 0, startY = 0;
+      var startScrollLeft = 0, startScrollTop = 0;
+      var moved = false;
+
+      el.addEventListener("mousedown", function (e) {
+        // Don't hijack clicks on interactive elements
+        if (e.target.closest("button, a, input, .toggle, .chip, .tab, [data-goto], [data-like], [data-toggle]")) return;
+        if (e.button !== 0) return;
+        dragging = true;
+        moved = false;
+        startX = e.clientX;
+        startY = e.clientY;
+        startScrollLeft = el.scrollLeft;
+        startScrollTop = el.scrollTop;
+        el.style.cursor = "grabbing";
+        e.preventDefault();
+      });
+
+      window.addEventListener("mousemove", function (e) {
+        if (!dragging) return;
+        var dx = e.clientX - startX;
+        var dy = e.clientY - startY;
+        if (Math.abs(dx) > 3 || Math.abs(dy) > 3) moved = true;
+        el.scrollLeft = startScrollLeft - dx;
+        el.scrollTop = startScrollTop - dy;
+      });
+
+      window.addEventListener("mouseup", function () {
+        if (!dragging) return;
+        dragging = false;
+        el.style.cursor = "";
+      });
+
+      // Prevent click from firing after a drag (avoids accidental nav)
+      el.addEventListener("click", function (e) {
+        if (moved) {
+          e.preventDefault();
+          e.stopPropagation();
+          moved = false;
+        }
+      }, true);
     });
-  }
+  })();
+
+  /* ---- Browser Fullscreen API (mobile fullscreen button) -------------- */
+  /* Uses the real Fullscreen API (requestFullscreen / exitFullscreen) so the
+     browser hides its address bar, tab bar, and (on Android) the system
+     status bar — giving a true native-app full-screen experience.
+     Falls back to the CSS framed/fullscreen toggle if the API is unavailable
+     (e.g., iOS Safari, which doesn't support Fullscreen on iPhone). */
+  (function () {
+    var fsToggle = document.getElementById("fsToggle");
+    var fsExpand = document.getElementById("fsIconExpand");
+    var fsShrink = document.getElementById("fsIconShrink");
+    if (!fsToggle || !device) return;
+
+    function isFullscreen() {
+      return !!(document.fullscreenElement || document.webkitFullscreenElement ||
+                document.mozFullScreenElement || document.msFullscreenElement);
+    }
+
+    function requestFs() {
+      var el = device;
+      var req = el.requestFullscreen || el.webkitRequestFullscreen ||
+                el.mozRequestFullScreen || el.msRequestFullscreen;
+      if (req) {
+        var p = req.call(el);
+        if (p && p.catch) p.catch(function () { /* user denied or unsupported */ });
+      } else {
+        // Fallback: CSS-only fullscreen (fills viewport, no browser chrome hidden)
+        device.classList.add("device--cssfs");
+      }
+    }
+
+    function exitFs() {
+      var ex = document.exitFullscreen || document.webkitExitFullscreen ||
+               document.mozCancelFullScreen || document.msExitFullscreen;
+      if (ex) {
+        ex.call(document);
+      } else {
+        device.classList.remove("device--cssfs");
+      }
+    }
+
+    function syncIcons() {
+      var fs = isFullscreen() || device.classList.contains("device--cssfs");
+      if (fsExpand) fsExpand.style.display = fs ? "none" : "block";
+      if (fsShrink) fsShrink.style.display = fs ? "block" : "none";
+    }
+
+    fsToggle.addEventListener("click", function () {
+      if (isFullscreen() || device.classList.contains("device--cssfs")) {
+        exitFs();
+      } else {
+        requestFs();
+      }
+    });
+
+    // Sync icon state when fullscreen changes (including Esc key exit)
+    ["fullscreenchange", "webkitfullscreenchange", "mozfullscreenchange", "MSFullscreenChange"].forEach(function (ev) {
+      document.addEventListener(ev, syncIcons);
+    });
+
+    // Lock orientation to portrait when entering fullscreen (Android Chrome)
+    // Best-effort — not all browsers support this.
+    document.addEventListener("fullscreenchange", function () {
+      if (isFullscreen() && screen.orientation && screen.orientation.lock) {
+        screen.orientation.lock("portrait").catch(function () { /* ignore */ });
+      }
+    });
+
+    syncIcons();
+  })();
 })();

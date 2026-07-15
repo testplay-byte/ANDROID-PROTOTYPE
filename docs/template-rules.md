@@ -110,11 +110,30 @@ The status bar is **decorative** — it sells the "this is a phone" illusion. It
 
 ## 7. Mobile full-screen experience
 
-On mobile (≤480px), the prototype switches from "framed device" to **full-screen native app** mode:
-- Device frame, bezel, and rounded corners are removed.
-- The app fills the entire viewport (`100dvh`).
-- A floating button (bottom-right) lets the user toggle back to **framed view** if they want to see the device chrome.
-- This gives mobile users a real app experience instead of a tiny phone-in-a-phone.
+On mobile (≤480px), the prototype fills the viewport (no device frame) by default. A floating button (bottom-right) triggers the **real browser Fullscreen API**:
+
+- `device.requestFullscreen()` is called on the `.device` element.
+- The browser hides its address bar, tab bar, and (on Android) the system status bar.
+- This gives a true native-app full-screen experience — not just a CSS class toggle.
+- Pressing the button again, or pressing Esc, exits fullscreen.
+- The button's icon syncs via `fullscreenchange` event listeners.
+- Best-effort: locks orientation to portrait on Android Chrome via `screen.orientation.lock("portrait")`.
+
+**Fallback:** If the Fullscreen API is unavailable (e.g., iOS Safari on iPhone), a CSS-only `.device--cssfs` class fills the viewport without hiding browser chrome. This is the best we can do on those browsers.
+
+**Desktop:** The floating button is hidden (`display: none` on `pointer: coarse` / `min-width: 481px`). Desktop uses click-drag-to-scroll instead (see §7b).
+
+## 7b. Click-drag-to-scroll (desktop)
+
+On desktop (`pointer: fine`), the device screen supports click-drag-to-scroll:
+- Press and hold the mouse on the screen content, then drag to scroll in any direction.
+- The cursor shows `grab` / `grabbing` hints.
+- Interactive elements (buttons, links, inputs, toggles, chips, tabs) are excluded — their clicks work normally.
+- A drag that moves more than 3px suppresses the subsequent click event (prevents accidental navigation).
+- This is **additive** — native wheel scrolling and trackpad gestures still work.
+- On mobile, this module is disabled (`pointer: fine` check); native touch scrolling is used instead.
+
+**Why:** The user reported being unable to scroll by clicking and dragging. The old global `selectstart`/`dragstart` listeners were blocking this gesture. Those listeners have been removed — text selection is now prevented purely via CSS `user-select: none`, which doesn't block scrolling.
 
 ## 8. Side panels (desktop only)
 

@@ -239,12 +239,37 @@ input { font: inherit; }
     box-shadow: none;
   }
 }
-/* When user explicitly requests framed view on mobile, add .device--framed */
-.device--framed {
-  width: 390px !important;
-  height: 844px !important;
-  border-radius: 32px !important;
-  box-shadow: 0 0 0 5px var(--device-bezel), 0 0 0 5.5px var(--device-edge), 0 24px 60px -16px rgba(0,0,0,.4) !important;
+/* CSS-only fullscreen fallback (used when the Fullscreen API is unavailable,
+   e.g. iOS Safari). Fills the viewport but doesn't hide browser chrome. */
+.device--cssfs {
+  position: fixed !important;
+  top: 0; left: 0;
+  width: 100vw !important;
+  height: 100dvh !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  z-index: 9999;
+}
+
+/* Real fullscreen (Fullscreen API) — browser applies :fullscreen pseudo-class */
+.device:fullscreen {
+  width: 100vw;
+  height: 100dvh;
+  border-radius: 0;
+  box-shadow: none;
+}
+.device:-webkit-full-screen {
+  width: 100vw;
+  height: 100dvh;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+/* Grab cursor hint on desktop (pointer: fine) — invites click-drag scroll */
+@media (pointer: fine) {
+  .view, .screen {
+    cursor: grab;
+  }
 }
 
 /* Floating fullscreen toggle (mobile only) */

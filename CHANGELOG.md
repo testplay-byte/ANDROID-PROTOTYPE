@@ -7,6 +7,21 @@
 
 ## [Unreleased]
 
+### 2025-01-15 — Template v6 (click-drag scroll + real Fullscreen API)
+
+**Template (`prototypes/_template/`) — v6:**
+
+- **Click-drag-to-scroll (desktop):** the device screen now supports pressing and dragging the mouse to scroll in any direction. The cursor shows `grab`/`grabbing` hints. Interactive elements (buttons, links, inputs, toggles) are excluded so their clicks still work. A drag >3px suppresses the click event to prevent accidental navigation. Native wheel/trackpad scrolling still works. Only activates on `pointer: fine` devices (doesn't interfere with mobile touch scrolling).
+  - **Root cause of the old issue:** global `selectstart`/`dragstart` event listeners were blocking all drag gestures. These have been **removed**. Text selection is now prevented purely via CSS `user-select: none`, which doesn't block scrolling.
+- **Real Fullscreen API (mobile):** the floating fullscreen button now calls `device.requestFullscreen()` — the real browser Fullscreen API. This hides the browser address bar, tab bar, and (on Android) the system status bar, giving a true native-app full-screen experience. Pressing the button again or Esc exits. Best-effort orientation lock to portrait on Android.
+  - **Fallback:** CSS-only `.device--cssfs` class (fills viewport without hiding browser chrome) for browsers without Fullscreen API support (e.g. iOS Safari on iPhone).
+  - `:fullscreen` / `:-webkit-full-screen` pseudo-class CSS rules handle the fullscreen layout.
+- Removed the old `.device--framed` class (was toggling framed view on mobile — no longer needed; the Fullscreen API replaces it).
+
+**Docs:**
+- `docs/preferences.md` — new "Scrolling (desktop)" section; updated "Mobile experience" to describe the real Fullscreen API.
+- `docs/template-rules.md` — new §7b "Click-drag-to-scroll (desktop)"; rewrote §7 "Mobile full-screen experience" to describe the Fullscreen API + fallback.
+
 ### 2025-01-15 — Template v5 (scoped theming, thicker bezel, bigger punch-hole) + detailed docs
 
 **Template (`prototypes/_template/`) — v5:**

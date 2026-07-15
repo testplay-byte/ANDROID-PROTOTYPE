@@ -77,9 +77,19 @@
 - Hidden on screens <1024px.
 
 ### Mobile experience
-- On mobile (≤480px), the app goes **full-screen** (no device frame, fills viewport).
-- A floating button lets the user toggle back to framed view.
-- This gives a native app experience on phones.
+- On mobile (≤480px), the app fills the viewport by default (no device frame).
+- A floating button triggers the **real browser Fullscreen API** (`requestFullscreen`), which hides the browser address bar, tab bar, and system status bar — a true native-app full-screen experience.
+- The button toggles: press once to enter fullscreen, press again (or press Esc) to exit.
+- Falls back to a CSS-only fullscreen (fills viewport without hiding browser chrome) on browsers that don't support the Fullscreen API (e.g., iOS Safari on iPhone).
+- On desktop, the floating button is hidden — desktop uses click-drag-to-scroll instead.
+
+### Scrolling (desktop)
+- The device screen supports **click-drag-to-scroll**: press and hold the mouse on the screen content, then drag up/down/left/right to scroll.
+- This is in addition to native wheel scrolling and trackpad gestures.
+- The cursor shows a `grab` hint on desktop.
+- Dragging is ignored on interactive elements (buttons, links, inputs, toggles) so their clicks still work.
+- A drag that moves more than 3px suppresses the click event (prevents accidental navigation after a drag).
+- On mobile, native touch scrolling is used (the drag module only activates on `pointer: fine` devices).
 
 ### Content
 - Prototypes must be **fully navigable**: multiple screens, scrollable content, clickable buttons, toggles, etc.
