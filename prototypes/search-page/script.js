@@ -497,12 +497,17 @@
     // Show first category by default
     showFlatCategory("genre");
 
-    // Tab click handler
+    // Tab click handler — auto-scroll to center the selected tab
     tabs.addEventListener("click", function (e) {
       var tab = e.target.closest("[data-flat-tab]");
       if (!tab) return;
       tabs.querySelectorAll(".filter-flat-tab").forEach(function (t) { t.classList.toggle("is-active", t === tab); });
       showFlatCategory(tab.dataset.flatTab);
+      // Auto-scroll the tab into center
+      var tabsRect = tabs.getBoundingClientRect();
+      var tabRect = tab.getBoundingClientRect();
+      var scrollOffset = (tabRect.left - tabsRect.left) - (tabsRect.width / 2) + (tabRect.width / 2);
+      tabs.scrollTo({ left: tabs.scrollLeft + scrollOffset, behavior: "smooth" });
     });
   }
 

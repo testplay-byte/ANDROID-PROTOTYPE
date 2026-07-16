@@ -384,26 +384,43 @@ img { display: block; max-width: 100%; }
   flex: 1 1 auto; overflow-y: auto;
   padding: var(--sp-2) var(--sp-1) 110px;
   scrollbar-width: none; -ms-overflow-style: none;
+  position: relative;
 }
 .content::-webkit-scrollbar { display: none; }
+/* Darkening blur gradient at the top of content — content fades + blurs as it scrolls under the topbar */
+.content::before {
+  content: '';
+  position: sticky;
+  top: 0;
+  left: 0; right: 0;
+  height: 24px;
+  display: block;
+  margin-bottom: -24px;
+  z-index: 5;
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--color-bg) 0%, color-mix(in srgb, var(--color-bg) 60%, transparent) 50%, transparent 100%);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
 .content__header { display: flex; align-items: baseline; justify-content: space-between; margin: var(--sp-3) 0 var(--sp-3); }
 .content__label { font-size: var(--fs-body-l); font-weight: 700; color: var(--color-text); letter-spacing: -.005em; }
 .content__count { font-size: var(--fs-label); font-weight: 500; color: var(--color-text-muted); }
 
 /* ---- Recent searches (with collapse toggle) ------------------------- */
-.recent-section { padding: 0; }
-/* Recent head: toggle right of the text, not far right */
-.recent-head { display: flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-2); }
-.recent-head__left { display: flex; align-items: center; gap: var(--sp-1); }
-.recent-title { font-size: var(--fs-body-s); font-weight: 700; color: var(--color-text-muted); letter-spacing: .02em; text-transform: uppercase; }
-.recent-toggle { display: flex; align-items: center; gap: 4px; font-size: var(--fs-label); font-weight: 600; color: var(--color-primary); padding: 4px 10px; border-radius: var(--r-pill); transition: background var(--dur-1) var(--ease-standard); background: color-mix(in srgb, var(--color-primary) 8%, transparent); }
+.recent-section { padding: 0; overflow: hidden; }
+/* Recent head: toggle right of text, Clear all/Show on far right */
+.recent-head { display: flex; align-items: center; gap: var(--sp-2); margin-bottom: var(--sp-2); padding: 0 var(--sp-1); }
+.recent-head__left { display: flex; align-items: center; gap: var(--sp-1); flex: 0 1 auto; min-width: 0; overflow: hidden; }
+.recent-title { font-size: var(--fs-body-s); font-weight: 700; color: var(--color-text-muted); letter-spacing: .02em; text-transform: uppercase; white-space: nowrap; }
+.recent-toggle { display: flex; align-items: center; gap: 4px; font-size: var(--fs-label); font-weight: 600; color: var(--color-primary); padding: 4px 10px; border-radius: var(--r-pill); transition: background var(--dur-1) var(--ease-standard); background: color-mix(in srgb, var(--color-primary) 8%, transparent); flex: 0 0 auto; }
 .recent-toggle:hover { background: color-mix(in srgb, var(--color-primary) 14%, transparent); }
 .recent-toggle__icon { transition: transform var(--dur-2) var(--ease-emphasized); display: flex; align-items: center; }
 .recent-toggle.is-collapsed .recent-toggle__icon { transform: rotate(-90deg); }
-/* When collapsed: show 'Show' text, not 'Clear all' */
-.recent-show { font-size: var(--fs-label); font-weight: 600; color: var(--color-primary); padding: 4px 10px; border-radius: var(--r-pill); transition: background var(--dur-1) var(--ease-standard); background: color-mix(in srgb, var(--color-primary) 8%, transparent); display: flex; align-items: center; gap: 4px; }
+.recent-head__right { flex: 0 0 auto; margin-left: auto; }
+/* When collapsed: show 'Show' text */
+.recent-show { font-size: var(--fs-label); font-weight: 600; color: var(--color-primary); padding: 4px 10px; border-radius: var(--r-pill); transition: background var(--dur-1) var(--ease-standard); background: color-mix(in srgb, var(--color-primary) 8%, transparent); display: flex; align-items: center; gap: 4px; white-space: nowrap; }
 .recent-show:hover { background: color-mix(in srgb, var(--color-primary) 14%, transparent); }
-.recent-clear { font-size: var(--fs-label); font-weight: 600; color: var(--color-primary); padding: 4px 8px; border-radius: var(--r-xs); transition: background var(--dur-1) var(--ease-standard); }
+.recent-clear { font-size: var(--fs-label); font-weight: 600; color: var(--color-primary); padding: 4px 8px; border-radius: var(--r-xs); transition: background var(--dur-1) var(--ease-standard); white-space: nowrap; }
 .recent-clear:hover { background: color-mix(in srgb, var(--color-primary) 12%, transparent); }
 .recent-list { display: flex; flex-direction: column; gap: 2px; overflow: hidden; transition: max-height var(--dur-3) var(--ease-emphasized), opacity var(--dur-2) var(--ease-standard); max-height: 500px; }
 .recent-list.is-collapsed { max-height: 0; opacity: 0; }
@@ -501,7 +518,7 @@ img { display: block; max-width: 100%; }
 .facc__btn {
   display: flex; align-items: center; justify-content: space-between; gap: var(--sp-2);
   width: 100%; padding: var(--sp-3) var(--sp-3);
-  border-radius: var(--r-pill);
+  border-radius: var(--r-sm);
   background: var(--color-surface-3);
   color: var(--color-text-muted);
   font-size: var(--fs-body-s); font-weight: 600;
