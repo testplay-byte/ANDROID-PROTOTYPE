@@ -217,6 +217,12 @@
         });
         list.appendChild(more);
       }
+      // Initialize the headRight with "Clear all" when expanded
+      if (!recentCollapsed) {
+        var headRight = document.getElementById("recentHeadRight");
+        headRight.innerHTML = '<button class="recent-clear" id="recentClear">Clear all</button>';
+        document.getElementById("recentClear").addEventListener("click", function () { clearRecent(); renderRecent(); });
+      }
     } else {
       section.style.display = "none";
     }
@@ -230,14 +236,16 @@
     var toggle = document.getElementById("recentToggle");
     var headRight = document.getElementById("recentHeadRight");
     list.classList.toggle("is-collapsed", recentCollapsed);
-    toggle.classList.toggle("is-collapsed", recentCollapsed);
     if (recentCollapsed) {
-      // Collapsed: show "Show" button on the right
+      // Collapsed: HIDE the toggle (next to text), show "Show" on the far right
+      toggle.style.display = "none";
       headRight.innerHTML = '<button class="recent-show" id="recentShow">Show<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>';
       document.getElementById("recentShow").addEventListener("click", toggleRecent);
     } else {
-      // Expanded: clear the right side (toggle is already next to the text)
-      headRight.innerHTML = '';
+      // Expanded: SHOW the toggle (next to text), show "Clear all" on the far right
+      toggle.style.display = "flex";
+      headRight.innerHTML = '<button class="recent-clear" id="recentClear">Clear all</button>';
+      document.getElementById("recentClear").addEventListener("click", function () { clearRecent(); renderRecent(); });
     }
   }
   document.getElementById("recentToggle").addEventListener("click", toggleRecent);
