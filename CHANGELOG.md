@@ -7,7 +7,18 @@
 
 ## [Unreleased]
 
-### 2025-01-15 — Search Page prototype (v1.0) — Material 3 Expressive, single screen
+### 2025-01-15 — Search Page v4 — settings page, improved recent searches, animations, docs
+
+**New features:**
+1. **Settings page** — bottom nav Settings button now navigates to a functional settings view with a light/dark theme toggle (M3 segmented buttons). Theme persists in localStorage (`search-theme` key) and applies to the `.device` element.
+2. **Improved recent searches** — limited to 3 visible by default with a "Show N more" expandable button (chevron rotates). Prevents recent searches from pushing the anime grid down when there are many. Max 12 stored.
+3. **Removed iPhone home indicator** — the `.home-indicator` div and CSS have been removed. Bottom nav is now the last element in the device. Per user: "remove that white line kind of looking bar."
+4. **Staggered card animations** — cards fade-in with 40ms stagger on each render, using M3 emphasized-decel easing.
+
+**Documentation updated:**
+- `docs/preferences.md` — new §6 "Material 3 Expressive design" (tonal elevation rules, no border line on bottom nav, home indicator removed, type scale, motion, settings page, recent searches). New §7 "Workflow for AI agents" (research → analyze → implement → verify on live site, common AI UI mistakes to avoid).
+
+### 2025-01-15 — Search Page v3 — M3 tonal elevation, recent searches, source defaults
 
 **Removed:** `prototypes/anime-app/` (deleted — user found it too ugly/complex).
 

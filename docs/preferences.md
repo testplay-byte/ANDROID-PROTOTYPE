@@ -140,4 +140,83 @@ Both are the user's own creations — copy freely.
 
 ---
 
-*Last updated: after v4 (pill nav, thin bezel, fixed signal bars, smaller battery, hidden scrollbar, mobile fullscreen).*
+## 6. Material 3 Expressive design (for prototypes that use M3)
+
+When a prototype uses Material 3 (like the search-page), follow these rules:
+
+### Elevation = tonal surfaces, NOT heavy shadows
+- M3 dark theme uses **surface color tiers** for elevation: `surface-1` → `surface-2` → `surface-3` → `surface-4` → `surface-5`.
+- Higher elevation = **lighter tone** (in dark theme).
+- **Do NOT use `box-shadow` for elevation** — use tonal surface colors.
+- The only exception: the device frame's outer drop shadow (for depth against the page background).
+
+### Bottom navigation — NO border line
+- The bottom nav must **NOT** have a `border-top`, `box-shadow`, or any visible divider line.
+- Use a different surface tone (`surface-1`) to separate it from the content above.
+- The user explicitly said: "remove that white line kind of looking bar."
+
+### Home indicator — REMOVED
+- The iPhone-style gesture bar (`.home-indicator`) has been **removed permanently**.
+- The bottom navigation bar is the last element inside the device.
+- Do NOT re-add it.
+
+### Type scale
+- Use a proper M3 type scale: display (32px) → h1 (26px) → h2 (22px) → h3 (18px) → body-large (16px) → body (14px) → label (12px) → label-small (11px).
+- Headlines should use negative letter-spacing (`-.02em` for display, `-.01em` for h1/h2).
+
+### Motion
+- Use M3 emphasized easing: `cubic-bezier(.3, 0, 0, 1)` for enter/exit, `cubic-bezier(.05, .7, .1, 1)` for decelerate.
+- Stagger card animations: 40ms delay per card index.
+- Bottom sheet slides up with `var(--dur-5)` (500ms) emphasized easing.
+
+### Settings page
+- Every prototype with a bottom nav should have a **functional Settings page**.
+- Must include a **light/dark theme toggle** (M3 segmented buttons).
+- Theme must **persist** in localStorage and apply to the `.device` element (scoped theming).
+- Theme key: `<prototype-name>-theme` (e.g., `search-theme`).
+
+### Recent searches
+- Show only **3 items by default** — don't let recent searches push the anime grid down.
+- Add a **"Show N more"** button to expand (with a chevron that rotates).
+- "Show less" to collapse.
+- Max 12 stored in localStorage.
+
+---
+
+## 7. Workflow for AI agents (CRITICAL — read this before starting work)
+
+The user has explicitly praised the following workflow. **Follow it every time:**
+
+1. **Research first** — Before designing, search the web for:
+   - "Material 3 design best practices"
+   - "why AI generated UI looks bad common mistakes"
+   - Modern UI techniques for the specific app type (e.g., "anime app UI design")
+   - Use the `web-search` skill (z-ai CLI: `z-ai function -n web_search -a '{"query": "...", "num": 5}'`)
+
+2. **Analyze the current state** — Screenshot the live site with Agent Browser, then use VLM to get brutally honest feedback:
+   - `z-ai vision -p "Be brutally honest: what looks bad, ugly, or AI-generated?" -i screenshot.png`
+   - List every problem the VLM identifies.
+
+3. **Implement fixes** — Address every problem from the VLM analysis. Apply modern M3 techniques (tonal elevation, proper type scale, emphasized easing).
+
+4. **Verify with VLM on the LIVE site** (not just localhost):
+   - Screenshot the live URL with Agent Browser.
+   - Use VLM to verify: "Does it look polished and professional, or still AI-generated?"
+   - If VLM rates it below 7/10, iterate.
+
+5. **Never skip verification** — The user will check, and they will notice if you didn't verify.
+
+### Why AI UI looks bad (common mistakes to avoid)
+- Using "clean and modern" as a style descriptor (too vague → generic output)
+- Not specifying the platform (mobile vs desktop)
+- Flat cards with no elevation/depth
+- Inconsistent spacing (uneven gaps between elements)
+- Low contrast text
+- Small touch targets
+- Generic color schemes (the user hates indigo/blue)
+- No personality or branding
+- Forgetting to verify the result
+
+---
+
+*Last updated: after search-page v4 (settings page, improved recent searches, removed home indicator, staggered animations, M3 tonal elevation, workflow documentation).*
