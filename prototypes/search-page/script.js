@@ -1,11 +1,12 @@
 /* =========================================================================
-   search-page / script.js
-   Material 3 Expressive search screen.
-   - AniList GraphQL integration
-   - Source toggle (AniList / Extension — Extension is visual-only, same data)
-   - Filter chips (quick genres) + expandable filter panel
-   - Debounced search with default results when no query
-   - Material 3 bottom nav with active-pill indicator
+   search-page / script.js  —  v2 (redesigned)
+   Material 3 Expressive search with feature-rich filter bottom sheet.
+   - Full genre list (16 genres, multi-select)
+   - Year, Season, Format, Status selects
+   - Minimum score slider
+   - Sort chips
+   - Active filter chips display
+   - Bottom sheet modal with Apply/Reset
    ========================================================================= */
 
 (function () {
@@ -13,7 +14,7 @@
 
   var device = document.getElementById("device");
 
-  /* ---- Clock + battery (from template) -------------------------------- */
+  /* ---- Clock + battery ----------------------------------------------- */
   var clock = document.getElementById("clock");
   function tick() { if (!clock) return; var d = new Date(); var h = d.getHours() % 12 || 12; var m = d.getMinutes().toString().padStart(2, "0"); clock.textContent = h + ":" + m; }
   tick(); setInterval(tick, 30000);
@@ -28,16 +29,37 @@
     fillEl.setAttribute("height", String(fh));
   })();
 
-  /* ---- State ----------------------------------------------------------- */
+  /* ---- Filter state --------------------------------------------------- */
+  var GENRES = ["Action", "Adventure", "Comedy", "Drama", "Fantasy", "Horror", "Mecha",
+    "Music", "Mystery", "Psychological", "Romance", "Sci-Fi", "Slice of Life",
+    "Sports", "Supernatural", "Thriller"];
+  var SORT_LABELS = {
+    "POPULARITY_DESC": "Popularity", "SCORE_DESC": "Score", "START_DATE_DESC": "Newest",
+    "TITLE_ROMAJI": "Title A-Z", "FAVOURITES_DESC": "Favorites"
+  };
+
   var state = {
-    source: "anilist",       // "anilist" or "extension"
+    source: "anilist",
     query: "",
-    genres: [],              // active genre filters (from chips)
+    genres: [],
     year: "",
     season: "",
     format: "",
+    status: "",
+    minScore: 0,
     sort: "POPULARITY_DESC"
   };
+
+  function countActiveFilters() {
+    var n = 0;
+    if (state.genres.length) n += state.genres.length;
+    if (state.year) n++;
+    if (state.season) n++;
+    if (state.format) n++;
+    if (state.status) n++;
+    if (state.minScore > 0) n++;
+    return n;
+  }
 
   /* ---- AniList API ---------------------------------------------------- */
   var API = "https://graphql.anilist.co";
@@ -63,6 +85,8 @@
     if (filters.year) { params.push("seasonYear:$year"); vars.year = parseInt(filters.year); }
     if (filters.season) { params.push("season:$season"); vars.season = filters.season; }
     if (filters.format) { params.push("format:$format"); vars.format = filters.format; }
+    if (filters.status) { params.push("status:$status"); vars.status = filters.status; }
+    if (filters.minScore && filters.minScore > 0) { params.push("averageScore_greater:$minScore"); vars.minScore = filters.minScore; }
     if (filters.sort) params.push("sort:" + filters.sort);
 
     var varDecls = ["$page:Int", "$perPage:Int"];
@@ -71,8 +95,10 @@
     if (vars.year !== undefined) varDecls.push("$year:Int");
     if (vars.season !== undefined) varDecls.push("$season:MediaSeason");
     if (vars.format !== undefined) varDecls.push("$format:MediaFormat");
+    if (vars.status !== undefined) varDecls.push("$status:MediaStatus");
+    if (vars.minScore !== undefined) varDecls.push("$minScore:Int");
 
-    var q = "query(" + varDecls.join(",") + "){Page(page:$page,perPage:$perPage){media(" + params.join(",") + "){id title{romaji english} coverImage{large extraLarge} averageScore episodes format season seasonYear genres}}}";
+    var q = "query(" + varDecls.join(",") + "){Page(page:$page,perPage:$perPage){media(" + params.join(",") + "){id title{romaji english} coverImage{large extraLarge} averageScore episodes format season seasonYear genres status}}}";
     return gql(q, vars);
   }
 
@@ -83,8 +109,12 @@
   function animeCard(a) {
     var title = a.title.romaji || a.title.english || "Unknown";
     var cover = a.coverImage.large || a.coverImage.extraLarge;
-    var score = a.averageScore ? '<span class="anime-card__score">★ ' + fmtScore(a.averageScore) + '</span>' : '';
-    var meta = (a.format || "TV") + (a.episodes ? ' · ' + a.episodes + ' ep' : (a.seasonYear ? ' · ' + a.seasonYear : ''));
+    var score = a.averageScore ? '<span class="anime-card__score"><span class="star">★</span>' + fmtScore(a.averageScore) + '</span>' : '';
+    var metaParts = [];
+    if (a.format) metaParts.push(a.format);
+    if (a.episodes) metaParts.push(a.episodes + " ep");
+    else if (a.seasonYear) metaParts.push(a.seasonYear);
+    var meta = metaParts.join(" · ");
     return el(
       '<div class="anime-card">' +
         '<div class="anime-card__cover">' +
@@ -100,7 +130,7 @@
   function showSkeletons(count) {
     var grid = document.getElementById("resultsGrid");
     grid.innerHTML = "";
-    for (var i = 0; i < (count || 9); i++) {
+    for (var i = 0; i < (count || 12); i++) {
       grid.appendChild(el('<div class="skeleton" style="aspect-ratio:2/3"></div>'));
     }
   }
@@ -117,17 +147,14 @@
     ));
   }
 
-  /* ---- Source toggle (AniList / Extension) ---------------------------- */
+  /* ---- Source toggle -------------------------------------------------- */
   document.getElementById("sourceToggle").addEventListener("click", function (e) {
     var btn = e.target.closest("[data-source]");
     if (!btn) return;
-    var src = btn.dataset.source;
-    state.source = src;
+    state.source = btn.dataset.source;
     this.querySelectorAll(".source-toggle__btn").forEach(function (b) {
       b.classList.toggle("is-active", b === btn);
     });
-    // Re-run the current search with the new source.
-    // Extension is visual-only — it fetches the same AniList data.
     doSearch();
   });
 
@@ -151,65 +178,219 @@
     doSearch();
   });
 
-  /* ---- Filter chips (quick genre filters) ----------------------------- */
-  document.querySelectorAll(".filter-chip[data-genre]").forEach(function (chip) {
+  /* ---- Build genre chips in the sheet -------------------------------- */
+  var genreChips = document.getElementById("genreChips");
+  GENRES.forEach(function (g) {
+    var chip = el(
+      '<button class="fchip" data-genre="' + g + '">' +
+        '<svg class="fchip__check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' +
+        '<span>' + g + '</span>' +
+      '</button>'
+    );
+    genreChips.appendChild(chip);
     chip.addEventListener("click", function () {
-      var genre = this.dataset.genre;
-      var idx = state.genres.indexOf(genre);
-      if (idx === -1) { state.genres.push(genre); this.classList.add("is-active"); }
+      var idx = state.genres.indexOf(g);
+      if (idx === -1) { state.genres.push(g); this.classList.add("is-active"); }
       else { state.genres.splice(idx, 1); this.classList.remove("is-active"); }
+      updateFilterUI();
       doSearch();
     });
   });
 
-  /* ---- Expandable filter panel ---------------------------------------- */
-  var filterPanel = document.getElementById("filterPanel");
-  var filterToggleChip = document.getElementById("filterToggleChip");
-
-  filterToggleChip.addEventListener("click", function () {
-    var isOpen = filterPanel.classList.toggle("is-open");
-    filterToggleChip.classList.toggle("is-active", isOpen);
-  });
-
-  // Populate year dropdown
+  /* ---- Populate year dropdown ---------------------------------------- */
   var yearSelect = document.getElementById("filterYear");
   var yr = new Date().getFullYear();
   for (var y = yr; y >= 1990; y--) {
     yearSelect.appendChild(el('<option value="' + y + '">' + y + '</option>'));
   }
 
-  ["filterYear", "filterSeason", "filterFormat", "filterSort"].forEach(function (id) {
+  /* ---- Filter selects ------------------------------------------------- */
+  ["filterYear", "filterSeason", "filterFormat", "filterStatus"].forEach(function (id) {
     document.getElementById(id).addEventListener("change", function () {
       state.year = document.getElementById("filterYear").value;
       state.season = document.getElementById("filterSeason").value;
       state.format = document.getElementById("filterFormat").value;
-      state.sort = document.getElementById("filterSort").value || "POPULARITY_DESC";
+      state.status = document.getElementById("filterStatus").value;
+      updateFilterUI();
       doSearch();
     });
   });
 
-  document.getElementById("resetFilters").addEventListener("click", function () {
-    state.genres = [];
-    state.year = ""; state.season = ""; state.format = "";
-    state.sort = "POPULARITY_DESC";
-    document.querySelectorAll(".filter-chip[data-genre]").forEach(function (c) { c.classList.remove("is-active"); });
-    document.getElementById("filterYear").value = "";
-    document.getElementById("filterSeason").value = "";
-    document.getElementById("filterFormat").value = "";
-    document.getElementById("filterSort").value = "POPULARITY_DESC";
+  /* ---- Score slider --------------------------------------------------- */
+  var scoreSlider = document.getElementById("filterScore");
+  var scoreValue = document.getElementById("scoreValue");
+  scoreSlider.addEventListener("input", function () {
+    var v = parseInt(this.value);
+    state.minScore = v;
+    scoreValue.textContent = v > 0 ? (v / 10).toFixed(1) + "+" : "Any";
+    updateFilterUI();
+  });
+  scoreSlider.addEventListener("change", doSearch);
+
+  /* ---- Sort chips ----------------------------------------------------- */
+  document.getElementById("sortChips").addEventListener("click", function (e) {
+    var chip = e.target.closest("[data-sort]");
+    if (!chip) return;
+    state.sort = chip.dataset.sort;
+    this.querySelectorAll(".fchip").forEach(function (c) { c.classList.toggle("is-active", c === chip); });
+    document.getElementById("sortLabel").textContent = SORT_LABELS[state.sort];
     doSearch();
   });
 
-  /* ---- Search execution ----------------------------------------------- */
+  /* ---- Quick sort button (cycles through sorts) ---------------------- */
+  document.getElementById("sortBtn").addEventListener("click", function () {
+    openSheet();
+  });
+
+  /* ---- Per-group clear buttons --------------------------------------- */
+  document.querySelectorAll("[data-clear]").forEach(function (btn) {
+    btn.addEventListener("click", function () {
+      var group = this.dataset.clear;
+      if (group === "genres") {
+        state.genres = [];
+        document.querySelectorAll("#genreChips .fchip").forEach(function (c) { c.classList.remove("is-active"); });
+      } else if (group === "release") {
+        state.year = ""; state.season = "";
+        document.getElementById("filterYear").value = "";
+        document.getElementById("filterSeason").value = "";
+      } else if (group === "type") {
+        state.format = ""; state.status = "";
+        document.getElementById("filterFormat").value = "";
+        document.getElementById("filterStatus").value = "";
+      } else if (group === "score") {
+        state.minScore = 0;
+        scoreSlider.value = 0;
+        scoreValue.textContent = "Any";
+      }
+      updateFilterUI();
+      doSearch();
+    });
+  });
+
+  /* ---- Reset all ------------------------------------------------------ */
+  document.getElementById("resetAllFilters").addEventListener("click", function () {
+    state.genres = []; state.year = ""; state.season = ""; state.format = "";
+    state.status = ""; state.minScore = 0; state.sort = "POPULARITY_DESC";
+    document.querySelectorAll("#genreChips .fchip").forEach(function (c) { c.classList.remove("is-active"); });
+    document.getElementById("filterYear").value = "";
+    document.getElementById("filterSeason").value = "";
+    document.getElementById("filterFormat").value = "";
+    document.getElementById("filterStatus").value = "";
+    scoreSlider.value = 0;
+    scoreValue.textContent = "Any";
+    document.querySelectorAll("#sortChips .fchip").forEach(function (c) { c.classList.toggle("is-active", c.dataset.sort === "POPULARITY_DESC"); });
+    document.getElementById("sortLabel").textContent = "Popularity";
+    updateFilterUI();
+    doSearch();
+  });
+
+  /* ---- Apply button (closes sheet) ----------------------------------- */
+  document.getElementById("applyFilters").addEventListener("click", closeSheet);
+
+  /* ---- Bottom sheet open/close --------------------------------------- */
+  var sheetScrim = document.getElementById("sheetScrim");
+  var filterSheet = document.getElementById("filterSheet");
+
+  function openSheet() {
+    sheetScrim.classList.add("is-visible");
+    filterSheet.classList.add("is-open");
+  }
+  function closeSheet() {
+    sheetScrim.classList.remove("is-visible");
+    filterSheet.classList.remove("is-open");
+  }
+
+  document.getElementById("filterBtn").addEventListener("click", openSheet);
+  document.getElementById("sheetClose").addEventListener("click", closeSheet);
+  sheetScrim.addEventListener("click", closeSheet);
+
+  /* ---- Update filter UI (badge, active chips, group clears) ---------- */
+  function updateFilterUI() {
+    var count = countActiveFilters();
+    var badge = document.getElementById("filterBadge");
+    var filterBtn = document.getElementById("filterBtn");
+    if (count > 0) {
+      badge.textContent = count;
+      badge.style.display = "flex";
+      filterBtn.classList.add("is-active");
+    } else {
+      badge.style.display = "none";
+      filterBtn.classList.remove("is-active");
+    }
+
+    // Active filter chips
+    var chips = document.getElementById("activeFilters");
+    chips.innerHTML = "";
+    state.genres.forEach(function (g) {
+      chips.appendChild(makeActiveChip(g, function () {
+        state.genres.splice(state.genres.indexOf(g), 1);
+        document.querySelectorAll("#genreChips .fchip").forEach(function (c) {
+          if (c.dataset.genre === g) c.classList.remove("is-active");
+        });
+        updateFilterUI(); doSearch();
+      }));
+    });
+    if (state.year) chips.appendChild(makeActiveChip(state.year, function () {
+      state.year = ""; document.getElementById("filterYear").value = ""; updateFilterUI(); doSearch();
+    }));
+    if (state.season) chips.appendChild(makeActiveChip(state.season.charAt(0) + state.season.slice(1).toLowerCase(), function () {
+      state.season = ""; document.getElementById("filterSeason").value = ""; updateFilterUI(); doSearch();
+    }));
+    if (state.format) chips.appendChild(makeActiveChip(formatLabel(state.format), function () {
+      state.format = ""; document.getElementById("filterFormat").value = ""; updateFilterUI(); doSearch();
+    }));
+    if (state.status) chips.appendChild(makeActiveChip(statusLabel(state.status), function () {
+      state.status = ""; document.getElementById("filterStatus").value = ""; updateFilterUI(); doSearch();
+    }));
+    if (state.minScore > 0) chips.appendChild(makeActiveChip("★ " + (state.minScore / 10).toFixed(1) + "+", function () {
+      state.minScore = 0; scoreSlider.value = 0; scoreValue.textContent = "Any"; updateFilterUI(); doSearch();
+    }));
+    chips.classList.toggle("has-chips", chips.children.length > 0);
+
+    // Group clear button visibility
+    setGroupClear("genres", state.genres.length > 0);
+    setGroupClear("release", !!(state.year || state.season));
+    setGroupClear("type", !!(state.format || state.status));
+    setGroupClear("score", state.minScore > 0);
+
+    // Sort label
+    document.getElementById("sortLabel").textContent = SORT_LABELS[state.sort];
+  }
+
+  function setGroupClear(group, visible) {
+    var btn = document.querySelector('[data-clear="' + group + '"]');
+    if (btn) btn.classList.toggle("is-hidden", !visible);
+  }
+
+  function formatLabel(f) {
+    var m = { TV: "TV", MOVIE: "Movie", OVA: "OVA", ONA: "ONA", SPECIAL: "Special", MUSIC: "Music" };
+    return m[f] || f;
+  }
+  function statusLabel(s) {
+    var m = { RELEASING: "Airing", FINISHED: "Finished", NOT_YET_RELEASED: "Upcoming", CANCELLED: "Cancelled" };
+    return m[s] || s;
+  }
+
+  function makeActiveChip(label, onRemove) {
+    var chip = el(
+      '<button class="active-filter-chip">' +
+        '<span>' + label + '</span>' +
+        '<span class="active-filter-chip__x"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>' +
+      '</button>'
+    );
+    chip.addEventListener("click", onRemove);
+    return chip;
+  }
+
+  /* ---- Search execution ---------------------------------------------- */
   function doSearch() {
     var grid = document.getElementById("resultsGrid");
     var label = document.getElementById("resultsLabel");
     var count = document.getElementById("resultsCount");
 
     var hasQuery = !!state.query;
-    var hasFilters = state.genres.length > 0 || state.year || state.season || state.format;
+    var hasFilters = countActiveFilters() > 0;
 
-    // Update label
     if (hasQuery) {
       label.textContent = 'Results for "' + state.query + '"';
     } else if (hasFilters) {
@@ -217,8 +398,6 @@
     } else {
       label.textContent = "Popular anime";
     }
-
-    // Source label note (Extension is visual-only)
     if (state.source === "extension") {
       label.textContent = label.textContent + " · Extension";
     }
@@ -230,13 +409,15 @@
       year: state.year,
       season: state.season,
       format: state.format,
+      status: state.status,
+      minScore: state.minScore,
       sort: state.sort
     }).then(function (d) {
       var media = (d.data && d.data.Page && d.data.Page.media) || [];
       count.textContent = media.length ? media.length + " found" : "";
 
       if (!media.length) {
-        showEmpty("No results", "Try different keywords or adjust your filters.");
+        showEmpty("No results found", "Try different keywords or adjust your filters.");
         return;
       }
 
@@ -247,17 +428,14 @@
     });
   }
 
-  // Initial load — show popular anime by default (no query, no filters)
+  // Initial load
+  updateFilterUI();
   doSearch();
 
-  /* ---- Bottom navigation ---------------------------------------------- */
-  // The search item is active by default. Other items are non-functional
-  // (this is a single-screen prototype) but show visual feedback on tap.
+  /* ---- Bottom nav (visual feedback only — single screen prototype) --- */
   document.querySelectorAll(".bottomnav__item").forEach(function (item) {
     item.addEventListener("click", function () {
-      var nav = this.dataset.nav;
-      if (nav === "search") return; // already on search
-      // Brief visual feedback (ripple-like) without navigating
+      if (this.dataset.nav === "search") return;
       this.animate(
         [{ transform: "scale(.92)" }, { transform: "scale(1)" }],
         { duration: 200, easing: "cubic-bezier(.2,.7,.2,1)" }
@@ -269,12 +447,12 @@
   (function () {
     var finePointer = window.matchMedia("(pointer: fine)").matches;
     if (!finePointer || !device) return;
-    var dragViews = Array.prototype.slice.call(device.querySelectorAll(".view, .content"));
-    dragTargets = [device.querySelector(".screen")].concat(dragViews).filter(Boolean);
+    var dragViews = Array.prototype.slice.call(device.querySelectorAll(".view, .content, .filter-sheet__body"));
+    var dragTargets = [device.querySelector(".screen")].concat(dragViews).filter(Boolean);
     dragTargets.forEach(function (el) {
       var dragging = false, sx = 0, sy = 0, sl = 0, st = 0, moved = false;
       el.addEventListener("mousedown", function (e) {
-        if (e.target.closest("button, a, input, select, .filter-chip, .source-toggle__btn, .bottomnav__item")) return;
+        if (e.target.closest("button, a, input, select, .fchip, .source-toggle__btn, .bottomnav__item, .filter-sheet")) return;
         if (e.button !== 0) return;
         dragging = true; moved = false; sx = e.clientX; sy = e.clientY; sl = el.scrollLeft; st = el.scrollTop;
         el.style.cursor = "grabbing"; e.preventDefault();
@@ -290,7 +468,7 @@
     });
   })();
 
-  /* ---- Fullscreen API (mobile) ---------------------------------------- */
+  /* ---- Fullscreen API (mobile) --------------------------------------- */
   (function () {
     var fsToggle = document.getElementById("fsToggle");
     var fsExpand = document.getElementById("fsIconExpand");
