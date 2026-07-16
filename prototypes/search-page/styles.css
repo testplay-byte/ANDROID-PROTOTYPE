@@ -387,20 +387,31 @@ img { display: block; max-width: 100%; }
   position: relative;
 }
 .content::-webkit-scrollbar { display: none; }
-/* Darkening blur gradient at the top of content — content fades + blurs as it scrolls under the topbar */
-.content::before {
+
+/* Blur + darkening gradient overlay — only visible when topbar is collapsed (scrolled) */
+/* Stronger at top (solid bg + blur), fades to nothing at bottom (smooth transition) */
+.content::after {
   content: '';
-  position: sticky;
-  top: 0;
-  left: 0; right: 0;
-  height: 24px;
-  display: block;
-  margin-bottom: -24px;
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 36px;
   z-index: 5;
   pointer-events: none;
-  background: linear-gradient(to bottom, var(--color-bg) 0%, color-mix(in srgb, var(--color-bg) 60%, transparent) 50%, transparent 100%);
-  -webkit-backdrop-filter: blur(8px);
-  backdrop-filter: blur(8px);
+  /* Darkening: strong at top, fades to transparent at bottom */
+  background: linear-gradient(to bottom,
+    var(--color-bg) 0%,
+    color-mix(in srgb, var(--color-bg) 80%, transparent) 25%,
+    color-mix(in srgb, var(--color-bg) 40%, transparent) 60%,
+    transparent 100%);
+  /* Blur: always applied, but invisible until opacity > 0 */
+  -webkit-backdrop-filter: blur(14px) saturate(1.3);
+  backdrop-filter: blur(14px) saturate(1.3);
+  opacity: 0;
+  transition: opacity var(--dur-3) var(--ease-standard);
+}
+/* When topbar is collapsed (scrolled state): fade in the blur + darken */
+.topbar.is-collapsed ~ .content::after {
+  opacity: 1;
 }
 .content__header { display: flex; align-items: baseline; justify-content: space-between; margin: var(--sp-3) 0 var(--sp-3); }
 .content__label { font-size: var(--fs-body-l); font-weight: 700; color: var(--color-text); letter-spacing: -.005em; }
