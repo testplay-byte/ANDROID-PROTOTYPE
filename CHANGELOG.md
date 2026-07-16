@@ -7,6 +7,16 @@
 
 ## [Unreleased]
 
+### 2025-01-15 — Search Page v5 — floating nav, collapsing header, sort dropdown
+
+**New features:**
+1. **Floating bottom navigation** — the bottom nav is no longer edge-to-edge. It floats with 12px padding from all edges, rounded corners (20px), a subtle shadow, and a tonal `surface-3` background. Active items show text beside the icon (horizontal layout); non-active items show icon only. Per user: "floating kind of rounded corners navigation bar with padding" and "show the text on the right side of the logo itself."
+2. **Collapsing header on scroll** — when the user scrolls the content down past 20px, the top bar smoothly collapses (title shrinks from display to h2, search bar shrinks from 56px to 44px, source toggle scales to 0.9). Scrolls back to top → expands. M3 emphasized easing.
+3. **Separated Filters and Sort** — Filters is now a prominent tonal-filled button (surface-2); Sort is an outlined secondary button with a chevron. Sort opens its own dropdown menu (5 options, checkmark on active) — separate from the filter bottom sheet. Per user: "add the filters option to a separate area."
+
+**Documentation updated:**
+- `docs/preferences.md` — updated bottom nav section (floating, rounded, text beside icon). Added "Collapsing header on scroll" section. Added "Separated Filters and Sort" section.
+
 ### 2025-01-15 — Search Page v4 — settings page, improved recent searches, animations, docs
 
 **New features:**

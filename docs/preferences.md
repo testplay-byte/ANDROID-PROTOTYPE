@@ -150,10 +150,15 @@ When a prototype uses Material 3 (like the search-page), follow these rules:
 - **Do NOT use `box-shadow` for elevation** — use tonal surface colors.
 - The only exception: the device frame's outer drop shadow (for depth against the page background).
 
-### Bottom navigation — NO border line
-- The bottom nav must **NOT** have a `border-top`, `box-shadow`, or any visible divider line.
-- Use a different surface tone (`surface-1`) to separate it from the content above.
-- The user explicitly said: "remove that white line kind of looking bar."
+### Bottom navigation — floating, rounded, text beside icon
+- **Floating**: the nav bar has padding from all edges (12px left, right, bottom). It does NOT stretch edge-to-edge.
+- **Rounded corners**: use `border-radius: 20px` (or `--r-lg`).
+- **Shadow**: a subtle drop shadow (`0 4px 16px rgba(0,0,0,.25)`) makes it float above the content.
+- **Horizontal layout**: the active nav item shows **text beside the icon** (horizontal `flex-direction: row`), NOT below it.
+- **Non-active items**: show **icon only** (no text label).
+- **Tonal background**: use `surface-3` (a higher tier than the content background) for the nav bar.
+- **NO border line**: no `border-top` or divider — the tonal surface + shadow provides separation.
+- The user explicitly said: "floating kind of rounded corners navigation bar with some padding on the right side, some padding on the left side, some padding on the bottom" and "show the text on the right side of the logo itself instead of showing it at the bottom."
 
 ### Home indicator — REMOVED
 - The iPhone-style gesture bar (`.home-indicator`) has been **removed permanently**.
@@ -168,6 +173,23 @@ When a prototype uses Material 3 (like the search-page), follow these rules:
 - Use M3 emphasized easing: `cubic-bezier(.3, 0, 0, 1)` for enter/exit, `cubic-bezier(.05, .7, .1, 1)` for decelerate.
 - Stagger card animations: 40ms delay per card index.
 - Bottom sheet slides up with `var(--dur-5)` (500ms) emphasized easing.
+
+### Collapsing header on scroll
+- When the user scrolls the content down (past ~20px), the top bar should **collapse smoothly**:
+  - Title font shrinks (e.g., display → h2)
+  - Search bar height shrinks (e.g., 56px → 44px)
+  - Source toggle scales down (0.9)
+  - Padding and gaps reduce
+- When the user scrolls back to the top, the top bar **expands** back to full size.
+- Use CSS transitions with M3 emphasized easing for smooth animation.
+- The user explicitly said: "When the user scrolls on the search page, the top options getting minimized or getting hidden a bit would be a better option too, smoothly the options get hidden."
+
+### Separated Filters and Sort
+- **Filters** and **Sort** should be in **separate, distinguishable areas** — not combined in one row as equals.
+- Filters button: tonal-filled (`surface-2` background), prominent, with a badge count.
+- Sort button: outlined, secondary, with a chevron icon that rotates when the dropdown is open.
+- Sort opens its **own dropdown menu** (not the filter sheet) — positioned above the sort button.
+- The user explicitly said: "I kind of do not feel like it is a good idea to handle them like that. I think maybe you could add the filters option to a separate area."
 
 ### Settings page
 - Every prototype with a bottom nav should have a **functional Settings page**.
