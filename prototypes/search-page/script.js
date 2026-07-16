@@ -330,7 +330,47 @@
     doSearch();
   });
 
-  document.getElementById("sortBtn").addEventListener("click", function () { openSheet(); });
+  /* ---- Sort dropdown (separate from filter sheet) --------------------- */
+  var sortBtn = document.getElementById("sortBtn");
+  var sortDropdown = null;
+
+  function closeSortDropdown() {
+    if (sortDropdown) { sortDropdown.remove(); sortDropdown = null; sortBtn.classList.remove("is-open"); }
+  }
+
+  sortBtn.addEventListener("click", function (e) {
+    e.stopPropagation();
+    if (sortDropdown) { closeSortDropdown(); return; }
+    sortBtn.classList.add("is-open");
+    sortDropdown = el('<div class="sort-dropdown" id="sortDropdown"></div>');
+    Object.keys(SORT_LABELS).forEach(function (key) {
+      var item = el('<button class="sort-dropdown__item' + (state.sort === key ? " is-active" : "") + '" data-sort="' + key + '">' +
+        '<span>' + SORT_LABELS[key] + '</span>' +
+        (state.sort === key ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '') +
+        '</button>');
+      item.addEventListener("click", function () {
+        state.sort = key;
+        document.getElementById("sortLabel").textContent = SORT_LABELS[key];
+        document.querySelectorAll("#sortChips .fchip").forEach(function (c) { c.classList.toggle("is-active", c.dataset.sort === key); });
+        closeSortDropdown();
+        doSearch();
+      });
+      sortDropdown.appendChild(item);
+    });
+    // Position below the sort button
+    var rect = sortBtn.getBoundingClientRect();
+    var deviceRect = device.getBoundingClientRect();
+    sortDropdown.style.position = "absolute";
+    sortDropdown.style.top = (rect.top - deviceRect.top - 8) + "px";
+    sortDropdown.style.right = (deviceRect.right - rect.right) + "px";
+    sortDropdown.style.transform = "translateY(-100%)";
+    sortDropdown.style.zIndex = "60";
+    device.appendChild(sortDropdown);
+  });
+
+  document.addEventListener("click", function (e) {
+    if (sortDropdown && !e.target.closest("#sortDropdown") && !e.target.closest("#sortBtn")) closeSortDropdown();
+  });
 
   /* ---- Per-group clear buttons --------------------------------------- */
   document.querySelectorAll("[data-clear]").forEach(function (btn) {
@@ -523,6 +563,29 @@
   updateFilterUI();
   renderRecent();
   doSearch();
+
+  /* ---- Collapsing header on scroll ----------------------------------- */
+  /* When the user scrolls the content area down, the topbar collapses
+     (title shrinks, search bar shrinks, source toggle scales down).
+     When they scroll back to top, it expands again. */
+  (function () {
+    var contentView = document.querySelector('[data-view="search"] .content');
+    if (!contentView) return;
+    var topbar = document.querySelector('[data-view="search"] .topbar');
+    if (!topbar) return;
+    var lastScrollTop = 0;
+    var collapseThreshold = 20; // px scrolled before collapsing
+
+    contentView.addEventListener("scroll", function () {
+      var st = contentView.scrollTop;
+      if (st > collapseThreshold && !topbar.classList.contains("is-collapsed")) {
+        topbar.classList.add("is-collapsed");
+      } else if (st <= collapseThreshold && topbar.classList.contains("is-collapsed")) {
+        topbar.classList.remove("is-collapsed");
+      }
+      lastScrollTop = st;
+    });
+  })();
 
   /* ---- Bottom nav (navigate between views) --------------------------- */
   document.querySelectorAll(".bottomnav__item").forEach(function (item) {
