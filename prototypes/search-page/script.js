@@ -1,9 +1,10 @@
 /* =========================================================================
-   search-page / script.js  —  v3 (complete redesign)
-   - Recent searches (localStorage)
+   search-page / script.js  —  v4 (settings + improved recent + animations)
+   - Recent searches (localStorage, limited to 3 visible + expandable)
    - Source-aware defaults: AniList shows popular, Extension shows trending
    - Feature-rich filter bottom sheet
-   - M3 tonal elevation, proper animations
+   - Settings page with light/dark theme toggle (persisted)
+   - M3 tonal elevation, staggered card animations
    ========================================================================= */
 
 (function () {
@@ -54,17 +55,18 @@
   };
 
   // Recent searches in localStorage
+  var RECENT_LIMIT = 12;  // max stored
+  var RECENT_VISIBLE = 3; // visible before "Show more"
   var recentSearches = [];
   try { recentSearches = JSON.parse(localStorage.getItem("search-recent") || "[]"); } catch (e) { recentSearches = []; }
   function saveRecent() { try { localStorage.setItem("search-recent", JSON.stringify(recentSearches)); } catch (e) {} }
   function addRecent(query) {
     query = query.trim();
     if (!query) return;
-    // Remove if already exists (move to top)
     var idx = recentSearches.indexOf(query);
     if (idx !== -1) recentSearches.splice(idx, 1);
     recentSearches.unshift(query);
-    if (recentSearches.length > 8) recentSearches = recentSearches.slice(0, 8);
+    if (recentSearches.length > RECENT_LIMIT) recentSearches = recentSearches.slice(0, RECENT_LIMIT);
     saveRecent();
   }
   function removeRecent(query) {
@@ -165,23 +167,24 @@
     ));
   }
 
-  /* ---- Recent searches UI -------------------------------------------- */
+  /* ---- Recent searches UI (improved — limited + expandable) ---------- */
+  var recentExpanded = false;
   function renderRecent() {
     var section = document.getElementById("recentSection");
     var list = document.getElementById("recentList");
     if (!section || !list) return;
 
-    // Show recent searches only when: no query, no filters, and there ARE recent searches
     var hasFilters = countActiveFilters() > 0;
     if (!state.query && !hasFilters && recentSearches.length > 0) {
       section.style.display = "block";
       list.innerHTML = "";
-      recentSearches.forEach(function (q) {
+      var visibleCount = recentExpanded ? recentSearches.length : Math.min(RECENT_VISIBLE, recentSearches.length);
+      recentSearches.slice(0, visibleCount).forEach(function (q) {
         var item = el(
           '<div class="recent-item" data-query="' + q.replace(/"/g, '&quot;') + '">' +
-            '<span class="recent-item__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>' +
+            '<span class="recent-item__icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>' +
             '<span class="recent-item__text">' + q + '</span>' +
-            '<button class="recent-item__remove" data-remove="' + q.replace(/"/g, '&quot;') + '" aria-label="Remove"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>' +
+            '<button class="recent-item__remove" data-remove="' + q.replace(/"/g, '&quot;') + '" aria-label="Remove"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>' +
           '</div>'
         );
         item.addEventListener("click", function (e) {
@@ -189,6 +192,7 @@
           searchInput.value = q;
           state.query = q;
           searchClear.style.display = "flex";
+          addRecent(q);
           doSearch();
         });
         var removeBtn = item.querySelector("[data-remove]");
@@ -199,6 +203,20 @@
         });
         list.appendChild(item);
       });
+      // Add "Show more" button if there are more than RECENT_VISIBLE
+      if (recentSearches.length > RECENT_VISIBLE) {
+        var more = el(
+          '<div class="recent-more' + (recentExpanded ? ' is-expanded' : '') + '" id="recentMore">' +
+            '<span>' + (recentExpanded ? 'Show less' : 'Show ' + (recentSearches.length - RECENT_VISIBLE) + ' more') + '</span>' +
+            '<span class="recent-more__icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>' +
+          '</div>'
+        );
+        more.addEventListener("click", function () {
+          recentExpanded = !recentExpanded;
+          renderRecent();
+        });
+        list.appendChild(more);
+      }
     } else {
       section.style.display = "none";
     }
@@ -446,22 +464,76 @@
       count.textContent = media.length ? media.length + " found" : "";
       if (!media.length) { showEmpty("No results found", "Try different keywords or adjust your filters."); return; }
       grid.innerHTML = "";
-      media.forEach(function (a) { grid.appendChild(animeCard(a)); });
+      media.forEach(function (a, i) {
+        var card = animeCard(a);
+        // Staggered fade-in animation
+        card.style.animationDelay = (i * 40) + 'ms';
+        grid.appendChild(card);
+      });
     }).catch(function () {
       showEmpty("Search error", "Could not fetch results. Check your connection.");
     });
   }
+
+  /* ---- View navigation (search <-> settings) ------------------------- */
+  function goToView(viewName) {
+    document.querySelectorAll(".view").forEach(function (v) {
+      var active = v.dataset.view === viewName;
+      v.classList.toggle("view--active", active);
+      if (active) v.scrollTop = 0;
+    });
+    document.querySelectorAll(".bottomnav__item").forEach(function (b) {
+      b.classList.toggle("is-active", b.dataset.nav === viewName);
+    });
+    // Update side panel info
+    var info = SCREEN_INFO[viewName];
+    if (info) {
+      var n = document.getElementById("screenInfoName");
+      var d = document.getElementById("screenInfoDesc");
+      if (n) n.textContent = info.name;
+      if (d) d.textContent = info.desc;
+    }
+  }
+
+  var SCREEN_INFO = {
+    search:   { name: "Search",   desc: "M3 Expressive search with tonal elevation, recent searches, and source-aware defaults." },
+    settings: { name: "Settings", desc: "Theme toggle and app info. Dark/light mode persists across sessions." }
+  };
+
+  /* ---- Theme toggle (persisted, scoped to .device) -------------------- */
+  var savedTheme = "dark";
+  try { savedTheme = localStorage.getItem("search-theme") || "dark"; } catch (e) {}
+  device.setAttribute("data-theme", savedTheme);
+  // Sync toggle UI
+  document.querySelectorAll(".theme-toggle__btn").forEach(function (b) {
+    b.classList.toggle("is-active", b.dataset.themeVal === savedTheme);
+  });
+  document.getElementById("themeToggle").addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-theme-val]");
+    if (!btn) return;
+    var theme = btn.dataset.themeVal;
+    device.setAttribute("data-theme", theme);
+    try { localStorage.setItem("search-theme", theme); } catch (e) {}
+    this.querySelectorAll(".theme-toggle__btn").forEach(function (b) {
+      b.classList.toggle("is-active", b === btn);
+    });
+  });
 
   // Initial load
   updateFilterUI();
   renderRecent();
   doSearch();
 
-  /* ---- Bottom nav (visual feedback only) ----------------------------- */
+  /* ---- Bottom nav (navigate between views) --------------------------- */
   document.querySelectorAll(".bottomnav__item").forEach(function (item) {
     item.addEventListener("click", function () {
-      if (this.dataset.nav === "search") return;
-      this.animate([{ transform: "scale(.92)" }, { transform: "scale(1)" }], { duration: 200, easing: "cubic-bezier(.2,.7,.2,1)" });
+      var nav = this.dataset.nav;
+      if (nav === "search" || nav === "settings") {
+        goToView(nav);
+      } else {
+        // Non-implemented screens: visual feedback only
+        this.animate([{ transform: "scale(.92)" }, { transform: "scale(1)" }], { duration: 200, easing: "cubic-bezier(.2,.7,.2,1)" });
+      }
     });
   });
 

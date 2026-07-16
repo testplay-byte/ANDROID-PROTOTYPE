@@ -470,7 +470,46 @@ img { display: block; max-width: 100%; }
 .bottomnav__item--search.is-active .bottomnav__indicator { background: var(--color-primary); }
 .bottomnav__item--search.is-active { color: var(--color-primary-fg); }
 
-/* ---- Home indicator --------------------------------------------------- */
-.home-indicator { height: 5px; width: 120px; border-radius: 999px; background: var(--color-text); opacity: .25; margin: 0 auto 6px; flex: 0 0 auto; }
+/* ---- Home indicator — REMOVED per user request ----------------------- */
+/* The iPhone-style gesture bar has been removed. The bottom nav is the
+   last element inside the device. */
+
+/* ---- Settings page ---------------------------------------------------- */
+.settings-group { margin-bottom: var(--sp-5); }
+.settings-group__label { font-size: var(--fs-label-s); font-weight: 700; text-transform: uppercase; letter-spacing: .08em; color: var(--color-primary); margin-bottom: var(--sp-2); padding: 0 var(--sp-1); }
+.settings-card { background: var(--color-surface-2); border-radius: var(--r-md); overflow: hidden; }
+.setting-row { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); padding: var(--sp-4) var(--sp-4); }
+.setting-row--static { cursor: default; }
+.setting-row__info { display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0; }
+.setting-row__title { font-size: var(--fs-body-l); font-weight: 600; color: var(--color-text); }
+.setting-row__desc { font-size: var(--fs-label); color: var(--color-text-muted); }
+
+/* Theme toggle (M3 segmented buttons for settings) */
+.theme-toggle { display: flex; border: 1px solid var(--color-outline-variant); border-radius: var(--r-pill); padding: 2px; gap: 0; flex: 0 0 auto; }
+.theme-toggle__btn { display: flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: var(--r-pill); font-size: var(--fs-label); font-weight: 600; color: var(--color-text-muted); transition: background var(--dur-2) var(--ease-emphasized), color var(--dur-2) var(--ease-emphasized); white-space: nowrap; }
+.theme-toggle__btn.is-active { background: var(--color-primary-container); color: var(--color-on-primary-container); }
+
+/* ---- Recent searches (improved — collapsible) ------------------------ */
+.recent-section { padding: var(--sp-2) 0 var(--sp-1); }
+.recent-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: var(--sp-2); }
+.recent-title { font-size: var(--fs-body-s); font-weight: 700; color: var(--color-text-muted); letter-spacing: .02em; text-transform: uppercase; }
+.recent-clear { font-size: var(--fs-label); font-weight: 600; color: var(--color-primary); padding: 4px 8px; border-radius: var(--r-xs); transition: background var(--dur-1) var(--ease-standard); }
+.recent-clear:hover { background: color-mix(in srgb, var(--color-primary) 12%, transparent); }
+.recent-list { display: flex; flex-direction: column; gap: 2px; }
+.recent-item { display: flex; align-items: center; gap: var(--sp-3); padding: var(--sp-2) var(--sp-2); border-radius: var(--r-pill); cursor: pointer; transition: background var(--dur-1) var(--ease-standard); animation: chipIn var(--dur-3) var(--ease-emphasized-decel); }
+.recent-item:hover { background: var(--color-surface-1); }
+.recent-item__icon { width: 32px; height: 32px; border-radius: 50%; background: var(--color-surface-2); display: flex; align-items: center; justify-content: center; color: var(--color-text-muted); flex: 0 0 auto; }
+.recent-item__text { flex: 1 1 auto; font-size: var(--fs-body); font-weight: 500; color: var(--color-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.recent-item__remove { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--color-text-subtle); flex: 0 0 auto; transition: background var(--dur-1) var(--ease-standard), color var(--dur-1) var(--ease-standard); }
+.recent-item__remove:hover { background: var(--color-surface-3); color: var(--color-text); }
+.recent-more { display: flex; align-items: center; justify-content: center; gap: 6px; padding: var(--sp-2); border-radius: var(--r-pill); cursor: pointer; font-size: var(--fs-label); font-weight: 600; color: var(--color-primary); transition: background var(--dur-1) var(--ease-standard); }
+.recent-more:hover { background: color-mix(in srgb, var(--color-primary) 8%, transparent); }
+.recent-more__icon { transition: transform var(--dur-2) var(--ease-emphasized); }
+.recent-more.is-expanded .recent-more__icon { transform: rotate(180deg); }
+.recent-item.is-hidden { display: none; }
+
+/* ---- Scroll animations (staggered card fade-in) ---------------------- */
+@keyframes cardFadeIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+.anime-card { animation: cardFadeIn var(--dur-4) var(--ease-emphasized-decel) backwards; }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

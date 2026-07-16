@@ -173,6 +173,47 @@
 
         </section>
 
+        <!-- ===== SETTINGS VIEW ===== -->
+        <section class="view" data-view="settings" aria-label="Settings">
+          <div class="topbar">
+            <h1 class="topbar__title">Settings</h1>
+          </div>
+          <div class="content">
+            <div class="settings-group">
+              <div class="settings-group__label">Appearance</div>
+              <div class="settings-card">
+                <div class="setting-row">
+                  <div class="setting-row__info">
+                    <span class="setting-row__title">Theme</span>
+                    <span class="setting-row__desc">Switch between dark and light mode</span>
+                  </div>
+                  <div class="theme-toggle" id="themeToggle">
+                    <button class="theme-toggle__btn is-active" data-theme-val="dark">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+                      <span>Dark</span>
+                    </button>
+                    <button class="theme-toggle__btn" data-theme-val="light">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>
+                      <span>Light</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="settings-group">
+              <div class="settings-group__label">About</div>
+              <div class="settings-card">
+                <div class="setting-row setting-row--static">
+                  <div class="setting-row__info">
+                    <span class="setting-row__title">Search Page</span>
+                    <span class="setting-row__desc">Prototype v3 · Material 3 Expressive · AniList API</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
         <!-- Bottom navigation (Material 3 — NO border line, tonal surface) -->
         <nav class="bottomnav" aria-label="Primary">
           <button class="bottomnav__item" data-nav="home">
@@ -198,8 +239,6 @@
         </nav>
 
       </main>
-
-      <div class="home-indicator" aria-hidden="true"></div>
     </div>
 
     <!-- ============ RIGHT INFO PANEL ============ -->
