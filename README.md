@@ -25,8 +25,11 @@ Each prototype is a self-contained static web app (HTML + CSS + JS) served direc
 
 Prototypes are deployed to GitHub Pages automatically on every push to `main`.
 
-- **Base URL:** `https://testplay-byte.github.io/ANDROID-PROTOTYPE/`
-- **A prototype at** `prototypes/my-app/index.html` **is reachable at:** `https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/my-app/`
+- **Dashboard (homepage gallery):** [https://testplay-byte.github.io/ANDROID-PROTOTYPE/](https://testplay-byte.github.io/ANDROID-PROTOTYPE/)
+- **Starter template:** [https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/_template/](https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/_template/)
+- **Search page prototype:** [https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/search-page/](https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/search-page/)
+
+A prototype at `prototypes/my-app/index.html` is reachable at `https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/my-app/`.
 
 See [`prototypes/navigation.md`](./prototypes/navigation.md) for the full, current list of prototypes with status and direct links.
 

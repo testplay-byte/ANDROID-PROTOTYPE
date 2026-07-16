@@ -7,6 +7,31 @@
 
 ## [Unreleased]
 
+### 2025-01-15 — Search Page prototype (v1.0) — Material 3 Expressive, single screen
+
+**Removed:** `prototypes/anime-app/` (deleted — user found it too ugly/complex).
+
+**New prototype:** `prototypes/search-page/` — a focused, beautiful single-screen search prototype.
+
+**Design:** Material 3 Expressive — dark purple theme (`#14101f` bg, `#d0bcff` primary, `#1d1a2e` surface). M3 color tokens, pill-shaped elements, emphasized easing.
+
+**Features:**
+- **Source toggle** (top): AniList / Extension segmented buttons — AniList fetches real data, Extension is visual-only (same data, for UI testing)
+- **Search bar**: pill-shaped, debounced (450ms), clear button, shows "Popular anime" by default when empty
+- **Filter chips** (quick filters): Action, Romance, Comedy, Fantasy, Sci-Fi, Drama — multi-select with checkmark
+- **Expandable filter panel**: year, season, format, sort — with reset button
+- **Results grid**: 3-column anime cards with cover (2:3), score badge, title (2-line clamp), format+episodes
+- **Bottom navigation** (Material 3): 5 items (Home, Library, History, Search, Settings)
+  - Active item shows pill indicator + label
+  - Non-active items show **only the icon** (no label) — per user spec
+  - Search item (4th) **always shows label + icon** — per user spec
+  - M3 active-pill pattern with `primary-container` background
+- Default results load on page open (popular anime, no query needed)
+
+**README:** Updated with proper clickable links to dashboard, starter template, and search page.
+
+**Live:** https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/search-page/
+
 ### 2025-01-15 — Anime App prototype (v1.0) — 7 screens, AniList integration
 
 **New prototype:** `prototypes/anime-app/` — a fully interactive mobile anime discovery & streaming app.
