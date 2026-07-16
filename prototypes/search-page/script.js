@@ -227,16 +227,17 @@
   function toggleRecent() {
     recentCollapsed = !recentCollapsed;
     var list = document.getElementById("recentList");
+    var toggle = document.getElementById("recentToggle");
     var headRight = document.getElementById("recentHeadRight");
     list.classList.toggle("is-collapsed", recentCollapsed);
+    toggle.classList.toggle("is-collapsed", recentCollapsed);
     if (recentCollapsed) {
-      // Collapsed: show "Clear all" button
-      headRight.innerHTML = '<button class="recent-clear" id="recentClear">Clear all</button>';
-      document.getElementById("recentClear").addEventListener("click", function () { clearRecent(); renderRecent(); });
+      // Collapsed: show "Show" button on the right
+      headRight.innerHTML = '<button class="recent-show" id="recentShow">Show<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></button>';
+      document.getElementById("recentShow").addEventListener("click", toggleRecent);
     } else {
-      // Expanded: show collapse toggle button
-      headRight.innerHTML = '<button class="recent-toggle" id="recentToggle" aria-label="Toggle recent searches"><span class="recent-toggle__icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></button>';
-      document.getElementById("recentToggle").addEventListener("click", toggleRecent);
+      // Expanded: clear the right side (toggle is already next to the text)
+      headRight.innerHTML = '';
     }
   }
   document.getElementById("recentToggle").addEventListener("click", toggleRecent);
@@ -436,6 +437,126 @@
   });
 
   document.getElementById("applyFilters").addEventListener("click", closeSheet);
+
+  /* ---- Clear all filters --------------------------------------------- */
+  document.getElementById("clearAllFilters").addEventListener("click", function () {
+    state.genres = []; state.year = ""; state.season = ""; state.format = "";
+    state.status = ""; state.minScore = 0;
+    state.sort = SOURCE_DEFAULTS[state.source].sort;
+    // Rebuild the accordion to reset all UI
+    buildFilterAccordion();
+    document.getElementById("sortLabel").textContent = SORT_LABELS[state.sort];
+    updateFilterUI();
+    renderRecent();
+    doSearch();
+  });
+
+  /* ---- Filter view toggle (accordion ↔ flat) ------------------------- */
+  var filterViewMode = "accordion";
+  document.getElementById("filterViewToggle").addEventListener("click", function (e) {
+    var btn = e.target.closest("[data-view-mode]");
+    if (!btn) return;
+    filterViewMode = btn.dataset.viewMode;
+    this.querySelectorAll(".filter-view-toggle__btn").forEach(function (b) { b.classList.toggle("is-active", b === btn); });
+    if (filterViewMode === "accordion") {
+      buildFilterAccordion();
+    } else {
+      buildFlatFilters();
+    }
+  });
+
+  function buildFlatFilters() {
+    var body = document.getElementById("filterSheetBody");
+    body.innerHTML = "";
+    // Tab row
+    var tabs = el('<div class="filter-flat-tabs" id="flatTabs"></div>');
+    var categories = [
+      { id: "genre", label: "Genres" },
+      { id: "release", label: "Release" },
+      { id: "type", label: "Type" },
+      { id: "score", label: "Min Score" },
+      { id: "sort", label: "Sort" }
+    ];
+    categories.forEach(function (cat, i) {
+      var tab = el('<button class="filter-flat-tab' + (i === 0 ? " is-active" : "") + '" data-flat-tab="' + cat.id + '">' + cat.label + '</button>');
+      tabs.appendChild(tab);
+    });
+    body.appendChild(tabs);
+    // Content area
+    var content = el('<div class="filter-flat-content" id="flatContent"></div>');
+    body.appendChild(content);
+
+    // Show first category by default
+    showFlatCategory("genre");
+
+    // Tab click handler
+    tabs.addEventListener("click", function (e) {
+      var tab = e.target.closest("[data-flat-tab]");
+      if (!tab) return;
+      tabs.querySelectorAll(".filter-flat-tab").forEach(function (t) { t.classList.toggle("is-active", t === tab); });
+      showFlatCategory(tab.dataset.flatTab);
+    });
+  }
+
+  function showFlatCategory(id) {
+    var content = document.getElementById("flatContent");
+    if (!content) return;
+    content.innerHTML = "";
+    if (id === "genre") {
+      var wrap = el('<div class="filter-chips-wrap"></div>');
+      GENRES.forEach(function (g) {
+        var chip = el('<button class="fchip' + (state.genres.indexOf(g) !== -1 ? " is-active" : "") + '" data-genre="' + g + '"><svg class="fchip__check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>' + g + '</span></button>');
+        chip.addEventListener("click", function () {
+          var idx = state.genres.indexOf(g);
+          if (idx === -1) { state.genres.push(g); this.classList.add("is-active"); }
+          else { state.genres.splice(idx, 1); this.classList.remove("is-active"); }
+          updateFilterUI(); renderRecent(); doSearch();
+        });
+        wrap.appendChild(chip);
+      });
+      content.appendChild(wrap);
+    } else if (id === "release") {
+      var row = el('<div class="fselect-row"><select class="fselect" id="filterYear"><option value="">Year: Any</option></select><select class="fselect" id="filterSeason"><option value="">Season: Any</option><option value="WINTER">Winter</option><option value="SPRING">Spring</option><option value="SUMMER">Summer</option><option value="FALL">Fall</option></select></div>');
+      var yr = new Date().getFullYear();
+      var ys = row.querySelector("#filterYear");
+      for (var y = yr; y >= 1990; y--) ys.appendChild(el('<option value="' + y + '">' + y + '</option>'));
+      ys.value = state.year;
+      row.querySelector("#filterSeason").value = state.season;
+      ys.addEventListener("change", function () { state.year = this.value; updateFilterUI(); renderRecent(); doSearch(); });
+      row.querySelector("#filterSeason").addEventListener("change", function () { state.season = this.value; updateFilterUI(); renderRecent(); doSearch(); });
+      content.appendChild(row);
+    } else if (id === "type") {
+      var tr = el('<div class="fselect-row"><select class="fselect" id="filterFormat"><option value="">Format: Any</option><option value="TV">TV Series</option><option value="MOVIE">Movie</option><option value="OVA">OVA</option><option value="ONA">ONA</option><option value="SPECIAL">Special</option><option value="MUSIC">Music</option></select><select class="fselect" id="filterStatus"><option value="">Status: Any</option><option value="RELEASING">Currently Airing</option><option value="FINISHED">Finished</option><option value="NOT_YET_RELEASED">Upcoming</option><option value="CANCELLED">Cancelled</option></select></div>');
+      tr.querySelector("#filterFormat").value = state.format;
+      tr.querySelector("#filterStatus").value = state.status;
+      tr.querySelector("#filterFormat").addEventListener("change", function () { state.format = this.value; updateFilterUI(); renderRecent(); doSearch(); });
+      tr.querySelector("#filterStatus").addEventListener("change", function () { state.status = this.value; updateFilterUI(); renderRecent(); doSearch(); });
+      content.appendChild(tr);
+    } else if (id === "score") {
+      var sw = el('<div class="score-slider-wrap"><div class="score-slider-row"><input type="range" class="score-slider" id="filterScore" min="0" max="100" value="' + state.minScore + '" step="5" /><span class="score-value" id="scoreValue">' + (state.minScore > 0 ? (state.minScore / 10).toFixed(1) + "+" : "Any") + '</span></div></div>');
+      sw.querySelector("#filterScore").addEventListener("input", function () {
+        var v = parseInt(this.value);
+        state.minScore = v;
+        sw.querySelector("#scoreValue").textContent = v > 0 ? (v / 10).toFixed(1) + "+" : "Any";
+        updateFilterUI();
+      });
+      sw.querySelector("#filterScore").addEventListener("change", function () { renderRecent(); doSearch(); });
+      content.appendChild(sw);
+    } else if (id === "sort") {
+      var sc = el('<div class="filter-chips-wrap"></div>');
+      Object.keys(SORT_LABELS).forEach(function (key) {
+        var chip = el('<button class="fchip' + (state.sort === key ? " is-active" : "") + '" data-sort="' + key + '"><svg class="fchip__check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>' + SORT_LABELS[key] + '</span></button>');
+        chip.addEventListener("click", function () {
+          state.sort = key;
+          sc.querySelectorAll(".fchip").forEach(function (c) { c.classList.toggle("is-active", c === chip); });
+          document.getElementById("sortLabel").textContent = SORT_LABELS[key];
+          doSearch();
+        });
+        sc.appendChild(chip);
+      });
+      content.appendChild(sc);
+    }
+  }
 
   /* ---- Bottom sheet open/close (no X button — tap scrim to close) ----- */
   var sheetScrim = document.getElementById("sheetScrim");
