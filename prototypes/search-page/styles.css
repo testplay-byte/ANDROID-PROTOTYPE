@@ -382,7 +382,7 @@ img { display: block; max-width: 100%; }
 /* ---- Content area (more bottom padding for floating nav) ------------- */
 .content {
   flex: 1 1 auto; overflow-y: auto;
-  padding: var(--sp-2) var(--sp-4) 110px;
+  padding: var(--sp-2) var(--sp-1) 110px;
   scrollbar-width: none; -ms-overflow-style: none;
 }
 .content::-webkit-scrollbar { display: none; }
