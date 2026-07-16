@@ -12,11 +12,11 @@
 
     <!-- ============ LEFT INFO PANEL ============ -->
     <aside class="sidepanel sidepanel--left" aria-label="Prototype info">
-      <span class="sidepanel__badge">prototype</span>
+      <span class="sidepanel__badge">prototype v3</span>
       <h2 class="sidepanel__title">Search Page</h2>
-      <p class="sidepanel__desc">A refined Material 3 Expressive search screen with a feature-rich filter bottom sheet: genres, year, season, format, status, min score, and sort.</p>
+      <p class="sidepanel__desc">Material 3 Expressive search with tonal elevation, recent searches, source-aware defaults, and a feature-rich filter bottom sheet.</p>
       <div class="tags">
-        <span class="tag">Material 3</span><span class="tag">AniList</span><span class="tag">v2</span>
+        <span class="tag">Material 3</span><span class="tag">AniList</span><span class="tag">v3</span>
       </div>
     </aside>
 
@@ -88,6 +88,15 @@
 
           <!-- Results content -->
           <div class="content">
+            <!-- Recent searches (shown when no query and no filters) -->
+            <div class="recent-section" id="recentSection" style="display:none">
+              <div class="recent-head">
+                <span class="recent-title">Recent searches</span>
+                <button class="recent-clear" id="recentClear">Clear all</button>
+              </div>
+              <div class="recent-list" id="recentList"></div>
+            </div>
+
             <div class="content__header">
               <span class="content__label" id="resultsLabel">Popular anime</span>
               <span class="content__count" id="resultsCount"></span>
@@ -106,8 +115,6 @@
               </button>
             </div>
             <div class="filter-sheet__body">
-
-              <!-- Genres -->
               <div class="filter-group">
                 <div class="filter-group__head">
                   <span class="filter-group__label">Genres</span>
@@ -115,8 +122,6 @@
                 </div>
                 <div class="filter-chips-wrap" id="genreChips"></div>
               </div>
-
-              <!-- Year + Season -->
               <div class="filter-group">
                 <div class="filter-group__head">
                   <span class="filter-group__label">Release</span>
@@ -124,43 +129,19 @@
                 </div>
                 <div class="fselect-row">
                   <select class="fselect" id="filterYear"><option value="">Year: Any</option></select>
-                  <select class="fselect" id="filterSeason">
-                    <option value="">Season: Any</option>
-                    <option value="WINTER">Winter</option>
-                    <option value="SPRING">Spring</option>
-                    <option value="SUMMER">Summer</option>
-                    <option value="FALL">Fall</option>
-                  </select>
+                  <select class="fselect" id="filterSeason"><option value="">Season: Any</option><option value="WINTER">Winter</option><option value="SPRING">Spring</option><option value="SUMMER">Summer</option><option value="FALL">Fall</option></select>
                 </div>
               </div>
-
-              <!-- Format + Status -->
               <div class="filter-group">
                 <div class="filter-group__head">
                   <span class="filter-group__label">Type</span>
                   <button class="filter-group__clear is-hidden" data-clear="type">Clear</button>
                 </div>
                 <div class="fselect-row">
-                  <select class="fselect" id="filterFormat">
-                    <option value="">Format: Any</option>
-                    <option value="TV">TV Series</option>
-                    <option value="MOVIE">Movie</option>
-                    <option value="OVA">OVA</option>
-                    <option value="ONA">ONA</option>
-                    <option value="SPECIAL">Special</option>
-                    <option value="MUSIC">Music</option>
-                  </select>
-                  <select class="fselect" id="filterStatus">
-                    <option value="">Status: Any</option>
-                    <option value="RELEASING">Currently Airing</option>
-                    <option value="FINISHED">Finished</option>
-                    <option value="NOT_YET_RELEASED">Upcoming</option>
-                    <option value="CANCELLED">Cancelled</option>
-                  </select>
+                  <select class="fselect" id="filterFormat"><option value="">Format: Any</option><option value="TV">TV Series</option><option value="MOVIE">Movie</option><option value="OVA">OVA</option><option value="ONA">ONA</option><option value="SPECIAL">Special</option><option value="MUSIC">Music</option></select>
+                  <select class="fselect" id="filterStatus"><option value="">Status: Any</option><option value="RELEASING">Currently Airing</option><option value="FINISHED">Finished</option><option value="NOT_YET_RELEASED">Upcoming</option><option value="CANCELLED">Cancelled</option></select>
                 </div>
               </div>
-
-              <!-- Minimum score -->
               <div class="filter-group">
                 <div class="filter-group__head">
                   <span class="filter-group__label">Minimum score</span>
@@ -173,12 +154,8 @@
                   </div>
                 </div>
               </div>
-
-              <!-- Sort -->
               <div class="filter-group">
-                <div class="filter-group__head">
-                  <span class="filter-group__label">Sort by</span>
-                </div>
+                <div class="filter-group__head"><span class="filter-group__label">Sort by</span></div>
                 <div class="filter-chips-wrap" id="sortChips">
                   <button class="fchip is-active" data-sort="POPULARITY_DESC">Popularity</button>
                   <button class="fchip" data-sort="SCORE_DESC">Score</button>
@@ -187,7 +164,6 @@
                   <button class="fchip" data-sort="FAVOURITES_DESC">Favorites</button>
                 </div>
               </div>
-
             </div>
             <div class="filter-sheet__actions">
               <button class="btn-outlined" id="resetAllFilters">Reset all</button>
@@ -197,36 +173,26 @@
 
         </section>
 
-        <!-- Bottom navigation (Material 3 — 5 items, 4th is search) -->
+        <!-- Bottom navigation (Material 3 — NO border line, tonal surface) -->
         <nav class="bottomnav" aria-label="Primary">
           <button class="bottomnav__item" data-nav="home">
-            <span class="bottomnav__indicator">
-              <svg class="bottomnav__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
-            </span>
+            <span class="bottomnav__indicator"><svg class="bottomnav__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span>
             <span class="bottomnav__label">Home</span>
           </button>
           <button class="bottomnav__item" data-nav="library">
-            <span class="bottomnav__indicator">
-              <svg class="bottomnav__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
-            </span>
+            <span class="bottomnav__indicator"><svg class="bottomnav__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
             <span class="bottomnav__label">Library</span>
           </button>
           <button class="bottomnav__item" data-nav="history">
-            <span class="bottomnav__indicator">
-              <svg class="bottomnav__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg>
-            </span>
+            <span class="bottomnav__indicator"><svg class="bottomnav__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l4 2"/></svg></span>
             <span class="bottomnav__label">History</span>
           </button>
           <button class="bottomnav__item bottomnav__item--search is-active" data-nav="search">
-            <span class="bottomnav__indicator">
-              <svg class="bottomnav__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            </span>
+            <span class="bottomnav__indicator"><svg class="bottomnav__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></span>
             <span class="bottomnav__label">Search</span>
           </button>
           <button class="bottomnav__item" data-nav="settings">
-            <span class="bottomnav__indicator">
-              <svg class="bottomnav__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            </span>
+            <span class="bottomnav__indicator"><svg class="bottomnav__icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
             <span class="bottomnav__label">Settings</span>
           </button>
         </nav>
@@ -241,9 +207,9 @@
       <h3 class="sidepanel__head">Screen info</h3>
       <div class="screeninfo">
         <span class="screeninfo__name">Search</span>
-        <span class="screeninfo__desc">Material 3 Expressive search with feature-rich filter bottom sheet.</span>
+        <span class="screeninfo__desc">M3 Expressive with tonal elevation, recent searches, and source-aware defaults.</span>
       </div>
-      <h3 class="sidepanel__head">Filters available</h3>
+      <h3 class="sidepanel__head">Filters</h3>
       <div class="mini-bars">
         <div class="mini-bar-row"><span class="mini-bar-label">Genres</span><div class="mini-bar-track"><div class="mini-bar-fill" style="width:100%;background:var(--color-primary)"></div></div><span class="mini-bar-num">16</span></div>
         <div class="mini-bar-row"><span class="mini-bar-label">Year</span><div class="mini-bar-track"><div class="mini-bar-fill" style="width:90%;background:var(--color-tertiary)"></div></div><span class="mini-bar-num">35</span></div>
@@ -256,8 +222,8 @@
       <h3 class="sidepanel__head">Design</h3>
       <div class="kvlist">
         <div class="kvlist__row"><span>Theme</span><b>M3 Expressive</b></div>
+        <div class="kvlist__row"><span>Elevation</span><b>Tonal</b></div>
         <div class="kvlist__row"><span>Primary</span><b>#d0bcff</b></div>
-        <div class="kvlist__row"><span>Surface</span><b>#1e1930</b></div>
       </div>
     </aside>
 

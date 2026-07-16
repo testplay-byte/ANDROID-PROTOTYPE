@@ -1,12 +1,9 @@
 /* =========================================================================
-   search-page / script.js  —  v2 (redesigned)
-   Material 3 Expressive search with feature-rich filter bottom sheet.
-   - Full genre list (16 genres, multi-select)
-   - Year, Season, Format, Status selects
-   - Minimum score slider
-   - Sort chips
-   - Active filter chips display
-   - Bottom sheet modal with Apply/Reset
+   search-page / script.js  —  v3 (complete redesign)
+   - Recent searches (localStorage)
+   - Source-aware defaults: AniList shows popular, Extension shows trending
+   - Feature-rich filter bottom sheet
+   - M3 tonal elevation, proper animations
    ========================================================================= */
 
 (function () {
@@ -38,6 +35,12 @@
     "TITLE_ROMAJI": "Title A-Z", "FAVOURITES_DESC": "Favorites"
   };
 
+  // Source-aware default sorts
+  var SOURCE_DEFAULTS = {
+    anilist: { sort: "POPULARITY_DESC", label: "Popular anime" },
+    extension: { sort: "TRENDING_DESC", label: "Trending now" }
+  };
+
   var state = {
     source: "anilist",
     query: "",
@@ -47,8 +50,28 @@
     format: "",
     status: "",
     minScore: 0,
-    sort: "POPULARITY_DESC"
+    sort: SOURCE_DEFAULTS.anilist.sort
   };
+
+  // Recent searches in localStorage
+  var recentSearches = [];
+  try { recentSearches = JSON.parse(localStorage.getItem("search-recent") || "[]"); } catch (e) { recentSearches = []; }
+  function saveRecent() { try { localStorage.setItem("search-recent", JSON.stringify(recentSearches)); } catch (e) {} }
+  function addRecent(query) {
+    query = query.trim();
+    if (!query) return;
+    // Remove if already exists (move to top)
+    var idx = recentSearches.indexOf(query);
+    if (idx !== -1) recentSearches.splice(idx, 1);
+    recentSearches.unshift(query);
+    if (recentSearches.length > 8) recentSearches = recentSearches.slice(0, 8);
+    saveRecent();
+  }
+  function removeRecent(query) {
+    var idx = recentSearches.indexOf(query);
+    if (idx !== -1) { recentSearches.splice(idx, 1); saveRecent(); }
+  }
+  function clearRecent() { recentSearches = []; saveRecent(); }
 
   function countActiveFilters() {
     var n = 0;
@@ -117,10 +140,7 @@
     var meta = metaParts.join(" · ");
     return el(
       '<div class="anime-card">' +
-        '<div class="anime-card__cover">' +
-          '<img src="' + cover + '" alt="' + title + '" loading="lazy"/>' +
-          score +
-        '</div>' +
+        '<div class="anime-card__cover"><img src="' + cover + '" alt="' + title + '" loading="lazy"/>' + score + '</div>' +
         '<h3 class="anime-card__title">' + title + '</h3>' +
         '<span class="anime-card__meta">' + meta + '</span>' +
       '</div>'
@@ -130,9 +150,7 @@
   function showSkeletons(count) {
     var grid = document.getElementById("resultsGrid");
     grid.innerHTML = "";
-    for (var i = 0; i < (count || 12); i++) {
-      grid.appendChild(el('<div class="skeleton" style="aspect-ratio:2/3"></div>'));
-    }
+    for (var i = 0; i < (count || 12); i++) grid.appendChild(el('<div class="skeleton" style="aspect-ratio:2/3"></div>'));
   }
 
   function showEmpty(title, desc) {
@@ -147,11 +165,63 @@
     ));
   }
 
+  /* ---- Recent searches UI -------------------------------------------- */
+  function renderRecent() {
+    var section = document.getElementById("recentSection");
+    var list = document.getElementById("recentList");
+    if (!section || !list) return;
+
+    // Show recent searches only when: no query, no filters, and there ARE recent searches
+    var hasFilters = countActiveFilters() > 0;
+    if (!state.query && !hasFilters && recentSearches.length > 0) {
+      section.style.display = "block";
+      list.innerHTML = "";
+      recentSearches.forEach(function (q) {
+        var item = el(
+          '<div class="recent-item" data-query="' + q.replace(/"/g, '&quot;') + '">' +
+            '<span class="recent-item__icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>' +
+            '<span class="recent-item__text">' + q + '</span>' +
+            '<button class="recent-item__remove" data-remove="' + q.replace(/"/g, '&quot;') + '" aria-label="Remove"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>' +
+          '</div>'
+        );
+        item.addEventListener("click", function (e) {
+          if (e.target.closest("[data-remove]")) return;
+          searchInput.value = q;
+          state.query = q;
+          searchClear.style.display = "flex";
+          doSearch();
+        });
+        var removeBtn = item.querySelector("[data-remove]");
+        removeBtn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          removeRecent(q);
+          renderRecent();
+        });
+        list.appendChild(item);
+      });
+    } else {
+      section.style.display = "none";
+    }
+  }
+
+  document.getElementById("recentClear").addEventListener("click", function () {
+    clearRecent();
+    renderRecent();
+  });
+
   /* ---- Source toggle -------------------------------------------------- */
   document.getElementById("sourceToggle").addEventListener("click", function (e) {
     var btn = e.target.closest("[data-source]");
     if (!btn) return;
-    state.source = btn.dataset.source;
+    var src = btn.dataset.source;
+    if (src === state.source) return;
+    state.source = src;
+    // Reset sort to source default
+    state.sort = SOURCE_DEFAULTS[src].sort;
+    document.getElementById("sortLabel").textContent = SORT_LABELS[state.sort];
+    document.querySelectorAll("#sortChips .fchip").forEach(function (c) {
+      c.classList.toggle("is-active", c.dataset.sort === state.sort);
+    });
     this.querySelectorAll(".source-toggle__btn").forEach(function (b) {
       b.classList.toggle("is-active", b === btn);
     });
@@ -166,8 +236,12 @@
   searchInput.addEventListener("input", function () {
     state.query = this.value.trim();
     searchClear.style.display = state.query ? "flex" : "none";
+    renderRecent();
     clearTimeout(searchTimer);
-    searchTimer = setTimeout(doSearch, 450);
+    searchTimer = setTimeout(function () {
+      if (state.query) addRecent(state.query);
+      doSearch();
+    }, 500);
   });
 
   searchClear.addEventListener("click", function () {
@@ -175,6 +249,7 @@
     state.query = "";
     searchClear.style.display = "none";
     searchInput.focus();
+    renderRecent();
     doSearch();
   });
 
@@ -193,6 +268,7 @@
       if (idx === -1) { state.genres.push(g); this.classList.add("is-active"); }
       else { state.genres.splice(idx, 1); this.classList.remove("is-active"); }
       updateFilterUI();
+      renderRecent();
       doSearch();
     });
   });
@@ -200,9 +276,7 @@
   /* ---- Populate year dropdown ---------------------------------------- */
   var yearSelect = document.getElementById("filterYear");
   var yr = new Date().getFullYear();
-  for (var y = yr; y >= 1990; y--) {
-    yearSelect.appendChild(el('<option value="' + y + '">' + y + '</option>'));
-  }
+  for (var y = yr; y >= 1990; y--) yearSelect.appendChild(el('<option value="' + y + '">' + y + '</option>'));
 
   /* ---- Filter selects ------------------------------------------------- */
   ["filterYear", "filterSeason", "filterFormat", "filterStatus"].forEach(function (id) {
@@ -212,6 +286,7 @@
       state.format = document.getElementById("filterFormat").value;
       state.status = document.getElementById("filterStatus").value;
       updateFilterUI();
+      renderRecent();
       doSearch();
     });
   });
@@ -225,7 +300,7 @@
     scoreValue.textContent = v > 0 ? (v / 10).toFixed(1) + "+" : "Any";
     updateFilterUI();
   });
-  scoreSlider.addEventListener("change", doSearch);
+  scoreSlider.addEventListener("change", function () { renderRecent(); doSearch(); });
 
   /* ---- Sort chips ----------------------------------------------------- */
   document.getElementById("sortChips").addEventListener("click", function (e) {
@@ -237,10 +312,7 @@
     doSearch();
   });
 
-  /* ---- Quick sort button (cycles through sorts) ---------------------- */
-  document.getElementById("sortBtn").addEventListener("click", function () {
-    openSheet();
-  });
+  document.getElementById("sortBtn").addEventListener("click", function () { openSheet(); });
 
   /* ---- Per-group clear buttons --------------------------------------- */
   document.querySelectorAll("[data-clear]").forEach(function (btn) {
@@ -263,6 +335,7 @@
         scoreValue.textContent = "Any";
       }
       updateFilterUI();
+      renderRecent();
       doSearch();
     });
   });
@@ -270,7 +343,8 @@
   /* ---- Reset all ------------------------------------------------------ */
   document.getElementById("resetAllFilters").addEventListener("click", function () {
     state.genres = []; state.year = ""; state.season = ""; state.format = "";
-    state.status = ""; state.minScore = 0; state.sort = "POPULARITY_DESC";
+    state.status = ""; state.minScore = 0;
+    state.sort = SOURCE_DEFAULTS[state.source].sort;
     document.querySelectorAll("#genreChips .fchip").forEach(function (c) { c.classList.remove("is-active"); });
     document.getElementById("filterYear").value = "";
     document.getElementById("filterSeason").value = "";
@@ -278,82 +352,52 @@
     document.getElementById("filterStatus").value = "";
     scoreSlider.value = 0;
     scoreValue.textContent = "Any";
-    document.querySelectorAll("#sortChips .fchip").forEach(function (c) { c.classList.toggle("is-active", c.dataset.sort === "POPULARITY_DESC"); });
-    document.getElementById("sortLabel").textContent = "Popularity";
+    document.querySelectorAll("#sortChips .fchip").forEach(function (c) { c.classList.toggle("is-active", c.dataset.sort === state.sort); });
+    document.getElementById("sortLabel").textContent = SORT_LABELS[state.sort];
     updateFilterUI();
+    renderRecent();
     doSearch();
   });
 
-  /* ---- Apply button (closes sheet) ----------------------------------- */
   document.getElementById("applyFilters").addEventListener("click", closeSheet);
 
   /* ---- Bottom sheet open/close --------------------------------------- */
   var sheetScrim = document.getElementById("sheetScrim");
   var filterSheet = document.getElementById("filterSheet");
-
-  function openSheet() {
-    sheetScrim.classList.add("is-visible");
-    filterSheet.classList.add("is-open");
-  }
-  function closeSheet() {
-    sheetScrim.classList.remove("is-visible");
-    filterSheet.classList.remove("is-open");
-  }
-
+  function openSheet() { sheetScrim.classList.add("is-visible"); filterSheet.classList.add("is-open"); }
+  function closeSheet() { sheetScrim.classList.remove("is-visible"); filterSheet.classList.remove("is-open"); }
   document.getElementById("filterBtn").addEventListener("click", openSheet);
   document.getElementById("sheetClose").addEventListener("click", closeSheet);
   sheetScrim.addEventListener("click", closeSheet);
 
-  /* ---- Update filter UI (badge, active chips, group clears) ---------- */
+  /* ---- Update filter UI ---------------------------------------------- */
   function updateFilterUI() {
     var count = countActiveFilters();
     var badge = document.getElementById("filterBadge");
     var filterBtn = document.getElementById("filterBtn");
-    if (count > 0) {
-      badge.textContent = count;
-      badge.style.display = "flex";
-      filterBtn.classList.add("is-active");
-    } else {
-      badge.style.display = "none";
-      filterBtn.classList.remove("is-active");
-    }
+    if (count > 0) { badge.textContent = count; badge.style.display = "flex"; filterBtn.classList.add("is-active"); }
+    else { badge.style.display = "none"; filterBtn.classList.remove("is-active"); }
 
-    // Active filter chips
     var chips = document.getElementById("activeFilters");
     chips.innerHTML = "";
     state.genres.forEach(function (g) {
       chips.appendChild(makeActiveChip(g, function () {
         state.genres.splice(state.genres.indexOf(g), 1);
-        document.querySelectorAll("#genreChips .fchip").forEach(function (c) {
-          if (c.dataset.genre === g) c.classList.remove("is-active");
-        });
-        updateFilterUI(); doSearch();
+        document.querySelectorAll("#genreChips .fchip").forEach(function (c) { if (c.dataset.genre === g) c.classList.remove("is-active"); });
+        updateFilterUI(); renderRecent(); doSearch();
       }));
     });
-    if (state.year) chips.appendChild(makeActiveChip(state.year, function () {
-      state.year = ""; document.getElementById("filterYear").value = ""; updateFilterUI(); doSearch();
-    }));
-    if (state.season) chips.appendChild(makeActiveChip(state.season.charAt(0) + state.season.slice(1).toLowerCase(), function () {
-      state.season = ""; document.getElementById("filterSeason").value = ""; updateFilterUI(); doSearch();
-    }));
-    if (state.format) chips.appendChild(makeActiveChip(formatLabel(state.format), function () {
-      state.format = ""; document.getElementById("filterFormat").value = ""; updateFilterUI(); doSearch();
-    }));
-    if (state.status) chips.appendChild(makeActiveChip(statusLabel(state.status), function () {
-      state.status = ""; document.getElementById("filterStatus").value = ""; updateFilterUI(); doSearch();
-    }));
-    if (state.minScore > 0) chips.appendChild(makeActiveChip("★ " + (state.minScore / 10).toFixed(1) + "+", function () {
-      state.minScore = 0; scoreSlider.value = 0; scoreValue.textContent = "Any"; updateFilterUI(); doSearch();
-    }));
+    if (state.year) chips.appendChild(makeActiveChip(state.year, function () { state.year = ""; document.getElementById("filterYear").value = ""; updateFilterUI(); renderRecent(); doSearch(); }));
+    if (state.season) chips.appendChild(makeActiveChip(state.season.charAt(0) + state.season.slice(1).toLowerCase(), function () { state.season = ""; document.getElementById("filterSeason").value = ""; updateFilterUI(); renderRecent(); doSearch(); }));
+    if (state.format) chips.appendChild(makeActiveChip(formatLabel(state.format), function () { state.format = ""; document.getElementById("filterFormat").value = ""; updateFilterUI(); renderRecent(); doSearch(); }));
+    if (state.status) chips.appendChild(makeActiveChip(statusLabel(state.status), function () { state.status = ""; document.getElementById("filterStatus").value = ""; updateFilterUI(); renderRecent(); doSearch(); }));
+    if (state.minScore > 0) chips.appendChild(makeActiveChip("★ " + (state.minScore / 10).toFixed(1) + "+", function () { state.minScore = 0; scoreSlider.value = 0; scoreValue.textContent = "Any"; updateFilterUI(); renderRecent(); doSearch(); }));
     chips.classList.toggle("has-chips", chips.children.length > 0);
 
-    // Group clear button visibility
     setGroupClear("genres", state.genres.length > 0);
     setGroupClear("release", !!(state.year || state.season));
     setGroupClear("type", !!(state.format || state.status));
     setGroupClear("score", state.minScore > 0);
-
-    // Sort label
     document.getElementById("sortLabel").textContent = SORT_LABELS[state.sort];
   }
 
@@ -361,20 +405,12 @@
     var btn = document.querySelector('[data-clear="' + group + '"]');
     if (btn) btn.classList.toggle("is-hidden", !visible);
   }
-
-  function formatLabel(f) {
-    var m = { TV: "TV", MOVIE: "Movie", OVA: "OVA", ONA: "ONA", SPECIAL: "Special", MUSIC: "Music" };
-    return m[f] || f;
-  }
-  function statusLabel(s) {
-    var m = { RELEASING: "Airing", FINISHED: "Finished", NOT_YET_RELEASED: "Upcoming", CANCELLED: "Cancelled" };
-    return m[s] || s;
-  }
+  function formatLabel(f) { var m = { TV: "TV", MOVIE: "Movie", OVA: "OVA", ONA: "ONA", SPECIAL: "Special", MUSIC: "Music" }; return m[f] || f; }
+  function statusLabel(s) { var m = { RELEASING: "Airing", FINISHED: "Finished", NOT_YET_RELEASED: "Upcoming", CANCELLED: "Cancelled" }; return m[s] || s; }
 
   function makeActiveChip(label, onRemove) {
     var chip = el(
-      '<button class="active-filter-chip">' +
-        '<span>' + label + '</span>' +
+      '<button class="active-filter-chip"><span>' + label + '</span>' +
         '<span class="active-filter-chip__x"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>' +
       '</button>'
     );
@@ -396,31 +432,19 @@
     } else if (hasFilters) {
       label.textContent = "Filtered results";
     } else {
-      label.textContent = "Popular anime";
+      label.textContent = SOURCE_DEFAULTS[state.source].label;
     }
-    if (state.source === "extension") {
-      label.textContent = label.textContent + " · Extension";
-    }
+    if (state.source === "extension") label.textContent = label.textContent + " · Extension";
 
     showSkeletons(12);
 
     fetchMedia(state.query, {
-      genres: state.genres,
-      year: state.year,
-      season: state.season,
-      format: state.format,
-      status: state.status,
-      minScore: state.minScore,
-      sort: state.sort
+      genres: state.genres, year: state.year, season: state.season,
+      format: state.format, status: state.status, minScore: state.minScore, sort: state.sort
     }).then(function (d) {
       var media = (d.data && d.data.Page && d.data.Page.media) || [];
       count.textContent = media.length ? media.length + " found" : "";
-
-      if (!media.length) {
-        showEmpty("No results found", "Try different keywords or adjust your filters.");
-        return;
-      }
-
+      if (!media.length) { showEmpty("No results found", "Try different keywords or adjust your filters."); return; }
       grid.innerHTML = "";
       media.forEach(function (a) { grid.appendChild(animeCard(a)); });
     }).catch(function () {
@@ -430,16 +454,14 @@
 
   // Initial load
   updateFilterUI();
+  renderRecent();
   doSearch();
 
-  /* ---- Bottom nav (visual feedback only — single screen prototype) --- */
+  /* ---- Bottom nav (visual feedback only) ----------------------------- */
   document.querySelectorAll(".bottomnav__item").forEach(function (item) {
     item.addEventListener("click", function () {
       if (this.dataset.nav === "search") return;
-      this.animate(
-        [{ transform: "scale(.92)" }, { transform: "scale(1)" }],
-        { duration: 200, easing: "cubic-bezier(.2,.7,.2,1)" }
-      );
+      this.animate([{ transform: "scale(.92)" }, { transform: "scale(1)" }], { duration: 200, easing: "cubic-bezier(.2,.7,.2,1)" });
     });
   });
 
@@ -452,7 +474,7 @@
     dragTargets.forEach(function (el) {
       var dragging = false, sx = 0, sy = 0, sl = 0, st = 0, moved = false;
       el.addEventListener("mousedown", function (e) {
-        if (e.target.closest("button, a, input, select, .fchip, .source-toggle__btn, .bottomnav__item, .filter-sheet")) return;
+        if (e.target.closest("button, a, input, select, .fchip, .source-toggle__btn, .bottomnav__item, .filter-sheet, .recent-item")) return;
         if (e.button !== 0) return;
         dragging = true; moved = false; sx = e.clientX; sy = e.clientY; sl = el.scrollLeft; st = el.scrollTop;
         el.style.cursor = "grabbing"; e.preventDefault();
