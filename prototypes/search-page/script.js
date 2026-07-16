@@ -222,10 +222,24 @@
     }
   }
 
-  document.getElementById("recentClear").addEventListener("click", function () {
-    clearRecent();
-    renderRecent();
-  });
+  /* ---- Recent searches collapse toggle -------------------------------- */
+  var recentCollapsed = false;
+  function toggleRecent() {
+    recentCollapsed = !recentCollapsed;
+    var list = document.getElementById("recentList");
+    var headRight = document.getElementById("recentHeadRight");
+    list.classList.toggle("is-collapsed", recentCollapsed);
+    if (recentCollapsed) {
+      // Collapsed: show "Clear all" button
+      headRight.innerHTML = '<button class="recent-clear" id="recentClear">Clear all</button>';
+      document.getElementById("recentClear").addEventListener("click", function () { clearRecent(); renderRecent(); });
+    } else {
+      // Expanded: show collapse toggle button
+      headRight.innerHTML = '<button class="recent-toggle" id="recentToggle" aria-label="Toggle recent searches"><span class="recent-toggle__icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span></button>';
+      document.getElementById("recentToggle").addEventListener("click", toggleRecent);
+    }
+  }
+  document.getElementById("recentToggle").addEventListener("click", toggleRecent);
 
   /* ---- Source toggle -------------------------------------------------- */
   document.getElementById("sourceToggle").addEventListener("click", function (e) {
@@ -271,64 +285,117 @@
     doSearch();
   });
 
-  /* ---- Build genre chips in the sheet -------------------------------- */
-  var genreChips = document.getElementById("genreChips");
-  GENRES.forEach(function (g) {
-    var chip = el(
-      '<button class="fchip" data-genre="' + g + '">' +
-        '<svg class="fchip__check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' +
-        '<span>' + g + '</span>' +
-      '</button>'
+  /* ---- Build accordion filter sheet ---------------------------------- */
+  var filterSheetBody = document.getElementById("filterSheetBody");
+  var openAccordion = null;
+
+  function buildFilterAccordion() {
+    filterSheetBody.innerHTML = "";
+
+    // 1. Genres
+    var genreContent = el('<div class="filter-chips-wrap" id="genreChips"></div>');
+    GENRES.forEach(function (g) {
+      var chip = el('<button class="fchip" data-genre="' + g + '"><svg class="fchip__check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>' + g + '</span></button>');
+      chip.addEventListener("click", function () {
+        var idx = state.genres.indexOf(g);
+        if (idx === -1) { state.genres.push(g); this.classList.add("is-active"); }
+        else { state.genres.splice(idx, 1); this.classList.remove("is-active"); }
+        updateFilterUI(); renderRecent(); doSearch(); updateAccordionCounts();
+      });
+      genreContent.appendChild(chip);
+    });
+    addAccordionItem("Genres", "genre", '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z"/></svg>', genreContent, function () { return state.genres.length; });
+
+    // 2. Release (year + season)
+    var releaseContent = el('<div class="fselect-row"><select class="fselect" id="filterYear"><option value="">Year: Any</option></select><select class="fselect" id="filterSeason"><option value="">Season: Any</option><option value="WINTER">Winter</option><option value="SPRING">Spring</option><option value="SUMMER">Summer</option><option value="FALL">Fall</option></select></div>');
+    var yr = new Date().getFullYear();
+    var ys = releaseContent.querySelector("#filterYear");
+    for (var y = yr; y >= 1990; y--) ys.appendChild(el('<option value="' + y + '">' + y + '</option>'));
+    releaseContent.querySelector("#filterYear").addEventListener("change", function () { state.year = this.value; updateFilterUI(); renderRecent(); doSearch(); updateAccordionCounts(); });
+    releaseContent.querySelector("#filterSeason").addEventListener("change", function () { state.season = this.value; updateFilterUI(); renderRecent(); doSearch(); updateAccordionCounts(); });
+    addAccordionItem("Release", "release", '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>', releaseContent, function () { return (state.year ? 1 : 0) + (state.season ? 1 : 0); });
+
+    // 3. Type (format + status)
+    var typeContent = el('<div class="fselect-row"><select class="fselect" id="filterFormat"><option value="">Format: Any</option><option value="TV">TV Series</option><option value="MOVIE">Movie</option><option value="OVA">OVA</option><option value="ONA">ONA</option><option value="SPECIAL">Special</option><option value="MUSIC">Music</option></select><select class="fselect" id="filterStatus"><option value="">Status: Any</option><option value="RELEASING">Currently Airing</option><option value="FINISHED">Finished</option><option value="NOT_YET_RELEASED">Upcoming</option><option value="CANCELLED">Cancelled</option></select></div>');
+    typeContent.querySelector("#filterFormat").addEventListener("change", function () { state.format = this.value; updateFilterUI(); renderRecent(); doSearch(); updateAccordionCounts(); });
+    typeContent.querySelector("#filterStatus").addEventListener("change", function () { state.status = this.value; updateFilterUI(); renderRecent(); doSearch(); updateAccordionCounts(); });
+    addAccordionItem("Type", "type", '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>', typeContent, function () { return (state.format ? 1 : 0) + (state.status ? 1 : 0); });
+
+    // 4. Minimum score
+    var scoreContent = el('<div class="score-slider-wrap"><div class="score-slider-row"><input type="range" class="score-slider" id="filterScore" min="0" max="100" value="0" step="5" /><span class="score-value" id="scoreValue">Any</span></div></div>');
+    scoreContent.querySelector("#filterScore").addEventListener("input", function () {
+      var v = parseInt(this.value);
+      state.minScore = v;
+      scoreContent.querySelector("#scoreValue").textContent = v > 0 ? (v / 10).toFixed(1) + "+" : "Any";
+      updateFilterUI(); updateAccordionCounts();
+    });
+    scoreContent.querySelector("#filterScore").addEventListener("change", function () { renderRecent(); doSearch(); });
+    addAccordionItem("Minimum score", "score", '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>', scoreContent, function () { return state.minScore > 0 ? 1 : 0; });
+
+    // 5. Sort by
+    var sortContent = el('<div class="filter-chips-wrap" id="sortChips"></div>');
+    Object.keys(SORT_LABELS).forEach(function (key) {
+      var chip = el('<button class="fchip' + (state.sort === key ? " is-active" : "") + '" data-sort="' + key + '"><svg class="fchip__check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>' + SORT_LABELS[key] + '</span></button>');
+      chip.addEventListener("click", function () {
+        state.sort = key;
+        sortContent.querySelectorAll(".fchip").forEach(function (c) { c.classList.toggle("is-active", c === chip); });
+        document.getElementById("sortLabel").textContent = SORT_LABELS[key];
+        doSearch();
+      });
+      sortContent.appendChild(chip);
+    });
+    addAccordionItem("Sort by", "sort", '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 6h18M7 12h10M10 18h4"/></svg>', sortContent, function () { return 0; });
+  }
+
+  function addAccordionItem(label, id, iconSvg, contentEl, countFn) {
+    var item = el(
+      '<div class="facc" data-facc="' + id + '">' +
+        '<button class="facc__btn" data-facc-btn="' + id + '">' +
+          '<div class="facc__btn-left">' +
+            '<span class="facc__btn-icon">' + iconSvg + '</span>' +
+            '<span class="facc__btn-label">' + label + '</span>' +
+          '</div>' +
+          '<span class="facc__btn-count" data-facc-count="' + id + '" style="display:none">0</span>' +
+          '<svg class="facc__chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>' +
+        '</button>' +
+        '<div class="facc__content" data-facc-content="' + id + '">' +
+          '<div class="facc__content-inner"></div>' +
+        '</div>' +
+      '</div>'
     );
-    genreChips.appendChild(chip);
-    chip.addEventListener("click", function () {
-      var idx = state.genres.indexOf(g);
-      if (idx === -1) { state.genres.push(g); this.classList.add("is-active"); }
-      else { state.genres.splice(idx, 1); this.classList.remove("is-active"); }
-      updateFilterUI();
-      renderRecent();
-      doSearch();
+    item.querySelector(".facc__content-inner").appendChild(contentEl);
+    item.querySelector(".facc__btn").addEventListener("click", function () {
+      toggleAccordion(id);
     });
-  });
+    item._countFn = countFn;
+    filterSheetBody.appendChild(item);
+  }
 
-  /* ---- Populate year dropdown ---------------------------------------- */
-  var yearSelect = document.getElementById("filterYear");
-  var yr = new Date().getFullYear();
-  for (var y = yr; y >= 1990; y--) yearSelect.appendChild(el('<option value="' + y + '">' + y + '</option>'));
+  function toggleAccordion(id) {
+    var btn = document.querySelector('[data-facc-btn="' + id + '"]');
+    var content = document.querySelector('[data-facc-content="' + id + '"]');
+    if (!btn || !content) return;
+    var isOpen = content.classList.contains("is-open");
+    // Close all
+    document.querySelectorAll(".facc__content").forEach(function (c) { c.classList.remove("is-open"); });
+    document.querySelectorAll(".facc__btn").forEach(function (b) { b.classList.remove("is-active"); });
+    if (!isOpen) { content.classList.add("is-open"); btn.classList.add("is-active"); openAccordion = id; }
+    else openAccordion = null;
+  }
 
-  /* ---- Filter selects ------------------------------------------------- */
-  ["filterYear", "filterSeason", "filterFormat", "filterStatus"].forEach(function (id) {
-    document.getElementById(id).addEventListener("change", function () {
-      state.year = document.getElementById("filterYear").value;
-      state.season = document.getElementById("filterSeason").value;
-      state.format = document.getElementById("filterFormat").value;
-      state.status = document.getElementById("filterStatus").value;
-      updateFilterUI();
-      renderRecent();
-      doSearch();
+  function updateAccordionCounts() {
+    document.querySelectorAll(".facc").forEach(function (item) {
+      var countFn = item._countFn;
+      var countEl = item.querySelector('[data-facc-count]');
+      if (countFn && countEl) {
+        var n = countFn();
+        if (n > 0) { countEl.textContent = n; countEl.style.display = "block"; }
+        else countEl.style.display = "none";
+      }
     });
-  });
+  }
 
-  /* ---- Score slider --------------------------------------------------- */
-  var scoreSlider = document.getElementById("filterScore");
-  var scoreValue = document.getElementById("scoreValue");
-  scoreSlider.addEventListener("input", function () {
-    var v = parseInt(this.value);
-    state.minScore = v;
-    scoreValue.textContent = v > 0 ? (v / 10).toFixed(1) + "+" : "Any";
-    updateFilterUI();
-  });
-  scoreSlider.addEventListener("change", function () { renderRecent(); doSearch(); });
-
-  /* ---- Sort chips ----------------------------------------------------- */
-  document.getElementById("sortChips").addEventListener("click", function (e) {
-    var chip = e.target.closest("[data-sort]");
-    if (!chip) return;
-    state.sort = chip.dataset.sort;
-    this.querySelectorAll(".fchip").forEach(function (c) { c.classList.toggle("is-active", c === chip); });
-    document.getElementById("sortLabel").textContent = SORT_LABELS[state.sort];
-    doSearch();
-  });
+  buildFilterAccordion();
 
   /* ---- Sort dropdown (separate from filter sheet) --------------------- */
   var sortBtn = document.getElementById("sortBtn");
@@ -344,10 +411,7 @@
     sortBtn.classList.add("is-open");
     sortDropdown = el('<div class="sort-dropdown" id="sortDropdown"></div>');
     Object.keys(SORT_LABELS).forEach(function (key) {
-      var item = el('<button class="sort-dropdown__item' + (state.sort === key ? " is-active" : "") + '" data-sort="' + key + '">' +
-        '<span>' + SORT_LABELS[key] + '</span>' +
-        (state.sort === key ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '') +
-        '</button>');
+      var item = el('<button class="sort-dropdown__item' + (state.sort === key ? " is-active" : "") + '" data-sort="' + key + '"><span>' + SORT_LABELS[key] + '</span>' + (state.sort === key ? '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '') + '</button>');
       item.addEventListener("click", function () {
         state.sort = key;
         document.getElementById("sortLabel").textContent = SORT_LABELS[key];
@@ -357,7 +421,6 @@
       });
       sortDropdown.appendChild(item);
     });
-    // Position below the sort button
     var rect = sortBtn.getBoundingClientRect();
     var deviceRect = device.getBoundingClientRect();
     sortDropdown.style.position = "absolute";
@@ -372,60 +435,14 @@
     if (sortDropdown && !e.target.closest("#sortDropdown") && !e.target.closest("#sortBtn")) closeSortDropdown();
   });
 
-  /* ---- Per-group clear buttons --------------------------------------- */
-  document.querySelectorAll("[data-clear]").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-      var group = this.dataset.clear;
-      if (group === "genres") {
-        state.genres = [];
-        document.querySelectorAll("#genreChips .fchip").forEach(function (c) { c.classList.remove("is-active"); });
-      } else if (group === "release") {
-        state.year = ""; state.season = "";
-        document.getElementById("filterYear").value = "";
-        document.getElementById("filterSeason").value = "";
-      } else if (group === "type") {
-        state.format = ""; state.status = "";
-        document.getElementById("filterFormat").value = "";
-        document.getElementById("filterStatus").value = "";
-      } else if (group === "score") {
-        state.minScore = 0;
-        scoreSlider.value = 0;
-        scoreValue.textContent = "Any";
-      }
-      updateFilterUI();
-      renderRecent();
-      doSearch();
-    });
-  });
-
-  /* ---- Reset all ------------------------------------------------------ */
-  document.getElementById("resetAllFilters").addEventListener("click", function () {
-    state.genres = []; state.year = ""; state.season = ""; state.format = "";
-    state.status = ""; state.minScore = 0;
-    state.sort = SOURCE_DEFAULTS[state.source].sort;
-    document.querySelectorAll("#genreChips .fchip").forEach(function (c) { c.classList.remove("is-active"); });
-    document.getElementById("filterYear").value = "";
-    document.getElementById("filterSeason").value = "";
-    document.getElementById("filterFormat").value = "";
-    document.getElementById("filterStatus").value = "";
-    scoreSlider.value = 0;
-    scoreValue.textContent = "Any";
-    document.querySelectorAll("#sortChips .fchip").forEach(function (c) { c.classList.toggle("is-active", c.dataset.sort === state.sort); });
-    document.getElementById("sortLabel").textContent = SORT_LABELS[state.sort];
-    updateFilterUI();
-    renderRecent();
-    doSearch();
-  });
-
   document.getElementById("applyFilters").addEventListener("click", closeSheet);
 
-  /* ---- Bottom sheet open/close --------------------------------------- */
+  /* ---- Bottom sheet open/close (no X button — tap scrim to close) ----- */
   var sheetScrim = document.getElementById("sheetScrim");
   var filterSheet = document.getElementById("filterSheet");
   function openSheet() { sheetScrim.classList.add("is-visible"); filterSheet.classList.add("is-open"); }
   function closeSheet() { sheetScrim.classList.remove("is-visible"); filterSheet.classList.remove("is-open"); }
   document.getElementById("filterBtn").addEventListener("click", openSheet);
-  document.getElementById("sheetClose").addEventListener("click", closeSheet);
   sheetScrim.addEventListener("click", closeSheet);
 
   /* ---- Update filter UI ---------------------------------------------- */
@@ -445,18 +462,15 @@
         updateFilterUI(); renderRecent(); doSearch();
       }));
     });
-    if (state.year) chips.appendChild(makeActiveChip(state.year, function () { state.year = ""; document.getElementById("filterYear").value = ""; updateFilterUI(); renderRecent(); doSearch(); }));
-    if (state.season) chips.appendChild(makeActiveChip(state.season.charAt(0) + state.season.slice(1).toLowerCase(), function () { state.season = ""; document.getElementById("filterSeason").value = ""; updateFilterUI(); renderRecent(); doSearch(); }));
-    if (state.format) chips.appendChild(makeActiveChip(formatLabel(state.format), function () { state.format = ""; document.getElementById("filterFormat").value = ""; updateFilterUI(); renderRecent(); doSearch(); }));
-    if (state.status) chips.appendChild(makeActiveChip(statusLabel(state.status), function () { state.status = ""; document.getElementById("filterStatus").value = ""; updateFilterUI(); renderRecent(); doSearch(); }));
-    if (state.minScore > 0) chips.appendChild(makeActiveChip("★ " + (state.minScore / 10).toFixed(1) + "+", function () { state.minScore = 0; scoreSlider.value = 0; scoreValue.textContent = "Any"; updateFilterUI(); renderRecent(); doSearch(); }));
+    if (state.year) chips.appendChild(makeActiveChip(state.year, function () { state.year = ""; var ys = document.getElementById("filterYear"); if (ys) ys.value = ""; updateFilterUI(); renderRecent(); doSearch(); updateAccordionCounts(); }));
+    if (state.season) chips.appendChild(makeActiveChip(state.season.charAt(0) + state.season.slice(1).toLowerCase(), function () { state.season = ""; var ss = document.getElementById("filterSeason"); if (ss) ss.value = ""; updateFilterUI(); renderRecent(); doSearch(); updateAccordionCounts(); }));
+    if (state.format) chips.appendChild(makeActiveChip(formatLabel(state.format), function () { state.format = ""; var fs = document.getElementById("filterFormat"); if (fs) fs.value = ""; updateFilterUI(); renderRecent(); doSearch(); updateAccordionCounts(); }));
+    if (state.status) chips.appendChild(makeActiveChip(statusLabel(state.status), function () { state.status = ""; var sts = document.getElementById("filterStatus"); if (sts) sts.value = ""; updateFilterUI(); renderRecent(); doSearch(); updateAccordionCounts(); }));
+    if (state.minScore > 0) chips.appendChild(makeActiveChip("★ " + (state.minScore / 10).toFixed(1) + "+", function () { state.minScore = 0; var sl = document.getElementById("filterScore"); if (sl) sl.value = 0; var sv = document.getElementById("scoreValue"); if (sv) sv.textContent = "Any"; updateFilterUI(); renderRecent(); doSearch(); updateAccordionCounts(); }));
     chips.classList.toggle("has-chips", chips.children.length > 0);
 
-    setGroupClear("genres", state.genres.length > 0);
-    setGroupClear("release", !!(state.year || state.season));
-    setGroupClear("type", !!(state.format || state.status));
-    setGroupClear("score", state.minScore > 0);
     document.getElementById("sortLabel").textContent = SORT_LABELS[state.sort];
+    updateAccordionCounts();
   }
 
   function setGroupClear(group, visible) {

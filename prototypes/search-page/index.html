@@ -45,7 +45,7 @@
         <!-- ===== SEARCH VIEW ===== -->
         <section class="view view--active" data-view="search" aria-label="Search">
 
-          <!-- Top bar: title + source toggle -->
+          <!-- Top bar: title + source toggle + search bar (collapses on scroll) -->
           <div class="topbar">
             <div class="topbar__row">
               <h1 class="topbar__title">Search</h1>
@@ -75,7 +75,7 @@
           <!-- Active filter chips (only shown when filters are active) -->
           <div class="active-filters" id="activeFilters"></div>
 
-          <!-- Quick row: Filters + Sort (separated) -->
+          <!-- Filters + Sort tray (slides out on collapse) -->
           <div class="quick-row">
             <button class="filter-btn" id="filterBtn">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
@@ -92,84 +92,39 @@
           <!-- Results content -->
           <div class="content">
             <!-- Recent searches (shown when no query and no filters) -->
-            <div class="recent-section" id="recentSection" style="display:none">
+            <div class="recent-section tray tray--recent" id="recentSection" style="display:none">
               <div class="recent-head">
-                <span class="recent-title">Recent searches</span>
-                <button class="recent-clear" id="recentClear">Clear all</button>
+                <div class="recent-head__left">
+                  <span class="recent-title">Recent searches</span>
+                </div>
+                <div class="recent-head__right" id="recentHeadRight">
+                  <button class="recent-toggle" id="recentToggle" aria-label="Toggle recent searches">
+                    <span class="recent-toggle__icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg></span>
+                  </button>
+                </div>
               </div>
               <div class="recent-list" id="recentList"></div>
             </div>
 
-            <div class="content__header">
-              <span class="content__label" id="resultsLabel">Popular anime</span>
-              <span class="content__count" id="resultsCount"></span>
+            <div class="tray tray--results">
+              <div class="content__header">
+                <span class="content__label" id="resultsLabel">Popular anime</span>
+                <span class="content__count" id="resultsCount"></span>
+              </div>
+              <div class="results-grid" id="resultsGrid"></div>
             </div>
-            <div class="results-grid" id="resultsGrid"></div>
           </div>
 
-          <!-- ===== FILTER BOTTOM SHEET ===== -->
+          <!-- ===== FILTER BOTTOM SHEET (accordion — no drag pill, no X, no clear) ===== -->
           <div class="sheet-scrim" id="sheetScrim"></div>
           <div class="filter-sheet" id="filterSheet">
-            <div class="filter-sheet__handle"></div>
             <div class="filter-sheet__header">
               <h2 class="filter-sheet__title">Filters</h2>
-              <button class="filter-sheet__close" id="sheetClose" aria-label="Close">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
             </div>
-            <div class="filter-sheet__body">
-              <div class="filter-group">
-                <div class="filter-group__head">
-                  <span class="filter-group__label">Genres</span>
-                  <button class="filter-group__clear is-hidden" data-clear="genres">Clear</button>
-                </div>
-                <div class="filter-chips-wrap" id="genreChips"></div>
-              </div>
-              <div class="filter-group">
-                <div class="filter-group__head">
-                  <span class="filter-group__label">Release</span>
-                  <button class="filter-group__clear is-hidden" data-clear="release">Clear</button>
-                </div>
-                <div class="fselect-row">
-                  <select class="fselect" id="filterYear"><option value="">Year: Any</option></select>
-                  <select class="fselect" id="filterSeason"><option value="">Season: Any</option><option value="WINTER">Winter</option><option value="SPRING">Spring</option><option value="SUMMER">Summer</option><option value="FALL">Fall</option></select>
-                </div>
-              </div>
-              <div class="filter-group">
-                <div class="filter-group__head">
-                  <span class="filter-group__label">Type</span>
-                  <button class="filter-group__clear is-hidden" data-clear="type">Clear</button>
-                </div>
-                <div class="fselect-row">
-                  <select class="fselect" id="filterFormat"><option value="">Format: Any</option><option value="TV">TV Series</option><option value="MOVIE">Movie</option><option value="OVA">OVA</option><option value="ONA">ONA</option><option value="SPECIAL">Special</option><option value="MUSIC">Music</option></select>
-                  <select class="fselect" id="filterStatus"><option value="">Status: Any</option><option value="RELEASING">Currently Airing</option><option value="FINISHED">Finished</option><option value="NOT_YET_RELEASED">Upcoming</option><option value="CANCELLED">Cancelled</option></select>
-                </div>
-              </div>
-              <div class="filter-group">
-                <div class="filter-group__head">
-                  <span class="filter-group__label">Minimum score</span>
-                  <button class="filter-group__clear is-hidden" data-clear="score">Clear</button>
-                </div>
-                <div class="score-slider-wrap">
-                  <div class="score-slider-row">
-                    <input type="range" class="score-slider" id="filterScore" min="0" max="100" value="0" step="5" />
-                    <span class="score-value" id="scoreValue">Any</span>
-                  </div>
-                </div>
-              </div>
-              <div class="filter-group">
-                <div class="filter-group__head"><span class="filter-group__label">Sort by</span></div>
-                <div class="filter-chips-wrap" id="sortChips">
-                  <button class="fchip is-active" data-sort="POPULARITY_DESC">Popularity</button>
-                  <button class="fchip" data-sort="SCORE_DESC">Score</button>
-                  <button class="fchip" data-sort="START_DATE_DESC">Newest</button>
-                  <button class="fchip" data-sort="TITLE_ROMAJI">Title A-Z</button>
-                  <button class="fchip" data-sort="FAVOURITES_DESC">Favorites</button>
-                </div>
-              </div>
+            <div class="filter-sheet__body" id="filterSheetBody">
+              <!-- Accordion items generated by JS -->
             </div>
             <div class="filter-sheet__actions">
-              <button class="btn-outlined" id="resetAllFilters">Reset all</button>
               <button class="btn-filled" id="applyFilters">Apply filters</button>
             </div>
           </div>
