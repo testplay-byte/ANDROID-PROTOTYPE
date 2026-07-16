@@ -202,6 +202,9 @@ Reply with A or B to continue.
 | **Read user design preferences**       | `docs/preferences.md`                  |
 | Understand deployment                  | `docs/github-pages.md`                 |
 | See the notification protocol (memory) | `docs/notification-protocol.md`        |
+| **Design system guide (master)**       | `docs/design-systems/design-system-guide.md` |
+| **Basic design principles**            | `docs/design-systems/basic-design/`    |
+| **Material 3 Expressive system**       | `docs/design-systems/material-3-expressive/` |
 | Reuse a UI component                   | `templates/components/`                |
 | Grab shared icons/fonts                | `assets/`                              |
 | See what changed recently              | `CHANGELOG.md`                         |

@@ -20,6 +20,7 @@
 | `template-rules.md`           | The rules every prototype built from `_template/` must follow (frame, status bar, text-selection, scrollbar, mobile, theming). |
 | `theme-architecture.md`       | **CRITICAL.** How app theme (scoped to `.device`) is separated from page theme. Read before touching CSS variables. |
 | `git-conventions.md`          | Branch, commit message, and PR conventions.                         |
+| `design-systems/`             | **Design system documentation** — Material 3 Expressive + Basic Design Principles + master guide. See [`design-systems/navigation.md`](./design-systems/navigation.md). |
 
 ---
 
@@ -35,7 +36,11 @@
 8. [`notification-protocol.md`](./notification-protocol.md) — how to notify the user
 9. [`workflow.md`](./workflow.md) — high-level process
 10. [`design-standards.md`](./design-standards.md) — UI/UX specs (reference as needed)
+11. [`design-systems/design-system-guide.md`](./design-systems/design-system-guide.md) — master design system guide
+12. [`design-systems/basic-design/what-makes-good-ui.md`](./design-systems/basic-design/what-makes-good-ui.md) — what makes good UI
+13. [`design-systems/basic-design/ai-ui-mistakes.md`](./design-systems/basic-design/ai-ui-mistakes.md) — common AI UI mistakes to avoid
+14. [`design-systems/material-3-expressive/navigation.md`](./design-systems/material-3-expressive/navigation.md) — M3 design system (if using M3)
 
 ---
 
-*Last updated: documentation pass (v7) — added agent-quickstart, prototype-blueprint, repo-map; updated reading order.*
+*Last updated: design system documentation pass — added design-systems/ folder with M3 Expressive + Basic Design docs.*

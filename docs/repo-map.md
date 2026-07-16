@@ -30,7 +30,14 @@ ANDROID-PROTOTYPE/
 │   ├── preferences.md           ← MANDATORY MEMORY: all user design preferences.
 │   ├── notification-protocol.md← MANDATORY MEMORY: how to notify via ntfy.sh.
 │   ├── github-pages.md         ← How deployment works + troubleshooting.
-│   └── git-conventions.md      ← Branch, commit message, PR conventions.
+│   ├── git-conventions.md      ← Branch, commit message, PR conventions.
+│   └── design-systems/         ← DESIGN SYSTEM DOCS (new).
+│       ├── navigation.md       ← Index of design-systems/.
+│       ├── design-system-guide.md ← Master guide: how to use these docs.
+│       ├── material-3-expressive/ ← M3 design system (color, type, spacing, etc.).
+│       │   └── navigation.md   ← Index of M3 docs.
+│       └── basic-design/       ← Fundamental design principles.
+│           └── navigation.md   ← Index of basic design docs.
 │
 ├── prototypes/                 ← THE ACTUAL PROTOTYPES. One folder each.
 │   ├── navigation.md           ← Index of all prototypes (status, links).

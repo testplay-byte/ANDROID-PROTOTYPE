@@ -7,6 +7,42 @@
 
 ## [Unreleased]
 
+### 2025-01-15 — Design System Documentation Pass
+
+**Goal:** Create a comprehensive, structured design system documentation that helps future AI agents design beautiful prototypes consistently.
+
+**New documentation structure:**
+
+```
+docs/design-systems/
+├── navigation.md                    ← Index of all design system docs
+├── design-system-guide.md           ← Master guide: workflow, principles, checklist
+├── material-3-expressive/           ← M3 design system (from search-page prototype)
+│   ├── navigation.md                ← Index of M3 docs
+│   ├── color-system.md              ← Color tokens, tonal tiers, dark/light themes
+│   ├── typography.md                ← M3 type scale (display → label-small)
+│   ├── spacing.md                   ← 4px grid system (sp-1 → sp-10)
+│   ├── elevation.md                 ← Tonal elevation (NOT box-shadow)
+│   ├── motion.md                    ← M3 easing curves, durations, animations
+│   ├── components.md                ← Button, card, chip, nav, sheet specs
+│   └── layout-patterns.md           ← Collapsing header, floating nav, trays, blur
+└── basic-design/                    ← Fundamental design principles
+    ├── navigation.md                ← Index of basic design docs
+    ├── what-makes-good-ui.md        ← 8 principles with DO/DON'T examples
+    ├── ai-ui-mistakes.md            ← 13 common AI mistakes + fixes
+    ├── mobile-first-design.md       ← Touch targets, thumb zone, safe areas
+    ├── accessibility.md             ← WCAG, ARIA, keyboard nav, contrast
+    ├── color-theory.md              ← Color roles, harmony, 60-30-10, repo policy
+    └── typography-basics.md         ← Type scale, weights, line height, readability
+```
+
+**Updated existing docs:**
+- `docs/navigation.md` — added design-systems/ to the file table and reading order
+- `STARTUP.md` — added design system links to the quick-lookup table
+- `docs/repo-map.md` — updated the visual tree to include design-systems/
+
+**Total new documentation:** 17 files, ~7,000 lines of structured design system reference.
+
 ### 2025-01-15 — Search Page v5 — floating nav, collapsing header, sort dropdown
 
 **New features:**
