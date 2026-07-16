@@ -184,15 +184,15 @@ img { display: block; max-width: 100%; }
 .view::-webkit-scrollbar { display: none; }
 .view--active { opacity: 1; transform: none; pointer-events: auto; }
 
-/* ---- Section trays (minimal padding) -------------------------------- */
+/* ---- Section trays (wider, minimal side margin) --------------------- */
 .tray {
   background: var(--color-surface-1);
   border-radius: var(--r-lg);
-  padding: var(--sp-2) var(--sp-2);
-  margin: 0 2px var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  margin: 0 0 var(--sp-2);
 }
-.tray--recent { padding: var(--sp-2); }
-.tray--results { padding: var(--sp-2); }
+.tray--recent { padding: var(--sp-2) var(--sp-3); }
+.tray--results { padding: var(--sp-2) var(--sp-3); }
 
 /* ---- Top bar (collapsing on scroll) --------------------------------- */
 .topbar {
@@ -347,10 +347,10 @@ img { display: block; max-width: 100%; }
 @keyframes chipIn { from { opacity: 0; transform: scale(.8); } to { opacity: 1; transform: scale(1); } }
 .active-filter-chip__x { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: color-mix(in srgb, var(--color-on-primary-container) 15%, transparent); }
 
-/* Quick row: Filters + Sort (slide out individually on collapse) */
+/* Quick row: Filters + Sort (more gap from search bar above) */
 .quick-row {
   display: flex; align-items: center; gap: var(--sp-2);
-  padding: 0 var(--sp-3) var(--sp-2);
+  padding: var(--sp-1) var(--sp-3) var(--sp-2);
   flex: 0 0 auto;
   transition: opacity var(--dur-3) var(--ease-standard), max-height var(--dur-3) var(--ease-emphasized), padding var(--dur-3) var(--ease-emphasized);
   max-height: 60px;
@@ -581,13 +581,28 @@ img { display: block; max-width: 100%; }
 .filter-view-toggle__btn { display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: var(--r-pill); color: var(--color-text-muted); transition: background var(--dur-1) var(--ease-standard), color var(--dur-1) var(--ease-standard); }
 .filter-view-toggle__btn.is-active { background: var(--color-primary-container); color: var(--color-on-primary-container); }
 
-/* Flat filter view (all categories in a row at top, options below) */
-.filter-flat-tabs { display: flex; gap: var(--sp-1); overflow-x: auto; padding-bottom: var(--sp-2); scrollbar-width: none; -ms-overflow-style: none; }
+/* Flat filter view — tab row with distinct background container */
+.filter-flat-tabs {
+  display: flex; gap: var(--sp-1); overflow-x: auto;
+  padding: var(--sp-2);
+  scrollbar-width: none; -ms-overflow-style: none;
+  background: var(--color-surface-3);
+  border-radius: var(--r-md);
+  margin-bottom: var(--sp-3);
+}
 .filter-flat-tabs::-webkit-scrollbar { display: none; }
-.filter-flat-tab { flex: 0 0 auto; display: flex; align-items: center; gap: 5px; padding: 8px 14px; border-radius: var(--r-pill); border: 1px solid var(--color-outline-variant); background: transparent; color: var(--color-text-muted); font-size: var(--fs-label); font-weight: 600; transition: all var(--dur-1) var(--ease-standard); white-space: nowrap; cursor: pointer; }
-.filter-flat-tab:hover { border-color: var(--color-primary); color: var(--color-primary); }
-.filter-flat-tab.is-active { background: var(--color-primary-container); border-color: transparent; color: var(--color-on-primary-container); }
-.filter-flat-content { padding: var(--sp-3) 0; min-height: 120px; }
+.filter-flat-tab {
+  flex: 0 0 auto; display: flex; align-items: center; gap: 5px;
+  padding: 10px 16px; border-radius: var(--r-pill);
+  border: none;
+  background: transparent; color: var(--color-text-muted);
+  font-size: var(--fs-label); font-weight: 600;
+  transition: all var(--dur-1) var(--ease-standard);
+  white-space: nowrap; cursor: pointer;
+}
+.filter-flat-tab:hover { background: var(--color-surface-4); color: var(--color-text); }
+.filter-flat-tab.is-active { background: var(--color-primary); color: var(--color-primary-fg); box-shadow: 0 2px 6px color-mix(in srgb, var(--color-primary) 30%, transparent); }
+.filter-flat-content { padding: var(--sp-2) 0 var(--sp-3); min-height: 120px; }
 
 /* ---- Bottom navigation (FLOATING — rounded, padding, text beside icon) */
 .bottomnav {
