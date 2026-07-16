@@ -458,15 +458,15 @@ img { display: block; max-width: 100%; }
 /* ---- Bottom navigation (FLOATING — rounded, padding, text beside icon) */
 .bottomnav {
   position: absolute;
-  left: 12px; right: 12px; bottom: 12px;
+  left: 16px; right: 16px; bottom: 16px;
   height: 64px;
   background: var(--color-surface-3);
-  border-radius: var(--r-lg);
+  border-radius: var(--r-xl);
   border: none;
   display: flex; align-items: center;
   padding: 0 8px;
   z-index: 10;
-  box-shadow: 0 4px 16px rgba(0,0,0,.25);
+  box-shadow: 0 8px 24px rgba(0,0,0,.35), 0 2px 8px rgba(0,0,0,.2);
 }
 /* Each nav item — horizontal layout: icon + text side by side */
 .bottomnav__item {
