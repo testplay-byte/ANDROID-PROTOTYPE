@@ -26,7 +26,7 @@ export interface DeviceFrameProps {
 
 export function DeviceFrame({ theme = "dark", children }: DeviceFrameProps) {
   return (
-    <div className={styles.device} data-theme={theme}>
+    <div className={`${styles.device} device`} data-theme={theme}>
       <StatusBar />
       {children}
     </div>
