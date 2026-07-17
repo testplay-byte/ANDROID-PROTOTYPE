@@ -180,11 +180,14 @@ img { display: block; max-width: 100%; }
 .battery .ic-batt { color: var(--color-text); }
 .battery__fill { fill: var(--color-text); }
 
-/* ---- Screen + views --------------------------------------------------- */
+/* ---- Screen + views — smooth transitions ----------------------------- */
 .screen { flex: 1 1 auto; position: relative; overflow: hidden; display: flex; flex-direction: column; background: var(--color-bg); }
-.view { position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0; transform: translateX(8px); pointer-events: none; transition: opacity var(--dur-3) var(--ease-emphasized-decel), transform var(--dur-3) var(--ease-emphasized-decel); overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none; }
+.view { position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0; transform: translateX(12px) scale(0.98); pointer-events: none; transition: opacity var(--dur-3) var(--ease-emphasized-decel), transform var(--dur-3) var(--ease-emphasized-decel); overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none; }
 .view::-webkit-scrollbar { display: none; }
 .view--active { opacity: 1; transform: none; pointer-events: auto; }
+/* Detail view slides in from the right */
+.view[data-view="detail"] { transform: translateX(100%); }
+.view[data-view="detail"].view--active { transform: none; }
 
 /* ---- Section trays (wider, minimal side margin) --------------------- */
 .tray {
@@ -466,17 +469,21 @@ img { display: block; max-width: 100%; }
 .anime-card {
   display: flex; flex-direction: column; gap: 6px;
   cursor: pointer;
-  transition: transform var(--dur-1) var(--ease-emphasized);
+  transition: transform var(--dur-2) var(--ease-emphasized);
   min-width: 0;
 }
-.anime-card:active { transform: scale(.96); }
+.anime-card:active { transform: scale(.95); }
 .anime-card__cover {
   position: relative; width: 100%; aspect-ratio: 2 / 3;
   border-radius: var(--r-sm); overflow: hidden;
   background: var(--color-surface-2);
+  transition: box-shadow var(--dur-2) var(--ease-standard);
 }
-.anime-card__cover img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--dur-4) var(--ease-emphasized-decel); }
-.anime-card:active .anime-card__cover img { transform: scale(1.1); }
+.anime-card__cover img { width: 100%; height: 100%; object-fit: cover; transition: transform var(--dur-4) var(--ease-emphasized-decel), opacity var(--dur-2) var(--ease-standard); opacity: 0; }
+.anime-card__cover img.loaded { opacity: 1; }
+.anime-card:active .anime-card__cover img { transform: scale(1.12); }
+.anime-card__cover::after { content: ''; position: absolute; inset: 0; background: linear-gradient(to top, rgba(0,0,0,0.15), transparent 40%); pointer-events: none; opacity: 0; transition: opacity var(--dur-2) var(--ease-standard); }
+.anime-card:active .anime-card__cover::after { opacity: 1; }
 .anime-card__score {
   position: absolute; bottom: 6px; left: 6px;
   background: rgba(0, 0, 0, 0.45);
@@ -501,15 +508,21 @@ img { display: block; max-width: 100%; }
 .anime-card__title--single { -webkit-line-clamp: 1 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .anime-card__meta { font-size: var(--fs-label-s); font-weight: 500; color: var(--color-text-subtle); letter-spacing: .01em; }
 
-/* ---- Skeleton loading ------------------------------------------------- */
+/* ---- Skeleton loading — polished shimmer ----------------------------- */
 .skeleton { background: linear-gradient(90deg, var(--color-surface-2) 25%, var(--color-surface-3) 50%, var(--color-surface-2) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: var(--r-sm); }
 @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+.skeleton-card { display: flex; flex-direction: column; gap: 6px; }
+.skeleton-card__cover { aspect-ratio: 2/3; border-radius: var(--r-sm); }
+.skeleton-card__line { height: 12px; border-radius: var(--r-xs); }
+.skeleton-card__line--short { width: 60%; }
 
-/* ---- Empty state ------------------------------------------------------ */
-.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--sp-3); padding: var(--sp-10) var(--sp-6); text-align: center; }
-.empty-state__icon { width: 72px; height: 72px; border-radius: 50%; background: var(--color-surface-2); display: flex; align-items: center; justify-content: center; color: var(--color-text-muted); }
+/* ---- Empty state — polished ------------------------------------------ */
+.empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--sp-3); padding: var(--sp-10) var(--sp-6); text-align: center; animation: cardFadeIn var(--dur-4) var(--ease-emphasized-decel); }
+.empty-state__icon { width: 80px; height: 80px; border-radius: 50%; background: var(--color-surface-2); display: flex; align-items: center; justify-content: center; color: var(--color-text-muted); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
 .empty-state__title { margin: 0; font-size: var(--fs-h3); font-weight: 700; color: var(--color-text); }
 .empty-state__desc { margin: 0; font-size: var(--fs-body); color: var(--color-text-muted); max-width: 30ch; line-height: 1.5; }
+.empty-state__btn { margin-top: var(--sp-2); background: var(--color-primary); color: var(--color-primary-fg); padding: 10px 20px; border-radius: var(--r-pill); font-size: var(--fs-body); font-weight: 600; border: none; cursor: pointer; transition: transform var(--dur-1) var(--ease-emphasized); }
+.empty-state__btn:active { transform: scale(0.95); }
 
 /* ---- Filter sheet (accordion style — no drag pill, no X, no clear) -- */
 .sheet-scrim {
@@ -725,6 +738,10 @@ img { display: block; max-width: 100%; }
 .setting-row--btn:active { background: var(--color-surface-3); }
 .setting-row__value { font-size: var(--fs-body-s); color: var(--color-text-muted); font-weight: 600; }
 
+/* Select dropdown (settings) */
+.select { appearance: none; -webkit-appearance: none; background: var(--color-surface-3); color: var(--color-text); border: 1px solid var(--color-outline-variant); border-radius: var(--r-sm); padding: 10px 32px 10px 14px; font-size: var(--fs-body-s); font-weight: 500; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a89ec0' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; cursor: pointer; transition: border-color var(--dur-1) var(--ease-standard); }
+.select:hover, .select:focus { border-color: var(--color-primary); outline: none; }
+
 /* Toggle switch (M3 style) */
 .toggle { width: 44px; height: 26px; border-radius: var(--r-pill); background: var(--color-surface-4); border: 1px solid var(--color-outline-variant); position: relative; flex: 0 0 auto; transition: background var(--dur-2) var(--ease-emphasized); cursor: pointer; }
 .toggle__knob { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: var(--color-text-muted); transition: transform var(--dur-2) var(--ease-emphasized), background var(--dur-2) var(--ease-emphasized); }
@@ -873,8 +890,64 @@ img { display: block; max-width: 100%; }
 .confirm-dialog__actions .btn-filled { flex: 1; height: 44px; font-size: var(--fs-body); }
 .confirm-dialog__actions .btn-outlined { flex: 1; height: 44px; font-size: var(--fs-body); }
 
-/* ---- Detail banner improvement -------------------------------------- */
-.detail-banner { height: 220px; }
-.detail-banner::after { background: linear-gradient(to bottom, color-mix(in srgb, var(--color-bg) 20%, transparent) 0%, color-mix(in srgb, var(--color-bg) 60%, transparent) 40%, var(--color-bg) 100%); }
+/* ---- Detail banner improvement — parallax + better gradient ---------- */
+.detail-banner { height: 240px; transition: transform var(--dur-4) var(--ease-standard); }
+.detail-banner::after { background: linear-gradient(to bottom, color-mix(in srgb, var(--color-bg) 10%, transparent) 0%, color-mix(in srgb, var(--color-bg) 50%, transparent) 35%, color-mix(in srgb, var(--color-bg) 85%, transparent) 65%, var(--color-bg) 100%); }
+.detail-back { transition: transform var(--dur-2) var(--ease-emphasized), background var(--dur-2) var(--ease-standard); }
+.detail-back:active { transform: scale(0.92); }
+
+/* ---- Hero carousel improvements ------------------------------------- */
+.hero-carousel { border-radius: var(--r-md); box-shadow: 0 4px 16px rgba(0,0,0,0.2); }
+.hero-slide { transition: opacity var(--dur-5) var(--ease-emphasized-decel); }
+.hero-slide__title { text-shadow: 0 2px 12px rgba(0,0,0,0.7); }
+.hero-dots { gap: 5px; }
+.hero-dot { transition: all var(--dur-2) var(--ease-emphasized); }
+
+/* ---- Section headers with "See All" --------------------------------- */
+.section-header { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: var(--sp-3); padding: 0 var(--sp-1); }
+.section-header__title { font-size: var(--fs-body-l); font-weight: 700; color: var(--color-text); }
+.section-header__see-all { font-size: var(--fs-label); font-weight: 600; color: var(--color-primary); cursor: pointer; transition: opacity var(--dur-1) var(--ease-standard); }
+.section-header__see-all:active { opacity: 0.7; }
+
+/* ---- Tab switch animation ------------------------------------------- */
+.tab { position: relative; overflow: hidden; }
+.tab::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--color-primary); transform: scaleX(0); transition: transform var(--dur-2) var(--ease-emphasized); transform-origin: left; }
+.tab.is-active::after { transform: scaleX(1); }
+
+/* ---- Card density options ------------------------------------------- */
+.results-grid--compact { gap: var(--sp-2) var(--sp-1); }
+.results-grid--comfortable { gap: var(--sp-4) var(--sp-3); }
+.results-grid--compact .anime-card__cover { border-radius: var(--r-xs); }
+.results-grid--comfortable .anime-card__cover { border-radius: var(--r-md); }
+
+/* ---- Animation speed settings --------------------------------------- */
+.device[data-anim-speed="fast"] { --dur-1: 50ms; --dur-2: 100ms; --dur-3: 150ms; --dur-4: 200ms; --dur-5: 250ms; }
+.device[data-anim-speed="normal"] { --dur-1: 100ms; --dur-2: 200ms; --dur-3: 300ms; --dur-4: 400ms; --dur-5: 500ms; }
+.device[data-anim-speed="slow"] { --dur-1: 150ms; --dur-2: 300ms; --dur-3: 450ms; --dur-4: 600ms; --dur-5: 750ms; }
+
+/* ---- Poster style options ------------------------------------------- */
+.device[data-poster-style="rounded"] .anime-card__cover { border-radius: var(--r-sm); }
+.device[data-poster-style="sharp"] .anime-card__cover { border-radius: var(--r-xs); }
+.device[data-poster-style="circle"] .anime-card__cover { border-radius: 50%; aspect-ratio: 1; }
+
+/* ---- Button ripple effect ------------------------------------------- */
+.btn-filled, .btn-outlined { position: relative; overflow: hidden; }
+.btn-filled::after, .btn-outlined::after { content: ''; position: absolute; top: 50%; left: 50%; width: 0; height: 0; border-radius: 50%; background: rgba(255,255,255,0.3); transform: translate(-50%, -50%); transition: width 0.4s, height 0.4s; }
+.btn-filled:active::after, .btn-outlined:active::after { width: 200%; height: 200%; transition: width 0.2s, height 0.2s; }
+
+/* ---- Bottom nav item press animation -------------------------------- */
+.bottomnav__item { transition: color var(--dur-2) var(--ease-standard), background var(--dur-3) var(--ease-emphasized), transform var(--dur-1) var(--ease-emphasized); }
+.bottomnav__item:active { transform: scale(0.92); }
+
+/* ---- Library card slide-in animation -------------------------------- */
+@keyframes slideInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+.library-card-wrap { animation: slideInRight var(--dur-3) var(--ease-emphasized-decel) backwards; }
+
+/* ---- Episode row hover/active polish -------------------------------- */
+.episode-row { transition: background var(--dur-1) var(--ease-standard), transform var(--dur-1) var(--ease-emphasized); }
+.episode-row:active { transform: scale(0.98); }
+
+/* ---- Synopsis expand smooth animation ------------------------------- */
+.detail-synopsis { transition: -webkit-line-clamp 0.3s ease; }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

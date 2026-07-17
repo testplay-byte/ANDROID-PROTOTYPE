@@ -132,9 +132,20 @@
   function fmtScore(s) { return s ? (s / 10).toFixed(1) : "—"; }
 
   /* ---- App settings (localStorage) ----------------------------------- */
-  var appSettings = { singleLineTitles: true };
+  var appSettings = { singleLineTitles: true, animSpeed: "normal", posterStyle: "rounded", cardDensity: "default" };
   try { var saved = localStorage.getItem("anime-app-settings"); if (saved) appSettings = JSON.parse(saved); } catch (e) {}
   function saveAppSettings() { try { localStorage.setItem("anime-app-settings", JSON.stringify(appSettings)); } catch (e) {} }
+  function applyAppSettings() {
+    device.setAttribute("data-anim-speed", appSettings.animSpeed || "normal");
+    device.setAttribute("data-poster-style", appSettings.posterStyle || "rounded");
+    // Card density
+    document.querySelectorAll(".results-grid").forEach(function (g) {
+      g.classList.remove("results-grid--compact", "results-grid--comfortable");
+      if (appSettings.cardDensity === "compact") g.classList.add("results-grid--compact");
+      if (appSettings.cardDensity === "comfortable") g.classList.add("results-grid--comfortable");
+    });
+  }
+  applyAppSettings();
 
   function animeCard(a) {
     var title = a.title.romaji || a.title.english || "Unknown";
@@ -146,13 +157,14 @@
     else if (a.seasonYear) metaParts.push(a.seasonYear);
     var meta = metaParts.join(" · ");
     var titleClass = appSettings.singleLineTitles ? 'anime-card__title anime-card__title--single' : 'anime-card__title';
-    return el(
+    var card = el(
       '<div class="anime-card" data-anime-id="' + a.id + '">' +
-        '<div class="anime-card__cover"><img src="' + cover + '" alt="' + title + '" loading="lazy"/>' + score + '</div>' +
+        '<div class="anime-card__cover"><img src="' + cover + '" alt="' + title + '" loading="lazy" onload="this.classList.add(\'loaded\')"/>' + score + '</div>' +
         '<h3 class="' + titleClass + '">' + title + '</h3>' +
         '<span class="anime-card__meta">' + meta + '</span>' +
       '</div>'
     );
+    return card;
   }
 
   function showSkeletons(count) {
@@ -774,7 +786,7 @@
     });
   });
 
-  /* ---- App settings toggles (single-line titles, etc.) --------------- */
+  /* ---- App settings toggles (single-line titles, customization) ------ */
   (function () {
     var singleLineBtn = document.getElementById("settingSingleLine");
     if (singleLineBtn) {
@@ -783,6 +795,33 @@
         appSettings.singleLineTitles = !appSettings.singleLineTitles;
         this.classList.toggle("is-on", appSettings.singleLineTitles);
         saveAppSettings();
+      });
+    }
+    // Animation speed
+    var animSpeedSelect = document.getElementById("settingAnimSpeed");
+    if (animSpeedSelect) {
+      animSpeedSelect.value = appSettings.animSpeed || "normal";
+      animSpeedSelect.addEventListener("change", function () {
+        appSettings.animSpeed = this.value;
+        saveAppSettings(); applyAppSettings();
+      });
+    }
+    // Poster style
+    var posterStyleSelect = document.getElementById("settingPosterStyle");
+    if (posterStyleSelect) {
+      posterStyleSelect.value = appSettings.posterStyle || "rounded";
+      posterStyleSelect.addEventListener("change", function () {
+        appSettings.posterStyle = this.value;
+        saveAppSettings(); applyAppSettings();
+      });
+    }
+    // Card density
+    var densitySelect = document.getElementById("settingCardDensity");
+    if (densitySelect) {
+      densitySelect.value = appSettings.cardDensity || "default";
+      densitySelect.addEventListener("change", function () {
+        appSettings.cardDensity = this.value;
+        saveAppSettings(); applyAppSettings();
       });
     }
     var clearHistBtn = document.getElementById("clearHistoryBtn");

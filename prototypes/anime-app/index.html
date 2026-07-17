@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>Anime App — ANDROID-PROTOTYPE</title>
-  <link rel="stylesheet" href="./styles.css?v=16" />
+  <link rel="stylesheet" href="./styles.css?v=17" />
 </head>
 <body>
 
@@ -242,6 +242,44 @@
                   </div>
                   <button class="toggle is-on" id="settingSingleLine" data-app-setting="singleLineTitles" aria-label="Toggle single-line titles"><span class="toggle__knob"></span></button>
                 </div>
+                <div class="setting-row">
+                  <div class="setting-row__info">
+                    <span class="setting-row__title">Poster style</span>
+                    <span class="setting-row__desc">Cover image border radius</span>
+                  </div>
+                  <select class="select" id="settingPosterStyle">
+                    <option value="rounded">Rounded</option>
+                    <option value="sharp">Sharp</option>
+                    <option value="circle">Circle</option>
+                  </select>
+                </div>
+                <div class="setting-row">
+                  <div class="setting-row__info">
+                    <span class="setting-row__title">Card density</span>
+                    <span class="setting-row__desc">Spacing between cards</span>
+                  </div>
+                  <select class="select" id="settingCardDensity">
+                    <option value="default">Default</option>
+                    <option value="compact">Compact</option>
+                    <option value="comfortable">Comfortable</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <div class="settings-group">
+              <div class="settings-group__label">Animations</div>
+              <div class="settings-card">
+                <div class="setting-row">
+                  <div class="setting-row__info">
+                    <span class="setting-row__title">Animation speed</span>
+                    <span class="setting-row__desc">Speed of transitions and effects</span>
+                  </div>
+                  <select class="select" id="settingAnimSpeed">
+                    <option value="fast">Fast</option>
+                    <option value="normal">Normal</option>
+                    <option value="slow">Slow</option>
+                  </select>
+                </div>
               </div>
             </div>
             <div class="settings-group">
@@ -336,6 +374,6 @@
     <svg id="fsIconShrink" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M9 3v4a2 2 0 0 1-2 2H3M15 3v4a2 2 0 0 0 2 2h4M9 21v-4a2 2 0 0 0-2-2H3M15 21v-4a2 2 0 0 1 2-2h4"/></svg>
   </button>
 
-  <script src="./script.js?v=16"></script>
+  <script src="./script.js?v=17"></script>
 </body>
 </html>
