@@ -1,6 +1,6 @@
-# Dependencies (we keep prototypes dependency-free, but local tooling may use these)
+# Dependencies
 node_modules/
-package-lock.json
+# package-lock.json IS committed — required for reproducible CI builds (npm ci).
 bun.lockb
 
 # OS files
