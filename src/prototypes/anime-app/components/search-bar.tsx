@@ -3,21 +3,34 @@
 /**
  * anime-app / components / search-bar — pill input with magnifier + clear.
  *
+ * Uses the proto-kit custom keyboard (useKeyboardInput) instead of the native
+ * soft keyboard. `inputMode="none"` prevents the native keyboard on mobile;
+ * the custom keyboard writes to the value via the onChange callback.
+ *
  * Collapsed-state animations (height shrink, font shrink on scroll) are
  * owned by the parent search-screen module via a :global selector on the
  * stable `.searchbar` class — so this component applies both its module
  * class and the plain `searchbar` class.
  */
+import { useKeyboardInput } from "../../../proto-kit";
 import styles from "./search-bar.module.css";
 
 interface SearchBarProps {
   value: string;
   onChange: (v: string) => void;
   onClear: () => void;
+  onEnter?: () => void;
   inputRef?: React.Ref<HTMLInputElement>;
 }
 
-export function SearchBar({ value, onChange, onClear, inputRef }: SearchBarProps) {
+export function SearchBar({ value, onChange, onClear, onEnter, inputRef }: SearchBarProps) {
+  const kb = useKeyboardInput({
+    value,
+    onChange,
+    onEnter,
+    enterLabel: "Search",
+  });
+
   return (
     <div className={`${styles.searchbar} searchbar`}>
       <span className={styles.icon} aria-hidden="true">
@@ -42,6 +55,7 @@ export function SearchBar({ value, onChange, onClear, inputRef }: SearchBarProps
         placeholder="Search anime by title..."
         value={value}
         onChange={(e) => onChange(e.target.value)}
+        {...kb}
       />
       {value && (
         <button

@@ -23,3 +23,8 @@ export type { AppTheme, ThemeProviderProps } from "./theme/types";
 // Swipe gestures — permanent proto-kit feature. Every prototype wires it
 // up in its page.tsx with its own screen order + navigation callbacks.
 export { useSwipeSimulation, type SwipeSimulationOptions } from "./swipe-simulation/use-swipe-simulation";
+
+// On-screen keyboard — replaces the native soft keyboard. Every prototype
+// wraps with <KeyboardProvider> and renders <Keyboard /> inside DeviceFrame.
+export { KeyboardProvider, useKeyboard, useKeyboardInput, type KeyboardTarget, type KeyboardProviderProps } from "./keyboard/keyboard-context";
+export { Keyboard } from "./keyboard/keyboard";

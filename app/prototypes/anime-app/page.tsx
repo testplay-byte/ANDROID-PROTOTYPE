@@ -30,6 +30,8 @@ import {
   PanelDesc,
   PanelHead,
   useSwipeSimulation,
+  KeyboardProvider,
+  Keyboard,
 } from "../../../src/proto-kit";
 import { SettingsProvider } from "../../../src/prototypes/anime-app/hooks/use-settings";
 import { HomeScreen } from "../../../src/prototypes/anime-app/screens/home-screen";
@@ -322,6 +324,7 @@ export default function Page() {
 
   return (
     <DeviceThemeProvider storageKey="anime-app-theme" initialTheme="dark">
+      <KeyboardProvider>
       <SettingsProvider>
         <Stage
           leftPanel={
@@ -421,9 +424,13 @@ export default function Page() {
                 onSelect={handleNav}
               />
             )}
+
+            {/* Custom on-screen keyboard (replaces native soft keyboard) */}
+            <Keyboard />
           </DeviceFrame>
         </Stage>
       </SettingsProvider>
+      </KeyboardProvider>
     </DeviceThemeProvider>
   );
 }

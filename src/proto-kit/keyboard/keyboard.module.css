@@ -1,0 +1,173 @@
+/* proto-kit / keyboard — on-screen QWERTY keyboard.
+   Slides up from the bottom of the device when an input is focused.
+   Key press animation: scale down + color flash. Shift highlights. */
+
+.keyboard {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 30;
+  background: var(--color-surface-2);
+  border-radius: var(--r-xl) var(--r-xl) 0 0;
+  box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.4);
+  transform: translateY(100%);
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    transform var(--dur-4) var(--ease-emphasized-decel),
+    opacity var(--dur-3) var(--ease-standard);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.keyboardIsActive {
+  transform: translateY(0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* ---- Dismiss bar (tap to close) ---- */
+.dismissBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 0 4px;
+  cursor: pointer;
+}
+
+.dismissHandle {
+  width: 40px;
+  height: 4px;
+  border-radius: var(--r-pill);
+  background: var(--color-outline-variant);
+  transition: background var(--dur-1) var(--ease-standard);
+}
+
+.dismissBar:hover .dismissHandle {
+  background: var(--color-outline);
+}
+
+/* ---- Keypad ---- */
+.keypad {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 4px 6px 10px;
+}
+
+.row {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+/* Indented row (ASDFGHJKL) — slight offset like real keyboards */
+.rowIndented {
+  margin-left: 16px;
+  margin-right: 16px;
+}
+
+/* ---- Key ---- */
+.key {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 42px;
+  border-radius: var(--r-xs);
+  background: var(--color-surface-4);
+  color: var(--color-text);
+  font-size: var(--fs-body-l);
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  user-select: none;
+  -webkit-user-select: none;
+  transition:
+    background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard),
+    transform var(--dur-1) var(--ease-emphasized);
+  /* Entry animation — each key pops in with a slight stagger */
+  animation: keyPop var(--dur-2) var(--ease-emphasized-decel) backwards;
+}
+
+/* Stagger the key pop-in by row */
+.row:nth-child(1) .key { animation-delay: 0ms; }
+.row:nth-child(2) .key { animation-delay: 30ms; }
+.row:nth-child(3) .key { animation-delay: 60ms; }
+.row:nth-child(4) .key { animation-delay: 90ms; }
+.row:nth-child(5) .key { animation-delay: 120ms; }
+
+@keyframes keyPop {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.key:hover {
+  background: var(--color-surface-5);
+}
+
+.key:active {
+  transform: scale(0.88);
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+/* Wide keys (shift, backspace, enter) */
+.keyWide {
+  flex: 1.5 1 0;
+}
+
+/* Extra wide (space) */
+.keyExtraWide {
+  flex: 5 1 0;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Shift active state */
+.keyIsActive {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+
+.keyIsActive:active {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+/* Accent (enter key) */
+.keyAccent {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  font-weight: 700;
+  font-size: var(--fs-body);
+}
+
+.keyAccent:hover {
+  background: color-mix(in srgb, var(--color-primary) 85%, white);
+}
+
+.keyAccent:active {
+  background: color-mix(in srgb, var(--color-primary) 70%, black);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .keyboard {
+    transition: opacity var(--dur-2) var(--ease-standard);
+  }
+  .key {
+    animation: none !important;
+    transition: background var(--dur-1) var(--ease-standard) !important;
+  }
+}
