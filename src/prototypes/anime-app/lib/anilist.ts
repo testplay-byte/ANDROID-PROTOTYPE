@@ -176,3 +176,53 @@ export function timeAgo(ts: number): string {
   if (d < 7) return `${d}d ago`;
   return new Date(ts).toLocaleDateString();
 }
+
+// ---------------------------------------------------------------------------
+// Schedule screen — airing schedules for a 7-day window.
+// ---------------------------------------------------------------------------
+
+export interface AiringEntry {
+  id: number;
+  airingAt: number; // Unix seconds
+  episode: number;
+  media: Anime;
+}
+
+interface AiringResponse {
+  data?: {
+    Page?: {
+      airingSchedules: {
+        id: number;
+        airingAt: number;
+        episode: number;
+        media: Anime;
+      }[];
+    };
+  };
+}
+
+/**
+ * Fetch airing schedules for a time window (Unix seconds).
+ * Returns entries sorted by airingAt ascending.
+ */
+export function fetchAiringSchedule(
+  weekStart: number,
+  weekEnd: number,
+): Promise<AiringEntry[]> {
+  const q =
+    "query($weekStart:Int!,$weekEnd:Int!){Page(page:1,perPage:100){" +
+    "airingSchedules(airingAt_greater:$weekStart,airingAt_lesser:$weekEnd){" +
+    "id airingAt episode media{id title{romaji english} " +
+    "coverImage{large extraLarge} averageScore episodes format seasonYear}}}}";
+  return gql<AiringResponse>(q, { weekStart, weekEnd }).then((d) => {
+    const list = d.data?.Page?.airingSchedules ?? [];
+    return list
+      .map((e) => ({
+        id: e.id,
+        airingAt: e.airingAt,
+        episode: e.episode,
+        media: e.media,
+      }))
+      .sort((a, b) => a.airingAt - b.airingAt);
+  });
+}

@@ -51,20 +51,20 @@ export function AnimeCard({ anime, index, onClick }: AnimeCardProps) {
       <div className={`${styles.cover} anime-card__cover`}>
         {cover && <img src={cover} alt={title} loading="lazy" />}
         {anime.averageScore ? (
-          <span className={styles.score}>
+          <span className={`${styles.score} anime-card__score`}>
             <span className={styles.star}>★</span>
             {fmtScore(anime.averageScore)}
           </span>
         ) : null}
       </div>
       <h3
-        className={`${styles.title} ${
+        className={`${styles.title} anime-card__title ${
           settings.singleLineTitles ? styles.titleSingle : ""
         }`}
       >
         {title}
       </h3>
-      {meta && <span className={styles.meta}>{meta}</span>}
+      {meta && <span className={`${styles.meta} anime-card__meta`}>{meta}</span>}
     </div>
   );
 }

@@ -102,11 +102,23 @@ export type PosterStyle = "rounded" | "sharp" | "circle";
 export type CardDensity = "default" | "compact" | "comfortable";
 export type AnimSpeed = "fast" | "normal" | "slow";
 
+// ---------------------------------------------------------------------------
+// Library customization
+// ---------------------------------------------------------------------------
+
+export type LibraryLayout = "grid" | "list";
+export type LibraryTextPlacement = "below" | "overlay";
+
 export interface Settings {
   singleLineTitles: boolean;
   posterStyle: PosterStyle;
   cardDensity: CardDensity;
   animSpeed: AnimSpeed;
+  /** Library-specific display options. */
+  libraryLayout: LibraryLayout;
+  /** Columns in grid mode (2–5). */
+  libraryColumns: number;
+  libraryTextPlacement: LibraryTextPlacement;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -114,4 +126,7 @@ export const DEFAULT_SETTINGS: Settings = {
   posterStyle: "rounded",
   cardDensity: "default",
   animSpeed: "normal",
+  libraryLayout: "grid",
+  libraryColumns: 3,
+  libraryTextPlacement: "below",
 };

@@ -1,9 +1,15 @@
-/* LibraryScreen — saved anime with status tabs + remove confirm. */
+/* LibraryScreen — saved anime with status tabs + remove confirm.
+   Supports grid (2–5 cols, text below or overlay) and list layouts.
+   Customizable via the gear button in the topbar. */
 
 .topbar {
   padding: var(--sp-2) var(--sp-3) var(--sp-1);
   flex: 0 0 auto;
   background: var(--color-bg);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
   transition: padding var(--dur-3) var(--ease-emphasized);
 }
 
@@ -24,6 +30,33 @@
 
 .topbarIsCollapsed .topbarTitle {
   font-size: var(--fs-h2);
+}
+
+/* ---- Customize button (gear icon, top-right) ---- */
+.customizeBtn {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  background: var(--color-surface-2);
+  cursor: pointer;
+  transition:
+    background var(--dur-2) var(--ease-emphasized),
+    color var(--dur-2) var(--ease-emphasized),
+    transform var(--dur-1) var(--ease-emphasized);
+}
+
+.customizeBtn:hover {
+  background: var(--color-surface-3);
+  color: var(--color-text);
+}
+
+.customizeBtn:active {
+  transform: scale(0.92);
 }
 
 .content {
@@ -91,11 +124,14 @@
   transform: scaleX(1);
 }
 
+/* =========================================================================
+   GRID LAYOUT
+   ========================================================================= */
+
 /* ---- Grid ----
    minmax(0, 1fr) is CRITICAL: without the 0 minimum, grid items can't
    shrink below their content's intrinsic width (cover images, long titles),
-   causing uneven columns and distorted cards. This is the same pattern the
-   home screen uses. */
+   causing uneven columns and distorted cards. */
 .grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -145,6 +181,175 @@
   color: #fff;
 }
 
+/* ---- Grid overlay text variant ----
+   When text placement = "overlay", the title is overlaid on the cover
+   image with a gradient (Netflix-style). The card becomes position:relative
+   and the title is positioned absolutely at the bottom of the cover area.
+   We target the AnimeCard's internal elements via :global selectors. */
+.gridOverlay :global(.anime-card) {
+  position: relative;
+}
+
+.gridOverlay :global(.anime-card__title) {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  padding: 28px 8px 8px;
+  margin: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.88) 0%,
+    rgba(0, 0, 0, 0.4) 60%,
+    transparent 100%
+  );
+  color: #fff;
+  -webkit-line-clamp: 2 !important;
+  line-clamp: 2;
+  border-radius: 0 0 var(--r-sm) var(--r-sm);
+}
+
+/* Hide the separate meta line in overlay mode (info is on the cover) */
+.gridOverlay :global(.anime-card__meta) {
+  display: none;
+}
+
+/* =========================================================================
+   LIST LAYOUT
+   ========================================================================= */
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.listRow {
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  position: relative;
+  animation: listRowIn var(--dur-3) var(--ease-emphasized-decel) backwards;
+}
+
+@keyframes listRowIn {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.listItem {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2);
+  border-radius: var(--r-md);
+  background: var(--color-surface-1);
+  cursor: pointer;
+  text-align: left;
+  min-width: 0;
+  transition: background var(--dur-2) var(--ease-standard),
+    transform var(--dur-1) var(--ease-emphasized);
+}
+
+.listItem:active {
+  transform: scale(0.99);
+}
+
+.listItem:hover {
+  background: var(--color-surface-2);
+}
+
+.listCover {
+  width: 52px;
+  height: 74px;
+  border-radius: var(--r-xs);
+  overflow: hidden;
+  background: var(--color-surface-3);
+  flex: 0 0 auto;
+}
+
+.listCover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.listInfo {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.listTitle {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  line-height: 1.35;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.listMeta {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+  font-weight: 500;
+}
+
+.listScore {
+  color: var(--color-warn);
+  font-weight: 600;
+}
+
+.listStatus {
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  color: var(--color-primary);
+  margin-top: 2px;
+}
+
+.listRemove {
+  position: absolute;
+  top: 50%;
+  right: 8px;
+  transform: translateY(-50%);
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--dur-2) var(--ease-standard),
+    background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard);
+}
+
+.listRow:hover .listRemove {
+  opacity: 1;
+}
+
+.listRemove:hover {
+  background: var(--color-error);
+  color: #fff;
+}
+
 /* ---- Empty state ---- */
 .emptyState {
   display: flex;
@@ -184,7 +389,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .cardWrap {
+  .cardWrap,
+  .listRow {
     animation: none !important;
   }
   .tab,

@@ -35,10 +35,11 @@ import { HomeScreen } from "../../../src/prototypes/anime-app/screens/home-scree
 import { SearchScreen } from "../../../src/prototypes/anime-app/screens/search-screen";
 import { LibraryScreen } from "../../../src/prototypes/anime-app/screens/library-screen";
 import { HistoryScreen } from "../../../src/prototypes/anime-app/screens/history-screen";
+import { ScheduleScreen } from "../../../src/prototypes/anime-app/screens/schedule-screen";
 import { SettingsScreen } from "../../../src/prototypes/anime-app/screens/settings-screen";
 import { DetailScreen } from "../../../src/prototypes/anime-app/screens/detail-screen";
 
-type ViewId = "home" | "search" | "library" | "history" | "settings" | "detail";
+type ViewId = "home" | "search" | "library" | "history" | "schedule" | "settings" | "detail";
 
 const NAV_ITEMS = [
   {
@@ -99,6 +100,25 @@ const NAV_ITEMS = [
     ),
   },
   {
+    id: "schedule",
+    label: "Schedule",
+    icon: (
+      <svg
+        width="22"
+        height="22"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      >
+        <rect x="3" y="4" width="18" height="18" rx="2" />
+        <path d="M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01" />
+      </svg>
+    ),
+  },
+  {
     id: "search",
     label: "Search",
     icon: (
@@ -151,6 +171,10 @@ const SCREEN_INFO: Record<ViewId, { name: string; desc: string }> = {
     name: "History",
     desc: "Recently viewed anime.",
   },
+  schedule: {
+    name: "Schedule",
+    desc: "Weekly airing schedule — see what's on today and this week.",
+  },
   search: {
     name: "Search",
     desc: "Search AniList with filters and recent searches.",
@@ -182,6 +206,7 @@ function parseHash(): HashState {
     hash === "search" ||
     hash === "library" ||
     hash === "history" ||
+    hash === "schedule" ||
     hash === "settings"
   ) {
     return { view: hash, detailId: null };
@@ -272,8 +297,8 @@ export default function Page() {
               <PanelTitle>Anime App</PanelTitle>
               <PanelDesc>
                 Material 3 Expressive anime app with Home, Library, History,
-                Search, Settings, and Detail pages. Real AniList data.
-                Add-to-library functionality.
+                Schedule, Search, Settings, and Detail pages. Real AniList
+                data. Add-to-library functionality.
               </PanelDesc>
               <div className="tags">
                 <span className="tag">Material 3</span>
@@ -333,6 +358,10 @@ export default function Page() {
               />
               <HistoryScreen
                 active={view === "history"}
+                onOpenAnime={openDetail}
+              />
+              <ScheduleScreen
+                active={view === "schedule"}
                 onOpenAnime={openDetail}
               />
               <SearchScreen

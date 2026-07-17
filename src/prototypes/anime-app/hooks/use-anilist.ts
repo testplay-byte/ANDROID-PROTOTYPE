@@ -11,6 +11,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  fetchAiringSchedule,
   fetchDetail,
   fetchMedia,
   fetchSeasonal,
@@ -18,6 +19,7 @@ import {
   fetchTrending,
 } from "../lib/anilist";
 import { currentSeason } from "../lib/filters";
+import type { AiringEntry } from "../lib/anilist";
 import type { Anime, FilterState, SortOption, Source } from "../lib/types";
 
 // ---------------------------------------------------------------------------
@@ -244,4 +246,108 @@ export function useRecentSearches(): UseRecentSearchesResult {
   }, []);
 
   return { recents, add, remove, clear };
+}
+
+// ---------------------------------------------------------------------------
+// Schedule — airing schedules for a 7-day window, grouped by day.
+// ---------------------------------------------------------------------------
+
+export interface ScheduleDay {
+  /** Day index 0–6 (0 = today). */
+  index: number;
+  /** JS Date at midnight local time. */
+  date: Date;
+  /** Short label: "Today", "Tomorrow", or weekday name ("Mon", "Tue"). */
+  label: string;
+  /** Full weekday name for accessibility. */
+  fullLabel: string;
+  /** Entries airing on this day. */
+  entries: AiringEntry[];
+}
+
+/** Build a 7-day window starting at today's local midnight. */
+function weekWindow(): { start: number; end: number } {
+  const now = new Date();
+  const midnight = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0);
+  const start = Math.floor(midnight.getTime() / 1000);
+  const end = start + 7 * 24 * 60 * 60;
+  return { start, end };
+}
+
+const WEEKDAY_SHORT = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+const WEEKDAY_FULL = [
+  "Sunday", "Monday", "Tuesday", "Wednesday",
+  "Thursday", "Friday", "Saturday",
+];
+
+/** Group airing entries into 7 days starting from today. */
+function groupByDay(entries: AiringEntry[]): ScheduleDay[] {
+  const now = new Date();
+  const todayMidnight = new Date(
+    now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0, 0,
+  );
+
+  const days: ScheduleDay[] = [];
+  for (let i = 0; i < 7; i++) {
+    const date = new Date(todayMidnight);
+    date.setDate(date.getDate() + i);
+    days.push({
+      index: i,
+      date,
+      label: i === 0 ? "Today" : i === 1 ? "Tomorrow" : WEEKDAY_SHORT[date.getDay()],
+      fullLabel: i === 0 ? "Today" : i === 1 ? "Tomorrow" : WEEKDAY_FULL[date.getDay()],
+      entries: [],
+    });
+  }
+
+  for (const e of entries) {
+    const airingDate = new Date(e.airingAt * 1000);
+    const airingMidnight = new Date(
+      airingDate.getFullYear(), airingDate.getMonth(), airingDate.getDate(), 0, 0, 0, 0,
+    );
+    const dayDiff = Math.floor(
+      (airingMidnight.getTime() - todayMidnight.getTime()) / (24 * 60 * 60 * 1000),
+    );
+    if (dayDiff >= 0 && dayDiff < 7) {
+      days[dayDiff].entries.push(e);
+    }
+  }
+
+  return days;
+}
+
+export interface UseScheduleResult {
+  days: ScheduleDay[];
+  loading: boolean;
+  error: string | null;
+}
+
+/** Fetch airing schedules for the next 7 days, grouped by day. */
+export function useSchedule(): UseScheduleResult {
+  const [days, setDays] = useState<ScheduleDay[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    const { start, end } = weekWindow();
+    setLoading(true);
+    fetchAiringSchedule(start, end)
+      .then((entries) => {
+        if (cancelled) return;
+        setDays(groupByDay(entries));
+        setLoading(false);
+      })
+      .catch(() => {
+        if (cancelled) return;
+        setError("Could not fetch schedule.");
+        setDays([]);
+        setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return { days, loading, error };
 }
