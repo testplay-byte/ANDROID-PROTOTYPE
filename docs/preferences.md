@@ -34,9 +34,9 @@
 ## 2. Prototype template (the phone mockup)
 
 ### Device frame
-- **Bezel width is per-theme** (dark borders visually read thicker than light ones at the same px):
-  - Dark app theme: `5px` bezel + `5.5px` edge rim.
-  - Light app theme: `4px` bezel + `4.4px` edge rim (thinner so it visually matches the dark-mode frame).
+- **Bezel width is per-theme** (a bright/platinum border is visually heavier than a dark one, so it gets fewer pixels):
+  - Dark app theme: `3.5px` bezel + `4px` edge rim (platinum border — thinner).
+  - Light app theme: `4px` bezel + `4.4px` edge rim (dark border — kept as-is).
 - **Corner radius**: 32px (not too rounded, not too sharp).
 - Device shadow: soft drop shadow for depth, tuned per theme (`--frame-shadow`).
 - **Bezel color INVERTS by theme** (anime-app, latest preference):

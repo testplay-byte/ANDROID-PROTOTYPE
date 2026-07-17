@@ -20,8 +20,8 @@ The phone frame inverts with the app theme for premium contrast:
 
 | App theme | Frame color | Border width | Notes |
 |-----------|-------------|--------------|-------|
-| **Dark**  | Soft platinum `#cfcfcf` + `#a8a8a8` rim | `5px / 5.5px` | Light but not stark white |
-| **Light** | Dark `#0e0a17` + `#1b1729` rim | `4px / 4.4px` | Thinner because dark borders read thicker |
+| **Dark**  | Soft platinum `#cfcfcf` + `#a8a8a8` rim | `3.5px / 4px` | Light but not stark white; thinner (bright border reads heavier) |
+| **Light** | Dark `#0e0a17` + `#1b1729` rim | `4px / 4.4px` | Dark border, kept as-is |
 
 The frame and background transition smoothly when toggling themes.
 

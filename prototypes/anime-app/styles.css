@@ -88,10 +88,11 @@
   /* Dark app theme → soft platinum frame (light but not stark white) */
   --device-bezel: #cfcfcf;
   --device-edge: #a8a8a8;
-  /* Border widths — tuned per theme so both look visually equal
-     (dark borders read thicker than light ones at the same px). */
-  --bezel-w: 5px;
-  --edge-w: 5.5px;
+  /* Border widths — the light/platinum border is visually heavier (bright
+     against the dark screen), so it is thinner than the light-mode border.
+     Dark: 3.5px / 4px. Light: 4px / 4.4px (kept as-is). */
+  --bezel-w: 3.5px;
+  --edge-w: 4px;
   --frame-shadow: rgba(0,0,0,.55);
 }
 

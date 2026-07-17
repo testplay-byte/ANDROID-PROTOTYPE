@@ -7,6 +7,21 @@
 
 ## [Unreleased]
 
+### 2025-01-15 — Anime App v23 — thinner dark-mode (platinum) border
+
+**Goal:** The platinum/white border in dark mode is visually heavier (bright against the dark screen) than the dark border in light mode, so it needs to be thinner.
+
+**Change:**
+- Dark mode border width reduced from `5px / 5.5px` → **`3.5px / 4px`**.
+- Light mode border width **kept exactly as-is** at `4px / 4.4px`.
+- Net result: the dark-mode platinum border is now thinner than the light-mode dark border, which visually balances the two (a bright frame needs fewer pixels to read at the same visual weight as a dark frame).
+
+**Verification:** VLM confirmed the dark-mode border is now "slim and refined... proportionate and elegant... minimal width aligns with modern, sleek phone aesthetics."
+
+**Files:** `prototypes/anime-app/styles.css` (cache v23), `prototypes/anime-app/index.html`.
+
+---
+
 ### 2025-01-15 — Anime App v22 — frame polish + bottom-nav fix
 
 **Goal:** Address user feedback on the device frame and bottom navigation.
