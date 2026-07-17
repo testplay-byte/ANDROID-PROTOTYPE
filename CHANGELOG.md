@@ -7,6 +7,68 @@
 
 ## [Unreleased]
 
+### 2025-01-15 — Next.js Migration (Phases 1–4) — static site → Next.js 16 static export
+
+**Goal:** Migrate the monolithic static-HTML prototypes to a Next.js 16 App Router static export with a shared design system (`proto-kit`), so the frame/nav/tokens are defined once and each screen is its own file.
+
+**Decisions (confirmed with user):**
+- Flat prototype layout (`app/prototypes/<name>/` + `src/prototypes/<name>/`).
+- Hash routing (`#home`, `#search`) — preserves in-app feel + detail push animation; Next.js paths remain available for future.
+- CSS Modules + `tokens.css` for styling.
+- Convert repo root to Next.js; preserve all AI-agent docs (STARTUP.md, navigation.md, preferences.md, etc.).
+- Stay at `https://testplay-byte.github.io/ANDROID-PROTOTYPE/` (`basePath: '/ANDROID-PROTOTYPE'`).
+
+**Backup (before migration):**
+- Git tag `v1.0-static` + branch `archive/static-v1` (both pushed).
+- `archive/static-v1.zip` — full snapshot of the pre-migration site, committed to repo.
+
+**Phase 1 — Foundation + dashboard:**
+- Scaffolded Next.js 16 (App Router, TypeScript 5, `output:'export'`, `basePath:'/ANDROID-PROTOTYPE'`, `trailingSlash:true`).
+- Ported the dashboard (`index.html` → `app/page.tsx`, 1186 lines) + `src/dashboard/theme-toggle.tsx` (client component). Faithful JSX conversion: className, camelCase SVG attrs, inline `style={{}}` objects.
+- Built `src/proto-kit/` — the shared design system:
+  - `tokens/tokens.css` — SINGLE source of truth (type scale, spacing, radius, motion, M3 color roles, per-theme frame invert + widths, stage backgrounds).
+  - `device-frame/` — `<DeviceFrame>` + `<Screen>` + `<StatusBar>` (live clock, punch-hole, wifi/signal/battery). Bezel color + width invert by theme automatically.
+  - `bottom-nav/` — `<BottomNav>` floating pill, content-sized active item (full label always visible), 42px pill / 58px bar.
+  - `stage/` — `<Stage>` with left/right side panels.
+  - `theme/` — `<DeviceThemeProvider>` + `useDeviceTheme()` (device-scoped, persisted to localStorage).
+- Moved old static prototypes to `public/prototypes/` (preserved at original URLs during transition).
+- Updated GitHub Actions: `npm ci` → `next build` → deploy `out/`.
+- VLM-verified: dashboard parity (3 prototype cards, charts, theme toggle works + persists).
+
+**Phase 2 — search-page port:**
+- Ported search-page to `app/prototypes/search-page/` using proto-kit (24 files, ~3831 lines).
+- One file per screen: `search-screen.tsx`, `settings-screen.tsx` + CSS Modules.
+- Components: anime-card, filter-sheet (accordion + flat views), sort-dropdown, source-toggle, recent-searches, search-bar.
+- Hooks: `use-anilist` (debounced GraphQL search + recents).
+- All behavior preserved: AniList search, 5 filter categories + score slider, 5 sort options, recent searches, source toggle, collapsing header, theme toggle.
+- Proto-kit fix: DeviceFrame exposes global `device` class alongside module class so `tokens.css` `.device` rules match.
+- Old static files moved to `archive/legacy/search-page/`.
+- VLM-verified parity.
+
+**Phase 3 — anime-app port:**
+- Ported anime-app (6 screens) to `app/prototypes/anime-app/` (35 files, ~6874 lines).
+- 6 screens (each its own file + CSS Module): home, search, library, history, settings, detail.
+- Components: anime-card, hero-carousel, filter-sheet, sort-dropdown, source-toggle, recent-searches, search-bar.
+- Hooks: `use-anilist`, `use-library`, `use-history`, `use-settings`.
+- All behavior preserved: 6 hash-routed screens, detail push/pop animation (translateX, no nav in detail), back-gesture (pushState + popstate), AniList data (trending/seasonal/top-rated/search/detail), library (localStorage, status tabs), history (auto-tracked, max 20), settings (theme, single-line titles, poster style, card density, anim speed — all persisted).
+- Fixed: cross-instance localStorage sync bug in use-library/use-history (side-effects moved outside React updater for StrictMode safety).
+- Old static files moved to `archive/legacy/anime-app/`.
+- VLM-verified: home (trending + grids), detail (banner/cover/synopsis/episodes), theme toggle, all settings persist.
+
+**Phase 4 — cutover + docs:**
+- `public/prototypes/` cleaned (only legacy `_template/` remains for reference).
+- Updated docs: `STARTUP.md` (§3 layout, §4 tech stack, §5 quick-start), `navigation.md` (root index), `README.md` (structure + tech stack + live links), `docs/preferences.md` (frame inversion + bottom-nav policies).
+- Final VLM sweep: dashboard + both prototypes verified in both themes.
+
+**Net result:**
+- Frame/nav/tokens defined ONCE in `src/proto-kit/` — fix once, inherit everywhere.
+- Each screen is its own file — edit one without touching others.
+- Hot reload + type safety during dev; identical static HTML output for GitHub Pages.
+- URL unchanged: `https://testplay-byte.github.io/ANDROID-PROTOTYPE/`.
+- Rollback: `git checkout archive/static-v1` or unzip `archive/static-v1.zip`.
+
+---
+
 ### 2025-01-15 — Anime App v23 — thinner dark-mode (platinum) border
 
 **Goal:** The platinum/white border in dark mode is visually heavier (bright against the dark screen) than the dark border in light mode, so it needs to be thinner.
