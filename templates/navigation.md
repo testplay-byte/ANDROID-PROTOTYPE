@@ -1,32 +1,18 @@
 # templates/navigation.md
 
-> Reusable UI fragments. These are **not** deployed as standalone pages — they are copy-paste sources for prototypes.
+> Reusable UI fragments. **Currently empty** — in the Next.js architecture,
+> the shared component layer lives in `src/proto-kit/` (DeviceFrame, BottomNav,
+> StatusBar, Stage, tokens). This folder is reserved for future copy-paste
+> fragments that aren't full components (e.g. SVG icon sets, HTML snippets).
 
 ---
 
 ## Structure
 
-| Subfolder        | Holds                                                        |
-|------------------|--------------------------------------------------------------|
-| `components/`    | Atomic UI pieces (button, card, input, list row, badge…).   |
-| `screens/`       | Full-screen layouts (login, onboarding step, empty state…). |
+| Subfolder | Holds |
+|-----------|-------|
+| `components/` | Atomic UI pieces (currently empty — use `src/proto-kit/` instead) |
+| `screens/` | Full-screen layouts (currently empty — study `app/prototypes/search-page/` as the reference) |
 
-Each fragment is a standalone `.html` (markup) + optional `.css`/`.js` snippet, with a short header comment explaining usage.
-
----
-
-## How to use a template fragment
-
-1. Open the fragment file.
-2. Copy the markup (and the CSS/JS if present) into your prototype.
-3. Adapt tokens — fragments use the same CSS custom properties as `_template/styles.css`.
-
----
-
-## Currently empty
-
-This folder is scaffolded but contains no fragments yet. Add them as patterns repeat across prototypes (don't pre-build; build when needed, then promote to here).
-
----
-
-*Last updated: documentation pass (v7) — still empty; add fragments as patterns repeat across prototypes.*
+When proto-kit doesn't have what you need, add it to proto-kit (not here)
+so every prototype can reuse it.

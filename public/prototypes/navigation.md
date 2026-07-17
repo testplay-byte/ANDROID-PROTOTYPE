@@ -1,41 +1,22 @@
-# prototypes/navigation.md
+# public/prototypes/navigation.md
 
-> Index of every prototype in this repo.
-> When you add or retire a prototype, update this table in the same commit.
-
----
-
-## Prototypes
-
-| Folder        | Name            | Status        | Tech            | Live URL | Notes |
-|---------------|-----------------|---------------|-----------------|----------|-------|
-| `_template/`  | Starter template | reference    | HTML/CSS/JS     | [open](https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/_template/) | Copy to start a new prototype. |
-| `search-page/`| Search Page     | approved      | HTML/CSS/JS + AniList API | [open](https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/search-page/) | Material 3 Expressive search screen with AniList/Extension source toggle, filters, bottom nav. |
-| `anime-app/`  | Anime App       | review        | HTML/CSS/JS + AniList API | [open](https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/anime-app/) | 6-screen anime app: Home, Library, History, Search, Settings, Detail. Add to library. Real AniList data. |
-
-> The `search-page/` prototype is live and in review status.
+> Index of prototype routes. Prototypes now live in `app/prototypes/<name>/`
+> (Next.js routes) + `src/prototypes/<name>/` (screens/components/hooks/lib).
+> The `public/prototypes/` folder only holds legacy static files served verbatim.
 
 ---
 
-## Status legend
+## Active Next.js prototypes
 
-| Status        | Meaning                                                        |
-|---------------|----------------------------------------------------------------|
-| `in-progress` | Being built; not ready for review.                             |
-| `review`      | Built; awaiting user feedback.                                 |
-| `approved`    | User signed off; kept for reference.                           |
-| `archived`    | Superseded or discarded; moved to `prototypes/_archived/`.    |
-| `reference`   | Not a real prototype — a template/example (like `_template/`). |
+| Route | Name | Status | Source |
+|-------|------|--------|--------|
+| `/prototypes/search-page/` | Search Page | approved | `app/prototypes/search-page/` + `src/prototypes/search-page/` |
+| `/prototypes/anime-app/` | Anime App | review | `app/prototypes/anime-app/` + `src/prototypes/anime-app/` |
 
----
+## Legacy (served from public/)
 
-## Conventions
+| Folder | What |
+|--------|------|
+| `_template/` | Old static HTML starter template. Linked from the dashboard but NOT the primary starting point — use `src/proto-kit/` + the search-page pattern instead. |
 
-- One folder per prototype, `kebab-case` name.
-- Each folder is **self-contained**: its own `index.html`, `styles.css`, `script.js`, `navigation.md`, `README.md`.
-- No cross-prototype imports. Shared assets go in `../../assets/`.
-- Retired prototypes move to `_archived/<name>/` (create it when first needed).
-
----
-
-*Last updated: documentation pass (v7) — template upgraded to v6 (4 screens, scoped theming, click-drag scroll, fullscreen API).*
+Old static versions of search-page + anime-app are in `archive/legacy/`.

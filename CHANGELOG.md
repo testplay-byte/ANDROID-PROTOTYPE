@@ -7,6 +7,37 @@
 
 ## [Unreleased]
 
+### 2025-01-15 — Post-migration features: Schedule screen, Library customization, Swipe sim, Fullscreen button
+
+**Schedule screen (`#schedule`):**
+- New 7th screen: weekly airing schedule from AniList.
+- `fetchAiringSchedule()` + `useSchedule()` hook — fetches a 7-day window, groups by day.
+- Day selector pills (Today/Tomorrow/Wed…) with airing count per day.
+- Airing list: cover thumbnail, title, EP badge, absolute time (HH:MM) + relative ("in 3h" / "2h ago"). Past entries dimmed, next-up highlighted.
+- Collapsing header, staggered animations, loading/empty states. Clicking a row opens detail.
+
+**Library customization:**
+- Gear button at top-right of Library topbar opens a bottom sheet.
+- Options: Layout (Grid/List), Columns (2–5, grid only), Text placement (Below cover / On cover overlay).
+- Grid overlay mode = Netflix-style gradient title on cover.
+- List mode = horizontal rows with cover + title + meta + status.
+- All settings persist to localStorage, apply live.
+
+**Swipe simulation (test feature, easily removable):**
+- `useSwipeSimulation()` hook in proto-kit — click+drag = touch swipe.
+- Vertical drag = grab-scroll (1:1). Horizontal drag past 70px = navigate screens.
+- Swipe right on detail = back gesture. Click suppression after drag (>8px).
+- Prevents text selection + image ghost-drag (`preventDefault` + `-webkit-user-drag: none`).
+- Desktop-only (mouse/pen); touch unaffected.
+
+**Fullscreen button (proto-kit, all prototypes):**
+- `<FullscreenButton>` added to `<DeviceFrame>` — every prototype gets it automatically.
+- Real Fullscreen API (`requestFullscreen` on `.device`). Purple circular, bottom-right above nav.
+- **Desktop-only** — hidden on mobile (≤480px) where the system back button/gesture exits fullscreen natively.
+- Icon toggles expand/shrink; syncs on `fullscreenchange`.
+
+---
+
 ### 2025-01-15 — Next.js Migration (Phases 1–4) — static site → Next.js 16 static export
 
 **Goal:** Migrate the monolithic static-HTML prototypes to a Next.js 16 App Router static export with a shared design system (`proto-kit`), so the frame/nav/tokens are defined once and each screen is its own file.

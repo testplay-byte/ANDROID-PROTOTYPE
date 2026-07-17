@@ -84,18 +84,20 @@
 
 ### Mobile experience
 - On mobile (≤480px), the app fills the viewport by default (no device frame).
-- A floating button triggers the **real browser Fullscreen API** (`requestFullscreen`), which hides the browser address bar, tab bar, and system status bar — a true native-app full-screen experience.
-- The button toggles: press once to enter fullscreen, press again (or press Esc) to exit.
-- Falls back to a CSS-only fullscreen (fills viewport without hiding browser chrome) on browsers that don't support the Fullscreen API (e.g., iOS Safari on iPhone).
-- On desktop, the floating button is hidden — desktop uses click-drag-to-scroll instead.
+- The **fullscreen button is hidden on mobile** — the system back button/gesture exits fullscreen natively, so the button is redundant and would clutter the small screen.
+- On desktop (>480px), a floating purple button (bottom-right, above the nav bar) triggers the **real browser Fullscreen API** (`requestFullscreen` on the `.device` element), hiding the browser address bar, tab bar, and system UI for a true native-app experience.
+- The button toggles: press once to enter fullscreen, press again (or press Esc) to exit. It's part of `<DeviceFrame>` in proto-kit, so every prototype gets it automatically.
 
-### Scrolling (desktop)
-- The device screen supports **click-drag-to-scroll**: press and hold the mouse on the screen content, then drag up/down/left/right to scroll.
-- This is in addition to native wheel scrolling and trackpad gestures.
-- The cursor shows a `grab` hint on desktop.
+### Scrolling (desktop) + swipe simulation (test feature)
+- The device screen supports **click-drag-to-scroll** via the `useSwipeSimulation` hook (test feature, easily removable):
+  - Click + drag vertically → grab-scrolls the content (1:1 movement, cursor: grab → grabbing).
+  - Click + drag horizontally past 70px → navigates between screens (left = next, right = previous).
+  - Swipe right on the detail screen → back gesture (closes detail).
+  - Clicks after a drag (>8px) are suppressed so you don't accidentally open a card.
+  - Text selection and image ghost-dragging are prevented during drag (`preventDefault` on all moves + `-webkit-user-drag: none` on images).
+- Touch input is left alone — native touch scrolling still works on mobile. The hook only activates for mouse/pen.
 - Dragging is ignored on interactive elements (buttons, links, inputs, toggles) so their clicks still work.
-- A drag that moves more than 3px suppresses the click event (prevents accidental navigation after a drag).
-- On mobile, native touch scrolling is used (the drag module only activates on `pointer: fine` devices).
+- This is in addition to native wheel scrolling and trackpad gestures.
 
 ### Content
 - Prototypes must be **fully navigable**: multiple screens, scrollable content, clickable buttons, toggles, etc.
