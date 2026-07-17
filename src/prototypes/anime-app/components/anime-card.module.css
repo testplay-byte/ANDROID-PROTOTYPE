@@ -10,6 +10,8 @@
   cursor: pointer;
   transition: transform var(--dur-1) var(--ease-emphasized);
   animation: cardFadeIn var(--dur-4) var(--ease-emphasized-decel) backwards;
+  /* min-width: 0 lets the card shrink in a grid column (prevents overflow
+     + uneven columns when cover images have large intrinsic widths). */
   min-width: 0;
 }
 

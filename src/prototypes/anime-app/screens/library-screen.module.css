@@ -91,16 +91,21 @@
   transform: scaleX(1);
 }
 
-/* ---- Grid ---- */
+/* ---- Grid ----
+   minmax(0, 1fr) is CRITICAL: without the 0 minimum, grid items can't
+   shrink below their content's intrinsic width (cover images, long titles),
+   causing uneven columns and distorted cards. This is the same pattern the
+   home screen uses. */
 .grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--sp-3) var(--sp-2);
 }
 
 /* ---- Card wrap (card + remove X) ---- */
 .cardWrap {
   position: relative;
+  min-width: 0;
   animation: slideInRight var(--dur-3) var(--ease-emphasized-decel) backwards;
 }
 
