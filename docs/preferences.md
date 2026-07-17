@@ -84,17 +84,19 @@
 
 ### Mobile experience
 - On mobile (≤480px), the app fills the viewport by default (no device frame).
-- The **fullscreen button is hidden on mobile** — the system back button/gesture exits fullscreen natively, so the button is redundant and would clutter the small screen.
-- On desktop (>480px), a floating purple button (bottom-right, above the nav bar) triggers the **real browser Fullscreen API** (`requestFullscreen` on the `.device` element), hiding the browser address bar, tab bar, and system UI for a true native-app experience.
-- The button toggles: press once to enter fullscreen, press again (or press Esc) to exit. It's part of `<DeviceFrame>` in proto-kit, so every prototype gets it automatically.
+- The **fullscreen button is always visible** (mobile + desktop) — a floating purple button (bottom-right, above the nav bar) that triggers the real browser Fullscreen API (`requestFullscreen` on the `.device` element).
+- **When in fullscreen, the button completely disappears** (no exit button). The user exits fullscreen via the system back button/gesture (mobile) or Esc key (desktop).
+- The button only enters fullscreen — it never toggles to an exit button. This is the approved behavior: "when the user goes into fullscreen, that button will completely disappear."
+- Part of `<DeviceFrame>` in proto-kit, so every prototype gets it automatically.
 
-### Scrolling (desktop) + swipe simulation (test feature)
-- The device screen supports **click-drag-to-scroll** via the `useSwipeSimulation` hook (test feature, easily removable):
+### Scrolling (desktop) + swipe gestures (proto-kit, permanent)
+- The device screen supports **click-drag-to-scroll** via the `useSwipeSimulation` hook — a permanent part of proto-kit:
   - Click + drag vertically → grab-scrolls the content (1:1 movement, cursor: grab → grabbing).
   - Click + drag horizontally past 70px → navigates between screens (left = next, right = previous).
   - Swipe right on the detail screen → back gesture (closes detail).
   - Clicks after a drag (>8px) are suppressed so you don't accidentally open a card.
   - Text selection and image ghost-dragging are prevented during drag (`preventDefault` on all moves + `-webkit-user-drag: none` on images).
+- Every prototype wires it up in its page.tsx with its own screen order + navigation callbacks. The grab cursor + image-drag-prevention CSS live globally in proto-kit's device-frame CSS.
 - Touch input is left alone — native touch scrolling still works on mobile. The hook only activates for mouse/pen.
 - Dragging is ignored on interactive elements (buttons, links, inputs, toggles) so their clicks still work.
 - This is in addition to native wheel scrolling and trackpad gestures.

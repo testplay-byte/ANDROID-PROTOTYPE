@@ -1,7 +1,7 @@
 "use client";
 
 /* ════════════════════════════════════════════════════════════════════════
-   SWIPE SIMULATION (TEST FEATURE)
+   SWIPE GESTURES (proto-kit)
    ════════════════════════════════════════════════════════════════════════
 
    Makes the mouse act like a touch input on the device screen:
@@ -12,10 +12,16 @@
      • Cursor changes to grab / grabbing.
      • Touch input is left alone — native touch scrolling still works.
 
-   TO REMOVE: delete this file, remove the export from proto-kit/index.ts,
-   remove the `useSwipeSimulation(...)` call + SCREEN_ORDER in
-   app/prototypes/anime-app/page.tsx, and remove the CSS block labelled
-   "SWIPE SIMULATION (TEST)" in src/prototypes/anime-app/anime-app.css.
+   This is a permanent part of proto-kit — every prototype should wire it
+   up in its page.tsx with its own screen order + navigation callbacks.
+
+   Usage:
+   ```tsx
+   useSwipeSimulation({
+     onSwipeLeft: () => goNext(),
+     onSwipeRight: () => goPrev(),
+   });
+   ```
 
    ════════════════════════════════════════════════════════════════════════ */
 

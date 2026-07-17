@@ -7,6 +7,22 @@
 
 ## [Unreleased]
 
+### 2025-01-15 — Finalize fullscreen button + swipe gestures as permanent proto-kit features
+
+**Fullscreen button — behavior corrected per user feedback:**
+- The button is now **always visible** (mobile + desktop) — previously it was hidden on mobile.
+- **When the user enters fullscreen, the button completely disappears** (no exit button). The user exits via the system back button/gesture (mobile) or Esc key (desktop).
+- The button only enters fullscreen — it never toggles to an exit button. Simplified the component (removed state + exit icon + fullscreenchange listener — CSS `:fullscreen` pseudo-class handles hiding).
+- Verified: `display: flex` at 390px and 1400px; `aria-label` always "Enter fullscreen".
+
+**Swipe gestures — finalized as permanent proto-kit feature:**
+- Removed all "TEST FEATURE" / "easily removable" markers from the hook, index export, and page.tsx wiring.
+- Moved the swipe CSS (grab cursor, image-drag prevention, text-selection kill) from `src/prototypes/anime-app/anime-app.css` to `src/proto-kit/device-frame/device-frame.module.css` (global — all prototypes get it automatically).
+- Added swipe to the **search-page** prototype (swipe left = settings, swipe right = search). Both prototypes now have swipe gestures.
+- Updated docs: `preferences.md`, `src/proto-kit/README.md` reflect the finalized behavior.
+
+---
+
 ### 2025-01-15 — Post-migration features: Schedule screen, Library customization, Swipe sim, Fullscreen button
 
 **Schedule screen (`#schedule`):**

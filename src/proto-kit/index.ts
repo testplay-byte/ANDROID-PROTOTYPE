@@ -20,5 +20,6 @@ export {
 export { DeviceThemeProvider, useDeviceTheme } from "./theme/theme-provider";
 export type { AppTheme, ThemeProviderProps } from "./theme/types";
 
-// SWIPE SIMULATION (TEST FEATURE) — easily removable.
+// Swipe gestures — permanent proto-kit feature. Every prototype wires it
+// up in its page.tsx with its own screen order + navigation callbacks.
 export { useSwipeSimulation, type SwipeSimulationOptions } from "./swipe-simulation/use-swipe-simulation";

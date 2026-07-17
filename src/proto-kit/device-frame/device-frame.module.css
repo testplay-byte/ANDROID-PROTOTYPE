@@ -102,8 +102,10 @@
 /* ---- Fullscreen button ----
    Floating, bottom-right of the device, above the bottom nav.
    Uses the real Fullscreen API (requestFullscreen on the .device element).
-   Desktop-only: on mobile, the system back button/gesture exits fullscreen
-   natively, so the button is redundant and would clutter the small screen. */
+   Always visible (mobile + desktop) — but completely HIDES when the device
+   is in fullscreen mode. The user exits fullscreen via the system back
+   button/gesture (mobile) or Esc key (desktop), NOT via this button.
+   Part of every prototype via DeviceFrame. */
 .fsToggle {
   position: absolute;
   bottom: calc(16px + 58px + 12px); /* nav bar height (58) + nav offset (16) + gap (12) */
@@ -134,19 +136,12 @@
   transform: scale(0.9);
 }
 
-/* Hide on mobile — the device fills the viewport there and the system
-   back button / swipe gesture exits fullscreen natively. */
-@media (max-width: 480px) {
-  .fsToggle {
-    display: none;
-  }
-}
-
-/* When the device is in fullscreen mode, respect safe areas. */
+/* When the device is in fullscreen mode, the button completely disappears.
+   The user exits fullscreen via the system back button/gesture (mobile) or
+   Esc key (desktop) — NOT via this button. */
 .device:fullscreen .fsToggle,
 .device:-webkit-full-screen .fsToggle {
-  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
-  right: calc(env(safe-area-inset-right, 0px) + 12px);
+  display: none;
 }
 
 /* ---- Image drag prevention ----
@@ -155,4 +150,26 @@
 .device img {
   -webkit-user-drag: none;
   user-drag: none;
+}
+
+/* ---- Swipe gestures (proto-kit, permanent) ----
+   Cursor: grab on content/list areas, grabbing during drag.
+   Text selection + image ghost-drag are prevented during drag.
+   Every prototype gets this via DeviceFrame + the useSwipeSimulation hook. */
+.device :global([class*="content"]),
+.device :global([class*="list"]) {
+  cursor: grab;
+}
+.device[data-swipe-grabbing] :global([class*="content"]),
+.device[data-swipe-grabbing] :global([class*="list"]) {
+  cursor: grabbing;
+}
+.device[data-swipe-grabbing] {
+  user-select: none;
+  -webkit-user-select: none;
+}
+.device[data-swipe-grabbing] img {
+  -webkit-user-drag: none;
+  user-drag: none;
+  pointer-events: none;
 }

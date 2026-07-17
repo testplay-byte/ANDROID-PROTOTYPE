@@ -284,14 +284,10 @@ export default function Page() {
   }
 
   // ─────────────────────────────────────────────────────────────────────
-  // SWIPE SIMULATION (TEST FEATURE)
+  // Swipe gestures (proto-kit)
   // Click+drag vertically = scroll content. Click+drag horizontally past
   // 70px = navigate between screens (left = next, right = previous).
   // On the detail screen, swipe right = back (close detail).
-  //
-  // TO REMOVE: delete this block + the `useSwipeSimulation` import +
-  // the export in src/proto-kit/index.ts + the hook file +
-  // the CSS block in src/prototypes/anime-app/anime-app.css.
   // ─────────────────────────────────────────────────────────────────────
   const SWIPE_ORDER: ViewId[] = [
     "home", "library", "history", "schedule", "search", "settings",
@@ -300,7 +296,7 @@ export default function Page() {
   useSwipeSimulation({
     enabled: true,
     onSwipeLeft: () => {
-      if (view === "detail") return; // no next-anime on detail
+      if (view === "detail") return;
       const idx = SWIPE_ORDER.indexOf(view);
       if (idx >= 0 && idx < SWIPE_ORDER.length - 1) {
         handleNav(SWIPE_ORDER[idx + 1]);

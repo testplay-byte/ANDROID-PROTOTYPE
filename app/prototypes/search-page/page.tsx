@@ -21,6 +21,7 @@ import {
   PanelTitle,
   PanelDesc,
   PanelHead,
+  useSwipeSimulation,
 } from "../../../src/proto-kit";
 import { SearchScreen } from "../../../src/prototypes/search-page/screens/search-screen";
 import { SettingsScreen } from "../../../src/prototypes/search-page/screens/settings-screen";
@@ -173,6 +174,22 @@ export default function Page() {
     }
     // Non-implemented views (home/library/history) are no-ops.
   }
+
+  // ─────────────────────────────────────────────────────────────────────
+  // Swipe gestures (proto-kit)
+  // Click+drag vertically = scroll content. Click+drag horizontally past
+  // 70px = navigate between screens (left = settings, right = search).
+  // ─────────────────────────────────────────────────────────────────────
+  useSwipeSimulation({
+    enabled: true,
+    onSwipeLeft: () => {
+      if (view === "search") handleNav("settings");
+    },
+    onSwipeRight: () => {
+      if (view === "settings") handleNav("search");
+    },
+  });
+  // ─────────────────────────────────────────────────────────────────────
 
   const info = SCREEN_INFO[view];
 

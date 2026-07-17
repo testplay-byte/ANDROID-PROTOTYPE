@@ -64,20 +64,33 @@ The frame + background transition smoothly when toggling themes.
 - Part of `<DeviceFrame>` — every prototype gets it automatically.
 - Real Fullscreen API (`requestFullscreen` on `.device`).
 - Purple circular, 40px, bottom-right above the nav bar.
-- **Desktop-only** — `@media (max-width: 480px) { display: none }`.
-- Icon toggles expand (enter) / shrink (exit). Syncs on `fullscreenchange`.
+- **Always visible** (mobile + desktop).
+- **Completely disappears when in fullscreen mode** (no exit button). The user exits via the system back button/gesture (mobile) or Esc key (desktop).
+- The button only enters fullscreen — it never toggles to an exit button.
 
 ---
 
-## Swipe simulation (test feature)
+## Swipe gestures (permanent proto-kit feature)
 
-Easily removable — marked with `SWIPE SIMULATION (TEST FEATURE)` in 4 places:
-1. `src/proto-kit/swipe-simulation/use-swipe-simulation.ts`
-2. `src/proto-kit/index.ts` (export)
-3. `app/prototypes/anime-app/page.tsx` (hook call + SWIPE_ORDER)
-4. `src/prototypes/anime-app/anime-app.css` (cursor CSS)
+Every prototype wires up `useSwipeSimulation()` in its page.tsx with its own screen order + navigation callbacks:
 
-To disable: set `enabled: false`. To remove: delete the 4 blocks.
+```tsx
+import { useSwipeSimulation } from "@/proto-kit";
+
+useSwipeSimulation({
+  onSwipeLeft: () => goNext(),
+  onSwipeRight: () => goPrev(),
+});
+```
+
+- Click + drag vertically → grab-scrolls content (1:1, cursor: grab → grabbing).
+- Click + drag horizontally past 70px → navigate screens (left = next, right = prev).
+- Swipe right on detail → back gesture (closes detail).
+- Clicks after a drag (>8px) are suppressed (no accidental card opens).
+- Text selection + image ghost-drag prevented (`preventDefault` + `-webkit-user-drag: none`).
+- Desktop-only (mouse/pen); touch unaffected.
+
+The grab cursor + image-drag-prevention CSS live globally in proto-kit's device-frame CSS, so every prototype gets them automatically — even before wiring the hook.
 
 ---
 

@@ -295,34 +295,3 @@ button {
   height: 44px;
   font-size: var(--fs-body);
 }
-
-/* ═══════════════════════════════════════════════════════════════════════
-   SWIPE SIMULATION (TEST FEATURE)
-   Cursor: grab on hover, grabbing during drag.
-   Prevents text selection + image dragging during drag.
-   Remove this block along with the useSwipeSimulation hook to disable.
-   ═══════════════════════════════════════════════════════════════════════ */
-.device [class*="content"],
-.device [class*="list"] {
-  cursor: grab;
-}
-.device[data-swipe-grabbing] [class*="content"],
-.device[data-swipe-grabbing] [class*="list"] {
-  cursor: grabbing;
-}
-/* During drag: kill text selection + image ghost-drag across the whole device */
-.device[data-swipe-grabbing] {
-  user-select: none;
-  -webkit-user-select: none;
-}
-.device[data-swipe-grabbing] img {
-  -webkit-user-drag: none;
-  user-drag: none;
-  pointer-events: none;
-}
-/* Always prevent native image dragging (so a stray drag doesn't ghost the img) */
-.device img {
-  -webkit-user-drag: none;
-  user-drag: none;
-}
-/* ═══════════════════════════════════════════════════════════════════════ */
