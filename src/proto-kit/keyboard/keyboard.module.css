@@ -1,6 +1,8 @@
 /* proto-kit / keyboard — on-screen QWERTY keyboard.
    Slides up from the bottom of the device when an input is focused.
-   Key press animation: scale down + color flash. Shift highlights. */
+   No dismiss bar — user dismisses by tapping outside the input.
+   Key press state uses a JS-driven class (pointer events) for reliability
+   on both desktop and mobile (CSS :active is unreliable on touch). */
 
 .keyboard {
   position: absolute;
@@ -17,34 +19,16 @@
   transition:
     transform var(--dur-4) var(--ease-emphasized-decel),
     opacity var(--dur-3) var(--ease-standard);
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding: 6px 0 env(safe-area-inset-bottom, 0px);
+  /* Touch-action: none on the keypad so touch drags don't scroll the page
+     while typing. Individual keys still get tap events. */
+  touch-action: none;
 }
 
 .keyboardIsActive {
   transform: translateY(0);
   opacity: 1;
   pointer-events: auto;
-}
-
-/* ---- Dismiss bar (tap to close) ---- */
-.dismissBar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px 0 4px;
-  cursor: pointer;
-}
-
-.dismissHandle {
-  width: 40px;
-  height: 4px;
-  border-radius: var(--r-pill);
-  background: var(--color-outline-variant);
-  transition: background var(--dur-1) var(--ease-standard);
-}
-
-.dismissBar:hover .dismissHandle {
-  background: var(--color-outline);
 }
 
 /* ---- Keypad ---- */
@@ -71,7 +55,7 @@
 .key {
   flex: 1 1 0;
   min-width: 0;
-  height: 42px;
+  height: 44px;
   border-radius: var(--r-xs);
   background: var(--color-surface-4);
   color: var(--color-text);
@@ -84,10 +68,12 @@
   justify-content: center;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
   transition:
     background var(--dur-1) var(--ease-standard),
     color var(--dur-1) var(--ease-standard),
-    transform var(--dur-1) var(--ease-emphasized);
+    transform var(--dur-1) var(--ease-emphasized),
+    box-shadow var(--dur-1) var(--ease-standard);
   /* Entry animation — each key pops in with a slight stagger */
   animation: keyPop var(--dur-2) var(--ease-emphasized-decel) backwards;
 }
@@ -102,7 +88,7 @@
 @keyframes keyPop {
   from {
     opacity: 0;
-    transform: translateY(8px) scale(0.9);
+    transform: translateY(12px) scale(0.85);
   }
   to {
     opacity: 1;
@@ -110,14 +96,20 @@
   }
 }
 
-.key:hover {
-  background: var(--color-surface-5);
+/* Hover (desktop only — :hover doesn't fire on touch) */
+@media (hover: hover) {
+  .key:hover {
+    background: var(--color-surface-5);
+  }
 }
 
-.key:active {
-  transform: scale(0.88);
+/* Pressed state — JS-driven via pointer events for reliability.
+   Shows the theme primary color with a scale-down + shadow. */
+.keyIsPressed {
   background: var(--color-primary);
   color: var(--color-primary-fg);
+  transform: scale(0.92);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--color-primary) 40%, transparent);
 }
 
 /* Wide keys (shift, backspace, enter) */
@@ -141,7 +133,7 @@
   color: var(--color-on-primary-container);
 }
 
-.keyIsActive:active {
+.keyIsActive.keyIsPressed {
   background: var(--color-primary);
   color: var(--color-primary-fg);
 }
@@ -154,12 +146,9 @@
   font-size: var(--fs-body);
 }
 
-.keyAccent:hover {
-  background: color-mix(in srgb, var(--color-primary) 85%, white);
-}
-
-.keyAccent:active {
+.keyAccent.keyIsPressed {
   background: color-mix(in srgb, var(--color-primary) 70%, black);
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--color-primary) 50%, transparent);
 }
 
 @media (prefers-reduced-motion: reduce) {

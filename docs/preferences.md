@@ -84,10 +84,23 @@
 
 ### Mobile experience
 - On mobile (≤480px), the app fills the viewport by default (no device frame).
-- The **fullscreen button is always visible** (mobile + desktop) — a floating purple button (bottom-right, above the nav bar) that triggers the real browser Fullscreen API (`requestFullscreen` on the `.device` element).
-- **When in fullscreen, the button completely disappears** (no exit button). The user exits fullscreen via the system back button/gesture (mobile) or Esc key (desktop).
-- The button only enters fullscreen — it never toggles to an exit button. This is the approved behavior: "when the user goes into fullscreen, that button will completely disappear."
+- The **fullscreen button is mobile-only** — it gives a native-app full-screen experience by triggering the real browser Fullscreen API (`requestFullscreen` on the `.device` element). On PC (>480px) it's hidden — no need for fullscreen on a big screen.
+- **When in fullscreen, the button completely disappears** (no exit button). The user exits via the system back button/gesture (mobile).
+- The button only enters fullscreen — it never toggles to an exit button.
 - Part of `<DeviceFrame>` in proto-kit, so every prototype gets it automatically.
+
+### Custom on-screen keyboard (proto-kit)
+- A custom QWERTY keyboard replaces the native soft keyboard on ALL platforms (mobile + desktop).
+- `inputMode="none"` on inputs prevents the native keyboard from appearing.
+- The keyboard writes to the input's value via the `onChange` callback (same as physical keyboard input).
+- **No dismiss bar** — the user dismisses by tapping anywhere outside the input (blur with 200ms timeout).
+- Layout (5 rows, no emoji): numbers (1-0), QWERTYUIOP, ASDFGHJKL, Shift+ZXCVBNM+Backspace, Space+Enter.
+- Enter button is on the **right side** of the last row.
+- Shift toggles uppercase; auto-disables after one letter (mobile-like).
+- Key press state uses **pointer events** (not CSS `:active`) for reliable theme-color flash on both desktop and mobile.
+- Keys use `tabIndex={-1}` + `onMouseDown preventDefault` so they never steal focus from the input.
+- Animations: slide-up (emphasized-decel), staggered key pop-in by row, scale(0.92) + primary color on press.
+- Architecture: `<KeyboardProvider>` + `useKeyboardInput()` hook + `<Keyboard>` component in proto-kit.
 
 ### Scrolling (desktop) + swipe gestures (proto-kit, permanent)
 - The device screen supports **click-drag-to-scroll** via the `useSwipeSimulation` hook — a permanent part of proto-kit:

@@ -102,9 +102,10 @@
 /* ---- Fullscreen button ----
    Floating, bottom-right of the device, above the bottom nav.
    Uses the real Fullscreen API (requestFullscreen on the .device element).
-   Always visible (mobile + desktop) — but completely HIDES when the device
-   is in fullscreen mode. The user exits fullscreen via the system back
-   button/gesture (mobile) or Esc key (desktop), NOT via this button.
+   Mobile-only: on PC there's no need for fullscreen (the user already has
+   a big screen). On mobile it gives a native-app full-screen experience.
+   When the device IS in fullscreen mode, the button completely disappears
+   (the user exits via the system back button/gesture).
    Part of every prototype via DeviceFrame. */
 .fsToggle {
   position: absolute;
@@ -136,9 +137,15 @@
   transform: scale(0.9);
 }
 
+/* Hide on desktop — fullscreen is only useful on mobile. */
+@media (min-width: 481px) {
+  .fsToggle {
+    display: none;
+  }
+}
+
 /* When the device is in fullscreen mode, the button completely disappears.
-   The user exits fullscreen via the system back button/gesture (mobile) or
-   Esc key (desktop) — NOT via this button. */
+   The user exits fullscreen via the system back button/gesture (mobile). */
 .device:fullscreen .fsToggle,
 .device:-webkit-full-screen .fsToggle {
   display: none;

@@ -7,6 +7,26 @@
 
 ## [Unreleased]
 
+### 2025-01-15 — Keyboard + fullscreen refinements
+
+**Keyboard improvements:**
+- **Removed the dismiss bar** (white handle line at top) — the user dismisses by tapping outside the input.
+- **Moved Enter/Search button to the right side** only (removed the left enter button). Last row is now: Space (wide) + Enter (right).
+- **Fixed key press theme color** — replaced CSS `:active` with JS-driven pointer events (`onPointerDown`/`onPointerUp`) for reliable pressed state on both desktop and mobile. Pressed keys now show the primary theme color with `scale(0.92)` + shadow.
+- **Fixed mobile keyboard auto-show** — added `onClick` handler as backup to `onFocus` (some mobile browsers don't fire `onFocus` reliably). Increased blur timeout to 200ms.
+- **Fixed focus stealing** — keys now use `tabIndex={-1}` + `onMouseDown preventDefault` so they never steal focus from the input (prevents the keyboard from deactivating mid-typing).
+- **Fixed stale value bug** — the keyboard context now uses a `valueRef` (always latest value) instead of `target.value` (stale between renders) for rapid key presses.
+- Enhanced animations: key pop-in stagger by row, `touch-action: none` on keypad.
+
+**Fullscreen button — now mobile-only:**
+- Hidden on PC (>480px) via `@media (min-width: 481px) { display: none }`.
+- On mobile it gives a native-app full-screen experience. On PC there's no need for it.
+- Still completely disappears when in fullscreen mode (no exit button).
+
+**Docs updated:** preferences.md (mobile experience, keyboard section), proto-kit README (fullscreen + keyboard sections).
+
+---
+
 ### 2025-01-15 — Finalize fullscreen button + swipe gestures as permanent proto-kit features
 
 **Fullscreen button — behavior corrected per user feedback:**

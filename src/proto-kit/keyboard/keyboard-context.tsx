@@ -22,6 +22,7 @@ import {
   useCallback,
   useContext,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import type { ReactNode, FocusEvent } from "react";
@@ -60,28 +61,34 @@ export interface KeyboardProviderProps {
 
 export function KeyboardProvider({ children }: KeyboardProviderProps) {
   const [target, setTarget] = useState<KeyboardTarget | null>(null);
+  // Ref that always holds the latest value — avoids stale state when
+  // rapid key presses fire before React re-renders.
+  const valueRef = useRef("");
 
-  const activate = useCallback((t: KeyboardTarget) => setTarget(t), []);
+  const activate = useCallback((t: KeyboardTarget) => {
+    valueRef.current = t.value;
+    setTarget(t);
+  }, []);
+
   const deactivate = useCallback(() => setTarget(null), []);
 
-  const press = useCallback(
-    (key: string) => {
-      setTarget((prev) => {
-        if (!prev) return prev;
-        const next = prev.value + key;
-        prev.onChange(next);
-        return { ...prev, value: next };
-      });
-    },
-    [],
-  );
+  const press = useCallback((key: string) => {
+    setTarget((prev) => {
+      if (!prev) return prev;
+      const next = valueRef.current + key;
+      valueRef.current = next;
+      prev.onChange(next);
+      return prev;
+    });
+  }, []);
 
   const backspace = useCallback(() => {
     setTarget((prev) => {
       if (!prev) return prev;
-      const next = prev.value.slice(0, -1);
+      const next = valueRef.current.slice(0, -1);
+      valueRef.current = next;
       prev.onChange(next);
-      return { ...prev, value: next };
+      return prev;
     });
   }, []);
 
@@ -118,6 +125,7 @@ export function useKeyboard(): KeyboardContextValue {
  * Returns props to spread on the <input>:
  *   - `inputMode: "none"` — prevents the native soft keyboard on mobile.
  *   - `onFocus` — activates the custom keyboard with the current value/onChange.
+ *   - `onClick` — also activates (backup for mobile where focus alone may not fire).
  *   - `onBlur` — deactivates after a short delay (so key clicks register first).
  *
  * Usage:
@@ -129,24 +137,28 @@ export function useKeyboard(): KeyboardContextValue {
 export function useKeyboardInput(options: KeyboardTarget): {
   inputMode: "none";
   onFocus: (e: FocusEvent<HTMLInputElement>) => void;
+  onClick: (e: React.MouseEvent<HTMLInputElement>) => void;
   onBlur: (e: FocusEvent<HTMLInputElement>) => void;
 } {
   const { activate, deactivate } = useKeyboard();
 
+  const activateHandler = () => {
+    activate({
+      value: options.value,
+      onChange: options.onChange,
+      onEnter: options.onEnter,
+      enterLabel: options.enterLabel,
+    });
+  };
+
   return {
     inputMode: "none",
-    onFocus: () => {
-      activate({
-        value: options.value,
-        onChange: options.onChange,
-        onEnter: options.onEnter,
-        enterLabel: options.enterLabel,
-      });
-    },
+    onFocus: activateHandler,
+    onClick: activateHandler,
     onBlur: () => {
       // Delay deactivation so keyboard key clicks (mousedown) register
-      // before the blur fires. 150ms is enough for a tap.
-      setTimeout(() => deactivate(), 150);
+      // before the blur fires. 200ms is enough for a tap.
+      setTimeout(() => deactivate(), 200);
     },
   };
 }

@@ -1,7 +1,7 @@
 "use client";
 
 /**
- * proto-kit / keyboard / keyboard — on-screen QWERTY keyboard.
+ * proto-kit / keyboard — on-screen QWERTY keyboard.
  *
  * Replaces the native soft keyboard. Slides up from the bottom of the device
  * when an input is focused. 5-row layout:
@@ -9,15 +9,14 @@
  *   2. QWERTYUIOP
  *   3. ASDFGHJKL
  *   4. Shift + ZXCVBNM + Backspace
- *   5. Space (wide) + Enter
+ *   5. Space (wide) + Enter (right side)
  *
- * No emoji, no autocorrect bar — just the essential keys.
+ * No dismiss bar — the user dismisses by tapping anywhere outside the input.
+ * No emoji — just the essential keys.
  *
- * Key press uses onMouseDown + preventDefault to keep the input focused
- * while typing (prevents blur on tap).
- *
- * Shift toggles uppercase/lowercase. Tapping a letter after shift returns
- * to lowercase (like mobile keyboards).
+ * Key press uses onPointerDown + preventDefault to keep the input focused
+ * while typing. A pressed state (via pointer events) ensures the theme color
+ * shows reliably on both desktop and mobile (CSS :active is unreliable on touch).
  */
 
 import { useState, useCallback } from "react";
@@ -32,36 +31,22 @@ const ROW4 = ["z", "x", "c", "v", "b", "n", "m"];
 export function Keyboard() {
   const { target, press, backspace, enter, deactivate } = useKeyboard();
   const [shifted, setShifted] = useState(false);
-
   const active = target !== null;
 
   const handleKey = useCallback(
     (key: string) => {
       press(shifted ? key.toUpperCase() : key);
-      // After typing a letter with shift on, turn shift off (like mobile).
       if (shifted) setShifted(false);
     },
     [press, shifted],
   );
 
-  const handleShift = useCallback(() => {
-    setShifted((s) => !s);
-  }, []);
+  const handleShift = useCallback(() => setShifted((s) => !s), []);
+  const handleBackspace = useCallback(() => backspace(), [backspace]);
+  const handleEnter = useCallback(() => enter(), [enter]);
 
-  const handleBackspace = useCallback(() => {
-    backspace();
-  }, [backspace]);
-
-  const handleEnter = useCallback(() => {
-    enter();
-  }, [enter]);
-
-  const handleClose = useCallback(() => {
-    deactivate();
-  }, [deactivate]);
-
-  // Prevent default on mousedown so the focused input doesn't blur.
-  const preventBlur = (e: React.MouseEvent) => {
+  // Prevent default on pointer down so the focused input doesn't blur.
+  const preventBlur = (e: React.PointerEvent) => {
     e.preventDefault();
   };
 
@@ -72,15 +57,6 @@ export function Keyboard() {
       className={`${styles.keyboard} ${active ? styles.keyboardIsActive : ""}`}
       aria-hidden={!active}
     >
-      {/* Close / dismiss bar */}
-      <div
-        className={styles.dismissBar}
-        onMouseDown={preventBlur}
-        onClick={handleClose}
-      >
-        <span className={styles.dismissHandle} />
-      </div>
-
       <div className={styles.keypad}>
         {/* Row 1: Numbers */}
         <div className={styles.row}>
@@ -88,7 +64,7 @@ export function Keyboard() {
             <Key
               key={k}
               label={k}
-              onMouseDown={preventBlur}
+              onPointerDown={preventBlur}
               onClick={() => handleKey(k)}
             />
           ))}
@@ -100,7 +76,7 @@ export function Keyboard() {
             <Key
               key={k}
               label={transform(k)}
-              onMouseDown={preventBlur}
+              onPointerDown={preventBlur}
               onClick={() => handleKey(k)}
             />
           ))}
@@ -112,7 +88,7 @@ export function Keyboard() {
             <Key
               key={k}
               label={transform(k)}
-              onMouseDown={preventBlur}
+              onPointerDown={preventBlur}
               onClick={() => handleKey(k)}
             />
           ))}
@@ -124,45 +100,38 @@ export function Keyboard() {
             label="⇧"
             wide
             active={shifted}
-            onMouseDown={preventBlur}
+            onPointerDown={preventBlur}
             onClick={handleShift}
           />
           {ROW4.map((k) => (
             <Key
               key={k}
               label={transform(k)}
-              onMouseDown={preventBlur}
+              onPointerDown={preventBlur}
               onClick={() => handleKey(k)}
             />
           ))}
           <Key
             label="⌫"
             wide
-            onMouseDown={preventBlur}
+            onPointerDown={preventBlur}
             onClick={handleBackspace}
           />
         </div>
 
-        {/* Row 5: Space (wide) + Enter */}
+        {/* Row 5: Space (wide) + Enter (right) */}
         <div className={styles.row}>
+          <Key
+            label="space"
+            extraWide
+            onPointerDown={preventBlur}
+            onClick={() => handleKey(" ")}
+          />
           <Key
             label={target?.enterLabel ?? "Return"}
             wide
             accent
-            onMouseDown={preventBlur}
-            onClick={handleEnter}
-          />
-          <Key
-            label="space"
-            extraWide
-            onMouseDown={preventBlur}
-            onClick={() => handleKey(" ")}
-          />
-          <Key
-            label="⏎"
-            wide
-            accent
-            onMouseDown={preventBlur}
+            onPointerDown={preventBlur}
             onClick={handleEnter}
           />
         </div>
@@ -172,7 +141,7 @@ export function Keyboard() {
 }
 
 // ---------------------------------------------------------------------------
-// Key component
+// Key component — uses pointer events for reliable pressed state
 // ---------------------------------------------------------------------------
 
 interface KeyProps {
@@ -181,7 +150,7 @@ interface KeyProps {
   extraWide?: boolean;
   active?: boolean;
   accent?: boolean;
-  onMouseDown: (e: React.MouseEvent) => void;
+  onPointerDown: (e: React.PointerEvent) => void;
   onClick: () => void;
 }
 
@@ -191,15 +160,33 @@ function Key({
   extraWide,
   active,
   accent,
-  onMouseDown,
+  onPointerDown,
   onClick,
 }: KeyProps) {
+  const [pressed, setPressed] = useState(false);
+
+  // Use pointer events for the VISUAL pressed state only (reliable on touch).
+  // The actual key action stays on onClick (works for mouse, touch, keyboard).
+  const handlePointerDown = (e: React.PointerEvent) => {
+    onPointerDown(e);
+    setPressed(true);
+  };
+
+  const handlePointerUp = () => {
+    setPressed(false);
+  };
+
+  const handlePointerLeave = () => {
+    setPressed(false);
+  };
+
   const cls = [
     styles.key,
     wide ? styles.keyWide : "",
     extraWide ? styles.keyExtraWide : "",
     active ? styles.keyIsActive : "",
     accent ? styles.keyAccent : "",
+    pressed ? styles.keyIsPressed : "",
   ]
     .filter(Boolean)
     .join(" ");
@@ -208,7 +195,12 @@ function Key({
     <button
       type="button"
       className={cls}
-      onMouseDown={onMouseDown}
+      tabIndex={-1}
+      onPointerDown={handlePointerDown}
+      onPointerUp={handlePointerUp}
+      onPointerLeave={handlePointerLeave}
+      onPointerCancel={handlePointerLeave}
+      onMouseDown={(e) => e.preventDefault()}
       onClick={onClick}
     >
       {label}

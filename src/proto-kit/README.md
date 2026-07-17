@@ -64,9 +64,39 @@ The frame + background transition smoothly when toggling themes.
 - Part of `<DeviceFrame>` — every prototype gets it automatically.
 - Real Fullscreen API (`requestFullscreen` on `.device`).
 - Purple circular, 40px, bottom-right above the nav bar.
-- **Always visible** (mobile + desktop).
-- **Completely disappears when in fullscreen mode** (no exit button). The user exits via the system back button/gesture (mobile) or Esc key (desktop).
+- **Mobile-only** — hidden on PC (>480px) via `@media (min-width: 481px)`.
+- **Completely disappears when in fullscreen mode** (no exit button). The user exits via the system back button/gesture (mobile).
 - The button only enters fullscreen — it never toggles to an exit button.
+
+---
+
+## Custom on-screen keyboard
+
+A custom QWERTY keyboard that replaces the native soft keyboard on ALL platforms.
+
+- **No dismiss bar** — dismiss by tapping outside the input (blur with 200ms timeout).
+- Layout: numbers (1-0), QWERTYUIOP, ASDFGHJKL, Shift+ZXCVBNM+Backspace, Space+Enter.
+- Enter button on the **right side** of the last row.
+- Shift toggles uppercase; auto-disables after one letter.
+- Key press uses **pointer events** (not CSS `:active`) for reliable theme-color flash.
+- Keys use `tabIndex={-1}` + `onMouseDown preventDefault` so they never steal focus.
+- `inputMode="none"` prevents the native keyboard on mobile.
+- Animations: slide-up (emphasized-decel), staggered key pop-in, scale(0.92) + primary on press.
+
+```tsx
+import { KeyboardProvider, Keyboard, useKeyboardInput } from "@/proto-kit";
+
+<KeyboardProvider>
+  <DeviceFrame>
+    <Screen>...</Screen>
+    <Keyboard />
+  </DeviceFrame>
+</KeyboardProvider>
+
+// In any input:
+const kb = useKeyboardInput({ value, onChange, onEnter, enterLabel: "Search" });
+<input {...kb} placeholder="Search..." />
+```
 
 ---
 
