@@ -182,11 +182,10 @@ img { display: block; max-width: 100%; }
 
 /* ---- Screen + views — smooth transitions ----------------------------- */
 .screen { flex: 1 1 auto; position: relative; overflow: hidden; display: flex; flex-direction: column; background: var(--color-bg); }
-.view { position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0; transform: translateX(12px) scale(0.98); pointer-events: none; transition: opacity var(--dur-3) var(--ease-emphasized-decel), transform var(--dur-3) var(--ease-emphasized-decel); overflow-y: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; -ms-overflow-style: none; }
-.view::-webkit-scrollbar { display: none; }
-.view--active { opacity: 1; transform: none; pointer-events: auto; }
+.view { position: absolute; inset: 0; display: flex; flex-direction: column; opacity: 0; pointer-events: none; transition: opacity var(--dur-3) var(--ease-emphasized-decel); overflow: hidden; -webkit-overflow-scrolling: touch; }
+.view--active { opacity: 1; pointer-events: auto; }
 /* Detail view slides in from the right */
-.view[data-view="detail"] { transform: translateX(100%); }
+.view[data-view="detail"] { transform: translateX(100%); transition: transform var(--dur-4) var(--ease-emphasized), opacity var(--dur-3) var(--ease-emphasized-decel); }
 .view[data-view="detail"].view--active { transform: none; }
 
 /* ---- Section trays (wider, minimal side margin) --------------------- */
