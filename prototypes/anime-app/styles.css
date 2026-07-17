@@ -33,13 +33,25 @@
   --ease-emphasized-decel: cubic-bezier(.05, .7, .1, 1);
   --dur-1: 100ms; --dur-2: 200ms; --dur-3: 300ms; --dur-4: 400ms; --dur-5: 500ms;
 
-  /* Page-level — neutral dark gray (avoids collision with purple device theme) */
-  --stage-bg: #1a1a1a;
-  --sb-bg: #181421;
-  --sb-muted: #221d31;
-  --sb-border: #2c2640;
-  --sb-text: #e6dff0;
-  --sb-text-muted: #948aa8;
+  /* Page-level — neutral gray, adapts to app theme via .device[data-theme] */
+  /* Default (dark app theme): darker gray stage */
+  --stage-bg: #2a2a2a;
+  --sb-bg: #232323;
+  --sb-muted: #333333;
+  --sb-border: #3a3a3a;
+  --sb-text: #e0e0e0;
+  --sb-text-muted: #999999;
+}
+
+/* When app is in light mode: stage becomes lighter gray */
+.device[data-theme="light"] ~ .stage,
+:has(.device[data-theme="light"]) {
+  --stage-bg: #c8c8c8;
+  --sb-bg: #d0d0d0;
+  --sb-muted: #c0c0c0;
+  --sb-border: #b8b8b8;
+  --sb-text: #333333;
+  --sb-text-muted: #666666;
 }
 
 /* ---- App-level tokens (scoped to .device) — M3 dark purple ----------- */

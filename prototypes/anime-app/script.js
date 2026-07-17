@@ -767,10 +767,11 @@
     history.replaceState({ view: "home" }, "", "#home");
   }
 
-  /* ---- Theme toggle (persisted, scoped to .device) -------------------- */
+  /* ---- Theme toggle (persisted, scoped to .device + stage) ----------- */
   var savedTheme = "dark";
   try { savedTheme = localStorage.getItem("search-theme") || "dark"; } catch (e) {}
   device.setAttribute("data-theme", savedTheme);
+  updateStageTheme(savedTheme);
   // Sync toggle UI
   document.querySelectorAll(".theme-toggle__btn").forEach(function (b) {
     b.classList.toggle("is-active", b.dataset.themeVal === savedTheme);
@@ -780,11 +781,31 @@
     if (!btn) return;
     var theme = btn.dataset.themeVal;
     device.setAttribute("data-theme", theme);
+    updateStageTheme(theme);
     try { localStorage.setItem("search-theme", theme); } catch (e) {}
     this.querySelectorAll(".theme-toggle__btn").forEach(function (b) {
       b.classList.toggle("is-active", b === btn);
     });
   });
+
+  function updateStageTheme(theme) {
+    var root = document.documentElement;
+    if (theme === "light") {
+      root.style.setProperty("--stage-bg", "#c8c8c8");
+      root.style.setProperty("--sb-bg", "#d0d0d0");
+      root.style.setProperty("--sb-muted", "#c0c0c0");
+      root.style.setProperty("--sb-border", "#b8b8b8");
+      root.style.setProperty("--sb-text", "#333333");
+      root.style.setProperty("--sb-text-muted", "#666666");
+    } else {
+      root.style.setProperty("--stage-bg", "#2a2a2a");
+      root.style.setProperty("--sb-bg", "#232323");
+      root.style.setProperty("--sb-muted", "#333333");
+      root.style.setProperty("--sb-border", "#3a3a3a");
+      root.style.setProperty("--sb-text", "#e0e0e0");
+      root.style.setProperty("--sb-text-muted", "#999999");
+    }
+  }
 
   /* ---- App settings toggles (single-line titles, customization) ------ */
   (function () {
