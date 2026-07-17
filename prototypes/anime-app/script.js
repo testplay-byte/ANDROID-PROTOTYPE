@@ -715,12 +715,14 @@
     // Lazy-render library/history when opened so they reflect latest localStorage
     if (viewName === "library") renderLibrary();
     if (viewName === "history") renderHistory();
-    // Update URL hash
+    // Update URL hash — use pushState so browser back goes to previous view
     if (!skipHash) {
+      var newHash = "#" + viewName;
       if (viewName === "detail" && currentAnime) {
-        history.replaceState(null, "", "#animedetails" + currentAnime.id);
-      } else if (viewName !== "detail") {
-        history.replaceState(null, "", "#" + viewName);
+        newHash = "#animedetails" + currentAnime.id;
+      }
+      if (location.hash !== newHash) {
+        history.pushState({ view: viewName }, "", newHash);
       }
     }
   }
@@ -737,14 +739,21 @@
     }
     if (hash.indexOf("animedetails") === 0) {
       var id = parseInt(hash.replace("animedetails", ""), 10);
-      if (id) openDetail(id);
+      if (id) {
+        skipNextPush = true; // prevent openDetail from pushing another state
+        openDetail(id);
+      }
       return;
     }
     goToView("home", true);
   }
   window.addEventListener("popstate", handleHash);
-  // Process initial hash on load
-  if (location.hash) handleHash();
+  // Process initial hash on load — set #home if no hash
+  if (location.hash) {
+    handleHash();
+  } else {
+    history.replaceState({ view: "home" }, "", "#home");
+  }
 
   /* ---- Theme toggle (persisted, scoped to .device) -------------------- */
   var savedTheme = "dark";
@@ -956,6 +965,7 @@
      genres + expandable synopsis + add-to-library + episode list.
      Also pushes the anime into history (most-recent-first, deduped). */
   var currentAnime = null;
+  var skipNextPush = false; // used when openDetail is called from popstate
 
   function openDetail(id) {
     var detailContent = document.getElementById("detailContent");
@@ -966,8 +976,12 @@
       '<div class="detail-header"><div class="skeleton detail-cover"></div>' +
       '<div class="detail-info"><div class="skeleton" style="height:24px;width:60%;margin-bottom:8px"></div>' +
       '<div class="skeleton" style="height:16px;width:40%"></div></div></div>';
-    goToView("detail", true); // skip hash — we'll set it after currentAnime is populated
-    history.replaceState(null, "", "#animedetails" + id);
+    goToView("detail", true); // skip hash in goToView
+    // Only push state if not called from popstate handler
+    if (!skipNextPush) {
+      history.pushState({ view: "detail", id: id }, "", "#animedetails" + id);
+    }
+    skipNextPush = false;
 
     var q = "query($id:Int){Media(id:$id,type:ANIME){id title{romaji english} coverImage{large extraLarge} bannerImage averageScore episodes format season seasonYear genres status description nextAiringEpisode{airingAt episode} siteUrl}}";
     gql(q, { id: id }).then(function (d) {

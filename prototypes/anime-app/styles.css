@@ -460,13 +460,14 @@ img { display: block; max-width: 100%; }
 /* ---- Results grid — refined cards with tonal elevation -------------- */
 .results-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: var(--sp-3) var(--sp-2);
 }
 .anime-card {
   display: flex; flex-direction: column; gap: 6px;
   cursor: pointer;
   transition: transform var(--dur-1) var(--ease-emphasized);
+  min-width: 0;
 }
 .anime-card:active { transform: scale(.96); }
 .anime-card__cover {
