@@ -1,8 +1,10 @@
 /* =========================================================================
-   search-page / styles.css  —  v3 (complete redesign)
+   anime-app / styles.css
    Material 3 Expressive — tonal elevation, no heavy shadows, proper type scale.
    Key M3 principle: elevation = surface color tone, NOT shadows.
    ========================================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap');
 
 /* ---- Design tokens ---------------------------------------------------- */
 :root {
@@ -31,8 +33,8 @@
   --ease-emphasized-decel: cubic-bezier(.05, .7, .1, 1);
   --dur-1: 100ms; --dur-2: 200ms; --dur-3: 300ms; --dur-4: 400ms; --dur-5: 500ms;
 
-  /* Page-level — deep dark purple */
-  --stage-bg: #0e0a17;
+  /* Page-level — neutral dark gray (avoids collision with purple device theme) */
+  --stage-bg: #1a1a1a;
   --sb-bg: #181421;
   --sb-muted: #221d31;
   --sb-border: #2c2640;
@@ -282,6 +284,13 @@ img { display: block; max-width: 100%; }
   transition: font-size var(--dur-3) var(--ease-emphasized), opacity var(--dur-2) var(--ease-standard);
 }
 
+/* ---- Home view: hero title entrance + collapsing header --------------- */
+@keyframes heroTitleIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+[data-view="home"] .topbar__title { animation: heroTitleIn var(--dur-4) var(--ease-emphasized-decel); }
+[data-view="home"] .topbar { transition: padding var(--dur-3) var(--ease-emphasized); }
+[data-view="home"] .topbar.is-collapsed { padding-top: var(--sp-1); padding-bottom: 0; }
+[data-view="home"] .topbar.is-collapsed .topbar__title { font-size: var(--fs-h2); }
+
 /* Source toggle — hides on scroll collapse */
 .source-toggle {
   display: flex;
@@ -469,13 +478,17 @@ img { display: block; max-width: 100%; }
 .anime-card:active .anime-card__cover img { transform: scale(1.1); }
 .anime-card__score {
   position: absolute; bottom: 6px; left: 6px;
-  background: rgba(20, 17, 31, 0.82);
-  color: var(--color-warn);
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border-radius: 6px;
+  padding: 3px 7px;
   font-size: 10px; font-weight: 700;
-  padding: 3px 7px; border-radius: var(--r-xs);
+  color: #ffcc80;
   display: flex; align-items: center; gap: 2px;
-  backdrop-filter: blur(10px);
   letter-spacing: .01em;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 }
 .anime-card__score .star { font-size: 9px; }
 .anime-card__title {
@@ -484,6 +497,7 @@ img { display: block; max-width: 100%; }
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   color: var(--color-text); letter-spacing: -.005em;
 }
+.anime-card__title--single { -webkit-line-clamp: 1 !important; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .anime-card__meta { font-size: var(--fs-label-s); font-weight: 500; color: var(--color-text-subtle); letter-spacing: .01em; }
 
 /* ---- Skeleton loading ------------------------------------------------- */
@@ -706,6 +720,15 @@ img { display: block; max-width: 100%; }
 .setting-row__info { display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0; }
 .setting-row__title { font-size: var(--fs-body-l); font-weight: 600; color: var(--color-text); }
 .setting-row__desc { font-size: var(--fs-label); color: var(--color-text-muted); }
+.setting-row--btn { cursor: pointer; transition: background var(--dur-1) var(--ease-standard); width: 100%; text-align: left; border: none; }
+.setting-row--btn:active { background: var(--color-surface-3); }
+.setting-row__value { font-size: var(--fs-body-s); color: var(--color-text-muted); font-weight: 600; }
+
+/* Toggle switch (M3 style) */
+.toggle { width: 44px; height: 26px; border-radius: var(--r-pill); background: var(--color-surface-4); border: 1px solid var(--color-outline-variant); position: relative; flex: 0 0 auto; transition: background var(--dur-2) var(--ease-emphasized); cursor: pointer; }
+.toggle__knob { position: absolute; top: 2px; left: 2px; width: 20px; height: 20px; border-radius: 50%; background: var(--color-text-muted); transition: transform var(--dur-2) var(--ease-emphasized), background var(--dur-2) var(--ease-emphasized); }
+.toggle.is-on { background: var(--color-primary); border-color: var(--color-primary); }
+.toggle.is-on .toggle__knob { transform: translateX(18px); background: var(--color-primary-fg); }
 
 /* Theme toggle (M3 segmented buttons for settings) */
 .theme-toggle { display: flex; border: 1px solid var(--color-outline-variant); border-radius: var(--r-pill); padding: 2px; gap: 0; flex: 0 0 auto; }
@@ -736,9 +759,9 @@ img { display: block; max-width: 100%; }
 .anime-card { animation: cardFadeIn var(--dur-4) var(--ease-emphasized-decel) backwards; }
 
 /* ---- Detail page ------------------------------------------------------ */
-.detail-banner { position: relative; height: 200px; overflow: hidden; border-radius: 0; }
+.detail-banner { position: relative; height: 220px; overflow: hidden; border-radius: 0; }
 .detail-banner img { width: 100%; height: 100%; object-fit: cover; }
-.detail-banner::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to bottom, transparent 0%, color-mix(in srgb, var(--color-bg) 50%, transparent) 60%, var(--color-bg) 100%); }
+.detail-banner::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to bottom, color-mix(in srgb, var(--color-bg) 20%, transparent) 0%, color-mix(in srgb, var(--color-bg) 60%, transparent) 40%, var(--color-bg) 100%); }
 .detail-header { display: flex; gap: 14px; margin-top: -50px; position: relative; z-index: 1; padding: 0 16px; }
 .detail-cover { width: 100px; height: 140px; border-radius: 10px; overflow: hidden; box-shadow: 0 8px 24px rgba(0,0,0,0.4); flex: 0 0 auto; background: var(--color-surface-2); }
 .detail-cover img { width: 100%; height: 100%; object-fit: cover; }
@@ -794,11 +817,38 @@ img { display: block; max-width: 100%; }
 .anime-row__title { font-size: var(--fs-body); font-weight: 600; color: var(--color-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .anime-row__meta { font-size: var(--fs-label-s); color: var(--color-text-muted); }
 
+/* History list: staggered entrance + hover state */
+.history-list .anime-row { animation: cardFadeIn var(--dur-3) var(--ease-emphasized-decel) backwards; }
+.history-list .anime-row:nth-child(1) { animation-delay: 0ms; }
+.history-list .anime-row:nth-child(2) { animation-delay: 40ms; }
+.history-list .anime-row:nth-child(3) { animation-delay: 80ms; }
+.history-list .anime-row:nth-child(4) { animation-delay: 120ms; }
+.history-list .anime-row:nth-child(5) { animation-delay: 160ms; }
+.history-list .anime-row:nth-child(6) { animation-delay: 200ms; }
+.history-list .anime-row:nth-child(7) { animation-delay: 240ms; }
+.history-list .anime-row:nth-child(8) { animation-delay: 280ms; }
+.anime-row { border-radius: var(--r-sm); padding: var(--sp-2) var(--sp-3); margin-bottom: var(--sp-1); }
+.anime-row:hover { background: var(--color-surface-2); }
+
 /* ---- Library card wrap (card + remove X) ----------------------------- */
 .library-card-wrap { position: relative; }
 .library-card-wrap .anime-card { animation: cardFadeIn var(--dur-4) var(--ease-emphasized-decel) backwards; }
 .library-card__remove { position: absolute; top: -6px; right: -6px; z-index: 3; width: 22px; height: 22px; border-radius: 50%; background: var(--color-surface-4); color: var(--color-text); border: 2px solid var(--color-bg); display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
 .library-card__remove:active { background: var(--color-error); color: #fff; }
+
+/* ---- Library customize button + confirm-delete dialog ---------------- */
+.lib-customize-btn { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: var(--r-pill); border: 1px solid var(--color-outline-variant); background: transparent; color: var(--color-text-muted); font-size: var(--fs-label); font-weight: 600; cursor: pointer; transition: all var(--dur-1) var(--ease-standard); }
+.lib-customize-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+.confirm-dialog { position: absolute; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); opacity: 0; pointer-events: none; transition: opacity var(--dur-2) var(--ease-standard); }
+.confirm-dialog.is-visible { opacity: 1; pointer-events: auto; }
+.confirm-dialog__card { background: var(--color-surface-3); border-radius: var(--r-lg); padding: 24px; max-width: 280px; text-align: center; transform: scale(0.9); transition: transform var(--dur-2) var(--ease-emphasized); }
+.confirm-dialog.is-visible .confirm-dialog__card { transform: scale(1); }
+.confirm-dialog__title { font-size: var(--fs-h3); font-weight: 700; margin: 0 0 8px; color: var(--color-text); }
+.confirm-dialog__desc { font-size: var(--fs-body); color: var(--color-text-muted); margin: 0 0 20px; line-height: 1.5; }
+.confirm-dialog__actions { display: flex; gap: 8px; }
+.confirm-dialog__actions .btn-filled { flex: 1; height: 44px; font-size: var(--fs-body); }
+.confirm-dialog__actions .btn-outlined { flex: 1; height: 44px; font-size: var(--fs-body); }
 
 /* ---- Genre chips (detail) -------------------------------------------- */
 .genre-chip { font-size: var(--fs-label-s); font-weight: 600; padding: 4px 10px; border-radius: var(--r-pill); background: var(--color-surface-2); color: var(--color-text); border: 1px solid var(--color-surface-3); }
@@ -806,5 +856,24 @@ img { display: block; max-width: 100%; }
 /* ---- Detail library toggle button ------------------------------------ */
 .detail-actions .btn-filled { flex: 1 1 0; }
 .detail-actions .btn-outlined { flex: 1 1 0; }
+
+/* ---- Library customization ------------------------------------------ */
+.lib-customize-btn { display: flex; align-items: center; gap: 6px; padding: 8px 14px; border-radius: var(--r-pill); border: 1px solid var(--color-outline-variant); background: transparent; color: var(--color-text-muted); font-size: var(--fs-label); font-weight: 600; cursor: pointer; transition: all var(--dur-1) var(--ease-standard); }
+.lib-customize-btn:hover { border-color: var(--color-primary); color: var(--color-primary); }
+
+/* ---- Confirm delete dialog ------------------------------------------ */
+.confirm-dialog { position: absolute; inset: 0; z-index: 60; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.6); opacity: 0; pointer-events: none; transition: opacity var(--dur-2) var(--ease-standard); }
+.confirm-dialog.is-visible { opacity: 1; pointer-events: auto; }
+.confirm-dialog__card { background: var(--color-surface-3); border-radius: var(--r-lg); padding: 24px; max-width: 280px; text-align: center; transform: scale(0.9); transition: transform var(--dur-2) var(--ease-emphasized); }
+.confirm-dialog.is-visible .confirm-dialog__card { transform: scale(1); }
+.confirm-dialog__title { font-size: var(--fs-h3); font-weight: 700; margin: 0 0 8px; color: var(--color-text); }
+.confirm-dialog__desc { font-size: var(--fs-body); color: var(--color-text-muted); margin: 0 0 20px; line-height: 1.5; }
+.confirm-dialog__actions { display: flex; gap: 8px; }
+.confirm-dialog__actions .btn-filled { flex: 1; height: 44px; font-size: var(--fs-body); }
+.confirm-dialog__actions .btn-outlined { flex: 1; height: 44px; font-size: var(--fs-body); }
+
+/* ---- Detail banner improvement -------------------------------------- */
+.detail-banner { height: 220px; }
+.detail-banner::after { background: linear-gradient(to bottom, color-mix(in srgb, var(--color-bg) 20%, transparent) 0%, color-mix(in srgb, var(--color-bg) 60%, transparent) 40%, var(--color-bg) 100%); }
 
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

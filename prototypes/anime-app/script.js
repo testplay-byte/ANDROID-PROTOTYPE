@@ -131,6 +131,11 @@
   function el(html) { var t = document.createElement("template"); t.innerHTML = html.trim(); return t.content.firstChild; }
   function fmtScore(s) { return s ? (s / 10).toFixed(1) : "—"; }
 
+  /* ---- App settings (localStorage) ----------------------------------- */
+  var appSettings = { singleLineTitles: true };
+  try { var saved = localStorage.getItem("anime-app-settings"); if (saved) appSettings = JSON.parse(saved); } catch (e) {}
+  function saveAppSettings() { try { localStorage.setItem("anime-app-settings", JSON.stringify(appSettings)); } catch (e) {} }
+
   function animeCard(a) {
     var title = a.title.romaji || a.title.english || "Unknown";
     var cover = a.coverImage.large || a.coverImage.extraLarge;
@@ -140,10 +145,11 @@
     if (a.episodes) metaParts.push(a.episodes + " ep");
     else if (a.seasonYear) metaParts.push(a.seasonYear);
     var meta = metaParts.join(" · ");
+    var titleClass = appSettings.singleLineTitles ? 'anime-card__title anime-card__title--single' : 'anime-card__title';
     return el(
       '<div class="anime-card" data-anime-id="' + a.id + '">' +
         '<div class="anime-card__cover"><img src="' + cover + '" alt="' + title + '" loading="lazy"/>' + score + '</div>' +
-        '<h3 class="anime-card__title">' + title + '</h3>' +
+        '<h3 class="' + titleClass + '">' + title + '</h3>' +
         '<span class="anime-card__meta">' + meta + '</span>' +
       '</div>'
     );
@@ -676,7 +682,7 @@
   var previousView = "home";
   var bottomNavEl = document.querySelector(".bottomnav");
 
-  function goToView(viewName) {
+  function goToView(viewName, skipHash) {
     // Track previous view for detail back-button (don't store "detail" as previous)
     if (viewName === "detail") {
       var currentActive = document.querySelector(".view.view--active");
@@ -709,9 +715,36 @@
     // Lazy-render library/history when opened so they reflect latest localStorage
     if (viewName === "library") renderLibrary();
     if (viewName === "history") renderHistory();
+    // Update URL hash
+    if (!skipHash) {
+      if (viewName === "detail" && currentAnime) {
+        history.replaceState(null, "", "#animedetails" + currentAnime.id);
+      } else if (viewName !== "detail") {
+        history.replaceState(null, "", "#" + viewName);
+      }
+    }
   }
 
   function goBack() { goToView(previousView || "home"); }
+
+  /* ---- URL hash routing ----------------------------------------------- */
+  function handleHash() {
+    var hash = location.hash.slice(1);
+    if (!hash || hash === "home") { goToView("home", true); return; }
+    if (hash === "search" || hash === "library" || hash === "history" || hash === "settings") {
+      goToView(hash, true);
+      return;
+    }
+    if (hash.indexOf("animedetails") === 0) {
+      var id = parseInt(hash.replace("animedetails", ""), 10);
+      if (id) openDetail(id);
+      return;
+    }
+    goToView("home", true);
+  }
+  window.addEventListener("popstate", handleHash);
+  // Process initial hash on load
+  if (location.hash) handleHash();
 
   /* ---- Theme toggle (persisted, scoped to .device) -------------------- */
   var savedTheme = "dark";
@@ -732,33 +765,56 @@
     });
   });
 
+  /* ---- App settings toggles (single-line titles, etc.) --------------- */
+  (function () {
+    var singleLineBtn = document.getElementById("settingSingleLine");
+    if (singleLineBtn) {
+      singleLineBtn.classList.toggle("is-on", appSettings.singleLineTitles);
+      singleLineBtn.addEventListener("click", function () {
+        appSettings.singleLineTitles = !appSettings.singleLineTitles;
+        this.classList.toggle("is-on", appSettings.singleLineTitles);
+        saveAppSettings();
+      });
+    }
+    var clearHistBtn = document.getElementById("clearHistoryBtn");
+    if (clearHistBtn) {
+      clearHistBtn.addEventListener("click", function () {
+        if (confirm("Clear all watch history?")) {
+          historyData = []; saveHistory(); renderHistory();
+        }
+      });
+    }
+    var clearLibBtn = document.getElementById("clearLibraryBtn");
+    if (clearLibBtn) {
+      clearLibBtn.addEventListener("click", function () {
+        if (confirm("Clear entire library?")) {
+          libraryData = []; saveLibrary(); renderLibrary();
+        }
+      });
+    }
+  })();
+
   // Initial load
   updateFilterUI();
   renderRecent();
   doSearch();
   loadHome();   // fetch trending + seasonal + top rated for the default home view
 
-  /* ---- Collapsing header on scroll ----------------------------------- */
-  /* When the user scrolls the content area down, the topbar collapses
-     (title shrinks, search bar shrinks, source toggle scales down).
-     When they scroll back to top, it expands again. */
+  /* ---- Collapsing header on scroll (search + home) ------------------- */
   (function () {
-    var contentView = document.querySelector('[data-view="search"] .content');
-    if (!contentView) return;
-    var topbar = document.querySelector('[data-view="search"] .topbar');
-    if (!topbar) return;
-    var lastScrollTop = 0;
-    var collapseThreshold = 20; // px scrolled before collapsing
-
-    contentView.addEventListener("scroll", function () {
-      var st = contentView.scrollTop;
-      if (st > collapseThreshold && !topbar.classList.contains("is-collapsed")) {
-        topbar.classList.add("is-collapsed");
-      } else if (st <= collapseThreshold && topbar.classList.contains("is-collapsed")) {
-        topbar.classList.remove("is-collapsed");
-      }
-      lastScrollTop = st;
-    });
+    var collapseThreshold = 20;
+    function setupCollapse(viewName) {
+      var contentView = document.querySelector('[data-view="' + viewName + '"] .content');
+      var topbar = document.querySelector('[data-view="' + viewName + '"] .topbar');
+      if (!contentView || !topbar) return;
+      contentView.addEventListener("scroll", function () {
+        var st = contentView.scrollTop;
+        if (st > collapseThreshold) topbar.classList.add("is-collapsed");
+        else topbar.classList.remove("is-collapsed");
+      });
+    }
+    setupCollapse("search");
+    setupCollapse("home");
   })();
 
   /* ---- Bottom nav (navigate between views) --------------------------- */
@@ -910,7 +966,8 @@
       '<div class="detail-header"><div class="skeleton detail-cover"></div>' +
       '<div class="detail-info"><div class="skeleton" style="height:24px;width:60%;margin-bottom:8px"></div>' +
       '<div class="skeleton" style="height:16px;width:40%"></div></div></div>';
-    goToView("detail");
+    goToView("detail", true); // skip hash — we'll set it after currentAnime is populated
+    history.replaceState(null, "", "#animedetails" + id);
 
     var q = "query($id:Int){Media(id:$id,type:ANIME){id title{romaji english} coverImage{large extraLarge} bannerImage averageScore episodes format season seasonYear genres status description nextAiringEpisode{airingAt episode} siteUrl}}";
     gql(q, { id: id }).then(function (d) {
@@ -1099,7 +1156,7 @@
     });
   })();
 
-  // Library card remove (X) clicks — delegated on the container
+  // Library card remove (X) clicks — show confirm dialog before deleting
   (function () {
     var container = document.getElementById("libraryContent");
     if (!container) return;
@@ -1108,8 +1165,33 @@
       if (!btn) return;
       e.stopPropagation();
       var id = parseInt(btn.dataset.removeId, 10);
-      removeFromLibrary(id);
-      renderLibrary();
+      var item = libraryData.find(function (x) { return x.id === id; });
+      var title = item ? item.title : "this anime";
+      // Show confirm dialog
+      var dialog = el(
+        '<div class="confirm-dialog" id="confirmDialog">' +
+          '<div class="confirm-dialog__card">' +
+            '<h3 class="confirm-dialog__title">Remove from library?</h3>' +
+            '<p class="confirm-dialog__desc">"' + title + '" will be removed from your library.</p>' +
+            '<div class="confirm-dialog__actions">' +
+              '<button class="btn-outlined" id="confirmCancel">Cancel</button>' +
+              '<button class="btn-filled" id="confirmDelete" style="background:var(--color-error)">Remove</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      );
+      device.appendChild(dialog);
+      requestAnimationFrame(function () { dialog.classList.add("is-visible"); });
+      document.getElementById("confirmCancel").addEventListener("click", function () {
+        dialog.classList.remove("is-visible");
+        setTimeout(function () { dialog.remove(); }, 200);
+      });
+      document.getElementById("confirmDelete").addEventListener("click", function () {
+        removeFromLibrary(id);
+        dialog.classList.remove("is-visible");
+        setTimeout(function () { dialog.remove(); }, 200);
+        renderLibrary();
+      });
     });
   })();
 

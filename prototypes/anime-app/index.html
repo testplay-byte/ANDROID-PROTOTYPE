@@ -7,7 +7,7 @@
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <title>Anime App — ANDROID-PROTOTYPE</title>
-  <link rel="stylesheet" href="./styles.css?v=14" />
+  <link rel="stylesheet" href="./styles.css?v=15" />
 </head>
 <body>
 
@@ -233,12 +233,43 @@
               </div>
             </div>
             <div class="settings-group">
+              <div class="settings-group__label">Display</div>
+              <div class="settings-card">
+                <div class="setting-row">
+                  <div class="setting-row__info">
+                    <span class="setting-row__title">Single-line titles</span>
+                    <span class="setting-row__desc">Show anime titles on one line (truncate with ellipsis)</span>
+                  </div>
+                  <button class="toggle is-on" id="settingSingleLine" data-app-setting="singleLineTitles" aria-label="Toggle single-line titles"><span class="toggle__knob"></span></button>
+                </div>
+              </div>
+            </div>
+            <div class="settings-group">
+              <div class="settings-group__label">Data</div>
+              <div class="settings-card">
+                <button class="setting-row setting-row--btn" id="clearHistoryBtn">
+                  <div class="setting-row__info">
+                    <span class="setting-row__title">Clear history</span>
+                    <span class="setting-row__desc">Remove all recently viewed anime</span>
+                  </div>
+                  <span class="setting-row__value">→</span>
+                </button>
+                <button class="setting-row setting-row--btn" id="clearLibraryBtn">
+                  <div class="setting-row__info">
+                    <span class="setting-row__title">Clear library</span>
+                    <span class="setting-row__desc">Remove all saved anime</span>
+                  </div>
+                  <span class="setting-row__value">→</span>
+                </button>
+              </div>
+            </div>
+            <div class="settings-group">
               <div class="settings-group__label">About</div>
               <div class="settings-card">
                 <div class="setting-row setting-row--static">
                   <div class="setting-row__info">
-                    <span class="setting-row__title">Search Page</span>
-                    <span class="setting-row__desc">Prototype v3 · Material 3 Expressive · AniList API</span>
+                    <span class="setting-row__title">Anime App</span>
+                    <span class="setting-row__desc">v2.0 · Material 3 Expressive · AniList API</span>
                   </div>
                 </div>
               </div>
@@ -305,6 +336,6 @@
     <svg id="fsIconShrink" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><path d="M9 3v4a2 2 0 0 1-2 2H3M15 3v4a2 2 0 0 0 2 2h4M9 21v-4a2 2 0 0 0-2-2H3M15 21v-4a2 2 0 0 1 2-2h4"/></svg>
   </button>
 
-  <script src="./script.js?v=14"></script>
+  <script src="./script.js?v=15"></script>
 </body>
 </html>
