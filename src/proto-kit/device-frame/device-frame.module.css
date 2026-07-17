@@ -1,0 +1,100 @@
+/* proto-kit / device-frame — the phone mockup.
+   Bezel color + width are token-driven (see tokens.css), so the frame
+   inverts by theme automatically. */
+
+.device {
+  position: relative;
+  width: 390px;
+  height: 844px;
+  background: var(--color-bg);
+  border-radius: 32px;
+  box-shadow:
+    0 0 0 var(--bezel-w) var(--device-bezel),
+    0 0 0 var(--edge-w) var(--device-edge),
+    0 24px 60px -16px var(--frame-shadow);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto;
+  user-select: none;
+  -webkit-user-select: none;
+  /* Smooth frame + surface color transitions when toggling theme */
+  transition:
+    background var(--dur-3) var(--ease-standard),
+    box-shadow var(--dur-3) var(--ease-standard);
+}
+
+/* Fullscreen (mobile) — fill viewport, no frame */
+@media (max-width: 480px) {
+  .device {
+    width: 100%;
+    height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
+
+/* ---- Status bar ---- */
+.statusbar {
+  position: relative;
+  height: 36px;
+  padding: 0 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  font-weight: 600;
+  flex: 0 0 auto;
+  color: var(--color-text);
+  z-index: 4;
+}
+.statusbar__time {
+  font-variant-numeric: tabular-nums;
+}
+.statusbar__punchhole {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #2b2b30 0%, #060608 70%);
+  box-shadow: inset 0 0 0 0.5px rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+.statusbar__icons {
+  display: inline-flex;
+  gap: 5px;
+  align-items: center;
+}
+.statusbar__icons .ic {
+  display: block;
+}
+.battery {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  font-weight: 600;
+}
+.battery__pct {
+  line-height: 1;
+}
+.battery .icBatt {
+  color: var(--color-text);
+}
+.battery__fill {
+  fill: var(--color-text);
+}
+
+/* ---- Screen + view slots ---- */
+.screen {
+  flex: 1 1 auto;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}

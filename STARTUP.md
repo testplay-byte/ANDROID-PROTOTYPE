@@ -31,7 +31,28 @@ ANDROID-PROTOTYPE/
 ├── README.md               ← Public landing page for GitHub.
 ├── navigation.md           ← Root navigation map (every folder + what's in it).
 ├── CHANGELOG.md            ← Running log of notable changes.
-├── index.html              ← Homepage / prototypes gallery (GitHub Pages root).
+├── package.json            ← Next.js 16 + React 19 + TypeScript.
+├── next.config.ts          ← Static export (output:'export'), basePath '/ANDROID-PROTOTYPE'.
+├── tsconfig.json           ← TypeScript config (@/* → src/*, @app/* → app/*).
+├── app/                    ← Next.js App Router (routes = thin).
+│   ├── layout.tsx          ← Root layout (fonts, metadata, <html>).
+│   ├── page.tsx            ← Dashboard / prototypes gallery (GitHub Pages root).
+│   ├── globals.css         ← Minimal global reset.
+│   └── prototypes/         ← Next.js prototypes (one route folder each).
+├── src/
+│   ├── dashboard/          ← Dashboard styles + theme toggle client component.
+│   └── proto-kit/           ← SHARED design system (fix once, inherit everywhere).
+│       ├── tokens/tokens.css  ← SINGLE source of truth for all design tokens.
+│       ├── device-frame/      ← Phone mockup (bezel, status bar, screen slot).
+│       ├── bottom-nav/        ← Floating nav, content-sized active pill.
+│       ├── stage/             ← Side panels + stage layout.
+│       ├── theme/             ← Device-scoped theme provider (dark/light).
+│       └── index.ts           ← Barrel export.
+├── public/                 ← Static files served verbatim by Next.js.
+│   ├── prototypes/         ← Legacy static prototypes (preserved during migration).
+│   └── assets/             ← Shared static assets (icons, fonts, images).
+├── templates/              ← Reusable UI fragments (agent reference, not served).
+├── archive/                ← Backup of the pre-Next.js static site (zip + manifest).
 ├── docs/                   ← All documentation (workflow, standards, deploy, etc.).
 │   ├── navigation.md       ← Index of docs/.
 │   ├── agent-quickstart.md ← 2-minute fast-start for any AI agent.
@@ -46,20 +67,15 @@ ANDROID-PROTOTYPE/
 │   ├── notification-protocol.md ← MANDATORY: how to notify via ntfy.sh.
 │   ├── github-pages.md     ← Deployment guide + troubleshooting.
 │   └── git-conventions.md  ← Branch, commit, PR conventions.
-├── prototypes/             ← THE ACTUAL PROTOTYPES. One folder per prototype.
-│   ├── navigation.md       ← Index of all prototypes (status, links, tech).
-│   └── _template/          ← Copy this to start a new prototype (v6).
-├── templates/              ← Reusable UI fragments (components, screen shells).
-│   └── navigation.md
-├── assets/                 ← Shared static assets (icons, fonts, images).
-│   └── navigation.md
 └── .github/
     ├── navigation.md
     └── workflows/
-        └── deploy.yml      ← GitHub Pages auto-deploy on push.
+        └── deploy.yml      ← GitHub Pages auto-deploy (Next.js build → out/).
 ```
 
-> **Homepage design language:** the root `index.html` follows the approved warm-cream theme (cream `#f2e8da` bg, dark `#231e18` primary, orange `#f05100` chart accents) with a split top nav and a hero + stat cards + charts layout. Do not revert to a generic/blue look. See `docs/template-rules.md` for prototype-frame rules.
+> **Homepage design language:** the dashboard (`app/page.tsx`, styles in `src/dashboard/dashboard.css`) follows the approved warm-cream theme (cream `#f2e8da` bg, dark `#231e18` primary, orange `#f05100` chart accents) with a split top nav and a hero + stat cards + charts layout. Do not revert to a generic/blue look. See `docs/template-rules.md` for prototype-frame rules.
+>
+> **Prototype design language:** prototypes use `src/proto-kit/` (shared DeviceFrame, StatusBar, BottomNav, Stage, tokens). The frame inverts by theme — soft platinum in dark mode, dark in light mode. See `docs/preferences.md` § Device frame.
 
 **Rule:** Every directory that contains project content has its own `navigation.md`. When in doubt about where something is, read the nearest `navigation.md`.
 
@@ -67,36 +83,53 @@ ANDROID-PROTOTYPE/
 
 ## 4. How Prototypes Are Built (Tech Stack)
 
-Each prototype is a **self-contained static web app** so GitHub Pages can serve it with zero build step.
+The project is a **Next.js 16 (App Router) static export** deployed to GitHub Pages. Each prototype is a **self-contained folder** of React components — one file per screen — sharing a common design system (`src/proto-kit/`).
 
 | Layer        | Choice                                                        |
 |--------------|--------------------------------------------------------------|
-| Structure    | Semantic HTML5                                               |
-| Styling      | Modern CSS (custom properties, flexbox, grid) + optional Tailwind via CDN |
-| Interactivity| Vanilla JavaScript (ES6+), optional Alpine.js via CDN        |
-| Icons        | Inline SVG or Lucide icons (CDN)                             |
-| Frame        | A phone mockup wrapper (status bar + screen area) so it reads as "mobile" on desktop |
-| State        | In-file JS state; no backend, no database                    |
+| Framework    | Next.js 16 (App Router) + TypeScript 5                        |
+| Export       | `output: 'export'` → pure static HTML/CSS/JS (no server)     |
+| Styling      | CSS Modules (scoped per component) + `tokens.css` (shared)   |
+| Interactivity| React 19 (client components for state/interaction)           |
+| Icons        | Inline SVG                                                    |
+| Frame        | `proto-kit` `<DeviceFrame>` (bezel + status bar + screen)    |
+| State        | React state + localStorage (Zustand optional for complex)    |
+| Routing      | Hash routing (`#home`, `#search`) — preserves in-app feel    |
 
-**Why static?** No build step = fastest iteration, direct GitHub Pages serving, and each prototype stays isolated and portable.
+**Why Next.js static export?** Component model + hot reload + type safety during dev, but the output is identical static HTML to before — GitHub Pages serves it the same way. The `basePath: '/ANDROID-PROTOTYPE'` keeps the URL unchanged.
 
-See `docs/tech-stack.md` for the full rationale and allowed libraries.
+**Build & preview locally:**
+```bash
+npm install
+npm run build          # static export → ./out
+# Preview with correct basePath:
+mkdir -p /tmp/preview/ANDROID-PROTOTYPE && cp -r out/* /tmp/preview/ANDROID-PROTOTYPE/
+cd /tmp/preview && python3 -m http.server 3001
+# → open http://localhost:3001/ANDROID-PROTOTYPE/
+```
+
+See `docs/tech-stack.md` for the full rationale.
 
 ---
 
 ## 5. How to Create a New Prototype (Quick Start)
 
 1. **Read** [`docs/prototype-blueprint.md`](./docs/prototype-blueprint.md) for the detailed step-by-step.
-2. **Copy** `prototypes/_template/` → `prototypes/<your-prototype-name>/`.
-3. **Edit** the `index.html`, `styles.css`, `script.js` inside.
-4. **Fill in** the prototype's own `navigation.md` and `README.md`.
-5. **Register** the new prototype in `prototypes/navigation.md` (the index).
-6. **Add a card** to the root `index.html` gallery (optional, for real prototypes).
-7. **Commit & push** to `main`. GitHub Actions auto-deploys to Pages.
-8. **Verify** the live URL (see [`docs/github-pages.md`](./docs/github-pages.md)).
-9. **Notify** the user via ntfy.sh (see §7 below).
+2. **Scaffold** a route folder: `app/prototypes/<your-prototype-name>/` with a `layout.tsx` (wraps content in `<DeviceThemeProvider>` + `<Stage>` + `<DeviceFrame>`) and a `page.tsx` (hash router → renders the active screen).
+3. **Create one file per screen** in `src/prototypes/<name>/screens/` (e.g. `home-screen.tsx`). Each screen is self-contained — edit one without touching the others.
+4. **Use proto-kit** components (`DeviceFrame`, `StatusBar`, `BottomNav`, `Stage`) and tokens. Override tokens only if the prototype needs a different palette.
+5. **Add prototype-specific components/hooks** under `src/prototypes/<name>/components/` and `hooks/`.
+6. **Fill in** the prototype's own `navigation.md` and `README.md`.
+7. **Register** the new prototype in the prototypes index.
+8. **Add a card** to the dashboard gallery (`app/page.tsx`).
+9. **Build & verify** locally: `npm run build` + preview at `/ANDROID-PROTOTYPE/prototypes/<name>/`.
+10. **Commit & push** to `main`. GitHub Actions builds + deploys to Pages.
+11. **Verify** the live URL (see [`docs/github-pages.md`](./docs/github-pages.md)).
+12. **Notify** the user via ntfy.sh (see §7 below).
 
-Naming convention: `kebab-case`, descriptive. Example: `prototypes/food-delivery-checkout/`.
+Naming convention: `kebab-case`, descriptive. Example: `app/prototypes/food-delivery-checkout/`.
+
+**Reference implementation:** `app/prototypes/search-page/` (the first ported prototype). Study its layout + page + screens structure as the pattern to follow.
 
 ---
 
