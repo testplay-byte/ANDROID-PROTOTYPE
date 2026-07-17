@@ -10,7 +10,8 @@
 | Folder        | Name            | Status        | Tech            | Live URL | Notes |
 |---------------|-----------------|---------------|-----------------|----------|-------|
 | `_template/`  | Starter template | reference    | HTML/CSS/JS     | [open](https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/_template/) | Copy to start a new prototype. |
-| `search-page/`| Search Page     | review        | HTML/CSS/JS + AniList API | [open](https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/search-page/) | Material 3 Expressive search screen with AniList/Extension source toggle, filters, bottom nav. |
+| `search-page/`| Search Page     | approved      | HTML/CSS/JS + AniList API | [open](https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/search-page/) | Material 3 Expressive search screen with AniList/Extension source toggle, filters, bottom nav. |
+| `anime-app/`  | Anime App       | review        | HTML/CSS/JS + AniList API | [open](https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/anime-app/) | 6-screen anime app: Home, Library, History, Search, Settings, Detail. Add to library. Real AniList data. |
 
 > The `search-page/` prototype is live and in review status.
 
