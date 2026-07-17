@@ -7,6 +7,26 @@
 
 ## [Unreleased]
 
+### 2025-01-15 — Anime App v22 — frame polish + bottom-nav fix
+
+**Goal:** Address user feedback on the device frame and bottom navigation.
+
+**Frame (per-theme inversion + softening):**
+1. **Softened the dark-mode frame** — the white bezel (`#ffffff`) was too stark. Replaced with a soft platinum/silver (`#cfcfcf` bezel + `#a8a8a8` edge rim) so the frame reads as a refined light metal, not glaring white. Per user: "reduce its whiteness a bit but don't turn it into black."
+2. **Thinner border in light mode** — dark borders visually read thicker than light ones at the same pixel width, so the light-mode dark frame looked too heavy. Introduced per-theme `--bezel-w` / `--edge-w` CSS variables: dark mode keeps `5px / 5.5px`; light mode is reduced to `4px / 4.4px` so both themes look visually equal. Per user: "reduce the border width in light mode a bit but keep it exactly the same as it is in dark mode."
+3. **Per-theme drop shadow** — `--frame-shadow` token (`rgba(0,0,0,.55)` dark / `.4` light) so the lift off the stage is tuned for each background.
+
+**Bottom navigation (selection pill refinement):**
+4. **Reduced pill height** — active-item pill reduced from `48px` → `42px`, and the nav bar from `64px` → `58px`, for a slimmer, more refined look. Per user: "its height is way too much."
+5. **Full labels now show** — switched the active item from `flex: 1 1 0` (equal-width, truncated) to `flex: 0 1 auto` (content-sized, never truncated). The active pill expands to fit its full label ("Settings", "Library", "History" all render completely); inactive items stay compact icon-only. Removed `overflow:hidden` / `text-overflow:ellipsis` on the label. Per user: "increase its width a little bit so that the full name can be shown properly."
+6. Added a `flex` transition so the pill width animates smoothly when switching tabs (M3 expanding-pill behavior).
+
+**Verification:** VLM confirmed in both themes — dark frame is "a softer light gray/platinum/silver, not stark white"; light border is "slim and refined, not overly thick"; nav pill is "slim, not chunky" and "Settings is fully visible, no truncation."
+
+**Files:** `prototypes/anime-app/styles.css` (cache v22), `prototypes/anime-app/index.html`.
+
+---
+
 ### 2025-01-15 — Design System Documentation Pass
 
 **Goal:** Create a comprehensive, structured design system documentation that helps future AI agents design beautiful prototypes consistently.

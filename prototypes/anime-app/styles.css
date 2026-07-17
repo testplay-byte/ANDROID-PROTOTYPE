@@ -85,9 +85,14 @@
   --color-outline: #938f99;
   --color-outline-variant: #49454f;
 
-  /* Dark app theme → WHITE frame (premium contrast against dark screen) */
-  --device-bezel: #ffffff;
-  --device-edge: #d4d4d4;
+  /* Dark app theme → soft platinum frame (light but not stark white) */
+  --device-bezel: #cfcfcf;
+  --device-edge: #a8a8a8;
+  /* Border widths — tuned per theme so both look visually equal
+     (dark borders read thicker than light ones at the same px). */
+  --bezel-w: 5px;
+  --edge-w: 5.5px;
+  --frame-shadow: rgba(0,0,0,.55);
 }
 
 /* Light theme */
@@ -114,6 +119,11 @@
   /* Light app theme → DARK frame (contrast against light screen) */
   --device-bezel: #0e0a17;
   --device-edge: #1b1729;
+  /* Thinner border in light mode: dark borders visually read thicker
+     than light ones, so we reduce px to match the dark-mode frame visually. */
+  --bezel-w: 4px;
+  --edge-w: 4.4px;
+  --frame-shadow: rgba(0,0,0,.4);
 }
 
 /* ---- Reset ------------------------------------------------------------- */
@@ -173,9 +183,9 @@ img { display: block; max-width: 100%; }
   position: relative; width: 390px; height: 844px;
   background: var(--color-bg); border-radius: 32px;
   box-shadow:
-    0 0 0 5px var(--device-bezel),
-    0 0 0 5.5px var(--device-edge),
-    0 24px 60px -16px rgba(0,0,0,.55);
+    0 0 0 var(--bezel-w) var(--device-bezel),
+    0 0 0 var(--edge-w) var(--device-edge),
+    0 24px 60px -16px var(--frame-shadow);
   overflow: hidden; display: flex; flex-direction: column; flex: 0 0 auto;
   user-select: none; -webkit-user-select: none;
   /* Smooth frame + surface color transitions when toggling theme */
@@ -683,7 +693,7 @@ img { display: block; max-width: 100%; }
 .bottomnav {
   position: absolute;
   left: 16px; right: 16px; bottom: 16px;
-  height: 64px;
+  height: 58px;
   background: var(--color-surface-3);
   border-radius: var(--r-xl);
   border: none;
@@ -692,29 +702,34 @@ img { display: block; max-width: 100%; }
   z-index: 10;
   box-shadow: 0 8px 24px rgba(0,0,0,.35), 0 2px 8px rgba(0,0,0,.2);
 }
-/* Each nav item — ALL items flex: 1 1 0 to fill width evenly */
+/* Each nav item.
+   - Inactive items: flex: 1 1 0 (share space evenly, icon-only, compact)
+   - Active item: flex: 0 1 auto (content-sized so the full label shows,
+     never truncated) — this is the M3 expanding-pill behavior. */
 .bottomnav__item {
   flex: 1 1 0; display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 6px;
-  height: 48px;
+  height: 42px;
   border-radius: var(--r-pill);
   color: var(--color-text-muted);
-  font-size: var(--fs-label); transition: color var(--dur-2) var(--ease-standard), background var(--dur-3) var(--ease-emphasized);
+  font-size: var(--fs-label); transition: color var(--dur-2) var(--ease-standard), background var(--dur-3) var(--ease-emphasized), flex var(--dur-3) var(--ease-emphasized);
   position: relative;
-  padding: 0 8px;
+  padding: 0 10px;
   overflow: hidden;
   min-width: 0;
 }
-/* Active item: shows full text — same flex as others so no extra space */
+/* Active item: content-width pill so the label is never truncated */
 .bottomnav__item.is-active {
+  flex: 0 1 auto;
   color: var(--color-on-primary-container);
   background: var(--color-primary-container);
+  padding: 0 14px;
 }
 /* Non-active items: icon only */
 .bottomnav__item:not(.is-active) .bottomnav__label { display: none; }
 .bottomnav__item.is-active .bottomnav__label { display: block; }
 .bottomnav__icon { flex: 0 0 auto; transition: transform var(--dur-2) var(--ease-emphasized); }
 .bottomnav__item.is-active .bottomnav__icon { transform: scale(1.05); }
-.bottomnav__label { font-size: var(--fs-label); font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: opacity var(--dur-2) var(--ease-standard); }
+.bottomnav__label { font-size: var(--fs-label); font-weight: 600; white-space: nowrap; transition: opacity var(--dur-2) var(--ease-standard); }
 /* Remove old indicator-based styles (no longer needed with horizontal layout) */
 .bottomnav__indicator { display: contents; }
 

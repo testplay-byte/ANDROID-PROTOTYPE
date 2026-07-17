@@ -14,6 +14,23 @@ A Material 3 Expressive anime app with 6 working screens. Real AniList data. Add
 - Click any anime card → opens detail page
 - Same M3 design language as the search-page prototype
 
+## Device frame (per-theme inversion)
+
+The phone frame inverts with the app theme for premium contrast:
+
+| App theme | Frame color | Border width | Notes |
+|-----------|-------------|--------------|-------|
+| **Dark**  | Soft platinum `#cfcfcf` + `#a8a8a8` rim | `5px / 5.5px` | Light but not stark white |
+| **Light** | Dark `#0e0a17` + `#1b1729` rim | `4px / 4.4px` | Thinner because dark borders read thicker |
+
+The frame and background transition smoothly when toggling themes.
+
+## Bottom navigation
+
+- Floating pill, `58px` tall, `28px` radius, tonal `surface-3` background.
+- **Active item:** content-sized expanding pill (`flex: 0 1 auto`) — full label always visible, never truncated. Slim `42px` height.
+- **Inactive items:** icon-only, share remaining space evenly.
+
 ## Live preview
 
 https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/anime-app/
