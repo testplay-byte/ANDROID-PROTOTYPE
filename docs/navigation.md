@@ -17,7 +17,7 @@
 | `github-pages.md`             | How deployment works, how to find live URLs, how to troubleshoot.    |
 | `notification-protocol.md`    | **MANDATORY MEMORY FILE.** The ntfy.sh protocol: topic, colors, format, copy-paste commands. |
 | `preferences.md`              | **MANDATORY MEMORY FILE.** All accumulated user design preferences. Read before designing anything. |
-| `template-rules.md`           | The rules every prototype built from `_template/` must follow (frame, status bar, text-selection, scrollbar, mobile, theming). |
+| `template-rules.md`           | The rules every prototype (built on `src/proto-kit/`) must follow (frame, status bar, text-selection, scrollbar, mobile, theming). |
 | `theme-architecture.md`       | **CRITICAL.** How app theme (scoped to `.device`) is separated from page theme. Read before touching CSS variables. |
 | `git-conventions.md`          | Branch, commit message, and PR conventions.                         |
 | `design-systems/`             | **Design system documentation** — Material 3 Expressive + Basic Design Principles + master guide. See [`design-systems/navigation.md`](./design-systems/navigation.md). |
@@ -43,4 +43,4 @@
 
 ---
 
-*Last updated: design system documentation pass — added design-systems/ folder with M3 Expressive + Basic Design docs.*
+*Last updated: Next.js migration (Phase 4) — project converted from static HTML/CSS/JS to Next.js 16 static export. Prototypes now built on `src/proto-kit/`; reference pattern is `app/prototypes/search-page/`.*
