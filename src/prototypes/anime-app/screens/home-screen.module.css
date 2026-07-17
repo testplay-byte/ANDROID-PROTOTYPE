@@ -4,6 +4,7 @@
   padding: var(--sp-2) var(--sp-3) var(--sp-1);
   flex: 0 0 auto;
   background: var(--color-bg);
+  transition: padding var(--dur-3) var(--ease-emphasized);
   animation: heroTitleIn var(--dur-4) var(--ease-emphasized-decel);
 }
 
@@ -24,6 +25,17 @@
   letter-spacing: -0.02em;
   margin: 0;
   color: var(--color-text);
+  transition: font-size var(--dur-3) var(--ease-emphasized);
+}
+
+/* Collapsed state — title shrinks when content is scrolled */
+.topbarIsCollapsed {
+  padding-top: var(--sp-1);
+  padding-bottom: 2px;
+}
+
+.topbarIsCollapsed .topbarTitle {
+  font-size: var(--fs-h2);
 }
 
 .content {

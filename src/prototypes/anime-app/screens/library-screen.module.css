@@ -4,6 +4,7 @@
   padding: var(--sp-2) var(--sp-3) var(--sp-1);
   flex: 0 0 auto;
   background: var(--color-bg);
+  transition: padding var(--dur-3) var(--ease-emphasized);
 }
 
 .topbarTitle {
@@ -12,12 +13,23 @@
   letter-spacing: -0.02em;
   margin: 0;
   color: var(--color-text);
+  transition: font-size var(--dur-3) var(--ease-emphasized);
+}
+
+/* Collapsed state — title shrinks when content is scrolled */
+.topbarIsCollapsed {
+  padding-top: var(--sp-1);
+  padding-bottom: 2px;
+}
+
+.topbarIsCollapsed .topbarTitle {
+  font-size: var(--fs-h2);
 }
 
 .content {
   flex: 1 1 auto;
   overflow-y: auto;
-  padding: var(--sp-2) var(--sp-1) 110px;
+  padding: 0 var(--sp-3) 110px;
   scrollbar-width: none;
   -ms-overflow-style: none;
 }
@@ -26,14 +38,7 @@
   display: none;
 }
 
-.tray {
-  background: var(--color-surface-1);
-  border-radius: var(--r-lg);
-  padding: var(--sp-2) var(--sp-3);
-  margin: 0 0 var(--sp-2);
-}
-
-/* ---- Tabs ---- */
+/* ---- Tabs (flat row, no card wrapper) ---- */
 .tabs {
   display: flex;
   gap: 0;

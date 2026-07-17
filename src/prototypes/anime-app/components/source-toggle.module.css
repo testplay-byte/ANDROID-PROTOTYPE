@@ -9,10 +9,13 @@
   padding: 2px;
   gap: 0;
   flex: 0 0 auto;
+  /* Push to the right edge of the topbar row — title on left, toggle on right */
+  margin-left: auto;
   transition:
     opacity var(--dur-3) var(--ease-emphasized),
     transform var(--dur-3) var(--ease-emphasized),
-    width var(--dur-3) var(--ease-emphasized);
+    width var(--dur-3) var(--ease-emphasized),
+    margin var(--dur-3) var(--ease-emphasized);
   overflow: hidden;
 }
 

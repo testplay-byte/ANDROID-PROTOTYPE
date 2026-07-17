@@ -1,8 +1,12 @@
 /* RecentSearches — collapsible recent-search list. */
 
 .section {
-  padding: var(--sp-2) 0 var(--sp-1);
+  padding: var(--sp-3) var(--sp-3) var(--sp-2);
   overflow: hidden;
+  /* Card background so the recent-searches section reads as a distinct tray */
+  background: var(--color-surface-1);
+  border-radius: var(--r-lg);
+  margin: 0 var(--sp-3) var(--sp-3);
 }
 
 .head {
@@ -10,7 +14,6 @@
   align-items: center;
   justify-content: space-between;
   margin-bottom: var(--sp-2);
-  padding: 0 var(--sp-1);
   gap: var(--sp-2);
 }
 

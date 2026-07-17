@@ -41,6 +41,19 @@
   --ease-emphasized: cubic-bezier(.3, 0, 0, 1);
   --ease-emphasized-decel: cubic-bezier(.05, .7, .1, 1);
   --dur-1: 100ms; --dur-2: 200ms; --dur-3: 300ms; --dur-4: 400ms; --dur-5: 500ms;
+
+  /* ---- Stage (page background behind the device) ----
+     These are PAGE-LEVEL tokens, so they live on :root (NOT on .device).
+     The .stage element is an ANCESTOR of .device — if these were scoped
+     to .device, the stage couldn't read them and would fall back to
+     transparent (showing the white body). The :has() rule below overrides
+     them for light mode. */
+  --stage-bg: #2a2a2a;
+  --sb-bg: #232323;
+  --sb-muted: #333333;
+  --sb-border: #3a3a3a;
+  --sb-text: #e0e0e0;
+  --sb-text-muted: #999999;
 }
 
 /* =========================================================================
@@ -84,14 +97,6 @@
   --bezel-w: 3.5px;
   --edge-w: 4px;
   --frame-shadow: rgba(0,0,0,.55);
-
-  /* Stage (page background behind the device) */
-  --stage-bg: #2a2a2a;
-  --sb-bg: #232323;
-  --sb-muted: #333333;
-  --sb-border: #3a3a3a;
-  --sb-text: #e0e0e0;
-  --sb-text-muted: #999999;
 }
 
 /* ---- Light theme ---- */

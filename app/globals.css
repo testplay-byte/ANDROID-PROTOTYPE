@@ -13,6 +13,10 @@ body {
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* Fallback background = stage-bg (dark gray). The Stage component also
+     sets this, but the body needs it too so there's never a white flash
+     or white gap around the stage. */
+  background: var(--stage-bg, #2a2a2a);
 }
 a { color: inherit; text-decoration: none; }
 button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }

@@ -11,6 +11,7 @@
  * the page.tsx wires useAnimeDetail's result into useHistory.add().
  */
 import { useHistory } from "../hooks/use-history";
+import { useCollapsingHeader } from "../hooks/use-collapsing-header";
 import { timeAgo } from "../lib/anilist";
 import styles from "./history-screen.module.css";
 
@@ -21,6 +22,7 @@ interface HistoryScreenProps {
 
 export function HistoryScreen({ active, onOpenAnime }: HistoryScreenProps) {
   const { items } = useHistory();
+  const { contentRef, collapsed } = useCollapsingHeader();
 
   return (
     <section
@@ -29,10 +31,10 @@ export function HistoryScreen({ active, onOpenAnime }: HistoryScreenProps) {
       aria-label="History"
       aria-hidden={!active}
     >
-      <div className={styles.topbar}>
+      <div className={`${styles.topbar} ${collapsed ? styles.topbarIsCollapsed : ""}`}>
         <h1 className={styles.topbarTitle}>History</h1>
       </div>
-      <div className={styles.content}>
+      <div ref={contentRef} className={styles.content}>
         <div className={styles.tray}>
           {items.length === 0 ? (
             <div className={styles.emptyState}>

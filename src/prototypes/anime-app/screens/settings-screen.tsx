@@ -20,6 +20,7 @@ import type { AppTheme } from "../../../proto-kit";
 import { useSettings } from "../hooks/use-settings";
 import { useLibrary } from "../hooks/use-library";
 import { useHistory } from "../hooks/use-history";
+import { useCollapsingHeader } from "../hooks/use-collapsing-header";
 import styles from "./settings-screen.module.css";
 
 interface SettingsScreenProps {
@@ -31,6 +32,7 @@ export function SettingsScreen({ active }: SettingsScreenProps) {
   const { settings, update, toggleSingleLine } = useSettings();
   const { clear: clearLibrary } = useLibrary();
   const { clear: clearHistory } = useHistory();
+  const { contentRef, collapsed } = useCollapsingHeader();
 
   function handleClearHistory() {
     if (typeof window !== "undefined" && window.confirm("Clear all watch history?")) {
@@ -50,10 +52,10 @@ export function SettingsScreen({ active }: SettingsScreenProps) {
       aria-label="Settings"
       aria-hidden={!active}
     >
-      <div className={styles.topbar}>
+      <div className={`${styles.topbar} ${collapsed ? styles.topbarIsCollapsed : ""}`}>
         <h1 className={styles.topbarTitle}>Settings</h1>
       </div>
-      <div className={styles.content}>
+      <div ref={contentRef} className={styles.content}>
         {/* Appearance */}
         <div className={styles.group}>
           <div className={styles.groupLabel}>Appearance</div>

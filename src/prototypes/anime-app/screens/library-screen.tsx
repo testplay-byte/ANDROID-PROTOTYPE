@@ -14,6 +14,7 @@
 import { useState } from "react";
 import { useLibrary } from "../hooks/use-library";
 import { useSettings } from "../hooks/use-settings";
+import { useCollapsingHeader } from "../hooks/use-collapsing-header";
 import { AnimeCard } from "../components/anime-card";
 import type { Anime, LibraryStatus } from "../lib/types";
 import styles from "./library-screen.module.css";
@@ -35,6 +36,7 @@ export function LibraryScreen({ active, onOpenAnime }: LibraryScreenProps) {
   const { items, remove } = useLibrary();
   const [filter, setFilter] = useState<LibraryStatus | "all">("all");
   const [pendingRemove, setPendingRemove] = useState<number | null>(null);
+  const { contentRef, collapsed } = useCollapsingHeader();
 
   // Filter by the active tab.
   const visible = filter === "all" ? items : items.filter((x) => x.status === filter);
@@ -74,84 +76,82 @@ export function LibraryScreen({ active, onOpenAnime }: LibraryScreenProps) {
       aria-label="Library"
       aria-hidden={!active}
     >
-      <div className={styles.topbar}>
+      <div className={`${styles.topbar} ${collapsed ? styles.topbarIsCollapsed : ""}`}>
         <h1 className={styles.topbarTitle}>Library</h1>
       </div>
-      <div className={styles.content}>
-        <div className={styles.tray}>
-          <div className={styles.tabs}>
-            {TABS.map((t) => (
-              <button
-                key={t.id}
-                type="button"
-                className={`${styles.tab} ${filter === t.id ? styles.tabIsActive : ""}`}
-                onClick={() => setFilter(t.id)}
+      <div ref={contentRef} className={styles.content}>
+        <div className={styles.tabs}>
+          {TABS.map((t) => (
+            <button
+              key={t.id}
+              type="button"
+              className={`${styles.tab} ${filter === t.id ? styles.tabIsActive : ""}`}
+              onClick={() => setFilter(t.id)}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+
+        {visible.length === 0 ? (
+          <div className={styles.emptyState}>
+            <div className={styles.emptyStateIcon}>
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
               >
-                {t.label}
-              </button>
+                <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
+              </svg>
+            </div>
+            <h3 className={styles.emptyStateTitle}>
+              Your library is empty
+            </h3>
+            <p className={styles.emptyStateDesc}>
+              Browse anime and add them to your library.
+            </p>
+          </div>
+        ) : (
+          <div className={`${styles.grid} results-grid ${densityClass}`}>
+            {visible.map((item, i) => (
+              <div key={item.id} className={styles.cardWrap}>
+                <AnimeCard
+                  anime={itemToAnime(item.id)}
+                  index={i}
+                  onClick={onOpenAnime}
+                />
+                <button
+                  type="button"
+                  className={styles.removeBtn}
+                  aria-label="Remove from library"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setPendingRemove(item.id);
+                  }}
+                >
+                  <svg
+                    width="12"
+                    height="12"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="3"
+                    strokeLinecap="round"
+                  >
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                  </svg>
+                </button>
+              </div>
             ))}
           </div>
-
-          {visible.length === 0 ? (
-            <div className={styles.emptyState}>
-              <div className={styles.emptyStateIcon}>
-                <svg
-                  width="28"
-                  height="28"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                  <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z" />
-                </svg>
-              </div>
-              <h3 className={styles.emptyStateTitle}>
-                Your library is empty
-              </h3>
-              <p className={styles.emptyStateDesc}>
-                Browse anime and add them to your library.
-              </p>
-            </div>
-          ) : (
-            <div className={`${styles.grid} results-grid ${densityClass}`}>
-              {visible.map((item, i) => (
-                <div key={item.id} className={styles.cardWrap}>
-                  <AnimeCard
-                    anime={itemToAnime(item.id)}
-                    index={i}
-                    onClick={onOpenAnime}
-                  />
-                  <button
-                    type="button"
-                    className={styles.removeBtn}
-                    aria-label="Remove from library"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setPendingRemove(item.id);
-                    }}
-                  >
-                    <svg
-                      width="12"
-                      height="12"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="3"
-                      strokeLinecap="round"
-                    >
-                      <line x1="18" y1="6" x2="6" y2="18" />
-                      <line x1="6" y1="6" x2="18" y2="18" />
-                    </svg>
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        )}
       </div>
 
       {/* Confirm-delete dialog */}

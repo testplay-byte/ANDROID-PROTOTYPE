@@ -14,6 +14,7 @@
 import type { ReactNode } from "react";
 import { useHomeData } from "../hooks/use-anilist";
 import { useSettings } from "../hooks/use-settings";
+import { useCollapsingHeader } from "../hooks/use-collapsing-header";
 import { HeroCarousel } from "../components/hero-carousel";
 import { AnimeCard } from "../components/anime-card";
 import styles from "./home-screen.module.css";
@@ -27,6 +28,7 @@ export function HomeScreen({ active, onOpenAnime }: HomeScreenProps) {
   const { settings } = useSettings();
   const { trending, seasonal, topRated, loading } = useHomeData();
   const densityClass = densityToClass(settings.cardDensity);
+  const { contentRef, collapsed } = useCollapsingHeader();
 
   return (
     <section
@@ -35,10 +37,10 @@ export function HomeScreen({ active, onOpenAnime }: HomeScreenProps) {
       aria-label="Home"
       aria-hidden={!active}
     >
-      <div className={styles.topbar}>
+      <div className={`${styles.topbar} ${collapsed ? styles.topbarIsCollapsed : ""}`}>
         <h1 className={styles.topbarTitle}>Anime</h1>
       </div>
-      <div className={styles.content}>
+      <div ref={contentRef} className={styles.content}>
         {/* Hero / Trending */}
         <div className={styles.heroWrap}>
           {loading && trending.length === 0 ? (
