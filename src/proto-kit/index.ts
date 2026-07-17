@@ -19,3 +19,6 @@ export {
 } from "./stage/stage";
 export { DeviceThemeProvider, useDeviceTheme } from "./theme/theme-provider";
 export type { AppTheme, ThemeProviderProps } from "./theme/types";
+
+// SWIPE SIMULATION (TEST FEATURE) — easily removable.
+export { useSwipeSimulation, type SwipeSimulationOptions } from "./swipe-simulation/use-swipe-simulation";

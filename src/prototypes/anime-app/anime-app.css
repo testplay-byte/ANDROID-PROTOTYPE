@@ -295,3 +295,22 @@ button {
   height: 44px;
   font-size: var(--fs-body);
 }
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SWIPE SIMULATION (TEST FEATURE)
+   Cursor: grab on hover, grabbing during drag.
+   Remove this block along with the useSwipeSimulation hook to disable.
+   ═══════════════════════════════════════════════════════════════════════ */
+.device [class*="content"],
+.device [class*="list"] {
+  cursor: grab;
+}
+.device[data-swipe-grabbing] [class*="content"],
+.device[data-swipe-grabbing] [class*="list"] {
+  cursor: grabbing;
+}
+.device[data-swipe-grabbing] {
+  user-select: none;
+  -webkit-user-select: none;
+}
+/* ═══════════════════════════════════════════════════════════════════════ */

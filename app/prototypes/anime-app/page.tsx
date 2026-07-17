@@ -29,6 +29,7 @@ import {
   PanelTitle,
   PanelDesc,
   PanelHead,
+  useSwipeSimulation,
 } from "../../../src/proto-kit";
 import { SettingsProvider } from "../../../src/prototypes/anime-app/hooks/use-settings";
 import { HomeScreen } from "../../../src/prototypes/anime-app/screens/home-screen";
@@ -281,6 +282,42 @@ export default function Page() {
   function closeDetail() {
     history.back();
   }
+
+  // ─────────────────────────────────────────────────────────────────────
+  // SWIPE SIMULATION (TEST FEATURE)
+  // Click+drag vertically = scroll content. Click+drag horizontally past
+  // 70px = navigate between screens (left = next, right = previous).
+  // On the detail screen, swipe right = back (close detail).
+  //
+  // TO REMOVE: delete this block + the `useSwipeSimulation` import +
+  // the export in src/proto-kit/index.ts + the hook file +
+  // the CSS block in src/prototypes/anime-app/anime-app.css.
+  // ─────────────────────────────────────────────────────────────────────
+  const SWIPE_ORDER: ViewId[] = [
+    "home", "library", "history", "schedule", "search", "settings",
+  ];
+
+  useSwipeSimulation({
+    enabled: true,
+    onSwipeLeft: () => {
+      if (view === "detail") return; // no next-anime on detail
+      const idx = SWIPE_ORDER.indexOf(view);
+      if (idx >= 0 && idx < SWIPE_ORDER.length - 1) {
+        handleNav(SWIPE_ORDER[idx + 1]);
+      }
+    },
+    onSwipeRight: () => {
+      if (view === "detail") {
+        closeDetail();
+        return;
+      }
+      const idx = SWIPE_ORDER.indexOf(view);
+      if (idx > 0) {
+        handleNav(SWIPE_ORDER[idx - 1]);
+      }
+    },
+  });
+  // ─────────────────────────────────────────────────────────────────────
 
   const info = SCREEN_INFO[view];
 
