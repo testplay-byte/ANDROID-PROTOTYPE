@@ -117,12 +117,14 @@ export function useSwipeSimulation(options: SwipeSimulationOptions = {}) {
         drag.moved = Math.max(drag.moved, dist);
         device.setAttribute("data-swipe-grabbing", "true");
         drag.horizontal = Math.abs(dx) > Math.abs(dy);
+        // Once the drag has clearly started, prevent default on ALL moves
+        // (not just vertical) to stop text selection and image dragging.
+        e.preventDefault();
       }
 
       // Vertical-dominant drag → grab-scroll the content (1:1).
       if (drag.scrollEl && !drag.horizontal) {
         drag.scrollEl.scrollTop = drag.startScrollTop - dy;
-        e.preventDefault();
       }
     }
 

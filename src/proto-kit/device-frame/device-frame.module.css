@@ -98,3 +98,52 @@
   flex-direction: column;
   background: var(--color-bg);
 }
+
+/* ---- Fullscreen button ----
+   Floating, bottom-right of the device, above the bottom nav.
+   Uses the real Fullscreen API (requestFullscreen on the .device element).
+   Always visible — part of every prototype via DeviceFrame. */
+.fsToggle {
+  position: absolute;
+  bottom: calc(16px + 58px + 12px); /* nav bar height (58) + nav offset (16) + gap (12) */
+  right: 12px;
+  z-index: 20;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  border: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4),
+    0 0 0 1px color-mix(in srgb, var(--color-primary) 40%, transparent);
+  transition: opacity var(--dur-2) var(--ease-standard),
+    background var(--dur-2) var(--ease-standard),
+    transform var(--dur-1) var(--ease-emphasized);
+}
+
+.fsToggle:hover {
+  background: color-mix(in srgb, var(--color-primary) 85%, white);
+}
+
+.fsToggle:active {
+  transform: scale(0.9);
+}
+
+/* When the device is in fullscreen mode, respect safe areas. */
+.device:fullscreen .fsToggle,
+.device:-webkit-full-screen .fsToggle {
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 16px);
+  right: calc(env(safe-area-inset-right, 0px) + 12px);
+}
+
+/* ---- Image drag prevention ----
+   Prevents the browser's native image ghost-drag behavior so the swipe
+   simulation doesn't accidentally drag images out of the device. */
+.device img {
+  -webkit-user-drag: none;
+  user-drag: none;
+}
