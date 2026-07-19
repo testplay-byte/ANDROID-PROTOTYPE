@@ -22,11 +22,12 @@
 .cover {
   position: relative;
   width: 100%;
-  aspect-ratio: 2 / 3;
-  border-radius: var(--r-sm);
+  aspect-ratio: var(--cover-aspect, 2 / 3);
+  border-radius: var(--cover-radius, var(--r-sm));
   overflow: hidden;
   background: var(--color-surface-2);
-  transition: border-radius var(--dur-2) var(--ease-standard);
+  transition: border-radius var(--dur-2) var(--ease-standard),
+    aspect-ratio var(--dur-3) var(--ease-standard);
 }
 
 .cover img {

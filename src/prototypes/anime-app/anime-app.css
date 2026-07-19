@@ -165,34 +165,38 @@ button {
 }
 
 /* ---- Poster style overrides (applied via .device[data-poster-style]) ----
-   Drives the card cover border-radius globally; the base value is
-   var(--r-sm) set in anime-card.module.css. */
-.device[data-poster-style="rounded"] .anime-card__cover {
-  border-radius: var(--r-sm);
+   Drives the card cover border-radius globally via a CSS variable.
+   The anime-card.module.css reads --cover-radius (falls back to var(--r-sm)).
+   This approach works reliably with CSS Modules because the variable
+   cascades naturally — no specificity battles. */
+.device[data-poster-style="rounded"] {
+  --cover-radius: var(--r-sm);
 }
-.device[data-poster-style="sharp"] .anime-card__cover {
-  border-radius: var(--r-xs);
+.device[data-poster-style="sharp"] {
+  --cover-radius: 2px;
 }
-.device[data-poster-style="circle"] .anime-card__cover {
-  border-radius: 50%;
-  aspect-ratio: 1;
+.device[data-poster-style="circle"] {
+  --cover-radius: 50%;
+  --cover-aspect: 1 / 1;
 }
 
-/* ---- Card density overrides (applied via a class on the results grid) ----
-   These are imported as global class names from anime-app.css so the
-   search-screen / home-screen / library-screen modules can apply them
-   via className concatenation without :global() hassle. */
-.results-grid--compact {
-  gap: var(--sp-2) var(--sp-1) !important;
+/* ---- Card density overrides (applied via .device[data-card-density]) ----
+   Affects gap, cover size, and text size across ALL grids in the device.
+   Uses CSS variables so every grid/card reads them without class juggling. */
+.device[data-card-density="compact"] {
+  --grid-gap-y: var(--sp-2);
+  --grid-gap-x: var(--sp-1);
+  --cover-radius-density: var(--r-xs);
 }
-.results-grid--compact .anime-card__cover {
-  border-radius: var(--r-xs);
+.device[data-card-density="default"] {
+  --grid-gap-y: var(--sp-3);
+  --grid-gap-x: var(--sp-2);
+  --cover-radius-density: var(--r-sm);
 }
-.results-grid--comfortable {
-  gap: var(--sp-4) var(--sp-3) !important;
-}
-.results-grid--comfortable .anime-card__cover {
-  border-radius: var(--r-md);
+.device[data-card-density="comfortable"] {
+  --grid-gap-y: var(--sp-5);
+  --grid-gap-x: var(--sp-4);
+  --cover-radius-density: var(--r-md);
 }
 
 /* ---- Buttons (shared between detail + library + filter sheet) ---- */

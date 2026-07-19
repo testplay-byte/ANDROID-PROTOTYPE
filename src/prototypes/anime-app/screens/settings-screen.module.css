@@ -206,3 +206,139 @@
     transition: none !important;
   }
 }
+
+/* ---- Stacked row (for visual selectors that need full width) ---- */
+.rowStacked {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: 1px solid var(--color-surface-3);
+}
+
+.rowStacked:last-child {
+  border-bottom: none;
+}
+
+/* ---- Poster style visual selector ---- */
+.posterSelector {
+  display: flex;
+  gap: var(--sp-3);
+}
+
+.posterOption {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-2);
+  border-radius: var(--r-md);
+  background: var(--color-surface-2);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color var(--dur-2) var(--ease-emphasized),
+    background var(--dur-2) var(--ease-emphasized);
+}
+
+.posterOptionIsActive {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary-container) 30%, var(--color-surface-2));
+}
+
+.posterPreview {
+  width: 44px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-tertiary));
+  transition: border-radius var(--dur-2) var(--ease-standard),
+    aspect-ratio var(--dur-2) var(--ease-standard);
+}
+
+.posterPreviewRounded {
+  border-radius: var(--r-sm);
+}
+
+.posterPreviewSharp {
+  border-radius: 2px;
+}
+
+.posterPreviewCircle {
+  border-radius: 50%;
+  aspect-ratio: 1;
+  height: 50px;
+  width: 50px;
+}
+
+.posterLabel {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.posterOptionIsActive .posterLabel {
+  color: var(--color-text);
+}
+
+/* ---- Card density visual selector ---- */
+.densitySelector {
+  display: flex;
+  gap: var(--sp-3);
+}
+
+.densityOption {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-2);
+  border-radius: var(--r-md);
+  background: var(--color-surface-2);
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: border-color var(--dur-2) var(--ease-emphasized),
+    background var(--dur-2) var(--ease-emphasized);
+}
+
+.densityOptionIsActive {
+  border-color: var(--color-primary);
+  background: color-mix(in srgb, var(--color-primary-container) 30%, var(--color-surface-2));
+}
+
+.densityPreview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 40px;
+}
+
+.densityDot {
+  width: 18px;
+  height: 26px;
+  border-radius: 4px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-tertiary));
+}
+
+.densityLabel {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.densityOptionIsActive .densityLabel {
+  color: var(--color-text);
+}
+
+/* Density preview variants — different gaps between dots */
+.densityPreviewCompact {
+  gap: 2px;
+}
+
+.densityPreviewDefault {
+  gap: 5px;
+}
+
+.densityPreviewComfortable {
+  gap: 10px;
+}

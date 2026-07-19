@@ -1,6 +1,7 @@
-/* LibraryScreen — saved anime with status tabs + remove confirm.
+/* LibraryScreen — saved anime with multi-select.
    Supports grid (2–5 cols, text below or overlay) and list layouts.
-   Customizable via the gear button in the topbar. */
+   Long-press a card to enter selection mode. Bottom action bar in
+   selection mode: Cancel, Status, Delete. */
 
 .topbar {
   padding: var(--sp-2) var(--sp-3) var(--sp-1);
@@ -22,7 +23,6 @@
   transition: font-size var(--dur-3) var(--ease-emphasized);
 }
 
-/* Collapsed state — title shrinks when content is scrolled */
 .topbarIsCollapsed {
   padding-top: var(--sp-1);
   padding-bottom: 2px;
@@ -44,8 +44,7 @@
   color: var(--color-text-muted);
   background: var(--color-surface-2);
   cursor: pointer;
-  transition:
-    background var(--dur-2) var(--ease-emphasized),
+  transition: background var(--dur-2) var(--ease-emphasized),
     color var(--dur-2) var(--ease-emphasized),
     transform var(--dur-1) var(--ease-emphasized);
 }
@@ -71,7 +70,7 @@
   display: none;
 }
 
-/* ---- Tabs (flat row, no card wrapper) ---- */
+/* ---- Tabs (flat row, hidden in select mode) ---- */
 .tabs {
   display: flex;
   gap: 0;
@@ -124,68 +123,64 @@
   transform: scaleX(1);
 }
 
-/* =========================================================================
-   GRID LAYOUT
-   ========================================================================= */
-
-/* ---- Grid ----
-   minmax(0, 1fr) is CRITICAL: without the 0 minimum, grid items can't
-   shrink below their content's intrinsic width (cover images, long titles),
-   causing uneven columns and distorted cards. */
-.grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--sp-3) var(--sp-2);
-}
-
-/* ---- Card wrap (card + remove X) ---- */
-.cardWrap {
-  position: relative;
-  min-width: 0;
-  animation: slideInRight var(--dur-3) var(--ease-emphasized-decel) backwards;
-}
-
-@keyframes slideInRight {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-.removeBtn {
-  position: absolute;
-  top: -6px;
-  right: -6px;
-  z-index: 3;
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  background: var(--color-surface-4);
-  color: var(--color-text);
-  border: 2px solid var(--color-bg);
+/* ---- Select bar (shown in select mode) ---- */
+.selectBar {
   display: flex;
-  align-items: center;
-  justify-content: center;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
+}
+
+.selectBarBtn {
+  padding: 6px 14px;
+  border-radius: var(--r-pill);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  font-weight: 600;
   cursor: pointer;
-  padding: 0;
   transition: background var(--dur-1) var(--ease-standard),
     color var(--dur-1) var(--ease-standard);
 }
 
-.removeBtn:active {
-  background: var(--color-error);
-  color: #fff;
+.selectBarBtn:hover {
+  background: var(--color-surface-3);
+  color: var(--color-text);
 }
 
-/* ---- Grid overlay text variant ----
-   When text placement = "overlay", the title is overlaid on the cover
-   image with a gradient (Netflix-style). The card becomes position:relative
-   and the title is positioned absolutely at the bottom of the cover area.
-   We target the AnimeCard's internal elements via :global selectors. */
+/* =========================================================================
+   GRID LAYOUT
+   ========================================================================= */
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--grid-gap-y, var(--sp-3)) var(--grid-gap-x, var(--sp-2));
+}
+
+/* ---- Card wrap ---- */
+.cardWrap {
+  position: relative;
+  min-width: 0;
+  animation: slideInRight var(--dur-3) var(--ease-emphasized-decel) backwards;
+  transition: transform var(--dur-1) var(--ease-emphasized);
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.cardWrap:active {
+  transform: scale(0.96);
+}
+
+/* Selected state */
+.cardWrapSelected {
+  transform: scale(0.93);
+  opacity: 0.7;
+}
+
+/* ---- Grid overlay text variant ---- */
 .gridOverlay :global(.anime-card) {
   position: relative;
 }
@@ -198,19 +193,13 @@
   z-index: 2;
   padding: 28px 8px 8px;
   margin: 0;
-  background: linear-gradient(
-    to top,
-    rgba(0, 0, 0, 0.88) 0%,
-    rgba(0, 0, 0, 0.4) 60%,
-    transparent 100%
-  );
+  background: linear-gradient(to top, rgba(0,0,0,0.88) 0%, rgba(0,0,0,0.4) 60%, transparent 100%);
   color: #fff;
   -webkit-line-clamp: 2 !important;
   line-clamp: 2;
   border-radius: 0 0 var(--r-sm) var(--r-sm);
 }
 
-/* Hide the separate meta line in overlay mode (info is on the cover) */
 .gridOverlay :global(.anime-card__meta) {
   display: none;
 }
@@ -231,17 +220,18 @@
   gap: 0;
   position: relative;
   animation: listRowIn var(--dur-3) var(--ease-emphasized-decel) backwards;
+  transition: transform var(--dur-1) var(--ease-emphasized),
+    opacity var(--dur-2) var(--ease-standard);
 }
 
 @keyframes listRowIn {
-  from {
-    opacity: 0;
-    transform: translateX(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+  from { opacity: 0; transform: translateX(16px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+.listRowSelected {
+  opacity: 0.6;
+  transform: scale(0.97);
 }
 
 .listItem {
@@ -255,12 +245,7 @@
   cursor: pointer;
   text-align: left;
   min-width: 0;
-  transition: background var(--dur-2) var(--ease-standard),
-    transform var(--dur-1) var(--ease-emphasized);
-}
-
-.listItem:active {
-  transform: scale(0.99);
+  transition: background var(--dur-2) var(--ease-standard);
 }
 
 .listItem:hover {
@@ -274,6 +259,7 @@
   overflow: hidden;
   background: var(--color-surface-3);
   flex: 0 0 auto;
+  position: relative;
 }
 
 .listCover img {
@@ -322,35 +308,165 @@
   margin-top: 2px;
 }
 
-.listRemove {
+/* =========================================================================
+   SELECTION CHECKMARK
+   ========================================================================= */
+
+.checkCircle {
   position: absolute;
-  top: 50%;
-  right: 8px;
-  transform: translateY(-50%);
-  width: 32px;
-  height: 32px;
+  top: 6px;
+  right: 6px;
+  z-index: 5;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  border: 2px solid rgba(255, 255, 255, 0.4);
   display: flex;
   align-items: center;
   justify-content: center;
+  color: #fff;
+  transition: background var(--dur-2) var(--ease-standard),
+    border-color var(--dur-2) var(--ease-standard),
+    transform var(--dur-2) var(--ease-emphasized);
+}
+
+.checkCircleGrid {
+  top: -6px;
+  right: -6px;
+}
+
+.checkCircleOn {
+  background: var(--color-primary);
+  border-color: var(--color-primary-fg);
+  transform: scale(1.1);
+}
+
+/* =========================================================================
+   BOTTOM ACTION BAR (selection mode)
+   ========================================================================= */
+
+.actionBar {
+  position: absolute;
+  left: var(--sp-3);
+  right: var(--sp-3);
+  bottom: calc(16px + 58px + 12px);
+  z-index: 25;
+  display: flex;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-xl);
+  background: var(--color-surface-4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  animation: actionBarIn var(--dur-3) var(--ease-emphasized-decel);
+}
+
+@keyframes actionBarIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.actionBtn {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--sp-2);
+  border-radius: var(--r-sm);
   color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+  font-weight: 600;
   cursor: pointer;
-  opacity: 0;
-  transition: opacity var(--dur-2) var(--ease-standard),
-    background var(--dur-1) var(--ease-standard),
+  transition: background var(--dur-1) var(--ease-standard),
     color var(--dur-1) var(--ease-standard);
 }
 
-.listRow:hover .listRemove {
-  opacity: 1;
+.actionBtn:hover:not(:disabled) {
+  background: var(--color-surface-5);
+  color: var(--color-text);
 }
 
-.listRemove:hover {
-  background: var(--color-error);
-  color: #fff;
+.actionBtn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
 }
 
-/* ---- Empty state ---- */
+.actionBtnDanger {
+  color: var(--color-error);
+}
+
+.actionBtnDanger:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-error) 15%, transparent);
+  color: var(--color-error);
+}
+
+/* =========================================================================
+   STATUS CHANGE MENU
+   ========================================================================= */
+
+.statusMenuScrim {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: scrimIn var(--dur-2) var(--ease-standard);
+}
+
+@keyframes scrimIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.statusMenu {
+  background: var(--color-surface-3);
+  border-radius: var(--r-lg);
+  padding: var(--sp-4);
+  min-width: 200px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  animation: menuIn var(--dur-3) var(--ease-emphasized-decel);
+}
+
+@keyframes menuIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+.statusMenuTitle {
+  margin: 0 0 var(--sp-3);
+  font-size: var(--fs-body-l);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.statusMenuOption {
+  display: block;
+  width: 100%;
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--r-sm);
+  color: var(--color-text-muted);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard);
+}
+
+.statusMenuOption:hover {
+  background: var(--color-surface-4);
+  color: var(--color-text);
+}
+
+/* =========================================================================
+   EMPTY STATE
+   ========================================================================= */
+
 .emptyState {
   display: flex;
   flex-direction: column;
@@ -390,11 +506,9 @@
 
 @media (prefers-reduced-motion: reduce) {
   .cardWrap,
-  .listRow {
+  .listRow,
+  .actionBar,
+  .statusMenu {
     animation: none !important;
-  }
-  .tab,
-  .tab::after {
-    transition: none !important;
   }
 }

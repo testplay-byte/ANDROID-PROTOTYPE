@@ -3,20 +3,23 @@
 /**
  * anime-app / screens / home-screen — landing screen.
  *
- * Renders the trending hero carousel + "Popular This Season" + "Top Rated"
- * grids. All three come from a single useHomeData() call (three parallel
- * AniList queries). Cards open the detail screen via onClick(id).
+ * Sections (top to bottom):
+ *   1. Trending hero carousel
+ *   2. Continue Watching (horizontal row with progress — from history)
+ *   3. Popular This Season (3-col grid)
+ *   4. Top Rated (3-col grid)
  *
- * The `active` prop drives the global .view--active toggle so the page
- * can fade this screen in/out without unmounting it (preserves scroll
- * position + state across navigation).
+ * All data from AniList via useHomeData(). History items power the
+ * Continue Watching section. Cards open the detail screen via onClick(id).
  */
 import type { ReactNode } from "react";
 import { useHomeData } from "../hooks/use-anilist";
 import { useSettings } from "../hooks/use-settings";
 import { useCollapsingHeader } from "../hooks/use-collapsing-header";
+import { useHistory } from "../hooks/use-history";
 import { HeroCarousel } from "../components/hero-carousel";
 import { AnimeCard } from "../components/anime-card";
+import { ContinueWatching } from "../components/continue-watching";
 import styles from "./home-screen.module.css";
 
 interface HomeScreenProps {
@@ -27,7 +30,7 @@ interface HomeScreenProps {
 export function HomeScreen({ active, onOpenAnime }: HomeScreenProps) {
   const { settings } = useSettings();
   const { trending, seasonal, topRated, loading } = useHomeData();
-  const densityClass = densityToClass(settings.cardDensity);
+  const { items: historyItems } = useHistory();
   const { contentRef, collapsed } = useCollapsingHeader();
 
   return (
@@ -50,12 +53,15 @@ export function HomeScreen({ active, onOpenAnime }: HomeScreenProps) {
           )}
         </div>
 
+        {/* Continue Watching — from history */}
+        <ContinueWatching items={historyItems} onOpenAnime={onOpenAnime} />
+
         {/* Popular This Season */}
-        <div className={styles.tray}>
+        <div className={styles.section}>
           <div className={styles.sectionHeader}>
             <span className={styles.sectionTitle}>Popular This Season</span>
           </div>
-          <div className={`${styles.grid} results-grid ${densityClass}`}>
+          <div className={styles.grid}>
             {loading && seasonal.length === 0
               ? renderSkeletons(6)
               : seasonal.map((a, i) => (
@@ -70,13 +76,11 @@ export function HomeScreen({ active, onOpenAnime }: HomeScreenProps) {
         </div>
 
         {/* Top Rated */}
-        <div className={styles.tray}>
+        <div className={styles.section}>
           <div className={styles.sectionHeader}>
             <span className={styles.sectionTitle}>Top Rated</span>
           </div>
-          <div
-            className={`${styles.grid} ${styles.gridThree} results-grid ${densityClass}`}
-          >
+          <div className={styles.grid}>
             {loading && topRated.length === 0
               ? renderSkeletons(9)
               : topRated.map((a, i) => (
@@ -92,12 +96,6 @@ export function HomeScreen({ active, onOpenAnime }: HomeScreenProps) {
       </div>
     </section>
   );
-}
-
-function densityToClass(d: "default" | "compact" | "comfortable"): string {
-  if (d === "compact") return "results-grid--compact";
-  if (d === "comfortable") return "results-grid--comfortable";
-  return "";
 }
 
 function renderSkeletons(count: number): ReactNode {

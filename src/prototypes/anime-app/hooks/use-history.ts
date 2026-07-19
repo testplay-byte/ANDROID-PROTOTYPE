@@ -21,7 +21,20 @@ const EVENT = "anime-history-change";
 function read(): HistoryItem[] {
   try {
     const raw = localStorage.getItem(HIST_KEY);
-    if (raw) return JSON.parse(raw) as HistoryItem[];
+    if (raw) {
+      const parsed = JSON.parse(raw) as Array<Record<string, unknown>>;
+      // Migrate old items that lack the new fields (episode, progress, etc.)
+      return parsed.map((item) => ({
+        id: item.id as number,
+        title: item.title as string,
+        cover: item.cover as string,
+        viewedAt: item.viewedAt as number,
+        episode: (item.episode as number) ?? 1,
+        totalEpisodes: (item.totalEpisodes as number | null) ?? null,
+        progress: (item.progress as number) ?? 0,
+        banner: (item.banner as string) ?? (item.cover as string) ?? "",
+      }));
+    }
   } catch {
     /* ignore */
   }
@@ -66,16 +79,46 @@ export function useHistory(): UseHistoryResult {
 
   const add = useCallback((anime: Anime) => {
     // Read latest from localStorage (not React state) so the EVENT we
-    // dispatch carries the just-written value to other instances —
-    // calling write() inside the setItems updater is unsafe (React may
-    // run the updater async / twice in StrictMode), so we do all the
-    // side-effecting work here, then commit to React state.
+    // dispatch carries the just-written value to other instances.
     const prev = read();
     const title = anime.title.romaji || anime.title.english || "Unknown";
     const cover =
       anime.coverImage.large || anime.coverImage.extraLarge || "";
+    const banner = anime.bannerImage || cover || "";
+
+    // Simulate episode + progress. If the anime is already in history,
+    // advance the episode slightly; otherwise start at episode 1 with a
+    // random progress. This makes Continue Watching feel real without
+    // actual playback.
+    const existing = prev.find((x) => x.id === anime.id);
+    let episode: number;
+    let progress: number;
+    if (existing) {
+      // Advance progress by 15–35%; if it wraps past 100, move to next ep.
+      const advance = 15 + Math.floor(Math.random() * 20);
+      progress = existing.progress + advance;
+      if (progress >= 100) {
+        episode = existing.episode + 1;
+        progress = Math.min(progress - 100, 80);
+      } else {
+        episode = existing.episode;
+      }
+    } else {
+      episode = 1;
+      progress = 10 + Math.floor(Math.random() * 30);
+    }
+
     const next = [
-      { id: anime.id, title, cover, viewedAt: Date.now() },
+      {
+        id: anime.id,
+        title,
+        cover,
+        viewedAt: Date.now(),
+        episode,
+        totalEpisodes: anime.episodes ?? null,
+        progress: Math.min(progress, 99),
+        banner,
+      },
       ...prev.filter((x) => x.id !== anime.id),
     ].slice(0, HIST_LIMIT);
     write(next);

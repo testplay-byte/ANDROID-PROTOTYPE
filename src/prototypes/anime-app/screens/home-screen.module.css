@@ -1,4 +1,5 @@
-/* HomeScreen — topbar + hero + 2 grids. */
+/* HomeScreen — topbar + hero + continue watching + 2 flat grids.
+   Clean, flat design — no tray backgrounds, just sections with headers. */
 
 .topbar {
   padding: var(--sp-2) var(--sp-3) var(--sp-1);
@@ -41,7 +42,7 @@
 .content {
   flex: 1 1 auto;
   overflow-y: auto;
-  padding: var(--sp-2) var(--sp-1) 110px;
+  padding: var(--sp-2) 0 110px;
   scrollbar-width: none;
   -ms-overflow-style: none;
   position: relative;
@@ -51,8 +52,9 @@
   display: none;
 }
 
+/* ---- Hero ---- */
 .heroWrap {
-  margin: 0 var(--sp-3) var(--sp-2);
+  margin: 0 var(--sp-3) var(--sp-4);
 }
 
 .heroSkeleton {
@@ -68,18 +70,16 @@
   animation: shimmer 1.4s infinite;
 }
 
-.tray {
-  background: var(--color-surface-1);
-  border-radius: var(--r-lg);
-  padding: var(--sp-2) var(--sp-3);
-  margin: 0 0 var(--sp-2);
+/* ---- Section (flat, no tray background) ---- */
+.section {
+  margin-bottom: var(--sp-5);
 }
 
 .sectionHeader {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin: var(--sp-3) 0 var(--sp-3);
+  margin: 0 var(--sp-3) var(--sp-3);
 }
 
 .sectionTitle {
@@ -89,17 +89,15 @@
   letter-spacing: -0.005em;
 }
 
+/* ---- Grid ---- */
 .grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--sp-3) var(--sp-2);
+  gap: var(--grid-gap-y, var(--sp-3)) var(--grid-gap-x, var(--sp-2));
+  padding: 0 var(--sp-3);
 }
 
-.gridThree {
-  grid-template-columns: repeat(3, 1fr);
-}
-
-/* Skeleton loading cards */
+/* ---- Skeleton loading cards ---- */
 .skeletonCard {
   display: flex;
   flex-direction: column;

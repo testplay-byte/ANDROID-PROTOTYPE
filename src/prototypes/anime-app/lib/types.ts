@@ -90,12 +90,22 @@ export interface LibraryItem {
   addedAt: number;
 }
 
-/** A "recently viewed" entry in `localStorage["anime-history"]`. */
+/** A "recently viewed" entry in `localStorage["anime-history"]`.
+ *  Also powers the Continue Watching section — episode + progress are
+ *  simulated (we don't have real playback) but stored persistently. */
 export interface HistoryItem {
   id: number;
   title: string;
   cover: string;
   viewedAt: number;
+  /** Last episode the user was "watching" (simulated). */
+  episode: number;
+  /** Total episodes (if known from AniList). */
+  totalEpisodes: number | null;
+  /** Progress within the current episode, 0–100 (simulated). */
+  progress: number;
+  /** Banner image for the continue-watching card (from AniList). */
+  banner: string;
 }
 
 export type PosterStyle = "rounded" | "sharp" | "circle";

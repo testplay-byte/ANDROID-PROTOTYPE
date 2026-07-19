@@ -93,46 +93,95 @@ export function SettingsScreen({ active }: SettingsScreenProps) {
                 <span className={styles.toggleKnob} />
               </button>
             </div>
-            <div className={styles.row}>
+            <div className={styles.rowStacked}>
               <div className={styles.rowInfo}>
                 <span className={styles.rowTitle}>Poster style</span>
                 <span className={styles.rowDesc}>
                   Cover image border radius
                 </span>
               </div>
-              <select
-                className={styles.select}
-                value={settings.posterStyle}
-                onChange={(e) =>
-                  update({
-                    posterStyle: e.target.value as typeof settings.posterStyle,
-                  })
-                }
-              >
-                <option value="rounded">Rounded</option>
-                <option value="sharp">Sharp</option>
-                <option value="circle">Circle</option>
-              </select>
+              <div className={styles.posterSelector}>
+                <button
+                  type="button"
+                  className={`${styles.posterOption} ${settings.posterStyle === "rounded" ? styles.posterOptionIsActive : ""}`}
+                  onClick={() => update({ posterStyle: "rounded" })}
+                  aria-label="Rounded posters"
+                  aria-pressed={settings.posterStyle === "rounded"}
+                >
+                  <span className={`${styles.posterPreview} ${styles.posterPreviewRounded}`} />
+                  <span className={styles.posterLabel}>Rounded</span>
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.posterOption} ${settings.posterStyle === "sharp" ? styles.posterOptionIsActive : ""}`}
+                  onClick={() => update({ posterStyle: "sharp" })}
+                  aria-label="Sharp posters"
+                  aria-pressed={settings.posterStyle === "sharp"}
+                >
+                  <span className={`${styles.posterPreview} ${styles.posterPreviewSharp}`} />
+                  <span className={styles.posterLabel}>Sharp</span>
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.posterOption} ${settings.posterStyle === "circle" ? styles.posterOptionIsActive : ""}`}
+                  onClick={() => update({ posterStyle: "circle" })}
+                  aria-label="Circle posters"
+                  aria-pressed={settings.posterStyle === "circle"}
+                >
+                  <span className={`${styles.posterPreview} ${styles.posterPreviewCircle}`} />
+                  <span className={styles.posterLabel}>Circle</span>
+                </button>
+              </div>
             </div>
-            <div className={styles.row}>
+            <div className={styles.rowStacked}>
               <div className={styles.rowInfo}>
                 <span className={styles.rowTitle}>Card density</span>
                 <span className={styles.rowDesc}>Spacing between cards</span>
               </div>
-              <select
-                className={styles.select}
-                value={settings.cardDensity}
-                onChange={(e) =>
-                  update({
-                    cardDensity: e.target
-                      .value as typeof settings.cardDensity,
-                  })
-                }
-              >
-                <option value="default">Default</option>
-                <option value="compact">Compact</option>
-                <option value="comfortable">Comfortable</option>
-              </select>
+              <div className={styles.densitySelector}>
+                <button
+                  type="button"
+                  className={`${styles.densityOption} ${settings.cardDensity === "compact" ? styles.densityOptionIsActive : ""}`}
+                  onClick={() => update({ cardDensity: "compact" })}
+                  aria-label="Compact density"
+                  aria-pressed={settings.cardDensity === "compact"}
+                >
+                  <span className={`${styles.densityPreview} ${styles.densityPreviewCompact}`}>
+                    <span className={styles.densityDot} />
+                    <span className={styles.densityDot} />
+                    <span className={styles.densityDot} />
+                  </span>
+                  <span className={styles.densityLabel}>Compact</span>
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.densityOption} ${settings.cardDensity === "default" ? styles.densityOptionIsActive : ""}`}
+                  onClick={() => update({ cardDensity: "default" })}
+                  aria-label="Default density"
+                  aria-pressed={settings.cardDensity === "default"}
+                >
+                  <span className={`${styles.densityPreview} ${styles.densityPreviewDefault}`}>
+                    <span className={styles.densityDot} />
+                    <span className={styles.densityDot} />
+                    <span className={styles.densityDot} />
+                  </span>
+                  <span className={styles.densityLabel}>Default</span>
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.densityOption} ${settings.cardDensity === "comfortable" ? styles.densityOptionIsActive : ""}`}
+                  onClick={() => update({ cardDensity: "comfortable" })}
+                  aria-label="Comfortable density"
+                  aria-pressed={settings.cardDensity === "comfortable"}
+                >
+                  <span className={`${styles.densityPreview} ${styles.densityPreviewComfortable}`}>
+                    <span className={styles.densityDot} />
+                    <span className={styles.densityDot} />
+                    <span className={styles.densityDot} />
+                  </span>
+                  <span className={styles.densityLabel}>Comfortable</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>

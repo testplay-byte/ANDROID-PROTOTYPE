@@ -76,15 +76,16 @@ export function SettingsProvider({ children }: SettingsProviderProps) {
     setSettings(read());
   }, []);
 
-  // Apply data-anim-speed + data-poster-style to the .device element so the
-  // global CSS rules in anime-app.css pick them up.
+  // Apply data-anim-speed + data-poster-style + data-card-density to the
+  // .device element so the global CSS rules in anime-app.css pick them up.
   useEffect(() => {
     if (typeof document === "undefined") return;
     const device = document.querySelector(".device");
     if (!device) return;
     device.setAttribute("data-anim-speed", settings.animSpeed);
     device.setAttribute("data-poster-style", settings.posterStyle);
-  }, [settings.animSpeed, settings.posterStyle]);
+    device.setAttribute("data-card-density", settings.cardDensity);
+  }, [settings.animSpeed, settings.posterStyle, settings.cardDensity]);
 
   const update = useCallback((patch: Partial<Settings>) => {
     setSettings((prev) => {
