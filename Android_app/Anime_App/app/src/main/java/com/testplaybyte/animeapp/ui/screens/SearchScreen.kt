@@ -457,7 +457,7 @@ private fun SearchTopBar(
 // ── Source toggle button ──────────────────────────────────────────────────
 
 @Composable
-private fun SourceToggleBtn(
+private fun RowScope.SourceToggleBtn(
     label: String,
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     active: Boolean,
