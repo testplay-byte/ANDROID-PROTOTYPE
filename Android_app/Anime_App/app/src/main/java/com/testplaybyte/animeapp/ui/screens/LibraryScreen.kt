@@ -8,6 +8,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
@@ -286,7 +287,7 @@ fun LibraryScreen(
                 onDelete = { pendingRemove = selectedIds.toList() },
                 modifier = Modifier
                     .align(Alignment.BottomCenter)
-                    .padding(horizontal = 16.dp, bottom = 90.dp),
+                    .padding(start = 16.dp, end = 16.dp, bottom = 90.dp),
             )
         }
     }
