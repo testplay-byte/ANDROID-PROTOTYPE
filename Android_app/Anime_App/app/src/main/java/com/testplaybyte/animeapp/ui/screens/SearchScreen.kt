@@ -22,6 +22,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FilterList
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -79,6 +81,7 @@ fun SearchScreen(
     var loading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var hasSearched by remember { mutableStateOf(false) }
+    var source by remember { mutableStateOf("anilist") }
 
     // Fetch popular (trending) anime as the default landing view.
     LaunchedEffect(Unit) {
@@ -126,6 +129,60 @@ fun SearchScreen(
             onSubmit = { keyboard?.hide() },
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
         )
+
+        // ── Source toggle + Filter button row ──
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            // Source toggle: AniList / Extension
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                shape = RoundedCornerShape(50),
+            ) {
+                Row(modifier = Modifier.padding(3.dp)) {
+                    SourceToggleBtn(
+                        label = "AniList",
+                        active = source == "anilist",
+                        onClick = { source = "anilist" },
+                    )
+                    SourceToggleBtn(
+                        label = "Extension",
+                        active = source == "extension",
+                        onClick = { source = "extension" },
+                    )
+                }
+            }
+
+            // Filter button
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+                shape = RoundedCornerShape(50),
+                onClick = { /* Filter sheet — TODO in future iteration */ },
+            ) {
+                Row(
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.FilterList,
+                        contentDescription = "Filters",
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.size(18.dp),
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(
+                        text = "Filters",
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
 
         // ── Scrollable content ──────────────────────────────────────────────
         Column(
@@ -386,6 +443,32 @@ private fun SearchEmptyState(title: String, description: String) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             maxLines = 3,
+        )
+    }
+}
+
+// ── Source toggle button (AniList / Extension) ──────────────────────────────
+@Composable
+private fun SourceToggleBtn(
+    label: String,
+    active: Boolean,
+    onClick: () -> Unit,
+) {
+    val bg = if (active) MaterialTheme.colorScheme.primaryContainer else androidx.compose.ui.graphics.Color.Transparent
+    val fg = if (active) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+    Row(
+        modifier = Modifier
+            .clip(RoundedCornerShape(50))
+            .background(bg)
+            .clickable { onClick() }
+            .padding(horizontal = 14.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = label,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = fg,
         )
     }
 }

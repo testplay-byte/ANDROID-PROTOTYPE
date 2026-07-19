@@ -5,7 +5,6 @@ package com.testplaybyte.animeapp.ui.screens
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,16 +13,16 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.DarkMode
+import androidx.compose.material.icons.filled.LightMode
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -405,13 +404,13 @@ private fun ThemeSegmentedToggle(isDark: Boolean, onSelect: (Boolean) -> Unit) {
         ) {
             ThemeSegment(
                 label = "Dark",
-                icon = { MoonIcon(tint = it) },
+                icon = { Icon(Icons.Filled.DarkMode, contentDescription = null, tint = it, modifier = Modifier.size(16.dp)) },
                 active = isDark,
                 onClick = { onSelect(true) },
             )
             ThemeSegment(
                 label = "Light",
-                icon = { SunIcon(tint = it) },
+                icon = { Icon(Icons.Filled.LightMode, contentDescription = null, tint = it, modifier = Modifier.size(16.dp)) },
                 active = !isDark,
                 onClick = { onSelect(false) },
             )
@@ -505,62 +504,5 @@ private fun <T> TextSelector(
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Moon & Sun icons — drawn on a Canvas to avoid pulling in the
-// material-icons-extended dependency. Both are 16dp, monochrome.
-// ─────────────────────────────────────────────────────────────────────────────
-
-@Composable
-private fun MoonIcon(tint: Color) {
-    Canvas(modifier = Modifier.size(16.dp)) {
-        val w = size.width
-        val h = size.height
-        // Outer disk — slightly left of center.
-        drawCircle(
-            color = tint,
-            radius = w * 0.40f,
-            center = Offset(w * 0.40f, h * 0.50f),
-        )
-        // Inner "subtract" disk — same vertical center, offset right so it
-        // fully covers the right half of the outer disk. This carves a clean
-        // crescent that opens to the right (horns point right, curve on left).
-        drawCircle(
-            color = Color.Black,
-            radius = w * 0.40f,
-            center = Offset(w * 0.55f, h * 0.50f),
-            blendMode = BlendMode.DstOut,
-        )
-    }
-}
-
-@Composable
-private fun SunIcon(tint: Color) {
-    Canvas(modifier = Modifier.size(16.dp)) {
-        val w = size.width
-        val h = size.height
-        val cx = w * 0.5f
-        val cy = h * 0.5f
-        // Center disk
-        drawCircle(
-            color = tint,
-            radius = w * 0.18f,
-            center = Offset(cx, cy),
-        )
-        // 8 rays
-        val rayInner = w * 0.30f
-        val rayOuter = w * 0.48f
-        val strokeWidth = w * 0.07f
-        for (i in 0 until 8) {
-            val angle = (i * 45.0) * (Math.PI / 180.0)
-            val cosA = cos(angle).toFloat()
-            val sinA = sin(angle).toFloat()
-            drawLine(
-                color = tint,
-                start = Offset(cx + rayInner * cosA, cy + rayInner * sinA),
-                end = Offset(cx + rayOuter * cosA, cy + rayOuter * sinA),
-                strokeWidth = strokeWidth,
-                cap = StrokeCap.Round,
-            )
-        }
-    }
-}
+// Moon & Sun icons — now using Material Icons (Icons.Filled.DarkMode / LightMode)
+// from material-icons-extended. No more Canvas-drawn crude icons.

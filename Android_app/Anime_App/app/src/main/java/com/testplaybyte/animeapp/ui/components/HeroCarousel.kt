@@ -43,7 +43,7 @@ fun HeroCarousel(
             state = pagerState,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(220.dp),
+                .height(180.dp),
         ) { page ->
             val anime = items[page]
             HeroSlide(anime = anime, onClick = { onClick(anime.id) })

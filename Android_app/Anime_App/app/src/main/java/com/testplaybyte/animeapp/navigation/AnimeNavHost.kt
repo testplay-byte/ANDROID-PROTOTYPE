@@ -1,6 +1,8 @@
 package com.testplaybyte.animeapp.navigation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.*
@@ -39,8 +41,12 @@ fun AnimeNavHost() {
     val showBottomNav = currentRoute?.startsWith("detail") != true
 
     // NO Scaffold — the bottom nav is a floating overlay on top of the content.
-    // Content fills the full screen and scrolls behind the nav (matching the prototype).
-    Box(modifier = Modifier.fillMaxSize()) {
+    // Content fills the full screen with the M3 background color and scrolls behind the nav.
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(MaterialTheme.colorScheme.background)
+    ) {
         NavHost(
             navController = navController,
             startDestination = Routes.HOME,
