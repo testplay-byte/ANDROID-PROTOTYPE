@@ -1,13 +1,13 @@
 package com.testplaybyte.animeapp.navigation
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.navigation.*
 import androidx.navigation.compose.*
 import com.testplaybyte.animeapp.ui.components.BottomNavBar
+import com.testplaybyte.animeapp.ui.components.NavItem
+import com.testplaybyte.animeapp.ui.components.NavIcons
 import com.testplaybyte.animeapp.ui.screens.*
 
 object Routes {
@@ -21,63 +21,36 @@ object Routes {
     fun detail(id: Int) = "detail/$id"
 
     val NAV_ITEMS = listOf(
-        NavItem("home", "Home", "🏠"),
-        NavItem("library", "Library", "📚"),
-        NavItem("history", "History", "🕐"),
-        NavItem("schedule", "Schedule", "📅"),
-        NavItem("search", "Search", "🔍"),
-        NavItem("settings", "Settings", "⚙"),
+        NavItem("home", "Home", NavIcons.Home),
+        NavItem("library", "Library", NavIcons.Library),
+        NavItem("history", "History", NavIcons.History),
+        NavItem("schedule", "Schedule", NavIcons.Schedule),
+        NavItem("search", "Search", NavIcons.Search),
+        NavItem("settings", "Settings", NavIcons.Settings),
     )
 }
 
-data class NavItem(val route: String, val label: String, val icon: String)
-
 @Composable
-fun AnimeNavHost(
-    onOpenAnime: (Int) -> Unit,
-) {
+fun AnimeNavHost() {
     val navController = rememberNavController()
     val backStack by navController.currentBackStackEntryAsState()
     val currentRoute = backStack?.destination?.route
 
     val showBottomNav = currentRoute?.startsWith("detail") != true
 
-    // Wire up anime-detail navigation: call the external callback (e.g. for
-    // logging/analytics) then navigate to the detail route.
-    val openAnime: (Int) -> Unit = { id ->
-        onOpenAnime(id)
-        navController.navigate(Routes.detail(id))
-    }
-
-    Scaffold(
-        bottomBar = {
-            if (showBottomNav) {
-                BottomNavBar(
-                    items = Routes.NAV_ITEMS,
-                    currentRoute = currentRoute ?: "home",
-                    onSelect = { route ->
-                        if (route != currentRoute) {
-                            navController.navigate(route) {
-                                popUpTo(navController.graph.startDestinationId) { saveState = true }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        }
-                    },
-                )
-            }
-        }
-    ) { padding ->
+    // NO Scaffold — the bottom nav is a floating overlay on top of the content.
+    // Content fills the full screen and scrolls behind the nav (matching the prototype).
+    Box(modifier = Modifier.fillMaxSize()) {
         NavHost(
             navController = navController,
             startDestination = Routes.HOME,
-            modifier = Modifier.padding(padding),
+            modifier = Modifier.fillMaxSize(),
         ) {
-            composable(Routes.HOME) { HomeScreen(onOpenAnime = openAnime) }
-            composable(Routes.LIBRARY) { LibraryScreen(onOpenAnime = openAnime) }
-            composable(Routes.HISTORY) { HistoryScreen(onOpenAnime = openAnime) }
-            composable(Routes.SCHEDULE) { ScheduleScreen(onOpenAnime = openAnime) }
-            composable(Routes.SEARCH) { SearchScreen(onOpenAnime = openAnime) }
+            composable(Routes.HOME) { HomeScreen(onOpenAnime = { navController.navigate(Routes.detail(it)) }) }
+            composable(Routes.LIBRARY) { LibraryScreen(onOpenAnime = { navController.navigate(Routes.detail(it)) }) }
+            composable(Routes.HISTORY) { HistoryScreen(onOpenAnime = { navController.navigate(Routes.detail(it)) }) }
+            composable(Routes.SCHEDULE) { ScheduleScreen(onOpenAnime = { navController.navigate(Routes.detail(it)) }) }
+            composable(Routes.SEARCH) { SearchScreen(onOpenAnime = { navController.navigate(Routes.detail(it)) }) }
             composable(Routes.SETTINGS) { SettingsScreen() }
             composable(
                 Routes.DETAIL,
@@ -86,6 +59,24 @@ fun AnimeNavHost(
                 val id = entry.arguments?.getInt("id") ?: 0
                 DetailScreen(animeId = id, onBack = { navController.popBackStack() })
             }
+        }
+
+        // Floating bottom nav — overlays on top of content.
+        if (showBottomNav) {
+            BottomNavBar(
+                items = Routes.NAV_ITEMS,
+                currentRoute = currentRoute ?: "home",
+                onSelect = { route ->
+                    if (route != currentRoute) {
+                        navController.navigate(route) {
+                            popUpTo(navController.graph.startDestinationId) { saveState = true }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }
+                },
+                modifier = Modifier.align(androidx.compose.ui.Alignment.BottomCenter),
+            )
         }
     }
 }

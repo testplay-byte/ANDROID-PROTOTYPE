@@ -13,6 +13,7 @@ class SettingsRepository(private val context: Context) {
     private val KEY_DARK = booleanPreferencesKey("dark_theme")
     private val KEY_POSTER = stringPreferencesKey("poster_style")
     private val KEY_DENSITY = stringPreferencesKey("card_density")
+    private val KEY_ANIM_SPEED = stringPreferencesKey("anim_speed")
     private val KEY_SINGLE_LINE = booleanPreferencesKey("single_line_titles")
     private val KEY_LIB_LAYOUT = stringPreferencesKey("lib_layout")
     private val KEY_LIB_COLUMNS = intPreferencesKey("lib_columns")
@@ -26,6 +27,7 @@ class SettingsRepository(private val context: Context) {
             darkTheme = p[KEY_DARK] ?: true,
             posterStyle = p[KEY_POSTER]?.let { runCatching { PosterStyle.valueOf(it) }.getOrNull() } ?: PosterStyle.ROUNDED,
             cardDensity = p[KEY_DENSITY]?.let { runCatching { CardDensity.valueOf(it) }.getOrNull() } ?: CardDensity.DEFAULT,
+            animSpeed = p[KEY_ANIM_SPEED]?.let { runCatching { AnimSpeed.valueOf(it) }.getOrNull() } ?: AnimSpeed.NORMAL,
             singleLineTitles = p[KEY_SINGLE_LINE] ?: true,
             libraryLayout = p[KEY_LIB_LAYOUT]?.let { runCatching { LibraryLayout.valueOf(it) }.getOrNull() } ?: LibraryLayout.GRID,
             libraryColumns = p[KEY_LIB_COLUMNS] ?: 3,
@@ -42,6 +44,7 @@ class SettingsRepository(private val context: Context) {
                 darkTheme = p[KEY_DARK] ?: true,
                 posterStyle = p[KEY_POSTER]?.let { runCatching { PosterStyle.valueOf(it) }.getOrNull() } ?: PosterStyle.ROUNDED,
                 cardDensity = p[KEY_DENSITY]?.let { runCatching { CardDensity.valueOf(it) }.getOrNull() } ?: CardDensity.DEFAULT,
+                animSpeed = p[KEY_ANIM_SPEED]?.let { runCatching { AnimSpeed.valueOf(it) }.getOrNull() } ?: AnimSpeed.NORMAL,
                 singleLineTitles = p[KEY_SINGLE_LINE] ?: true,
                 libraryLayout = p[KEY_LIB_LAYOUT]?.let { runCatching { LibraryLayout.valueOf(it) }.getOrNull() } ?: LibraryLayout.GRID,
                 libraryColumns = p[KEY_LIB_COLUMNS] ?: 3,
@@ -54,6 +57,7 @@ class SettingsRepository(private val context: Context) {
             p[KEY_DARK] = next.darkTheme
             p[KEY_POSTER] = next.posterStyle.name
             p[KEY_DENSITY] = next.cardDensity.name
+            p[KEY_ANIM_SPEED] = next.animSpeed.name
             p[KEY_SINGLE_LINE] = next.singleLineTitles
             p[KEY_LIB_LAYOUT] = next.libraryLayout.name
             p[KEY_LIB_COLUMNS] = next.libraryColumns

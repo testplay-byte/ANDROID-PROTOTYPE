@@ -2,9 +2,16 @@
 
 package com.testplaybyte.animeapp.ui.screens
 
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
@@ -12,6 +19,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.BlendMode
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -21,11 +33,16 @@ import com.testplaybyte.animeapp.data.HistoryRepository
 import com.testplaybyte.animeapp.data.LibraryRepository
 import com.testplaybyte.animeapp.data.SettingsRepository
 import com.testplaybyte.animeapp.model.*
+import com.testplaybyte.animeapp.ui.components.CollapsingHeader
 import kotlinx.coroutines.launch
+import kotlin.math.cos
+import kotlin.math.sin
 
 /**
- * SettingsScreen — appearance, display, library pointer, data management,
- * and an About section.
+ * SettingsScreen — appearance, display, animations, data management, and an
+ * About section. Mirrors the web prototype's Material 3 Expressive design
+ * exactly: collapsing header, surface-tinted section cards, custom toggle,
+ * segmented theme toggle, and text-only segmented selectors.
  */
 @Composable
 fun SettingsScreen() {
@@ -39,127 +56,125 @@ fun SettingsScreen() {
     var confirmDialog by remember { mutableStateOf<ConfirmTarget?>(null) }
     val scrollState = rememberScrollState()
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(scrollState)
-            .padding(bottom = 32.dp),
-    ) {
-        // Collapsing-style header
-        Text(
-            text = "Settings",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground,
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Pinned collapsing header — shrinks when content scrolls past 20dp.
+        CollapsingHeader(title = "Settings", scrollState = scrollState)
+
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, top = 16.dp, bottom = 16.dp),
-        )
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(bottom = 110.dp), // reserved for floating nav bar
+        ) {
+            // ── Appearance ───────────────────────────────────────────────
+            SettingsGroup(label = "Appearance") {
+                SettingRow(
+                    title = "Theme",
+                    description = "Switch between dark and light mode",
+                    trailing = {
+                        ThemeSegmentedToggle(
+                            isDark = settings.darkTheme,
+                            onSelect = { dark ->
+                                scope.launch { settingsRepo.update { copy(darkTheme = dark) } }
+                            },
+                        )
+                    },
+                )
+            }
 
-        // Appearance
-        SectionTitle("Appearance")
-        SettingCard {
-            Text("Theme", fontSize = 14.sp, fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onBackground)
-            Spacer(Modifier.height(8.dp))
-            SingleChoiceSegmentedRow(
-                options = listOf("Dark" to true, "Light" to false),
-                selected = settings.darkTheme,
-                onSelect = { v -> scope.launch { settingsRepo.update { copy(darkTheme = v) } } },
-            )
-        }
-
-        Spacer(Modifier.height(16.dp))
-
-        // Display
-        SectionTitle("Display")
-        SettingCard {
-            ToggleRow(
-                label = "Single-line titles",
-                checked = settings.singleLineTitles,
-            ) { v -> scope.launch { settingsRepo.update { copy(singleLineTitles = v) } } }
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
-            Text("Poster style", fontSize = 14.sp, fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onBackground)
-            Spacer(Modifier.height(8.dp))
-            SingleChoiceSegmentedRow(
-                options = listOf(
-                    "Rounded" to PosterStyle.ROUNDED,
-                    "Soft" to PosterStyle.SOFT,
-                    "Sharp" to PosterStyle.SHARP,
-                ),
-                selected = settings.posterStyle,
-                onSelect = { v -> scope.launch { settingsRepo.update { copy(posterStyle = v) } } },
-            )
-            Spacer(Modifier.height(12.dp))
-            Text("Card density", fontSize = 14.sp, fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onBackground)
-            Spacer(Modifier.height(8.dp))
-            SingleChoiceSegmentedRow(
-                options = listOf(
-                    "Compact" to CardDensity.COMPACT,
-                    "Default" to CardDensity.DEFAULT,
-                    "Comfortable" to CardDensity.COMFORTABLE,
-                ),
-                selected = settings.cardDensity,
-                onSelect = { v -> scope.launch { settingsRepo.update { copy(cardDensity = v) } } },
-            )
-        }
-
-        Spacer(Modifier.height(16.dp))
-
-        // Library
-        SectionTitle("Library")
-        SettingCard {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("Customize library", fontSize = 14.sp, fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onBackground)
-                    Text("Layout, columns, text placement, cover details",
-                        fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            // ── Display ──────────────────────────────────────────────────
+            SettingsGroup(label = "Display") {
+                SettingRow(
+                    title = "Single-line titles",
+                    description = "Show anime titles on one line (truncate with ellipsis)",
+                    showDivider = true,
+                    trailing = {
+                        CustomToggle(
+                            checked = settings.singleLineTitles,
+                            onChange = { v ->
+                                scope.launch { settingsRepo.update { copy(singleLineTitles = v) } }
+                            },
+                        )
+                    },
+                )
+                StackedRow(
+                    title = "Poster style",
+                    description = "Cover image border radius",
+                    showDivider = true,
+                ) {
+                    TextSelector(
+                        options = listOf(
+                            "Rounded" to PosterStyle.ROUNDED,
+                            "Soft" to PosterStyle.SOFT,
+                            "Sharp" to PosterStyle.SHARP,
+                        ),
+                        selected = settings.posterStyle,
+                        onSelect = { v ->
+                            scope.launch { settingsRepo.update { copy(posterStyle = v) } }
+                        },
+                    )
                 }
-                Text("Open Library →",
-                    fontSize = 12.sp, fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.primary)
+                StackedRow(
+                    title = "Card density",
+                    description = "Spacing between cards",
+                ) {
+                    TextSelector(
+                        options = listOf(
+                            "Compact" to CardDensity.COMPACT,
+                            "Default" to CardDensity.DEFAULT,
+                            "Comfortable" to CardDensity.COMFORTABLE,
+                        ),
+                        selected = settings.cardDensity,
+                        onSelect = { v ->
+                            scope.launch { settingsRepo.update { copy(cardDensity = v) } }
+                        },
+                    )
+                }
             }
-            Text("Customize in Library page",
-                fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(top = 6.dp))
-        }
 
-        Spacer(Modifier.height(16.dp))
-
-        // Data
-        SectionTitle("Data")
-        SettingCard {
-            ActionRow(label = "Clear history", isDestructive = true) {
-                confirmDialog = ConfirmTarget.HISTORY
+            // ── Animations ───────────────────────────────────────────────
+            SettingsGroup(label = "Animations") {
+                StackedRow(
+                    title = "Animation speed",
+                    description = "Speed of transitions and effects",
+                ) {
+                    TextSelector(
+                        options = listOf(
+                            "Fast" to AnimSpeed.FAST,
+                            "Normal" to AnimSpeed.NORMAL,
+                            "Slow" to AnimSpeed.SLOW,
+                        ),
+                        selected = settings.animSpeed,
+                        onSelect = { v ->
+                            scope.launch { settingsRepo.update { copy(animSpeed = v) } }
+                        },
+                    )
+                }
             }
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
-            ActionRow(label = "Clear library", isDestructive = true) {
-                confirmDialog = ConfirmTarget.LIBRARY
-            }
-        }
 
-        Spacer(Modifier.height(16.dp))
-
-        // About
-        SectionTitle("About")
-        SettingCard {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("App name", fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground)
-                Text("Anime App", fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+            // ── Data ─────────────────────────────────────────────────────
+            SettingsGroup(label = "Data") {
+                SettingRow(
+                    title = "Clear history",
+                    description = "Remove all recently viewed anime",
+                    showDivider = true,
+                    onClick = { confirmDialog = ConfirmTarget.HISTORY },
+                    trailing = { ChevronRight() },
+                )
+                SettingRow(
+                    title = "Clear library",
+                    description = "Remove all saved anime",
+                    onClick = { confirmDialog = ConfirmTarget.LIBRARY },
+                    trailing = { ChevronRight() },
+                )
             }
-            Spacer(Modifier.height(8.dp))
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text("Version", fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground)
-                Text("1.0.0", fontSize = 14.sp, fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant)
+
+            // ── About ────────────────────────────────────────────────────
+            SettingsGroup(label = "About") {
+                SettingRow(
+                    title = "Anime App",
+                    description = "v1.0 · Material 3 Expressive · AniList API",
+                )
             }
         }
     }
@@ -168,7 +183,7 @@ fun SettingsScreen() {
         AlertDialog(
             onDismissRequest = { confirmDialog = null },
             title = { Text(target.label) },
-            text = { Text("This cannot be undone. Are you sure?") },
+            text = { Text("This action cannot be undone.") },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -180,7 +195,6 @@ fun SettingsScreen() {
                         }
                         confirmDialog = null
                     },
-                    colors = ButtonDefaults.textButtonColors(contentColor = MaterialTheme.colorScheme.error),
                 ) { Text("Clear") }
             },
             dismissButton = {
@@ -191,80 +205,362 @@ fun SettingsScreen() {
 }
 
 private enum class ConfirmTarget(val label: String) {
-    HISTORY("Clear history?"), LIBRARY("Clear library?")
+    HISTORY("Clear history?"),
+    LIBRARY("Clear library?")
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// SettingsGroup — small uppercase label above a rounded surface card.
+// ─────────────────────────────────────────────────────────────────────────────
+
 @Composable
-private fun SectionTitle(text: String) {
+private fun SettingsGroup(
+    label: String,
+    content: @Composable ColumnScope.() -> Unit,
+) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+        Text(
+            text = label.uppercase(),
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 0.06.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 4.dp, top = 18.dp, bottom = 8.dp),
+        )
+        Surface(
+            color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+            shape = RoundedCornerShape(20.dp),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(content = content)
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SettingRow — horizontal layout: title + description on left, control on
+// right. Optional divider on the bottom edge (inset 16dp). Clickable when
+// `onClick` is provided.
+// ─────────────────────────────────────────────────────────────────────────────
+
+@Composable
+private fun ColumnScope.SettingRow(
+    title: String,
+    description: String,
+    modifier: Modifier = Modifier,
+    trailing: @Composable (() -> Unit)? = null,
+    onClick: (() -> Unit)? = null,
+    showDivider: Boolean = false,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .then(if (onClick != null) Modifier.clickable { onClick() } else Modifier)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Column(modifier = Modifier.weight(1f)) {
+            Text(
+                text = title,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onBackground,
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                text = description,
+                fontSize = 13.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+        if (trailing != null) {
+            Spacer(Modifier.width(12.dp))
+            trailing()
+        }
+    }
+    if (showDivider) {
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f),
+        )
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// StackedRow — vertical layout: title + description on top, full-width
+// control below. Used for poster style & card density selectors.
+// ─────────────────────────────────────────────────────────────────────────────
+
+@Composable
+private fun ColumnScope.StackedRow(
+    title: String,
+    description: String,
+    showDivider: Boolean = false,
+    content: @Composable () -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+    ) {
+        Text(
+            text = title,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+        Spacer(Modifier.height(2.dp))
+        Text(
+            text = description,
+            fontSize = 13.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Spacer(Modifier.height(12.dp))
+        content()
+    }
+    if (showDivider) {
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            thickness = 1.dp,
+            color = MaterialTheme.colorScheme.outline.copy(alpha = 0.15f),
+        )
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ChevronRight — trailing arrow icon for tappable rows.
+// ─────────────────────────────────────────────────────────────────────────────
+
+@Composable
+private fun ChevronRight() {
     Text(
-        text = text,
-        fontSize = 13.sp,
+        text = "\u2192",
+        fontSize = 16.sp,
         fontWeight = FontWeight.SemiBold,
-        color = MaterialTheme.colorScheme.primary,
-        modifier = Modifier.padding(start = 20.dp, top = 4.dp, bottom = 6.dp),
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
     )
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// CustomToggle — 44×26dp pill, 20×20dp knob. Off: surfaceVariant track +
+// onSurfaceVariant knob. On: primary track + onPrimary knob. Knob translates
+// 18dp right (from 2dp to 20dp) with an emphasized ease. NOT the default
+// Material Switch.
+// ─────────────────────────────────────────────────────────────────────────────
+
 @Composable
-private fun SettingCard(content: @Composable ColumnScope.() -> Unit) {
+private fun CustomToggle(checked: Boolean, onChange: (Boolean) -> Unit) {
+    val knobStart by animateDpAsState(
+        targetValue = if (checked) 20.dp else 2.dp,
+        animationSpec = tween(durationMillis = 200, easing = FastOutSlowInEasing),
+        label = "toggleKnobStart",
+    )
+    val trackColor = if (checked) MaterialTheme.colorScheme.primary
+    else MaterialTheme.colorScheme.surfaceVariant
+    val knobColor = if (checked) MaterialTheme.colorScheme.onPrimary
+    else MaterialTheme.colorScheme.onSurfaceVariant
+
+    Box(
+        modifier = Modifier
+            .size(width = 44.dp, height = 26.dp)
+            .clip(RoundedCornerShape(13.dp))
+            .background(trackColor)
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.colorScheme.outline.copy(alpha = 0.25f),
+                shape = RoundedCornerShape(13.dp),
+            )
+            .clickable { onChange(!checked) },
+        contentAlignment = Alignment.TopStart,
+    ) {
+        Box(
+            modifier = Modifier
+                .padding(start = knobStart, top = 2.dp)
+                .size(20.dp)
+                .clip(CircleShape)
+                .background(knobColor),
+        )
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ThemeSegmentedToggle — Dark/Light segmented pill in a surface-2 container
+// with 4dp padding. Active segment gets primaryContainer background and
+// onPrimaryContainer foreground. Each segment shows a small moon/sun icon
+// followed by its label.
+// ─────────────────────────────────────────────────────────────────────────────
+
+@Composable
+private fun ThemeSegmentedToggle(isDark: Boolean, onSelect: (Boolean) -> Unit) {
     Surface(
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
-        shape = RoundedCornerShape(12.dp),
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+        shape = RoundedCornerShape(50),
     ) {
-        Column(modifier = Modifier.padding(16.dp), content = content)
+        Row(
+            modifier = Modifier.padding(4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            ThemeSegment(
+                label = "Dark",
+                icon = { MoonIcon(tint = it) },
+                active = isDark,
+                onClick = { onSelect(true) },
+            )
+            ThemeSegment(
+                label = "Light",
+                icon = { SunIcon(tint = it) },
+                active = !isDark,
+                onClick = { onSelect(false) },
+            )
+        }
     }
 }
 
 @Composable
-private fun ToggleRow(label: String, checked: Boolean, onChange: (Boolean) -> Unit) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
-    ) {
-        Text(label, fontSize = 14.sp, color = MaterialTheme.colorScheme.onBackground)
-        Switch(checked = checked, onCheckedChange = onChange)
-    }
-}
+private fun RowScope.ThemeSegment(
+    label: String,
+    icon: @Composable (Color) -> Unit,
+    active: Boolean,
+    onClick: () -> Unit,
+) {
+    val bg = if (active) MaterialTheme.colorScheme.primaryContainer
+    else Color.Transparent
+    val fg = if (active) MaterialTheme.colorScheme.onPrimaryContainer
+    else MaterialTheme.colorScheme.onSurfaceVariant
 
-@Composable
-private fun ActionRow(label: String, isDestructive: Boolean, onClick: () -> Unit) {
     Row(
         modifier = Modifier
-            .fillMaxWidth()
+            .height(28.dp)
+            .clip(RoundedCornerShape(50))
+            .background(bg)
             .clickable { onClick() }
-            .padding(vertical = 4.dp),
+            .padding(horizontal = 12.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
+        horizontalArrangement = Arrangement.Center,
     ) {
+        icon(fg)
+        Spacer(Modifier.width(6.dp))
         Text(
-            label,
-            fontSize = 14.sp,
-            color = if (isDestructive) MaterialTheme.colorScheme.error
-            else MaterialTheme.colorScheme.onBackground,
+            text = label,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = fg,
+        )
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TextSelector — pill buttons in a surface-2 container with 4dp padding.
+// Active option: primary background, onPrimary text, subtle shadow.
+// Inactive option: transparent background, onSurfaceVariant text.
+// Text is 13sp semibold.
+// ─────────────────────────────────────────────────────────────────────────────
+
+@Composable
+private fun <T> TextSelector(
+    options: List<Pair<String, T>>,
+    selected: T,
+    onSelect: (T) -> Unit,
+) {
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+        shape = RoundedCornerShape(14.dp),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(modifier = Modifier.padding(4.dp)) {
+            options.forEach { (label, value) ->
+                val active = selected == value
+                val bg = if (active) MaterialTheme.colorScheme.primary
+                else Color.Transparent
+                val fg = if (active) MaterialTheme.colorScheme.onPrimary
+                else MaterialTheme.colorScheme.onSurfaceVariant
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .height(34.dp)
+                        .then(
+                            if (active) Modifier.shadow(
+                                elevation = 2.dp,
+                                shape = RoundedCornerShape(10.dp),
+                                clip = true,
+                            ) else Modifier.clip(RoundedCornerShape(10.dp)),
+                        )
+                        .background(bg)
+                        .clickable { onSelect(value) },
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Text(
+                        text = label,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = fg,
+                        maxLines = 1,
+                    )
+                }
+            }
+        }
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Moon & Sun icons — drawn on a Canvas to avoid pulling in the
+// material-icons-extended dependency. Both are 16dp, monochrome.
+// ─────────────────────────────────────────────────────────────────────────────
+
+@Composable
+private fun MoonIcon(tint: Color) {
+    Canvas(modifier = Modifier.size(16.dp)) {
+        val w = size.width
+        val h = size.height
+        // Outer disk — slightly left of center.
+        drawCircle(
+            color = tint,
+            radius = w * 0.40f,
+            center = Offset(w * 0.40f, h * 0.50f),
+        )
+        // Inner "subtract" disk — same vertical center, offset right so it
+        // fully covers the right half of the outer disk. This carves a clean
+        // crescent that opens to the right (horns point right, curve on left).
+        drawCircle(
+            color = Color.Black,
+            radius = w * 0.40f,
+            center = Offset(w * 0.55f, h * 0.50f),
+            blendMode = BlendMode.DstOut,
         )
     }
 }
 
 @Composable
-private fun <T> SingleChoiceSegmentedRow(
-    options: List<Pair<String, T>>,
-    selected: T,
-    onSelect: (T) -> Unit,
-) {
-    // Use M3 SingleChoiceSegmentedButtonRow — the Pair's first element is the label.
-    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-        options.forEachIndexed { index, (label, value) ->
-            SegmentedButton(
-                selected = selected == value,
-                onClick = { onSelect(value) },
-                shape = SegmentedButtonDefaults.itemShape(index, options.size),
-            ) {
-                Text(label, fontSize = 12.sp, maxLines = 1)
-            }
+private fun SunIcon(tint: Color) {
+    Canvas(modifier = Modifier.size(16.dp)) {
+        val w = size.width
+        val h = size.height
+        val cx = w * 0.5f
+        val cy = h * 0.5f
+        // Center disk
+        drawCircle(
+            color = tint,
+            radius = w * 0.18f,
+            center = Offset(cx, cy),
+        )
+        // 8 rays
+        val rayInner = w * 0.30f
+        val rayOuter = w * 0.48f
+        val strokeWidth = w * 0.07f
+        for (i in 0 until 8) {
+            val angle = (i * 45.0) * (Math.PI / 180.0)
+            val cosA = cos(angle).toFloat()
+            val sinA = sin(angle).toFloat()
+            drawLine(
+                color = tint,
+                start = Offset(cx + rayInner * cosA, cy + rayInner * sinA),
+                end = Offset(cx + rayOuter * cosA, cy + rayOuter * sinA),
+                strokeWidth = strokeWidth,
+                cap = StrokeCap.Round,
+            )
         }
     }
 }

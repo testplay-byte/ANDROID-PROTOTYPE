@@ -1,51 +1,90 @@
 package com.testplaybyte.animeapp.ui.screens
 
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.testplaybyte.animeapp.data.AniListClient
 import com.testplaybyte.animeapp.model.AiringSchedule
+import com.testplaybyte.animeapp.theme.WarnDark
+import com.testplaybyte.animeapp.ui.components.CollapsingHeader
+import com.testplaybyte.animeapp.ui.components.NavIcons
 import java.text.SimpleDateFormat
-import java.util.*
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
 
 /**
  * ScheduleScreen — weekly airing schedule.
- * Fetches airing schedules from AniList for the next 7 days,
- * groups them by day, shows a horizontal day selector + a list.
- * Past entries are dimmed; the next-up airing is highlighted with a primary border.
+ *
+ * Mirrors the web prototype (`schedule-screen.tsx` + `schedule-screen.module.css`):
+ *   - Pinned `CollapsingHeader("Schedule")` outside the scroll Column.
+ *   - Horizontal day selector (Today/Tomorrow/Wed/Thu/Fri/Sat/Sun) with airing count.
+ *     Active pill has `primaryContainer` background + `onPrimaryContainer` text.
+ *   - Airing list — LazyColumn-like Column of rows: 48×64dp cover with EP badge,
+ *     title + format/score/ep-total meta, and a time column (HH:MM absolute +
+ *     relative "in 3h" / "2h ago"). Past entries are dimmed (alpha 0.5);
+ *     the next-up entry is highlighted with a primary border + primaryContainer tint.
+ *   - Loading/error/empty states.
+ *   - 110dp bottom padding for the floating nav bar.
+ *
+ * The day selector sits BETWEEN the CollapsingHeader and the scroll Column so
+ * it stays visible (matching the prototype's `.daySelector` with `flex: 0 0 auto`).
+ * The header collapses based on the scroll Column's ScrollState.
  */
 @Composable
 fun ScheduleScreen(
     onOpenAnime: (Int) -> Unit,
 ) {
     val client = remember { AniListClient() }
+    val scrollState = rememberScrollState()
 
     var schedule by remember { mutableStateOf<List<AiringSchedule>>(emptyList()) }
     var loading by remember { mutableStateOf(true) }
-    var selectedDay by remember { mutableStateOf(0) } // 0..6 (index into weekDays)
+    var error by remember { mutableStateOf<String?>(null) }
+    var selectedDay by remember { mutableStateOf(0) } // 0..6 (Today=0)
 
-    // Compute today midnight (local) and +7 days, in unix SECONDS (AniList uses seconds)
+    // Compute week window in unix SECONDS (AniList uses seconds).
     val weekStart = remember {
         val cal = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
@@ -55,7 +94,7 @@ fun ScheduleScreen(
     }
     val weekEnd = remember { weekStart + 7 * 24 * 60 * 60 }
 
-    // Build day labels for the selector
+    // Build day labels (Today/Tomorrow/short-weekday) + per-day window.
     val weekDays = remember {
         val today = Calendar.getInstance()
         val dayFmt = SimpleDateFormat("EEE", Locale.getDefault())
@@ -66,101 +105,89 @@ fun ScheduleScreen(
                 1 -> "Tomorrow"
                 else -> dayFmt.format(cal.time)
             }
+            val startCal = (cal.clone() as Calendar).apply {
+                set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
+                set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+            }
             ScheduleDay(
                 index = offset,
                 label = label,
-                startSec = (cal.apply {
-                    set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
-                    set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
-                }.timeInMillis / 1000),
-                endSec = (cal.apply {
-                    set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
-                    set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
-                }.timeInMillis / 1000) + 24 * 60 * 60,
+                startSec = startCal.timeInMillis / 1000,
+                endSec = startCal.timeInMillis / 1000 + 24 * 60 * 60,
             )
         }
     }
 
+    // Fetch the 7-day airing schedule once. runCatching → empty list + error msg on failure.
     LaunchedEffect(Unit) {
         loading = true
-        schedule = runCatching { client.fetchAiringSchedule(weekStart, weekEnd) }.getOrDefault(emptyList())
+        val result = runCatching { client.fetchAiringSchedule(weekStart, weekEnd) }
+        schedule = result.getOrDefault(emptyList())
+        error = result.exceptionOrNull()?.message
         loading = false
     }
 
-    val daySchedule = schedule.filter { it.airingAt in weekDays[selectedDay].startSec until weekDays[selectedDay].endSec }
-    val dayCounts = weekDays.map { d -> schedule.count { it.airingAt in d.startSec until d.endSec } }
+    val daySchedule = remember(schedule, selectedDay) {
+        val d = weekDays[selectedDay]
+        schedule.filter { it.airingAt in d.startSec until d.endSec }
+    }
+    val dayCounts = remember(schedule) {
+        weekDays.map { d -> schedule.count { it.airingAt in d.startSec until d.endSec } }
+    }
     val nowSec = System.currentTimeMillis() / 1000
-    // Next-up: the first airing whose time is still in the future
+    // Next-up = first airing whose time is still in the future.
     val nextUpId = remember(schedule, nowSec) {
         schedule.firstOrNull { it.airingAt >= nowSec }?.id
     }
 
-    Scaffold(
-        topBar = {
-            // Collapsing header — simple text, no scroll-coupling (LazyColumn below).
-            Text(
-                text = "Schedule",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, top = 16.dp, bottom = 10.dp),
-            )
-        },
-    ) { padding ->
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .padding(padding)) {
-            // Day selector
-            LazyRow(
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                items(weekDays) { day ->
-                    val isSelected = day.index == selectedDay
-                    val count = dayCounts[day.index]
-                    DayPill(
-                        label = day.label,
-                        count = count,
-                        isSelected = isSelected,
-                        onClick = { selectedDay = day.index },
-                    )
-                }
+    Column(modifier = Modifier.fillMaxSize()) {
+        // Pinned collapsing header — sits OUTSIDE the scroll Column.
+        CollapsingHeader(title = "Schedule", scrollState = scrollState)
+
+        // ── Day selector (horizontal, scrollable, stays visible) ────────────
+        // Matches prototype's `.daySelector` — `flex: 0 0 auto`, primaryContainer active.
+        LazyRow(
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            items(weekDays) { day ->
+                val isSelected = day.index == selectedDay
+                DayPill(
+                    label = day.label,
+                    count = dayCounts[day.index],
+                    isSelected = isSelected,
+                    onClick = { selectedDay = day.index },
+                )
             }
+        }
 
-            Spacer(Modifier.height(8.dp))
-
-            if (loading && schedule.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator(color = MaterialTheme.colorScheme.primary)
-                }
-            } else if (daySchedule.isEmpty()) {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        "No airing anime on this day.",
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            } else {
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(vertical = 4.dp),
-                ) {
-                    items(daySchedule, key = { it.id }) { sched ->
-                        AiringRow(
-                            sched = sched,
-                            isPast = sched.airingAt < nowSec,
-                            isNextUp = sched.id == nextUpId,
-                            onClick = { onOpenAnime(sched.media.id) },
-                        )
+        // ── Scrollable airing list ──────────────────────────────────────────
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState)
+                .padding(bottom = 110.dp),
+        ) {
+            when {
+                loading && schedule.isEmpty() -> ScheduleLoadingState()
+                error != null -> ScheduleErrorState(message = error!!)
+                daySchedule.isEmpty() -> ScheduleEmptyState(dayLabel = weekDays[selectedDay].label)
+                else -> {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 4.dp),
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                    ) {
+                        daySchedule.forEach { sched ->
+                            AiringRow(
+                                sched = sched,
+                                isPast = sched.airingAt < nowSec,
+                                isNextUp = sched.id == nextUpId,
+                                onClick = { onOpenAnime(sched.media.id) },
+                            )
+                        }
                     }
                 }
             }
@@ -168,12 +195,22 @@ fun ScheduleScreen(
     }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// ScheduleDay — internal model for one day in the 7-day week window.
+// ─────────────────────────────────────────────────────────────────────────────
+
 private data class ScheduleDay(
     val index: Int,
     val label: String,
     val startSec: Long,
     val endSec: Long,
 )
+
+// ─────────────────────────────────────────────────────────────────────────────
+// DayPill — single day button in the day selector.
+// 62×60dp column, surfaceVariant default / primaryContainer active.
+// Top: short weekday label (11sp bold). Bottom: airing count (16sp bold) or "—".
+// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 private fun DayPill(
@@ -183,39 +220,44 @@ private fun DayPill(
     onClick: () -> Unit,
 ) {
     Surface(
-        color = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surfaceVariant,
-        shape = RoundedCornerShape(50),
-        modifier = Modifier.clickable { onClick() },
+        color = if (isSelected) MaterialTheme.colorScheme.primaryContainer
+        else MaterialTheme.colorScheme.surfaceVariant,
+        shape = RoundedCornerShape(12.dp),
+        modifier = Modifier
+            .size(width = 62.dp, height = 60.dp)
+            .clickable { onClick() },
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(vertical = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
         ) {
             Text(
                 text = label,
-                fontSize = 13.sp,
-                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                color = if (isSelected) MaterialTheme.colorScheme.onPrimary
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer
                 else MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            Surface(
-                color = if (isSelected) MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.2f)
-                else MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
-                shape = RoundedCornerShape(50),
-            ) {
-                Text(
-                    text = count.toString(),
-                    fontSize = 10.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (isSelected) MaterialTheme.colorScheme.onPrimary
-                    else MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(horizontal = 5.dp, vertical = 1.dp),
-                )
-            }
+            Spacer(Modifier.height(3.dp))
+            Text(
+                text = if (count > 0) count.toString() else "—",
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer
+                else MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// AiringRow — one airing schedule entry.
+// Layout: 48×64dp cover (with EP badge overlay) | title+meta column | time column.
+// Past entries dimmed (alpha 0.5). Next-up gets primary border + primaryContainer tint.
+// ─────────────────────────────────────────────────────────────────────────────
 
 @Composable
 private fun AiringRow(
@@ -227,21 +269,23 @@ private fun AiringRow(
     val media = sched.media
     val airingMs = sched.airingAt * 1000L
     val timeFmt = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
-    val alpha = if (isPast) 0.45f else 1f
+    val alpha = if (isPast) 0.5f else 1f
 
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 5.dp)
-            .let {
-                if (isNextUp) it.border(
+            .clip(RoundedCornerShape(12.dp))
+            .background(
+                if (isNextUp) MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.4f)
+                else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+            )
+            .then(
+                if (isNextUp) Modifier.border(
                     width = 1.dp,
                     color = MaterialTheme.colorScheme.primary,
-                    shape = RoundedCornerShape(10.dp),
-                ) else it
-            }
-            .clip(RoundedCornerShape(10.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = if (isNextUp) 0.5f else 0f))
+                    shape = RoundedCornerShape(12.dp),
+                ) else Modifier,
+            )
             .clickable { onClick() }
             .padding(8.dp),
     ) {
@@ -249,11 +293,12 @@ private fun AiringRow(
             modifier = Modifier.alpha(alpha),
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            // ── Cover thumbnail (48×64dp) with EP badge ───────────────────────
             Box(
                 modifier = Modifier
                     .size(width = 48.dp, height = 64.dp)
-                    .clip(RoundedCornerShape(6.dp))
-                    .background(MaterialTheme.colorScheme.outlineVariant),
+                    .clip(RoundedCornerShape(4.dp))
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
             ) {
                 AsyncImage(
                     model = media.coverUrl,
@@ -261,57 +306,217 @@ private fun AiringRow(
                     modifier = Modifier.fillMaxSize(),
                     contentScale = ContentScale.Crop,
                 )
+                // EP badge — bottom-of-cover pill, 8sp bold white on translucent black.
+                Surface(
+                    color = Color.Black.copy(alpha = 0.65f),
+                    shape = RoundedCornerShape(3.dp),
+                    modifier = Modifier
+                        .align(Alignment.BottomCenter)
+                        .fillMaxWidth()
+                        .padding(2.dp),
+                ) {
+                    Text(
+                        text = "EP ${sched.episode}",
+                        fontSize = 8.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                        textAlign = TextAlign.Center,
+                        letterSpacing = 0.02.sp,
+                        modifier = Modifier.padding(horizontal = 2.dp, vertical = 1.dp),
+                    )
+                }
             }
-            Spacer(Modifier.width(10.dp))
+            Spacer(Modifier.width(12.dp))
+
+            // ── Title + meta column ───────────────────────────────────────────
             Column(modifier = Modifier.weight(1f)) {
                 Text(
                     text = media.displayTitle,
                     fontSize = 14.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onBackground,
-                    maxLines = 1,
+                    maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
+                    lineHeight = 18.sp,
                 )
-                val meta = buildList {
-                    add("EP ${sched.episode}")
-                    if (media.format != null) add(media.format)
-                    if (media.averageScore != null) add("★ ${media.scoreFormatted}")
-                }.joinToString(" · ")
-                Text(
-                    text = meta,
-                    fontSize = 12.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                Spacer(Modifier.height(3.dp))
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    if (media.format != null) {
+                        Text(
+                            text = media.format,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    if (media.averageScore != null) {
+                        // \u2605 = ★ BLACK STAR (Unicode symbol, not an emoji).
+                        Text(
+                            text = "\u2605 ${media.scoreFormatted}",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = WarnDark,
+                        )
+                    }
+                    if (media.episodes != null) {
+                        Text(
+                            text = "${media.episodes} ep total",
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
             }
-            Spacer(Modifier.width(10.dp))
-            Column(horizontalAlignment = Alignment.End) {
+            Spacer(Modifier.width(8.dp))
+
+            // ── Time column (HH:MM absolute + relative) ───────────────────────
+            Column(
+                horizontalAlignment = Alignment.End,
+                modifier = Modifier.width(56.dp),
+            ) {
                 Text(
                     text = timeFmt.format(Date(airingMs)),
                     fontSize = 14.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onBackground,
                 )
+                Spacer(Modifier.height(2.dp))
                 Text(
                     text = relativeTime(sched.airingAt),
-                    fontSize = 11.sp,
-                    color = MaterialTheme.colorScheme.primary,
+                    fontSize = 9.sp,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (isNextUp) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         }
     }
 }
 
+// ─────────────────────────────────────────────────────────────────────────────
+// States — loading spinner, error, empty.
+// ─────────────────────────────────────────────────────────────────────────────
+
+@Composable
+private fun ScheduleLoadingState() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 80.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        CircularProgressIndicator(
+            color = MaterialTheme.colorScheme.primary,
+            strokeWidth = 3.dp,
+            modifier = Modifier.size(28.dp),
+        )
+        Spacer(Modifier.height(12.dp))
+        Text(
+            text = "Loading schedule…",
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun ScheduleErrorState(message: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 80.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = "Couldn't load schedule",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = message,
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            maxLines = 4,
+            overflow = TextOverflow.Ellipsis,
+        )
+    }
+}
+
+@Composable
+private fun ScheduleEmptyState(dayLabel: String) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 80.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        // Calendar icon (NavIcons.Schedule) — matches prototype's empty-state SVG.
+        Box(
+            modifier = Modifier
+                .size(64.dp)
+                .clip(CircleShape)
+                .background(MaterialTheme.colorScheme.surfaceVariant),
+            contentAlignment = Alignment.Center,
+        ) {
+            Icon(
+                imageVector = NavIcons.Schedule,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(28.dp),
+            )
+        }
+        Spacer(Modifier.height(12.dp))
+        Text(
+            text = "Nothing airing",
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            text = "No anime scheduled for $dayLabel.",
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            maxLines = 3,
+        )
+    }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// relativeTime — "in 3h" / "in 12m" / "in 2d" for future, "2h ago" / "45m ago"
+// / "2d ago" for past. Matches prototype's relativeFuture / relativePast helpers.
+// ─────────────────────────────────────────────────────────────────────────────
+
 private fun relativeTime(airingAtSec: Long): String {
     val now = System.currentTimeMillis() / 1000
     val diff = airingAtSec - now
     return when {
         diff < 0 -> {
-            val h = (-diff) / 3600
-            if (h > 0) "${h}h ago" else "${(-diff) / 60}m ago"
+            val m = (-diff) / 60
+            when {
+                m < 60 -> "${m}m ago"
+                m < 60 * 24 -> "${m / 60}h ago"
+                else -> "${m / (60 * 24)}d ago"
+            }
         }
-        diff < 3600 -> "in ${diff / 60}m"
-        else -> "in ${diff / 3600}h"
+        diff == 0L -> "now"
+        else -> {
+            val m = diff / 60
+            when {
+                m < 60 -> "in ${m}m"
+                m < 60 * 24 -> "in ${m / 60}h"
+                else -> "in ${m / (60 * 24)}d"
+            }
+        }
     }
 }

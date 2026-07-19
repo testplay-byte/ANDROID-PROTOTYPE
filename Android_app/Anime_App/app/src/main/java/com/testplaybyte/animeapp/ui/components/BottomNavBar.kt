@@ -9,27 +9,40 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.*
 import androidx.compose.ui.draw.*
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.*
 import androidx.compose.ui.unit.*
 import androidx.compose.ui.text.style.*
-import com.testplaybyte.animeapp.navigation.NavItem
+
+data class NavItem(
+    val route: String,
+    val label: String,
+    val icon: ImageVector,
+)
 
 /**
- * BottomNavBar — floating pill navigation.
- * Active item: content-sized expanding pill (full label visible).
- * Inactive items: icon-only, share remaining space evenly.
- * Matches the web prototype's M3 floating bottom nav.
+ * BottomNavBar — FLOATING pill navigation (overlays on top of content).
+ *
+ * Matches the web prototype:
+ * - Floating: 16dp padding from all edges, rounded 28dp, surface-3 background.
+ * - NOT in Scaffold's bottomBar — overlaid as a Box layer so content scrolls
+ *   underneath it (the prototype has content scrolling behind the nav).
+ * - Active item: content-sized (no weight) — expands to fit full label.
+ * - Inactive items: weight(1f) — icon-only, share remaining space.
+ * - 42dp pill height, 58dp bar height.
+ * - SVG vector icons (NEVER emojis).
  */
 @Composable
 fun BottomNavBar(
     items: List<NavItem>,
     currentRoute: String,
     onSelect: (String) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     Box(
-        modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 16.dp)
-            .fillMaxWidth(),
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 16.dp),
         contentAlignment = Alignment.BottomCenter,
     ) {
         Surface(
@@ -50,10 +63,7 @@ fun BottomNavBar(
                         item = item,
                         isActive = isActive,
                         onClick = { onSelect(item.route) },
-                        // Active item: no weight = content-sized (wraps its label).
-                        // Inactive items: weight(1f) = share remaining space evenly.
-                        // NOTE: weight(0f) is invalid in Compose and crashes — must use
-                        // no weight at all for content-sized items.
+                        // Active: no weight = content-sized. Inactive: weight(1f).
                         modifier = if (isActive) Modifier else Modifier.weight(1f),
                     )
                 }
@@ -85,7 +95,6 @@ private fun NavPill(
         shape = RoundedCornerShape(50),
         modifier = modifier
             .height(42.dp)
-            .padding(horizontal = if (isActive) 0.dp else 0.dp)
             .clickable(onClick = onClick),
     ) {
         Row(
@@ -93,24 +102,27 @@ private fun NavPill(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
-            Text(
-                text = item.icon,
-                fontSize = 18.sp,
-                color = textColor,
+            Icon(
+                imageVector = item.icon,
+                contentDescription = item.label,
+                tint = textColor,
+                modifier = Modifier.size(22.dp),
             )
             AnimatedVisibility(
                 visible = isActive,
                 enter = expandHorizontally(animationSpec = tween(300)) + fadeIn(tween(200)),
                 exit = fadeOut(tween(100)) + shrinkHorizontally(tween(200)),
             ) {
-                Spacer(modifier = Modifier.width(6.dp))
-                Text(
-                    text = item.label,
-                    fontSize = 12.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = textColor,
-                    maxLines = 1,
-                )
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text(
+                        text = item.label,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = textColor,
+                        maxLines = 1,
+                    )
+                }
             }
         }
     }
