@@ -1,72 +1,55 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.testplaybyte.animeapp.ui.screens
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FilterList
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.filled.Close
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.testplaybyte.animeapp.data.AniListClient
 import com.testplaybyte.animeapp.model.Anime
 import com.testplaybyte.animeapp.ui.components.AnimeCard
 import com.testplaybyte.animeapp.ui.components.CollapsingHeader
-import com.testplaybyte.animeapp.ui.components.NavIcons
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 /**
- * SearchScreen — debounced AniList search with a results grid.
+ * SearchScreen — matches the web prototype exactly.
  *
- * Mirrors the web prototype (`search-screen.tsx` + `search-screen.module.css`):
- *   - Pinned `CollapsingHeader("Search")` outside the scroll Column.
- *   - Pill-shaped search bar (52dp tall, fully rounded, surfaceVariant tinted
- *     background, magnifier icon left, clear button right when text exists).
- *     Sits BETWEEN the header and the scroll content (always visible).
- *   - Debounced search: 500ms after the user stops typing, calls AniListClient.search.
- *   - When no query: "Popular anime" label + trending results as the default view.
- *   - Results: non-lazy 3-column chunked grid of AnimeCard (avoids nested-scroll
- *     crash with the verticalScroll Column, matches HomeScreen's AnimeGrid pattern).
- *   - Loading skeleton grid, error state, and empty-results state.
- *   - 110dp bottom padding for the floating nav bar.
+ * Layout (top to bottom):
+ *   1. Collapsing header area (NOT using CollapsingHeader — custom):
+ *      - Row: [Title "Search"] [SourceToggle (right)] [SearchBar (full width)]
+ *      - When scrolled: title shrinks, source toggle fades+shrinks to 0,
+ *        search bar moves beside title.
+ *   2. Quick row: [Filters (left)] [spacer] [Sort dropdown (right)]
+ *      - Slides out (fades + height→0) when scrolled.
+ *   3. Scrollable content:
+ *      - Recent searches (when no query + no filters)
+ *      - Results grid (3-column chunked) with label + count
  */
 @Composable
 fun SearchScreen(
@@ -75,32 +58,58 @@ fun SearchScreen(
     val client = remember { AniListClient() }
     val keyboard = LocalSoftwareKeyboardController.current
     val scrollState = rememberScrollState()
+    val scope = rememberCoroutineScope()
 
     var query by remember { mutableStateOf("") }
+    var source by remember { mutableStateOf("anilist") } // "anilist" or "extension"
+    var sort by remember { mutableStateOf("POPULARITY_DESC") } // default for anilist
     var results by remember { mutableStateOf<List<Anime>>(emptyList()) }
-    var popular by remember { mutableStateOf<List<Anime>>(emptyList()) }
     var loading by remember { mutableStateOf(false) }
     var error by remember { mutableStateOf<String?>(null) }
     var hasSearched by remember { mutableStateOf(false) }
-    var source by remember { mutableStateOf("anilist") }
+    var showFilterSheet by remember { mutableStateOf(false) }
+    var showSortDropdown by remember { mutableStateOf(false) }
+    var recents by remember { mutableStateOf<List<String>>(emptyList()) }
 
-    // Fetch popular (trending) anime as the default landing view.
-    LaunchedEffect(Unit) {
-        popular = runCatching { client.fetchTrending() }.getOrDefault(emptyList())
+    // Collapsed state — driven by scroll position
+    val collapsed = scrollState.value > 20
+
+    // Fetch default content when source changes or on first load
+    LaunchedEffect(source) {
+        if (query.isBlank()) {
+            loading = true
+            error = null
+            val result = runCatching {
+                if (source == "anilist") client.fetchPopular()
+                else client.fetchTrendingFull()
+            }
+            results = result.getOrDefault(emptyList())
+            error = result.exceptionOrNull()?.message
+            loading = false
+            hasSearched = false
+        }
     }
 
-    // Debounced search — re-launches whenever `query` changes (cancels previous
-    // delay if a new keystroke arrives within 500ms).
+    // Debounced search
     LaunchedEffect(query) {
         if (query.isBlank()) {
-            results = emptyList()
-            hasSearched = false
-            loading = false
+            // When query is cleared, fetch default content for current source
+            loading = true
             error = null
+            val result = runCatching {
+                if (source == "anilist") client.fetchPopular()
+                else client.fetchTrendingFull()
+            }
+            results = result.getOrDefault(emptyList())
+            error = result.exceptionOrNull()?.message
+            loading = false
+            hasSearched = false
             return@LaunchedEffect
         }
         loading = true
         delay(500)
+        // Add to recents
+        recents = (listOf(query.trim()) + recents.filter { it != query.trim() }).take(12)
         val result = runCatching { client.search(query.trim()) }
         results = result.getOrDefault(emptyList())
         error = result.exceptionOrNull()?.message
@@ -108,65 +117,58 @@ fun SearchScreen(
         hasSearched = true
     }
 
-    val displayed = if (query.isBlank()) popular else results
+    // Result label
     val sectionLabel = when {
-        query.isBlank() -> "Popular anime"
-        loading -> "Searching…"
-        error != null -> "Search error"
-        hasSearched && results.isEmpty() -> "No results for \"$query\""
-        else -> "Results for \"$query\""
+        query.isNotBlank() -> "Results for \"$query\""
+        source == "extension" -> "Trending now · Extension"
+        else -> "Popular anime"
     }
-    val showCount = !loading && error == null && displayed.isNotEmpty()
+    val showCount = !loading && error == null && results.isNotEmpty()
+
+    // Sort options
+    val sortOptions = listOf(
+        "POPULARITY_DESC" to "Popularity",
+        "SCORE_DESC" to "Score",
+        "START_DATE_DESC" to "Newest",
+        "TITLE_ROMAJI" to "Title A-Z",
+        "TRENDING_DESC" to "Trending",
+    )
+    val currentSortLabel = sortOptions.find { it.first == sort }?.second ?: "Popularity"
 
     Column(modifier = Modifier.fillMaxSize()) {
-        // Pinned collapsing header — sits OUTSIDE the scroll Column.
-        CollapsingHeader(title = "Search", scrollState = scrollState)
-
-        // ── Search bar (always visible, between header and scroll content) ──
-        SearchBar(
-            value = query,
-            onChange = { query = it },
-            onClear = { query = "" },
+        // ── Collapsing topbar (title + source toggle + search bar) ──
+        SearchTopBar(
+            collapsed = collapsed,
+            query = query,
+            onQueryChange = { query = it },
+            onClearQuery = { query = "" },
+            source = source,
+            onSourceChange = { newSource ->
+                source = newSource
+                sort = if (newSource == "extension") "TRENDING_DESC" else "POPULARITY_DESC"
+            },
             onSubmit = { keyboard?.hide() },
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
         )
 
-        // ── Source toggle + Filter button row ──
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 4.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
+        // ── Quick row: Filters (left) + Sort (right) — slides out when collapsed ──
+        AnimatedVisibility(
+            visible = !collapsed,
+            enter = fadeIn(),
+            exit = fadeOut() + shrinkVertically(animationSpec = tween(300, easing = FastOutSlowInEasing)),
         ) {
-            // Source toggle: AniList / Extension
-            Surface(
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
-                shape = RoundedCornerShape(50),
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                Row(modifier = Modifier.padding(3.dp)) {
-                    SourceToggleBtn(
-                        label = "AniList",
-                        active = source == "anilist",
-                        onClick = { source = "anilist" },
-                    )
-                    SourceToggleBtn(
-                        label = "Extension",
-                        active = source == "extension",
-                        onClick = { source = "extension" },
-                    )
-                }
-            }
-
-            // Filter button
-            Surface(
-                color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
-                shape = RoundedCornerShape(50),
-            ) {
+                // Filters button (LEFT side)
                 Row(
                     modifier = Modifier
                         .clip(RoundedCornerShape(50))
-                        .clickable { /* Filter sheet — TODO in future iteration */ }
+                        .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
+                        .clickable { showFilterSheet = true }
                         .padding(horizontal = 14.dp, vertical = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
@@ -176,7 +178,7 @@ fun SearchScreen(
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.size(18.dp),
                     )
-                    Spacer(Modifier.width(6.dp))
+                    Spacer(Modifier.width(7.dp))
                     Text(
                         text = "Filters",
                         fontSize = 13.sp,
@@ -184,17 +186,71 @@ fun SearchScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
+
+                // Sort dropdown (RIGHT side)
+                Box {
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(50))
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f))
+                            .clickable { showSortDropdown = !showSortDropdown }
+                            .padding(horizontal = 14.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = currentSortLabel,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Icon(
+                            imageVector = if (showSortDropdown) Icons.Filled.KeyboardArrowUp else Icons.Filled.KeyboardArrowDown,
+                            contentDescription = "Sort",
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.size(14.dp),
+                        )
+                    }
+
+                    // Sort dropdown menu
+                    DropdownMenu(
+                        expanded = showSortDropdown,
+                        onDismissRequest = { showSortDropdown = false },
+                    ) {
+                        sortOptions.forEach { (value, label) ->
+                            DropdownMenuItem(
+                                text = { Text(label, fontSize = 14.sp, fontWeight = if (value == sort) FontWeight.Bold else FontWeight.Normal) },
+                                onClick = {
+                                    sort = value
+                                    showSortDropdown = false
+                                },
+                                leadingIcon = if (value == sort) {
+                                    { Icon(Icons.Filled.Check, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                                } else null,
+                            )
+                        }
+                    }
+                }
             }
         }
 
-        // ── Scrollable content ──────────────────────────────────────────────
+        // ── Scrollable content ──
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
                 .padding(bottom = 110.dp),
         ) {
-            // Section header — label on left, count on right.
+            // Recent searches (when no query)
+            if (query.isBlank() && recents.isNotEmpty()) {
+                RecentSearchesSection(
+                    recents = recents,
+                    onPick = { query = it },
+                    onClear = { recents = emptyList() },
+                )
+            }
+
+            // Section header — label + count
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -211,7 +267,7 @@ fun SearchScreen(
                 )
                 if (showCount) {
                     Text(
-                        text = "${displayed.size} found",
+                        text = "${results.size} found",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Medium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -219,33 +275,224 @@ fun SearchScreen(
                 }
             }
 
-            when {
-                // Loading state — skeleton grid.
-                loading -> SearchSkeletonGrid()
-                // Error state.
-                error != null -> SearchEmptyState(
-                    title = "Search error",
-                    description = error ?: "Something went wrong.",
+            // Results grid (3-column chunked)
+            if (loading) {
+                Text(
+                    text = "Loading…",
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(16.dp),
                 )
-                // No results for the query.
-                query.isNotBlank() && results.isEmpty() -> SearchEmptyState(
-                    title = "No results found",
-                    description = "Try different keywords or adjust your filters.",
+            } else if (error != null) {
+                Text(
+                    text = error ?: "An error occurred",
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(16.dp),
                 )
-                // Still loading popular (initial state, no query).
-                displayed.isEmpty() && query.isBlank() -> SearchSkeletonGrid()
-                // Results grid.
-                else -> SearchResultsGrid(items = displayed, onOpenAnime = onOpenAnime)
+            } else if (results.isEmpty() && hasSearched) {
+                Text(
+                    text = "No results found for \"$query\"",
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(16.dp),
+                )
+            } else {
+                results.chunked(3).forEach { rowItems ->
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        rowItems.forEach { anime ->
+                            AnimeCard(
+                                anime = anime,
+                                onClick = onOpenAnime,
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+                        // Fill empty slots
+                        repeat(3 - rowItems.size) {
+                            Spacer(Modifier.weight(1f))
+                        }
+                    }
+                    Spacer(Modifier.height(12.dp))
+                }
+            }
+        }
+    }
+
+    // Filter bottom sheet (TODO: implement full filter options)
+    if (showFilterSheet) {
+        ModalBottomSheet(
+            onDismissRequest = { showFilterSheet = false },
+            containerColor = MaterialTheme.colorScheme.surface,
+        ) {
+            Column(modifier = Modifier.padding(24.dp)) {
+                Text(
+                    text = "Filters",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Spacer(Modifier.height(16.dp))
+                Text(
+                    text = "Filter options will be implemented in a future update.",
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Spacer(Modifier.height(24.dp))
+                Button(
+                    onClick = { showFilterSheet = false },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(50),
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                    ),
+                ) {
+                    Text("Done", fontWeight = FontWeight.Bold)
+                }
             }
         }
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SearchBar — pill-shaped text field.
-// 52dp tall, RoundedCornerShape(50) (full pill), surfaceVariant tinted background.
-// Layout: magnifier icon | text field | clear button (when text exists).
-// ─────────────────────────────────────────────────────────────────────────────
+// ── SearchTopBar — collapsing title + source toggle + search bar ──────────
+
+@Composable
+private fun SearchTopBar(
+    collapsed: Boolean,
+    query: String,
+    onQueryChange: (String) -> Unit,
+    onClearQuery: () -> Unit,
+    source: String,
+    onSourceChange: (String) -> Unit,
+    onSubmit: () -> Unit,
+) {
+    val titleFontSize by animateFloatAsState(
+        targetValue = if (collapsed) 22f else 32f,
+        animationSpec = tween(300, easing = FastOutSlowInEasing),
+        label = "titleSize",
+    )
+    val sourceAlpha by animateFloatAsState(
+        targetValue = if (collapsed) 0f else 1f,
+        animationSpec = tween(300, easing = FastOutSlowInEasing),
+        label = "sourceAlpha",
+    )
+    val sourceWidth by animateDpAsState(
+        targetValue = if (collapsed) 0.dp else 160.dp,
+        animationSpec = tween(300, easing = FastOutSlowInEasing),
+        label = "sourceWidth",
+    )
+
+    Surface(
+        color = MaterialTheme.colorScheme.background,
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp)
+                .statusBarsPadding(),
+        ) {
+            // Row: Title + SourceToggle (right) + SearchBar (below)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                // Title
+                Text(
+                    text = "Search",
+                    fontSize = titleFontSize.sp,
+                    fontWeight = FontWeight.Bold,
+                    letterSpacing = (-0.02).sp,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    maxLines = 1,
+                )
+
+                // Source toggle (right side, fades out when collapsed)
+                if (sourceWidth > 0.dp) {
+                    Row(
+                        modifier = Modifier
+                            .width(sourceWidth)
+                            .alpha(sourceAlpha)
+                            .clip(RoundedCornerShape(50))
+                            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+                            .padding(3.dp),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        SourceToggleBtn(
+                            label = "AniList",
+                            icon = Icons.Filled.Search,
+                            active = source == "anilist",
+                            onClick = { onSourceChange("anilist") },
+                        )
+                        SourceToggleBtn(
+                            label = "Extension",
+                            icon = Icons.Filled.Extension,
+                            active = source == "extension",
+                            onClick = { onSourceChange("extension") },
+                        )
+                    }
+                }
+            }
+
+            Spacer(Modifier.height(4.dp))
+
+            // Search bar (full width)
+            SearchBar(
+                value = query,
+                onChange = onQueryChange,
+                onClear = onClearQuery,
+                onSubmit = onSubmit,
+            )
+
+            Spacer(Modifier.height(4.dp))
+        }
+    }
+}
+
+// ── Source toggle button ──────────────────────────────────────────────────
+
+@Composable
+private fun SourceToggleBtn(
+    label: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    active: Boolean,
+    onClick: () -> Unit,
+) {
+    val bg = if (active) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+    val fg = if (active) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
+    Row(
+        modifier = Modifier
+            .weight(1f)
+            .clip(RoundedCornerShape(50))
+            .background(bg)
+            .clickable { onClick() }
+            .padding(horizontal = 10.dp, vertical = 6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = fg,
+            modifier = Modifier.size(14.dp),
+        )
+        Spacer(Modifier.width(4.dp))
+        Text(
+            text = label,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = fg,
+            maxLines = 1,
+        )
+    }
+}
+
+// ── Search bar ────────────────────────────────────────────────────────────
 
 @Composable
 private fun SearchBar(
@@ -253,65 +500,54 @@ private fun SearchBar(
     onChange: (String) -> Unit,
     onClear: () -> Unit,
     onSubmit: () -> Unit,
-    modifier: Modifier = Modifier,
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(52.dp)
-            .clip(RoundedCornerShape(50))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)),
+    Surface(
+        color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.4f),
+        shape = RoundedCornerShape(50),
+        modifier = Modifier.fillMaxWidth(),
     ) {
         Row(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(horizontal = 16.dp),
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 14.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Magnifier icon (left).
             Icon(
-                imageVector = NavIcons.Search,
-                contentDescription = null,
+                imageVector = Icons.Filled.Search,
+                contentDescription = "Search",
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(20.dp),
             )
             Spacer(Modifier.width(12.dp))
-
-            // Text field — transparent, no decoration. Placeholder shown when empty.
             BasicTextField(
                 value = value,
                 onValueChange = onChange,
                 modifier = Modifier.weight(1f),
-                singleLine = true,
                 textStyle = TextStyle(
-                    fontSize = 15.sp,
+                    fontSize = 16.sp,
                     color = MaterialTheme.colorScheme.onBackground,
                 ),
                 cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
                 keyboardActions = KeyboardActions(onSearch = { onSubmit() }),
+                singleLine = true,
                 decorationBox = { innerTextField ->
-                    Box {
-                        if (value.isEmpty()) {
-                            Text(
-                                text = "Search anime…",
-                                fontSize = 15.sp,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                        innerTextField()
+                    if (value.isEmpty()) {
+                        Text(
+                            text = "Search anime by title...",
+                            fontSize = 16.sp,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
+                    innerTextField()
                 },
             )
-
-            // Clear button (right) — only visible when there's text.
             if (value.isNotEmpty()) {
                 Spacer(Modifier.width(8.dp))
                 Box(
                     modifier = Modifier
                         .size(24.dp)
                         .clip(CircleShape)
-                        .background(MaterialTheme.colorScheme.surfaceVariant)
                         .clickable { onClear() },
                     contentAlignment = Alignment.Center,
                 ) {
@@ -319,7 +555,7 @@ private fun SearchBar(
                         imageVector = Icons.Filled.Close,
                         contentDescription = "Clear",
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.size(14.dp),
+                        modifier = Modifier.size(18.dp),
                     )
                 }
             }
@@ -327,151 +563,62 @@ private fun SearchBar(
     }
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SearchResultsGrid — non-lazy 3-column grid laid out as Column-of-Rows
-// (chunked by 3). Safe to embed inside verticalScroll (LazyVerticalGrid would
-// crash with nested scrolling). Spacing matches HomeScreen's AnimeGrid pattern:
-//   - 16dp effective edge padding (Column 12dp + AnimeCard internal 4dp).
-//   - 8dp column gap (AnimeCard left 4dp + right 4dp, Row spacedBy 0dp).
-//   - 12dp row gap (Column spacedBy 12dp).
-// ─────────────────────────────────────────────────────────────────────────────
+// ── Recent searches section ───────────────────────────────────────────────
 
 @Composable
-private fun SearchResultsGrid(
-    items: List<Anime>,
-    onOpenAnime: (Int) -> Unit,
+private fun RecentSearchesSection(
+    recents: List<String>,
+    onPick: (String) -> Unit,
+    onClear: () -> Unit,
 ) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        items.chunked(3).forEach { rowItems ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(0.dp),
-            ) {
-                rowItems.forEach { anime ->
-                    Box(modifier = Modifier.weight(1f)) {
-                        AnimeCard(anime = anime, onClick = onOpenAnime)
-                    }
-                }
-                // Fill remaining slots so columns stay aligned.
-                repeat(3 - rowItems.size) {
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-            }
-        }
-    }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// SearchSkeletonGrid — 12 cover-shaped placeholders while fetching.
-// Uses surfaceVariant background. Matches HomeScreen's GridSkeleton pattern.
-// ─────────────────────────────────────────────────────────────────────────────
-
-@Composable
-private fun SearchSkeletonGrid() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        (0 until 12).chunked(3).forEach { rowIndices ->
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(0.dp),
-            ) {
-                rowIndices.forEach {
-                    Box(
-                        modifier = Modifier
-                            .weight(1f)
-                            .padding(horizontal = 4.dp)
-                            .aspectRatio(2f / 3f)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colorScheme.surfaceVariant),
-                    )
-                }
-                repeat(3 - rowIndices.size) {
-                    Spacer(modifier = Modifier.weight(1f))
-                }
-            }
-        }
-    }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// SearchEmptyState — magnifier icon + title + description.
-// Matches prototype's `.emptyState` / `.emptyStateIcon` (72dp circle, surface-2 bg).
-// ─────────────────────────────────────────────────────────────────────────────
-
-@Composable
-private fun SearchEmptyState(title: String, description: String) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 24.dp, vertical = 60.dp),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
-    ) {
-        Box(
-            modifier = Modifier
-                .size(72.dp)
-                .clip(CircleShape)
-                .background(MaterialTheme.colorScheme.surfaceVariant),
-            contentAlignment = Alignment.Center,
+    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            // NavIcons.Search — magnifier icon, matches prototype's empty-state SVG.
-            Icon(
-                imageVector = NavIcons.Search,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(28.dp),
+            Text(
+                text = "RECENT SEARCHES",
+                fontSize = 11.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                letterSpacing = 0.06.sp,
+            )
+            Text(
+                text = "Clear",
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.clickable { onClear() },
             )
         }
-        Spacer(Modifier.height(12.dp))
-        Text(
-            text = title,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onBackground,
-            textAlign = TextAlign.Center,
-        )
         Spacer(Modifier.height(8.dp))
-        Text(
-            text = description,
-            fontSize = 14.sp,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            textAlign = TextAlign.Center,
-            maxLines = 3,
-        )
-    }
-}
-
-// ── Source toggle button (AniList / Extension) ──────────────────────────────
-@Composable
-private fun SourceToggleBtn(
-    label: String,
-    active: Boolean,
-    onClick: () -> Unit,
-) {
-    val bg = if (active) MaterialTheme.colorScheme.primaryContainer else androidx.compose.ui.graphics.Color.Transparent
-    val fg = if (active) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant
-    Row(
-        modifier = Modifier
-            .clip(RoundedCornerShape(50))
-            .background(bg)
-            .clickable { onClick() }
-            .padding(horizontal = 14.dp, vertical = 6.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = label,
-            fontSize = 13.sp,
-            fontWeight = FontWeight.SemiBold,
-            color = fg,
-        )
+        recents.take(5).forEach { recent ->
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(12.dp))
+                    .clickable { onPick(recent) }
+                    .padding(vertical = 10.dp, horizontal = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.History,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.size(18.dp),
+                )
+                Spacer(Modifier.width(12.dp))
+                Text(
+                    text = recent,
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        }
+        Spacer(Modifier.height(8.dp))
     }
 }

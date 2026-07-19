@@ -220,7 +220,15 @@ fun LibraryScreen(
                 // Status tabs (normal mode) OR select-all/clear bar (selection mode).
                 // Both scroll with the content (per prototype layout).
                 if (!selectionMode) {
-                    StatusTabRow(active = activeTab, onSelect = { activeTab = it })
+                    val tabCounts = remember(items) {
+                        mapOf(
+                            LibTab.ALL to items.size,
+                            LibTab.WATCHING to items.count { it.status == LibraryStatus.WATCHING },
+                            LibTab.COMPLETED to items.count { it.status == LibraryStatus.COMPLETED },
+                            LibTab.PLAN to items.count { it.status == LibraryStatus.PLAN },
+                        )
+                    }
+                    StatusTabRow(active = activeTab, onSelect = { activeTab = it }, counts = tabCounts)
                 } else {
                     SelectBar(
                         onSelectAll = {
@@ -356,13 +364,14 @@ fun LibraryScreen(
 
 // ─────────────────────────────────────────────────────────────────────────────
 // StatusTabRow — flat row of tabs with underline on active.
-// Bottom 1dp surfaceVariant divider (matches prototype's `.tabs` border-bottom).
-// Active tab: primary text + 2dp primary underline. Inactive: onSurfaceVariant text.
-// ─────────────────────────────────────────────────────────────────────────────
+// Matches the prototype: no card background, 1px bottom divider,
+// active tab has primary text + 2px primary bottom border,
+// inactive tabs have onSurfaceVariant text + transparent border.
+// Each tab shows its item count in parentheses.
 
 @Composable
-private fun StatusTabRow(active: LibTab, onSelect: (LibTab) -> Unit) {
-    Column(modifier = Modifier.fillMaxWidth().padding(bottom = 12.dp)) {
+private fun StatusTabRow(active: LibTab, onSelect: (LibTab) -> Unit, counts: Map<LibTab, Int>) {
+    Column(modifier = Modifier.fillMaxWidth()) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -371,25 +380,40 @@ private fun StatusTabRow(active: LibTab, onSelect: (LibTab) -> Unit) {
         ) {
             LibTab.values().forEach { tab ->
                 val isActive = tab == active
+                val count = counts[tab] ?: 0
                 Column(
                     modifier = Modifier
                         .combinedClickable(onClick = { onSelect(tab) })
                         .padding(horizontal = 14.dp, vertical = 10.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,
                 ) {
-                    Text(
-                        text = tab.label,
-                        fontSize = 14.sp,
-                        fontWeight = if (isActive) FontWeight.Bold else FontWeight.SemiBold,
-                        color = if (isActive) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.onSurfaceVariant,
-                        maxLines = 1,
-                    )
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Text(
+                            text = tab.label,
+                            fontSize = 14.sp,
+                            fontWeight = if (isActive) FontWeight.Bold else FontWeight.SemiBold,
+                            color = if (isActive) MaterialTheme.colorScheme.primary
+                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                            maxLines = 1,
+                        )
+                        if (count > 0) {
+                            Spacer(Modifier.width(4.dp))
+                            Text(
+                                text = count.toString(),
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = if (isActive) MaterialTheme.colorScheme.primary
+                                else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.6f),
+                            )
+                        }
+                    }
                     Spacer(Modifier.height(6.dp))
+                    // Animated underline — scales in when active
                     Box(
                         modifier = Modifier
-                            .width(24.dp)
+                            .width(28.dp)
                             .height(2.dp)
+                            .clip(RoundedCornerShape(50))
                             .background(
                                 if (isActive) MaterialTheme.colorScheme.primary
                                 else Color.Transparent,
@@ -400,6 +424,7 @@ private fun StatusTabRow(active: LibTab, onSelect: (LibTab) -> Unit) {
         }
         // Row's 1dp bottom divider (surface-3 look).
         HorizontalDivider(thickness = 1.dp, color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+        Spacer(Modifier.height(12.dp))
     }
 }
 

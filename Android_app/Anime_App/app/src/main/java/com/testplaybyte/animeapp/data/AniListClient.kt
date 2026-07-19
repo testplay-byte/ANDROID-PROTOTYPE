@@ -88,6 +88,27 @@ class AniListClient {
         return data?.map { parseMedia(it) } ?: emptyList()
     }
 
+    /**
+     * Fetch popular anime (30 results, sorted by popularity).
+     * Used as the default view when the user opens Search with no query
+     * and the source is "anilist".
+     */
+    suspend fun fetchPopular(): List<Anime> {
+        val q = "query{Page(page:1,perPage:30){media(type:ANIME,sort:POPULARITY_DESC){$mediaFields}}}"
+        val data = gql(q)["data"]?.jsonObject?.get("Page")?.jsonObject?.get("media")?.jsonArray
+        return data?.map { parseMedia(it) } ?: emptyList()
+    }
+
+    /**
+     * Fetch trending anime (30 results, sorted by trending).
+     * Used as the default view when the source is "extension".
+     */
+    suspend fun fetchTrendingFull(): List<Anime> {
+        val q = "query{Page(page:1,perPage:30){media(type:ANIME,sort:TRENDING_DESC){$mediaFields}}}"
+        val data = gql(q)["data"]?.jsonObject?.get("Page")?.jsonObject?.get("media")?.jsonArray
+        return data?.map { parseMedia(it) } ?: emptyList()
+    }
+
     suspend fun search(query: String): List<Anime> {
         val q = "query(\$search:String){Page(page:1,perPage:30){media(type:ANIME,search:\$search,sort:POPULARITY_DESC){$mediaFields}}}"
         val data = gql(q, mapOf("search" to JsonPrimitive(query)))["data"]?.jsonObject?.get("Page")?.jsonObject?.get("media")?.jsonArray
