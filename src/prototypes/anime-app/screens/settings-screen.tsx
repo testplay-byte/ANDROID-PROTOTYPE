@@ -100,36 +100,30 @@ export function SettingsScreen({ active }: SettingsScreenProps) {
                   Cover image border radius
                 </span>
               </div>
-              <div className={styles.posterSelector}>
+              <div className={styles.textSelector}>
                 <button
                   type="button"
-                  className={`${styles.posterOption} ${settings.posterStyle === "rounded" ? styles.posterOptionIsActive : ""}`}
+                  className={`${styles.textOption} ${settings.posterStyle === "rounded" ? styles.textOptionIsActive : ""}`}
                   onClick={() => update({ posterStyle: "rounded" })}
-                  aria-label="Rounded posters"
                   aria-pressed={settings.posterStyle === "rounded"}
                 >
-                  <span className={`${styles.posterPreview} ${styles.posterPreviewRounded}`} />
-                  <span className={styles.posterLabel}>Rounded</span>
+                  Rounded
                 </button>
                 <button
                   type="button"
-                  className={`${styles.posterOption} ${settings.posterStyle === "sharp" ? styles.posterOptionIsActive : ""}`}
+                  className={`${styles.textOption} ${settings.posterStyle === "soft" ? styles.textOptionIsActive : ""}`}
+                  onClick={() => update({ posterStyle: "soft" })}
+                  aria-pressed={settings.posterStyle === "soft"}
+                >
+                  Soft
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.textOption} ${settings.posterStyle === "sharp" ? styles.textOptionIsActive : ""}`}
                   onClick={() => update({ posterStyle: "sharp" })}
-                  aria-label="Sharp posters"
                   aria-pressed={settings.posterStyle === "sharp"}
                 >
-                  <span className={`${styles.posterPreview} ${styles.posterPreviewSharp}`} />
-                  <span className={styles.posterLabel}>Sharp</span>
-                </button>
-                <button
-                  type="button"
-                  className={`${styles.posterOption} ${settings.posterStyle === "circle" ? styles.posterOptionIsActive : ""}`}
-                  onClick={() => update({ posterStyle: "circle" })}
-                  aria-label="Circle posters"
-                  aria-pressed={settings.posterStyle === "circle"}
-                >
-                  <span className={`${styles.posterPreview} ${styles.posterPreviewCircle}`} />
-                  <span className={styles.posterLabel}>Circle</span>
+                  Sharp
                 </button>
               </div>
             </div>
@@ -138,48 +132,30 @@ export function SettingsScreen({ active }: SettingsScreenProps) {
                 <span className={styles.rowTitle}>Card density</span>
                 <span className={styles.rowDesc}>Spacing between cards</span>
               </div>
-              <div className={styles.densitySelector}>
+              <div className={styles.textSelector}>
                 <button
                   type="button"
-                  className={`${styles.densityOption} ${settings.cardDensity === "compact" ? styles.densityOptionIsActive : ""}`}
+                  className={`${styles.textOption} ${settings.cardDensity === "compact" ? styles.textOptionIsActive : ""}`}
                   onClick={() => update({ cardDensity: "compact" })}
-                  aria-label="Compact density"
                   aria-pressed={settings.cardDensity === "compact"}
                 >
-                  <span className={`${styles.densityPreview} ${styles.densityPreviewCompact}`}>
-                    <span className={styles.densityDot} />
-                    <span className={styles.densityDot} />
-                    <span className={styles.densityDot} />
-                  </span>
-                  <span className={styles.densityLabel}>Compact</span>
+                  Compact
                 </button>
                 <button
                   type="button"
-                  className={`${styles.densityOption} ${settings.cardDensity === "default" ? styles.densityOptionIsActive : ""}`}
+                  className={`${styles.textOption} ${settings.cardDensity === "default" ? styles.textOptionIsActive : ""}`}
                   onClick={() => update({ cardDensity: "default" })}
-                  aria-label="Default density"
                   aria-pressed={settings.cardDensity === "default"}
                 >
-                  <span className={`${styles.densityPreview} ${styles.densityPreviewDefault}`}>
-                    <span className={styles.densityDot} />
-                    <span className={styles.densityDot} />
-                    <span className={styles.densityDot} />
-                  </span>
-                  <span className={styles.densityLabel}>Default</span>
+                  Default
                 </button>
                 <button
                   type="button"
-                  className={`${styles.densityOption} ${settings.cardDensity === "comfortable" ? styles.densityOptionIsActive : ""}`}
+                  className={`${styles.textOption} ${settings.cardDensity === "comfortable" ? styles.textOptionIsActive : ""}`}
                   onClick={() => update({ cardDensity: "comfortable" })}
-                  aria-label="Comfortable density"
                   aria-pressed={settings.cardDensity === "comfortable"}
                 >
-                  <span className={`${styles.densityPreview} ${styles.densityPreviewComfortable}`}>
-                    <span className={styles.densityDot} />
-                    <span className={styles.densityDot} />
-                    <span className={styles.densityDot} />
-                  </span>
-                  <span className={styles.densityLabel}>Comfortable</span>
+                  Comfortable
                 </button>
               </div>
             </div>

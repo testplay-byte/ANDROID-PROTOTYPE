@@ -39,7 +39,7 @@ const TABS: { id: LibraryStatus | "all"; label: string }[] = [
   { id: "plan", label: "Plan to Watch" },
 ];
 
-const STATUS_OPTIONS: { id: LibraryStatus; label: string }[] = [
+const CATEGORY_OPTIONS: { id: LibraryStatus; label: string }[] = [
   { id: "watching", label: "Watching" },
   { id: "completed", label: "Completed" },
   { id: "plan", label: "Plan to Watch" },
@@ -53,10 +53,20 @@ export function LibraryScreen({ active, onOpenAnime }: LibraryScreenProps) {
   const [customizeOpen, setCustomizeOpen] = useState(false);
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
-  const [statusMenuOpen, setStatusMenuOpen] = useState(false);
+  const [categoryMenuOpen, setCategoryMenuOpen] = useState(false);
   const { contentRef, collapsed } = useCollapsingHeader();
 
   const visible = filter === "all" ? items : items.filter((x) => x.status === filter);
+
+  // Current categories of selected items (for the category menu header).
+  const currentCategories = Array.from(
+    new Set(
+      Array.from(selectedIds)
+        .map((id) => items.find((x) => x.id === id))
+        .filter((x): x is NonNullable<typeof x> => x != null)
+        .map((x) => statusLabel(x.status)),
+    ),
+  );
 
   function itemToAnime(id: number): Anime {
     const it = items.find((x) => x.id === id)!;
@@ -90,7 +100,7 @@ export function LibraryScreen({ active, onOpenAnime }: LibraryScreenProps) {
   const exitSelectMode = useCallback(() => {
     setSelectMode(false);
     setSelectedIds(new Set());
-    setStatusMenuOpen(false);
+    setCategoryMenuOpen(false);
   }, []);
 
   const selectAll = useCallback(() => {
@@ -112,7 +122,7 @@ export function LibraryScreen({ active, onOpenAnime }: LibraryScreenProps) {
   const handleSetStatus = useCallback(
     (status: LibraryStatus) => {
       selectedIds.forEach((id) => setStatus(id, status));
-      setStatusMenuOpen(false);
+      setCategoryMenuOpen(false);
       exitSelectMode();
     },
     [selectedIds, setStatus, exitSelectMode],
@@ -210,6 +220,7 @@ export function LibraryScreen({ active, onOpenAnime }: LibraryScreenProps) {
                   anime={itemToAnime(item.id)}
                   index={i}
                   onClick={() => {}}
+                  context="library"
                 />
               </CardCell>
             ))}
@@ -233,13 +244,15 @@ export function LibraryScreen({ active, onOpenAnime }: LibraryScreenProps) {
                 }}
                 layout="list"
                 item={item}
+                showFormat={settings.libraryShowFormat}
+                showEpisodes={settings.libraryShowEpisodes}
               />
             ))}
           </div>
         )}
       </div>
 
-      {/* ---- Bottom action bar (selection mode) ---- */}
+      {/* ---- Bottom action bar (selection mode) — sits on top of bottom nav ---- */}
       {selectMode && (
         <div className={styles.actionBar}>
           <button type="button" className={styles.actionBtn} onClick={exitSelectMode}>
@@ -252,13 +265,13 @@ export function LibraryScreen({ active, onOpenAnime }: LibraryScreenProps) {
           <button
             type="button"
             className={styles.actionBtn}
-            onClick={() => setStatusMenuOpen(true)}
+            onClick={() => setCategoryMenuOpen(true)}
             disabled={selectedCount === 0}
           >
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 6h18M7 6V4a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+              <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
             </svg>
-            <span>Status</span>
+            <span>Category</span>
           </button>
           <button
             type="button"
@@ -274,21 +287,38 @@ export function LibraryScreen({ active, onOpenAnime }: LibraryScreenProps) {
         </div>
       )}
 
-      {/* ---- Status change menu ---- */}
-      {statusMenuOpen && (
-        <div className={styles.statusMenuScrim} onClick={() => setStatusMenuOpen(false)}>
-          <div className={styles.statusMenu} onClick={(e) => e.stopPropagation()}>
-            <h3 className={styles.statusMenuTitle}>Change status</h3>
-            {STATUS_OPTIONS.map((opt) => (
-              <button
-                key={opt.id}
-                type="button"
-                className={styles.statusMenuOption}
-                onClick={() => handleSetStatus(opt.id)}
-              >
-                {opt.label}
-              </button>
-            ))}
+      {/* ---- Category change menu ---- */}
+      {categoryMenuOpen && (
+        <div className={styles.categoryMenuScrim} onClick={() => setCategoryMenuOpen(false)}>
+          <div className={styles.categoryMenu} onClick={(e) => e.stopPropagation()}>
+            {/* Current categories of selected items */}
+            <div className={styles.categoryCurrent}>
+              <span className={styles.categoryMenuLabel}>Current</span>
+              <div className={styles.categoryChips}>
+                {currentCategories.length > 0 ? (
+                  currentCategories.map((cat) => (
+                    <span key={cat} className={styles.categoryChip}>{cat}</span>
+                  ))
+                ) : (
+                  <span className={styles.categoryChipNone}>None</span>
+                )}
+              </div>
+            </div>
+            <div className={styles.categoryDivider} />
+            <h3 className={styles.categoryMenuTitle}>Move to category</h3>
+            <div className={styles.categoryOptions}>
+              {CATEGORY_OPTIONS.map((opt) => (
+                <button
+                  key={opt.id}
+                  type="button"
+                  className={styles.categoryOption}
+                  onClick={() => handleSetStatus(opt.id)}
+                >
+                  <span className={styles.categoryOptionDot} />
+                  {opt.label}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
       )}
@@ -351,6 +381,8 @@ interface CardCellProps {
   children?: React.ReactNode;
   layout?: "grid" | "list";
   item?: { title: string; cover: string; score: number | null; format: string | null; episodes: number | null; status: LibraryStatus };
+  showFormat?: boolean;
+  showEpisodes?: boolean;
 }
 
 function CardCell({
@@ -362,6 +394,8 @@ function CardCell({
   children,
   layout = "grid",
   item,
+  showFormat = true,
+  showEpisodes = true,
 }: CardCellProps) {
   const longPressTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const longPressFired = useRef(false);
@@ -416,8 +450,8 @@ function CardCell({
           <div className={styles.listInfo}>
             <h3 className={styles.listTitle}>{item.title}</h3>
             <div className={styles.listMeta}>
-              {item.format && <span>{item.format}</span>}
-              {item.episodes != null && <span>{item.episodes} ep</span>}
+              {showFormat && item.format && <span>{item.format}</span>}
+              {showEpisodes && item.episodes != null && <span>{item.episodes} ep</span>}
               {item.score != null && (
                 <span className={styles.listScore}>★ {fmtScore(item.score)}</span>
               )}

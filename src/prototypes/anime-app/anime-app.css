@@ -166,18 +166,15 @@ button {
 
 /* ---- Poster style overrides (applied via .device[data-poster-style]) ----
    Drives the card cover border-radius globally via a CSS variable.
-   The anime-card.module.css reads --cover-radius (falls back to var(--r-sm)).
-   This approach works reliably with CSS Modules because the variable
-   cascades naturally — no specificity battles. */
+   Three options: rounded (12px), soft (6px), sharp (2px). */
 .device[data-poster-style="rounded"] {
   --cover-radius: var(--r-sm);
 }
+.device[data-poster-style="soft"] {
+  --cover-radius: 6px;
+}
 .device[data-poster-style="sharp"] {
   --cover-radius: 2px;
-}
-.device[data-poster-style="circle"] {
-  --cover-radius: 50%;
-  --cover-aspect: 1 / 1;
 }
 
 /* ---- Card density overrides (applied via .device[data-card-density]) ----

@@ -345,22 +345,23 @@
 }
 
 /* =========================================================================
-   BOTTOM ACTION BAR (selection mode)
+   BOTTOM ACTION BAR (selection mode) — sits ON TOP of the bottom nav
    ========================================================================= */
 
 .actionBar {
   position: absolute;
-  left: var(--sp-3);
-  right: var(--sp-3);
-  bottom: calc(16px + 58px + 12px);
+  left: 16px;
+  right: 16px;
+  bottom: 16px;
   z-index: 25;
   display: flex;
-  gap: var(--sp-2);
-  padding: var(--sp-2) var(--sp-3);
+  gap: 0;
+  padding: 0;
   border-radius: var(--r-xl);
   background: var(--color-surface-4);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   animation: actionBarIn var(--dur-3) var(--ease-emphasized-decel);
+  height: 58px;
 }
 
 @keyframes actionBarIn {
@@ -371,13 +372,14 @@
 .actionBtn {
   flex: 1 1 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
+  gap: 6px;
   padding: var(--sp-2);
-  border-radius: var(--r-sm);
+  border-radius: var(--r-xl);
   color: var(--color-text-muted);
-  font-size: var(--fs-label-s);
+  font-size: var(--fs-body-s);
   font-weight: 600;
   cursor: pointer;
   transition: background var(--dur-1) var(--ease-standard),
@@ -404,10 +406,10 @@
 }
 
 /* =========================================================================
-   STATUS CHANGE MENU
+   CATEGORY CHANGE MENU
    ========================================================================= */
 
-.statusMenuScrim {
+.categoryMenuScrim {
   position: absolute;
   inset: 0;
   z-index: 40;
@@ -423,11 +425,12 @@
   to { opacity: 1; }
 }
 
-.statusMenu {
+.categoryMenu {
   background: var(--color-surface-3);
   border-radius: var(--r-lg);
   padding: var(--sp-4);
-  min-width: 200px;
+  min-width: 260px;
+  max-width: 320px;
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
   animation: menuIn var(--dur-3) var(--ease-emphasized-decel);
 }
@@ -437,15 +440,65 @@
   to { opacity: 1; transform: scale(1); }
 }
 
-.statusMenuTitle {
+/* Current categories section */
+.categoryCurrent {
+  margin-bottom: var(--sp-2);
+}
+
+.categoryMenuLabel {
+  display: block;
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--sp-2);
+}
+
+.categoryChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.categoryChip {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--r-pill);
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+
+.categoryChipNone {
+  font-size: var(--fs-label);
+  color: var(--color-text-subtle);
+  font-style: italic;
+}
+
+.categoryDivider {
+  height: 1px;
+  background: var(--color-surface-5);
+  margin: var(--sp-3) 0;
+}
+
+.categoryMenuTitle {
   margin: 0 0 var(--sp-3);
   font-size: var(--fs-body-l);
   font-weight: 700;
   color: var(--color-text);
 }
 
-.statusMenuOption {
-  display: block;
+.categoryOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.categoryOption {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
   width: 100%;
   padding: var(--sp-3) var(--sp-4);
   border-radius: var(--r-sm);
@@ -458,9 +511,17 @@
     color var(--dur-1) var(--ease-standard);
 }
 
-.statusMenuOption:hover {
+.categoryOption:hover {
   background: var(--color-surface-4);
   color: var(--color-text);
+}
+
+.categoryOptionDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  flex: 0 0 auto;
 }
 
 /* =========================================================================
@@ -508,7 +569,7 @@
   .cardWrap,
   .listRow,
   .actionBar,
-  .statusMenu {
+  .categoryMenu {
     animation: none !important;
   }
 }

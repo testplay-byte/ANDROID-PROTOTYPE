@@ -108,8 +108,8 @@ export interface HistoryItem {
   banner: string;
 }
 
-export type PosterStyle = "rounded" | "sharp" | "circle";
-export type CardDensity = "default" | "compact" | "comfortable";
+export type PosterStyle = "rounded" | "soft" | "sharp";
+export type CardDensity = "compact" | "default" | "comfortable";
 export type AnimSpeed = "fast" | "normal" | "slow";
 
 // ---------------------------------------------------------------------------
@@ -118,6 +118,8 @@ export type AnimSpeed = "fast" | "normal" | "slow";
 
 export type LibraryLayout = "grid" | "list";
 export type LibraryTextPlacement = "below" | "overlay";
+/** Where to show the episode badge on grid covers. */
+export type LibraryEpisodePosition = "top-left" | "top-right" | "bottom-left" | "bottom-right" | "hidden";
 
 export interface Settings {
   singleLineTitles: boolean;
@@ -129,6 +131,12 @@ export interface Settings {
   /** Columns in grid mode (2–5). */
   libraryColumns: number;
   libraryTextPlacement: LibraryTextPlacement;
+  /** Show/hide the format type (TV/Movie/OVA) on library cards. */
+  libraryShowFormat: boolean;
+  /** Show/hide the episode count on library cards. */
+  libraryShowEpisodes: boolean;
+  /** Where to show the episode badge on grid covers. */
+  libraryEpisodePosition: LibraryEpisodePosition;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -139,4 +147,7 @@ export const DEFAULT_SETTINGS: Settings = {
   libraryLayout: "grid",
   libraryColumns: 3,
   libraryTextPlacement: "below",
+  libraryShowFormat: true,
+  libraryShowEpisodes: true,
+  libraryEpisodePosition: "bottom-right",
 };

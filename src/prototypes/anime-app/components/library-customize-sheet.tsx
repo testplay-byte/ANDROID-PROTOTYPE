@@ -4,16 +4,16 @@
  * anime-app / components / library-customize-sheet — bottom sheet for
  * customizing the Library page's look and feel.
  *
- * Options:
- *   - Layout: Grid | List
- *   - Columns (grid only): 2 | 3 | 4 | 5
- *   - Text placement (grid only): Below cover | On cover
+ * Organized into sections:
+ *   1. Layout: Grid | List
+ *   2. Columns (grid only): 2 | 3 | 4 | 5
+ *   3. Text placement (grid only): Below cover | On cover
+ *   4. Cover details: Show format, Show episode count, Episode badge position
  *
- * All changes apply live (via useSettings context) and persist to
- * localStorage. The sheet slides up from the bottom with a scrim backdrop.
+ * No dismiss handle — the user dismisses by tapping outside (scrim).
  */
 import { useSettings } from "../hooks/use-settings";
-import type { LibraryLayout, LibraryTextPlacement } from "../lib/types";
+import type { LibraryLayout, LibraryTextPlacement, LibraryEpisodePosition } from "../lib/types";
 import styles from "./library-customize-sheet.module.css";
 
 interface LibraryCustomizeSheetProps {
@@ -26,7 +26,7 @@ export function LibraryCustomizeSheet({ open, onClose }: LibraryCustomizeSheetPr
 
   return (
     <>
-      {/* Scrim */}
+      {/* Scrim — tap to close */}
       <div
         className={`${styles.scrim} ${open ? styles.scrimIsOpen : ""}`}
         onClick={onClose}
@@ -41,26 +41,24 @@ export function LibraryCustomizeSheet({ open, onClose }: LibraryCustomizeSheetPr
         aria-label="Customize library"
         aria-hidden={!open}
       >
-        <div className={styles.handle} aria-hidden="true" />
-
         <div className={styles.header}>
           <h2 className={styles.title}>Customize Library</h2>
         </div>
 
         <div className={styles.body}>
-          {/* Layout */}
+          {/* ---- Section 1: Layout ---- */}
           <Section label="Layout">
             <Segmented
               options={[
-                { value: "grid", label: "Grid", icon: <GridIcon /> },
-                { value: "list", label: "List", icon: <ListIcon /> },
+                { value: "grid", label: "Grid" },
+                { value: "list", label: "List" },
               ]}
               value={settings.libraryLayout}
               onChange={(v) => update({ libraryLayout: v as LibraryLayout })}
             />
           </Section>
 
-          {/* Columns — only in grid mode */}
+          {/* ---- Section 2: Columns (grid only) ---- */}
           {settings.libraryLayout === "grid" && (
             <Section label="Columns per row">
               <Segmented
@@ -76,7 +74,7 @@ export function LibraryCustomizeSheet({ open, onClose }: LibraryCustomizeSheetPr
             </Section>
           )}
 
-          {/* Text placement — only in grid mode */}
+          {/* ---- Section 3: Text placement (grid only) ---- */}
           {settings.libraryLayout === "grid" && (
             <Section label="Text placement">
               <Segmented
@@ -87,6 +85,43 @@ export function LibraryCustomizeSheet({ open, onClose }: LibraryCustomizeSheetPr
                 value={settings.libraryTextPlacement}
                 onChange={(v) =>
                   update({ libraryTextPlacement: v as LibraryTextPlacement })
+                }
+              />
+            </Section>
+          )}
+
+          {/* ---- Section 4: Cover details ---- */}
+          <Section label="Cover details">
+            <div className={styles.toggleRow}>
+              <span className={styles.toggleLabel}>Show format (TV / Movie / OVA)</span>
+              <Toggle
+                on={settings.libraryShowFormat}
+                onChange={(v) => update({ libraryShowFormat: v })}
+              />
+            </div>
+            <div className={styles.toggleRow}>
+              <span className={styles.toggleLabel}>Show episode count</span>
+              <Toggle
+                on={settings.libraryShowEpisodes}
+                onChange={(v) => update({ libraryShowEpisodes: v })}
+              />
+            </div>
+          </Section>
+
+          {/* ---- Section 5: Episode badge position (grid only) ---- */}
+          {settings.libraryLayout === "grid" && settings.libraryShowEpisodes && (
+            <Section label="Episode badge position">
+              <Segmented
+                options={[
+                  { value: "top-left", label: "Top L" },
+                  { value: "top-right", label: "Top R" },
+                  { value: "bottom-left", label: "Bot L" },
+                  { value: "bottom-right", label: "Bot R" },
+                  { value: "hidden", label: "Off" },
+                ]}
+                value={settings.libraryEpisodePosition}
+                onChange={(v) =>
+                  update({ libraryEpisodePosition: v as LibraryEpisodePosition })
                 }
               />
             </Section>
@@ -125,7 +160,6 @@ function Section({
 interface SegOption {
   value: string;
   label: string;
-  icon?: React.ReactNode;
 }
 
 function Segmented({
@@ -148,34 +182,22 @@ function Segmented({
           className={`${styles.segBtn} ${value === opt.value ? styles.segBtnIsActive : ""}`}
           onClick={() => onChange(opt.value)}
         >
-          {opt.icon && <span className={styles.segIcon}>{opt.icon}</span>}
-          <span>{opt.label}</span>
+          {opt.label}
         </button>
       ))}
     </div>
   );
 }
 
-function GridIcon() {
+function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="7" height="7" rx="1" />
-      <rect x="14" y="3" width="7" height="7" rx="1" />
-      <rect x="3" y="14" width="7" height="7" rx="1" />
-      <rect x="14" y="14" width="7" height="7" rx="1" />
-    </svg>
-  );
-}
-
-function ListIcon() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="8" y1="6" x2="21" y2="6" />
-      <line x1="8" y1="12" x2="21" y2="12" />
-      <line x1="8" y1="18" x2="21" y2="18" />
-      <line x1="3" y1="6" x2="3.01" y2="6" />
-      <line x1="3" y1="12" x2="3.01" y2="12" />
-      <line x1="3" y1="18" x2="3.01" y2="18" />
-    </svg>
+    <button
+      type="button"
+      className={`${styles.toggle} ${on ? styles.toggleIsOn : ""}`}
+      onClick={() => onChange(!on)}
+      aria-pressed={on}
+    >
+      <span className={styles.toggleKnob} />
+    </button>
   );
 }
