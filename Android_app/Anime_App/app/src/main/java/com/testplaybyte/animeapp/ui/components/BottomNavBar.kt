@@ -50,7 +50,11 @@ fun BottomNavBar(
                         item = item,
                         isActive = isActive,
                         onClick = { onSelect(item.route) },
-                        modifier = if (isActive) Modifier.weight(0f) else Modifier.weight(1f),
+                        // Active item: no weight = content-sized (wraps its label).
+                        // Inactive items: weight(1f) = share remaining space evenly.
+                        // NOTE: weight(0f) is invalid in Compose and crashes — must use
+                        // no weight at all for content-sized items.
+                        modifier = if (isActive) Modifier else Modifier.weight(1f),
                     )
                 }
             }
