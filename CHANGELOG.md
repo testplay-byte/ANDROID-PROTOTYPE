@@ -7,7 +7,38 @@
 
 ## [Unreleased]
 
-### 2025-01-15 — Keyboard + fullscreen refinements
+### 2025-01-15 — Native Android app: Anime_App (Kotlin + Jetpack Compose)
+
+**Goal:** Build the actual native Android app that matches the anime-app prototype. The web prototype is the design reference; the Android app is the deliverable.
+
+**Architecture:**
+- `Android_app/Anime_App/` — Kotlin + Jetpack Compose + Material 3
+- Navigation Compose for screen routing (Home, Library, History, Schedule, Search, Settings, Detail)
+- Coil for image loading (AniList cover images)
+- Ktor client for AniList GraphQL API
+- DataStore Preferences for persistence (library, history, settings)
+- ViewModel + StateFlow for state management
+- GitHub Actions builds a debug-signed APK and uploads it as an artifact
+
+**Documentation:**
+- `docs/preferences.md` — added §7 (Native Android app) + updated library/settings/continue-watching sections.
+- `Android_app/Anime_App/IMPROVEMENTS.md` — tracks what needs work to match the prototype.
+
+---
+
+### 2025-01-15 — Settings text selectors + library category menu + customize sheet sections
+
+**Settings:**
+- Poster style: text-only segmented control (Rounded/Soft/Sharp). Removed image previews. Replaced 'circle' with 'soft'.
+- Card density: text-only segmented control (Compact/Default/Comfortable). Removed dot previews.
+
+**Library:**
+- Renamed 'Status' to 'Category' with folder icon.
+- Category menu: shows current categories as chips, divider, then move options.
+- Action bar moved to sit ON TOP of bottom nav (same position/dimensions).
+- Customize sheet: removed dismiss handle, organized into 5 sections (Layout, Columns, Text placement, Cover details, Episode badge position).
+- Added show/hide format + episode count toggles.
+- Added episode badge position selector (top-left/top-right/bottom-left/bottom-right/hidden).
 
 **Keyboard improvements:**
 - **Removed the dismiss bar** (white handle line at top) — the user dismisses by tapping outside the input.

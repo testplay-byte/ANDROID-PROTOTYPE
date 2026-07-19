@@ -29,6 +29,7 @@
 | `public/`         | Static files served verbatim by Next.js (legacy `_template/` + `assets/`). | — |
 | `templates/`      | Reusable UI fragments (agent reference, not served).               | [`templates/navigation.md`](./templates/navigation.md) |
 | `archive/`        | Backup of pre-Next.js static site (zip + legacy prototype files).  | [`archive/STATIC-V1-MANIFEST.md`](./archive/STATIC-V1-MANIFEST.md) |
+| `Android_app/`    | **Native Android apps** (Kotlin + Compose). APKs built via GitHub Actions. | [`Android_app/navigation.md`](./Android_app/navigation.md) |
 | `docs/`           | All documentation: workflow, standards, deployment, protocols.     | [`docs/navigation.md`](./docs/navigation.md) |
 | `.github/`        | GitHub config: Actions workflows (Next.js build → Pages).          | [`.github/navigation.md`](./.github/navigation.md) |
 

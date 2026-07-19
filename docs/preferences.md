@@ -221,6 +221,30 @@ When a prototype uses Material 3 (like the search-page), follow these rules:
 - Must include a **light/dark theme toggle** (M3 segmented buttons).
 - Theme must **persist** in localStorage and apply to the `.device` element (scoped theming).
 - Theme key: `<prototype-name>-theme` (e.g., `search-theme`).
+- **Poster style**: text-only segmented control (Rounded / Soft / Sharp). No image previews, no circle option.
+- **Card density**: text-only segmented control (Compact / Default / Comfortable). No dot previews.
+- Both use a clean pill-style segmented control with primary background on the active option.
+
+### Library page
+- **Long-press** (500ms) on a card enters **selection mode** — no X button on cards.
+- Selection mode: tap cards to toggle selection. Purple checkmark circles on selected items.
+- **Bottom action bar** sits ON TOP of the bottom nav (same position/dimensions, replaces it visually).
+  Buttons are horizontal (icon + label side by side). Actions: Cancel, Category, Delete.
+- **Category menu** (renamed from Status): shows current categories as chips at top, divider,
+  then "Move to category" options (Watching / Completed / Plan to Watch).
+- **Customize sheet** (gear button in topbar): 5 organized sections:
+  1. Layout (Grid / List)
+  2. Columns per row (2–5, grid only)
+  3. Text placement (Below cover / On cover, grid only)
+  4. Cover details (Show format toggle, Show episode count toggle)
+  5. Episode badge position (Top L / Top R / Bot L / Bot R / Off, grid only)
+- No dismiss handle on the sheet — tap scrim to close.
+
+### Continue Watching
+- Horizontal scrollable cards at the top of History (and Home).
+- Each card: banner image, play icon (center), episode label (top-right), title overlay (bottom),
+  progress bar (bottom edge, primary color fill).
+- Progress is simulated (advances 15–35% on each view, wraps to next episode past 100%).
 
 ### Recent searches
 - Show only **3 items by default** — don't let recent searches push the anime grid down.
@@ -230,7 +254,22 @@ When a prototype uses Material 3 (like the search-page), follow these rules:
 
 ---
 
-## 7. Workflow for AI agents (CRITICAL — read this before starting work)
+## 7. Native Android app (Kotlin + Jetpack Compose)
+
+The end goal is to build **native Android apps** that match the prototypes exactly. The web prototypes
+are the design reference; the Android apps are the deliverable.
+
+- **Location**: `Android_app/<App_Name>/` in the repo root.
+- **Tech stack**: Kotlin 2.0+ / Jetpack Compose / Material 3 / Navigation Compose / Coil / Ktor / DataStore.
+- **Build**: GitHub Actions builds the APK (debug-signed) and uploads it as an artifact.
+- **Design**: match the prototype's M3 dark purple theme, tonal elevation, type scale, motion,
+  bottom nav (floating, content-sized active pill), collapsing headers, card animations, etc.
+- **Improvement docs**: `Android_app/<App_Name>/IMPROVEMENTS.md` — tracks what needs work to
+  match the prototype more closely (e.g., custom keyboard, swipe gestures, etc.).
+
+---
+
+## 8. Workflow for AI agents (CRITICAL — read this before starting work)
 
 The user has explicitly praised the following workflow. **Follow it every time:**
 
