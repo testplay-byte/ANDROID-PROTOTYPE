@@ -52,7 +52,7 @@ class AniListClient {
             format = m["format"]?.jsonPrimitive?.contentOrNull,
             season = m["season"]?.jsonPrimitive?.contentOrNull,
             seasonYear = m["seasonYear"]?.jsonPrimitive?.intOrNull,
-            genres = m["genres"]?.jsonArray?.map { it.jsonPrimitive.content },
+            genres = m["genres"]?.jsonArray?.map { it.jsonPrimitive.content } ?: emptyList(),
             status = m["status"]?.jsonPrimitive?.contentOrNull,
             description = m["description"]?.jsonPrimitive?.contentOrNull,
             nextAiringEpisode = m["nextAiringEpisode"]?.jsonObject?.let {
@@ -118,5 +118,5 @@ class AniListClient {
     }
 }
 
-// Extension to get contentOrNull from JsonPrimitive
-val JsonPrimitive.contentOrNull: String? get() = if (isNull) null else content
+// Extension to get contentOrNull from JsonPrimitive (checks for JsonNull)
+val JsonPrimitive.contentOrNull: String? get() = if (this is JsonNull) null else content
