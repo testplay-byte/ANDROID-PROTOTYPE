@@ -21,6 +21,7 @@
 | `theme-architecture.md`       | **CRITICAL.** How app theme (scoped to `.device`) is separated from page theme. Read before touching CSS variables. |
 | `git-conventions.md`          | Branch, commit message, and PR conventions.                         |
 | `design-systems/`             | **Design system documentation** — Material 3 Expressive + Basic Design Principles + master guide. See [`design-systems/navigation.md`](./design-systems/navigation.md). |
+| `android-dev/`                | **Native Android development guide** — 14 golden rules, crash lessons, UI patterns, build guide, and 8-phase workflow for converting prototypes to native apps. See [`android-dev/navigation.md`](./android-dev/navigation.md). |
 
 ---
 
@@ -40,7 +41,8 @@
 12. [`design-systems/basic-design/what-makes-good-ui.md`](./design-systems/basic-design/what-makes-good-ui.md) — what makes good UI
 13. [`design-systems/basic-design/ai-ui-mistakes.md`](./design-systems/basic-design/ai-ui-mistakes.md) — common AI UI mistakes to avoid
 14. [`design-systems/material-3-expressive/navigation.md`](./design-systems/material-3-expressive/navigation.md) — M3 design system (if using M3)
+15. [`android-dev/navigation.md`](./android-dev/navigation.md) — **if building a native Android app** (14 golden rules + crash lessons + UI patterns + workflow)
 
 ---
 
-*Last updated: Next.js migration (Phase 4) — project converted from static HTML/CSS/JS to Next.js 16 static export. Prototypes now built on `src/proto-kit/`; reference pattern is `app/prototypes/search-page/`.*
+*Last updated: Anime_App Android build complete (Build #16). Native Android development guide at `docs/android-dev/`. STARTUP.md §5b covers the prototype→Android workflow.*

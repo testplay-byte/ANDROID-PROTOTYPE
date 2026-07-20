@@ -67,15 +67,22 @@ ANDROID-PROTOTYPE/
 │   ├── notification-protocol.md ← MANDATORY: how to notify via ntfy.sh.
 │   ├── github-pages.md     ← Deployment guide + troubleshooting.
 │   └── git-conventions.md  ← Branch, commit, PR conventions.
+├── Android_app/                ← Native Android apps (Kotlin + Compose). APK built via Actions.
+│   ├── navigation.md           ← Index of Android apps.
+│   └── Anime_App/              ← First Android app (matches the anime-app prototype).
+│       └── IMPROVEMENTS.md     ← Gap tracker (what's done vs. what needs work).
 └── .github/
     ├── navigation.md
     └── workflows/
-        └── deploy.yml      ← GitHub Pages auto-deploy (Next.js build → out/).
+        ├── deploy.yml          ← GitHub Pages auto-deploy (Next.js build → out/).
+        └── build-apk.yml       ← Android APK build (debug-signed, artifact upload).
 ```
 
 > **Homepage design language:** the dashboard (`app/page.tsx`, styles in `src/dashboard/dashboard.css`) follows the approved warm-cream theme (cream `#f2e8da` bg, dark `#231e18` primary, orange `#f05100` chart accents) with a split top nav and a hero + stat cards + charts layout. Do not revert to a generic/blue look. See `docs/template-rules.md` for prototype-frame rules.
 >
 > **Prototype design language:** prototypes use `src/proto-kit/` (shared DeviceFrame, StatusBar, BottomNav, Stage, tokens). The frame inverts by theme — soft platinum in dark mode, dark in light mode. See `docs/preferences.md` § Device frame.
+>
+> **Native Android apps:** each web prototype can be converted to a native Android app (Kotlin + Jetpack Compose + Material 3). The Android apps live in `Android_app/<App_Name>/`. Read [`docs/android-dev/`](./docs/android-dev/) before building one — it has 14 golden rules, crash lessons, UI patterns, and a step-by-step workflow.
 
 **Rule:** Every directory that contains project content has its own `navigation.md`. When in doubt about where something is, read the nearest `navigation.md`.
 
@@ -130,6 +137,33 @@ See `docs/tech-stack.md` for the full rationale.
 Naming convention: `kebab-case`, descriptive. Example: `app/prototypes/food-delivery-checkout/`.
 
 **Reference implementation:** `app/prototypes/search-page/` (the first ported prototype). Study its layout + page + screens structure as the pattern to follow.
+
+---
+
+## 5b. How to Convert a Prototype to a Native Android App
+
+Once a web prototype is finalized, it can be converted to a native Android app (Kotlin + Jetpack Compose + Material 3). The web prototype IS the design spec — the Android app must match it exactly.
+
+1. **Read** [`docs/android-dev/WORKFLOW.md`](./docs/android-dev/WORKFLOW.md) — the full 8-phase process.
+2. **Read** [`docs/android-dev/navigation.md`](./docs/android-dev/navigation.md) — 14 golden rules (CRITICAL — prevents most crashes + UI mismatches).
+3. **Study the prototype source** — read every `.tsx` + `.module.css` file before writing any Kotlin.
+4. **Create** `Android_app/<App_Name>/` with the Gradle project structure (see `docs/android-dev/BUILD_GUIDE.md`).
+5. **Bundle the Roboto font** in `res/font/` — system fonts may not have ExtraBold (800), so bold text won't render. This is mandatory.
+6. **Build + iterate** — push to GitHub, GitHub Actions builds the APK, download and test. Expect 3-5 iterations.
+7. **Read** [`docs/android-dev/CRASH_LESSONS.md`](./docs/android-dev/CRASH_LESSONS.md) when a build fails — every crash we've hit is documented with root cause + fix.
+8. **Update** `IMPROVEMENTS.md` with what's implemented vs. what needs work.
+
+**Reference implementation:** `Android_app/Anime_App/` (the first Android app, 16 build iterations). Study its structure as the pattern to follow.
+
+**Key rules (see navigation.md for all 14):**
+- NEVER use emojis — use Material vector icons
+- NEVER use negative padding — use `offset()` instead
+- NEVER use `weight(0f)` — omit weight for content-sized items
+- Use `FontWeight.ExtraBold` (800), NOT `Bold` (700) — and bundle the font
+- Title sizes: 36sp expanded, 26sp collapsed
+- Floating bottom nav (Box overlay, NOT Scaffold)
+- CollapsingHeader pinned OUTSIDE the scroll Column
+- Set `.background(MaterialTheme.colorScheme.background)` on root + `android:colorBackground` in themes.xml
 
 ---
 

@@ -265,7 +265,22 @@ are the design reference; the Android apps are the deliverable.
 - **Design**: match the prototype's M3 dark purple theme, tonal elevation, type scale, motion,
   bottom nav (floating, content-sized active pill), collapsing headers, card animations, etc.
 - **Improvement docs**: `Android_app/<App_Name>/IMPROVEMENTS.md` — tracks what needs work to
-  match the prototype more closely (e.g., custom keyboard, swipe gestures, etc.).
+  match the prototype more closely.
+
+### Critical Android-specific rules (learned from Anime_App, 16 builds)
+
+1. **Bundle the Roboto font** — Android's system Roboto may not have ExtraBold (800) weight installed. Bundle TTF files in `res/font/` and use `FontFamily` in Typography. Without this, bold text renders as Regular on some devices.
+2. **Use `FontWeight.ExtraBold` (800), not `Bold` (700)** — Android's Roboto at Bold (700) doesn't look dramatically different from Normal at small sizes.
+3. **Title sizes: 36sp expanded, 26sp collapsed** — bigger than the prototype's 32px because Android sp reads smaller.
+4. **NEVER use negative padding** — use `Modifier.offset(y = (-N).dp)` instead.
+5. **NEVER use `weight(0f)`** — omit weight for content-sized items.
+6. **Floating bottom nav** — use `Box` overlay, NOT `Scaffold(bottomBar = ...)`.
+7. **CollapsingHeader pinned** — place OUTSIDE the scroll Column (above it).
+8. **Background color** — set `.background(MaterialTheme.colorScheme.background)` on root + `android:colorBackground` in themes.xml.
+9. **Theme persistence** — `MainActivity` reads `settings.darkTheme` from DataStore, NOT hardcoded.
+10. **Container padding: 8dp outer** — 16dp looks too far from device edges on Android.
+
+Full documentation: [`docs/android-dev/`](../docs/android-dev/) — 14 golden rules, crash lessons, UI patterns, build guide, and 8-phase workflow.
 
 ---
 

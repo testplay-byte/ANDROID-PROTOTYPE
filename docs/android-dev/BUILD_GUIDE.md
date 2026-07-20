@@ -129,3 +129,30 @@ The APK is debug-signed (auto-signed with the debug keystore). It can be install
 | `@Serializable not processed` | Missing serialization plugin | Add `id("org.jetbrains.kotlin.plugin.serialization")` |
 | `Experimental API` | Using `FlowRow`/`combinedClickable` without opt-in | Add `@file:OptIn(Experimental*Api::class)` |
 | `Cannot nest verticalScroll in verticalScroll` | `LazyVerticalGrid` inside `verticalScroll` | Use `Column` + chunked rows instead |
+| `Unresolved reference 'Surface'` | Missing import | Add `import androidx.compose.material3.Surface` |
+| `RowScope required for weight()` | Function uses `weight()` but isn't `RowScope` extension | Make function `RowScope.Foo()` |
+| Bold text looks same as normal | System Roboto lacks ExtraBold weight | Bundle TTF files in `res/font/` + use `FontFamily` |
+| Gray background (#303030) | No background set on root | `.background(MaterialTheme.colorScheme.background)` + `android:colorBackground` in themes.xml |
+| Theme toggle doesn't work | `MainActivity` hardcodes `darkTheme = true` | Read from `SettingsRepository` via `collectAsStateWithLifecycle` |
+
+---
+
+## Font bundling (MANDATORY)
+
+Android's system Roboto font may not have ExtraBold (800) or Black (900) weights on all devices.
+Without bundling, bold text renders as Regular on some devices.
+
+**Steps:**
+1. Download Roboto TTF files from Google Fonts (regular, medium, bold, black = 400/500/700/900)
+2. Place in `app/src/main/res/font/` (lowercase, underscores: `roboto_regular.ttf`)
+3. Create a `FontFamily` in `theme/Type.kt`:
+```kotlin
+val RobotoFamily = FontFamily(
+    Font(R.font.roboto_regular, FontWeight.Normal),
+    Font(R.font.roboto_medium, FontWeight.Medium),
+    Font(R.font.roboto_bold, FontWeight.Bold),
+    Font(R.font.roboto_black, FontWeight.ExtraBold),
+    Font(R.font.roboto_black, FontWeight.Black),
+)
+```
+4. Use `fontFamily = RobotoFamily` in Typography + key Text composables.

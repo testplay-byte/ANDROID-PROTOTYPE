@@ -93,9 +93,15 @@
 
 ### Issue 2: Bold text not visible
 
-**Root cause:** `FontWeight.Bold` (700) on Android's Roboto looks similar to Normal at small sizes.
+**Root cause:** Two issues:
+1. `FontWeight.Bold` (700) on Android's Roboto looks similar to Normal at small sizes.
+2. Some devices don't have ExtraBold (800) or Black (900) weights in their system Roboto — Compose falls back to Regular (400).
 
-**Fix:** Use `FontWeight.ExtraBold` (800) everywhere.
+**Fix:** 
+1. Use `FontWeight.ExtraBold` (800) everywhere instead of `Bold` (700).
+2. **Bundle the Roboto TTF files** in `res/font/` (regular/medium/bold/black = 400/500/700/900) and use a `FontFamily` in Typography. This guarantees the ExtraBold weight renders on ALL devices regardless of system font availability.
+
+**Lesson:** Never rely on system fonts for specific weights. Bundle the font files in the APK.
 
 ### Issue 3: Theme toggle doesn't work
 

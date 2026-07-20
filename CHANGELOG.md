@@ -7,6 +7,56 @@
 
 ## [Unreleased]
 
+### 2025-01-15 — Anime_App Android build complete (Build #16) — documentation finalized
+
+**Final state:** The Android app matches the web prototype with minor acceptable differences.
+16 build iterations from initial scaffold to final APK. All documentation updated for future agents.
+
+**Build #16 — Font bundling (bold text fix):**
+- Root cause: Android's system Roboto may not have ExtraBold (800) weight → bold text renders as Regular.
+- Fix: bundled 4 Roboto TTF files (regular/medium/bold/black = 400/500/700/900) in `res/font/`.
+- Typography uses `FontFamily` with bundled fonts. CollapsingHeader + SearchScreen title use `fontFamily = RobotoFamily`.
+
+**Build #14 — Bigger titles + ExtraBold everywhere:**
+- Title sizes: 36sp expanded (was 32sp), 26sp collapsed (was 22sp).
+- ALL `FontWeight.Bold` (700) replaced with `FontWeight.ExtraBold` (800) across 13 files (48 instances).
+- Results container padding reduced from 16dp to 8dp.
+
+**Builds #12-13 — Search screen + filter sheet:**
+- Collapsing search bar (moves beside title when scrolled, source toggle fades out).
+- Recent searches card (collapsible, individual delete, "Show N more").
+- Results grid in a surface card container.
+- Filter sheet with accordion + flat views, 5 categories, score slider, sort chips.
+- Scroll animation smoothness (AnimatedVisibility for search bar transition).
+
+**Builds #9-11 — Core fixes:**
+- Background color: M3 dark purple (#14111F) instead of gray (#303030).
+- Theme toggle: reads from DataStore (was hardcoded to dark).
+- Source toggle: AniList/Extension with SVG icons, 30 results (was 5).
+- Filters button (left) + Sort dropdown (right).
+- Library tabs with item counts.
+
+**Builds #4-8 — Screen rebuilds:**
+- All 7 screens rebuilt to match the prototype.
+- Floating bottom nav (Box overlay, not Scaffold).
+- CollapsingHeader component (pinned, shrinks on scroll).
+- SVG Material icons (not emojis).
+- Custom toggles, text selectors, filter sheet.
+
+**Builds #1-3 — Initial setup + crashes:**
+- Gradle project scaffolded (Kotlin 2.0 + Compose + M3 + Ktor + DataStore).
+- 5 crashes fixed: missing icon, missing serialization plugin, compilation errors,
+  weight(0f), negative padding.
+
+**Documentation finalized:**
+- `STARTUP.md` — added §5b (prototype→Android workflow) + Android_app in directory tree.
+- `docs/navigation.md` — added `android-dev/` to index + reading order.
+- `docs/preferences.md` §7 — 10 critical Android-specific rules (font bundling, ExtraBold, etc.).
+- `docs/android-dev/` — 5 files: navigation.md (14 golden rules), CRASH_LESSONS.md (7 crashes + 5 UI issues), UI_PATTERNS.md (all patterns), WORKFLOW.md (8-phase process), BUILD_GUIDE.md (tech stack + error table + font bundling).
+- `Android_app/Anime_App/IMPROVEMENTS.md` — full implementation status + 16-build history.
+
+---
+
 ### 2025-01-15 — Native Android app: Anime_App (Kotlin + Jetpack Compose)
 
 **Goal:** Build the actual native Android app that matches the anime-app prototype. The web prototype is the design reference; the Android app is the deliverable.
