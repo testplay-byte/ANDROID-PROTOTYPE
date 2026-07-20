@@ -1,9 +1,15 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
 /* =========================================================================
    proto-kit / tokens.css
    The SINGLE source of truth for design tokens across all prototypes.
 
    Import once in a prototype's layout:
      import "@proto-kit/tokens/tokens.css";
+
+   Font: Inter (with all weights 400-900) loaded via Google Fonts.
+   This ensures bold text (font-weight: 800) renders correctly on ALL
+   devices, including mobile devices that may not have bold system fonts.
 
    Structure:
    1. :root           — universal tokens (type, spacing, radius, motion)

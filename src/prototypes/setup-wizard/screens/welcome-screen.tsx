@@ -8,15 +8,17 @@
  * CTA advances to the theme screen. No back button (first step).
  */
 import type { ThemePalette } from "../lib/themes";
-import { WelcomeIllustration } from "../components/illustrations";
+import type { CharacterConfig } from "../components/character/types";
+import { AnimeCharacter } from "../components/character/anime-character";
 
 interface WelcomeScreenProps {
   active: boolean;
   onNext: () => void;
   palette: ThemePalette;
+  character: CharacterConfig;
 }
 
-export function WelcomeScreen({ active, onNext, palette }: WelcomeScreenProps) {
+export function WelcomeScreen({ active, onNext, palette, character }: WelcomeScreenProps) {
   return (
     <div className={`wizard-step ${active ? "wizard-step--active" : ""}`}>
       {/* Decorative blurred background orbs */}
@@ -59,7 +61,7 @@ export function WelcomeScreen({ active, onNext, palette }: WelcomeScreenProps) {
       <div className="wizard-content" style={{ position: "relative", zIndex: 1 }}>
         {/* Illustration — anime girl waving */}
         <div className="illustration" key={active ? "on" : "off"}>
-          <WelcomeIllustration />
+          <AnimeCharacter config={{ ...character, expression: "waving" }} size={200} animated={true} />
         </div>
 
         {/* Title — explicitly bold (font-weight: 800) */}

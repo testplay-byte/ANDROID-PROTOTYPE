@@ -31,6 +31,7 @@ import {
 } from "../../../src/proto-kit";
 import { useWizardState } from "../../../src/prototypes/setup-wizard/hooks/use-wizard-state";
 import { WelcomeScreen } from "../../../src/prototypes/setup-wizard/screens/welcome-screen";
+import { CharacterScreen } from "../../../src/prototypes/setup-wizard/screens/character-screen";
 import { ThemeScreen } from "../../../src/prototypes/setup-wizard/screens/theme-screen";
 import { FolderScreen } from "../../../src/prototypes/setup-wizard/screens/folder-screen";
 import { PermissionsScreen } from "../../../src/prototypes/setup-wizard/screens/permissions-screen";
@@ -41,6 +42,7 @@ import { WizardProgress } from "../../../src/prototypes/setup-wizard/components/
 
 const STEP_NAMES = [
   "Welcome",
+  "Character",
   "Theme",
   "Folder",
   "Permissions",
@@ -51,10 +53,11 @@ const STEP_NAMES = [
 
 const STEP_DESCRIPTIONS = [
   "Welcome to the setup wizard.",
+  "Customize your anime companion.",
   "Choose your theme and colors.",
-  "Select your anime folder (auto-advances).",
+  "Select your anime folder.",
   "Grant app permissions (optional).",
-  "Restore from a backup (auto-advances).",
+  "Restore from a backup.",
   "Backup summary preview.",
   "You're all set!",
 ];
@@ -163,12 +166,20 @@ export default function Page() {
         <DeviceFrame theme="dark">
           <Screen>
             {/* Progress bar at top */}
-            <WizardProgress currentStep={step} totalSteps={7} palette={palette} />
+            <WizardProgress currentStep={step} totalSteps={8} palette={palette} />
 
             {/* Screen content — all screens always mounted, visibility via .wizard-step--active */}
-            <WelcomeScreen active={step === 0} onNext={wizard.next} palette={palette} />
-            <ThemeScreen
+            <WelcomeScreen active={step === 0} onNext={wizard.next} palette={palette} character={wizard.character} />
+            <CharacterScreen
               active={step === 1}
+              onNext={wizard.next}
+              onBack={wizard.back}
+              character={wizard.character}
+              setCharacter={wizard.setCharacter}
+              palette={palette}
+            />
+            <ThemeScreen
+              active={step === 2}
               onNext={wizard.next}
               onBack={wizard.back}
               themeMode={themeMode}
@@ -177,7 +188,7 @@ export default function Page() {
               setPalette={wizard.setPalette}
             />
             <FolderScreen
-              active={step === 2}
+              active={step === 3}
               onNext={wizard.next}
               onBack={wizard.back}
               folderSelected={wizard.folderSelected}
@@ -185,7 +196,7 @@ export default function Page() {
               palette={palette}
             />
             <PermissionsScreen
-              active={step === 3}
+              active={step === 4}
               onNext={wizard.next}
               onBack={wizard.back}
               permissions={wizard.permissionsGranted}
@@ -193,7 +204,7 @@ export default function Page() {
               palette={palette}
             />
             <RestoreScreen
-              active={step === 4}
+              active={step === 5}
               onNext={wizard.next}
               onBack={wizard.back}
               backupSelected={wizard.backupSelected}
@@ -201,12 +212,12 @@ export default function Page() {
               palette={palette}
             />
             <BackupSummaryScreen
-              active={step === 5}
+              active={step === 6}
               onNext={wizard.next}
               onBack={wizard.back}
               palette={palette}
             />
-            <FinishScreen active={step === 6} onRestart={wizard.reset} palette={palette} />
+            <FinishScreen active={step === 7} onRestart={wizard.reset} palette={palette} />
           </Screen>
         </DeviceFrame>
       </Stage>

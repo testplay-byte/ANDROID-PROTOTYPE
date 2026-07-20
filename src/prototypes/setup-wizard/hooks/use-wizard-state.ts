@@ -10,6 +10,8 @@
 import { useState, useCallback } from "react";
 import type { ThemeMode, ThemePalette } from "../lib/themes";
 import { DEFAULT_PALETTE } from "../lib/themes";
+import type { CharacterConfig } from "../components/character/types";
+import { DEFAULT_CHARACTER } from "../components/character/types";
 
 export interface WizardState {
   step: number;
@@ -22,9 +24,10 @@ export interface WizardState {
     notifications: boolean;
     battery: boolean;
   };
+  character: CharacterConfig;
 }
 
-export const TOTAL_STEPS = 7;
+export const TOTAL_STEPS = 8;
 
 export function useWizardState() {
   const [step, setStep] = useState(0);
@@ -37,6 +40,7 @@ export function useWizardState() {
     notifications: false,
     battery: false,
   });
+  const [character, setCharacter] = useState<CharacterConfig>(DEFAULT_CHARACTER);
 
   const next = useCallback(() => {
     setStep((s) => Math.min(s + 1, TOTAL_STEPS - 1));
@@ -53,6 +57,7 @@ export function useWizardState() {
     setFolderSelected(false);
     setBackupSelected(false);
     setPermissionsGranted({ installApps: false, notifications: false, battery: false });
+    setCharacter(DEFAULT_CHARACTER);
   }, []);
 
   const togglePermission = useCallback((key: keyof typeof permissionsGranted) => {
@@ -71,6 +76,8 @@ export function useWizardState() {
     setBackupSelected,
     permissionsGranted,
     togglePermission,
+    character,
+    setCharacter,
     next,
     back,
     reset,

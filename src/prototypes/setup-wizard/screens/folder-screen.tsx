@@ -6,13 +6,9 @@
  *
  * Flow:
  *   1. Initially: FolderIllustration + compact "Select Folder" button.
- *   2. On click → setFolderSelected(true), setScanning(true).
- *   3. While scanning: swap to CheckIllustration + show the selected folder
- *      card with a "Scanning..." badge. After ~1.5s → auto-advance via
- *      onNext(). The user never has to click "Next".
- *   4. If the user navigates back to this screen after auto-advance, they
- *      see the selected card with a Continue button (no re-trigger of
- *      scanning unless they click Select Folder again).
+ *   2. On click → setFolderSelected(true), show brief "Scanning..." state.
+ *   3. After ~1.5s scanning → show "Folder connected!" with checkmark + Continue button.
+ *   4. User clicks Continue to advance. Does NOT auto-advance.
  */
 import { useEffect, useState } from "react";
 import type { ThemePalette } from "../lib/themes";
@@ -36,42 +32,44 @@ export function FolderScreen({
   palette,
 }: FolderScreenProps) {
   const [scanning, setScanning] = useState(false);
+  const [connected, setConnected] = useState(false);
 
-  // Trigger auto-advance when user just clicked "Select Folder".
-  // Only fires when scanning=true (set on click), so navigating back to this
-  // screen does not re-trigger the auto-advance.
+  // After scanning completes, show the "connected" state (but DON'T auto-advance).
   useEffect(() => {
     if (!scanning) return;
     const t = setTimeout(() => {
       setScanning(false);
-      onNext();
+      setConnected(true);
     }, 1500);
     return () => clearTimeout(t);
-  }, [scanning, onNext]);
+  }, [scanning]);
 
   const handleSelectFolder = () => {
     setFolderSelected(true);
     setScanning(true);
+    setConnected(false);
   };
+
+  const showConnected = folderSelected && connected && !scanning;
 
   return (
     <div className={`wizard-step ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        {/* Illustration — swap to CheckIllustration once selected */}
-        <div className="illustration" key={`${active ? "on" : "off"}-${folderSelected ? "sel" : "empty"}`}>
-          {folderSelected ? <CheckIllustration /> : <FolderIllustration />}
+        {/* Illustration — swap to CheckIllustration once connected */}
+        <div className="illustration" key={`${active ? "on" : "off"}-${showConnected ? "conn" : "empty"}`}>
+          {showConnected ? <CheckIllustration /> : <FolderIllustration />}
         </div>
 
         <h1 className="wizard-title" style={{ fontWeight: 800 }}>
-          {folderSelected ? "Folder connected!" : "Select your anime folder"}
+          {showConnected ? "Folder connected!" : "Select your anime folder"}
         </h1>
         <p className="wizard-subtitle">
-          {folderSelected
-            ? "We\u2019re scanning your library in the background. Hang tight…"
+          {showConnected
+            ? "Your anime library is ready to go. 247 items detected and organized."
             : "Pick the folder where your anime library lives. We\u2019ll scan it and organize everything for you."}
         </p>
 
-        {/* Select-folder CTA (compact, outlined, with icon) OR selected card */}
+        {/* Select-folder CTA OR selected card */}
         {!folderSelected ? (
           <button
             type="button"
@@ -174,46 +172,30 @@ export function FolderScreen({
           </svg>
           Back
         </button>
-        {/* While scanning, show the scanning pill instead of a Next button.
-            If the user navigated back after auto-advance (folderSelected but
-            not scanning), show a Continue button so they can move forward. */}
-        {scanning ? (
-          <span
-            className="wizard-btn wizard-btn--ghost"
-            style={{
-              cursor: "default",
-              color: "var(--color-text-muted)",
-              fontWeight: 800,
-            }}
-          >
-            Auto-advancing…
-          </span>
-        ) : (
-          <button
-            type="button"
-            className="wizard-btn wizard-btn--primary"
-            onClick={onNext}
-            disabled={!folderSelected}
-            style={{
-              background: palette.primary,
-              color: palette.onPrimary,
-              fontWeight: 800,
-              opacity: folderSelected ? 1 : 0.4,
-              cursor: folderSelected ? "pointer" : "not-allowed",
-            }}
-          >
-            Continue
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-              <path
-                d="M5 12h14M13 6l6 6-6 6"
-                stroke="currentColor"
-                strokeWidth="2.4"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </button>
-        )}
+        <button
+          type="button"
+          className="wizard-btn wizard-btn--primary"
+          onClick={onNext}
+          disabled={!showConnected}
+          style={{
+            background: palette.primary,
+            color: palette.onPrimary,
+            fontWeight: 800,
+            opacity: showConnected ? 1 : 0.4,
+            cursor: showConnected ? "pointer" : "not-allowed",
+          }}
+        >
+          Continue
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M5 12h14M13 6l6 6-6 6"
+              stroke="currentColor"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </button>
       </div>
     </div>
   );
