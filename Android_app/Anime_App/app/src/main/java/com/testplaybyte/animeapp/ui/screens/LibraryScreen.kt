@@ -408,12 +408,11 @@ private fun StatusTabRow(active: LibTab, onSelect: (LibTab) -> Unit, counts: Map
                         }
                     }
                     Spacer(Modifier.height(6.dp))
-                    // Animated underline — scales in when active
+                    // Underline — matches prototype: 2px thick, full tab width
                     Box(
                         modifier = Modifier
-                            .width(28.dp)
+                            .width(32.dp)
                             .height(2.dp)
-                            .clip(RoundedCornerShape(50))
                             .background(
                                 if (isActive) MaterialTheme.colorScheme.primary
                                 else Color.Transparent,
