@@ -35,7 +35,7 @@ fun CollapsingHeader(
     val collapsed = scrollState.value > 20
 
     // Animate the font size smoothly between expanded (32sp) and collapsed (22sp)
-    val targetFontSize = if (collapsed) 22f else 32f
+    val targetFontSize = if (collapsed) 26f else 36f
     val fontSize by animateFloatAsState(
         targetValue = targetFontSize,
         animationSpec = tween(durationMillis = 300, easing = FastOutSlowInEasing),
@@ -76,7 +76,7 @@ fun CollapsingHeader(
             Text(
                 text = title,
                 fontSize = fontSize.sp,
-                fontWeight = FontWeight.Bold,
+                fontWeight = FontWeight.ExtraBold,
                 letterSpacing = (-0.02).sp,
                 color = MaterialTheme.colorScheme.onBackground,
                 maxLines = 1,
