@@ -1,7 +1,7 @@
 # docs/android-dev/ — Native Android Development Guide
 
 > **MANDATORY reading for any agent building or modifying Android apps in this repo.**
-> This documents the lessons learned from building the first Anime_App — what went wrong,
+> This documents the lessons learned from building the Anime_App — what went wrong,
 > how to do it right, and the patterns to follow for ALL future Android apps.
 
 ---
@@ -13,6 +13,7 @@
 | `CRASH_LESSONS.md` | Every crash we hit + root cause + fix. Read before touching Compose layout. |
 | `UI_PATTERNS.md` | How to replicate the web prototype's M3 design in Jetpack Compose. |
 | `BUILD_GUIDE.md` | How the Gradle project is structured + GitHub Actions APK build. |
+| `WORKFLOW.md` | Step-by-step process for converting a web prototype to a native Android app. |
 
 ---
 
@@ -26,14 +27,22 @@
 
 4. **NEVER use `weight(0f)`** — Compose's `weight()` requires > 0. For content-sized items, omit `weight()` entirely (just use `Modifier`).
 
-5. **Pinned collapsing headers** — Place `CollapsingHeader` OUTSIDE the scroll Column (above it). If it's inside the scroll, it scrolls away (the user reported this bug).
+5. **Pinned collapsing headers** — Place `CollapsingHeader` OUTSIDE the scroll Column (above it). If it's inside the scroll, it scrolls away.
 
-6. **Floating bottom nav** — Do NOT use `Scaffold(bottomBar = ...)`. Use a `Box` overlay so the nav floats on top of scrolling content (matching the prototype).
+6. **Floating bottom nav** — Do NOT use `Scaffold(bottomBar = ...)`. Use a `Box` overlay so the nav floats on top of scrolling content.
 
-7. **Custom components, not defaults** — The prototype has custom toggles, segmented controls, and bottom sheets. Do NOT use default `Switch`, `SegmentedButton`, or `Slider`. Build custom composables that match the prototype's CSS.
+7. **Custom components, not defaults** — Build custom toggles, segmented controls, and bottom sheets. Do NOT use default `Switch`, `SegmentedButton`, or `Slider` without styling.
 
-8. **Bold + uppercase** — Section labels are 11sp bold UPPERCASE. Row titles are 14sp semibold. Screen titles are 32sp bold. Match the prototype's typography exactly.
+8. **Use `FontWeight.ExtraBold` (800), not `Bold` (700)** — Android's Roboto at `Bold` (700) doesn't look dramatically different from `Normal` at small sizes. Use `ExtraBold` for all bold text. This was a major user complaint.
 
-9. **M3 color scheme** — Use `MaterialTheme.colorScheme.*` everywhere. The theme is set up in `theme/Color.kt` + `theme/Theme.kt` to match the prototype's dark purple palette.
+9. **Title sizes: 36sp expanded, 26sp collapsed** — The `CollapsingHeader` uses these sizes. The collapsed size must be big enough to still be readable.
 
-10. **Error handling** — Every network call MUST be wrapped in `runCatching { }.getOrDefault(emptyList())`. An unhandled exception crashes the app.
+10. **M3 color scheme + background** — Set `.background(MaterialTheme.colorScheme.background)` on the root container. Also set `android:colorBackground` in `themes.xml` to prevent the gray flash before Compose loads.
+
+11. **Theme persistence** — `MainActivity` must read `settings.darkTheme` from `SettingsRepository` and pass it to `AnimeAppTheme(darkTheme = ...)`. Do NOT hardcode `darkTheme = true`.
+
+12. **Error handling** — Every network call MUST be wrapped in `runCatching { }.getOrDefault(emptyList())`. An unhandled exception crashes the app.
+
+13. **No nested vertical scroll** — `LazyVerticalGrid` inside `verticalScroll` crashes. Use `Column` + chunked rows for mixed-content scrollable pages.
+
+14. **Container padding** — Cards/sections should have 8dp outer padding from the device edge (not 16dp — the user said 16dp is "way too far away"). Inner content padding can be 12-16dp.

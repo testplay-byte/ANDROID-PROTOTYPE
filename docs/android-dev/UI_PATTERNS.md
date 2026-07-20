@@ -5,45 +5,82 @@
 
 ---
 
+## Font weight — use ExtraBold, not Bold
+
+**CRITICAL**: Android's Roboto font at `FontWeight.Bold` (700) doesn't look dramatically different from `Normal` (400) at small sizes (11-14sp). The user reported "I don't see any text at all which was made bold."
+
+**Always use `FontWeight.ExtraBold` (800)** for bold text in Compose:
+```kotlin
+// WRONG — looks the same as Normal on Android
+Text("Title", fontWeight = FontWeight.Bold)
+
+// RIGHT — clearly bold
+Text("Title", fontWeight = FontWeight.ExtraBold)
+```
+
+For even more prominence (labels, section headers), use `FontWeight.Black` (900).
+
+---
+
+## Title sizes — 36sp expanded, 26sp collapsed
+
+The prototype uses `--fs-display: 32px` for screen titles. On Android, 32sp looks small. Use **36sp** expanded and **26sp** collapsed for the `CollapsingHeader`.
+
+---
+
 ## Collapsing header (title stays, shrinks on scroll)
 
-**Prototype:** The title (e.g., "Anime") is 32sp bold at the top. When the user scrolls past 20px, it shrinks to 22sp. The title NEVER scrolls away — it stays pinned.
+**Prototype:** The title is 32sp bold at the top. When scrolled past 20px, it shrinks to 22sp. It NEVER scrolls away — it stays pinned.
 
-**WRONG (what we did initially):** Put the title inside the scrolling Column → it scrolled away with the content.
+**WRONG**: Put the title inside the scrolling Column → it scrolled away with the content.
 
 **RIGHT:**
 ```kotlin
 val scrollState = rememberScrollState()
 Column(modifier = Modifier.fillMaxSize()) {
-    // Header is OUTSIDE the scroll — always visible
     CollapsingHeader(title = "Anime", scrollState = scrollState)
-    // Content is INSIDE the scroll
-    Column(modifier = Modifier.verticalScroll(scrollState)) {
-        // ...
-    }
+    Column(modifier = Modifier.verticalScroll(scrollState)) { ... }
 }
 ```
 
-The `CollapsingHeader` component reads `scrollState.value` and animates the font size between 32sp and 22sp.
+---
+
+## Collapsing search bar (moves beside title when scrolled)
+
+**Prototype:** When scrolled, the search bar moves BESIDE the title (same row), and the source toggle fades out.
+
+**Implementation:** Use `AnimatedVisibility` for the search bar below the title:
+```kotlin
+// Row: Title + (SourceToggle OR compact SearchBar)
+Row {
+    Text("Search", fontSize = titleFontSize.sp, fontWeight = FontWeight.ExtraBold)
+    if (collapsed) {
+        SearchBar(compact = true, modifier = Modifier.weight(1f))
+    } else {
+        SourceToggle(modifier = Modifier.width(sourceWidth).alpha(sourceAlpha))
+    }
+}
+// Full search bar below — animated appearance
+AnimatedVisibility(
+    visible = !collapsed,
+    enter = fadeIn(tween(300)) + expandVertically(tween(300)),
+    exit = fadeOut(tween(200)) + shrinkVertically(tween(200)),
+) {
+    SearchBar(compact = false, modifier = Modifier.fillMaxWidth())
+}
+```
 
 ---
 
 ## Floating bottom navigation bar
 
-**Prototype:** The nav bar floats with 16dp padding from all edges. Content scrolls behind it. It is NOT a Scaffold bottom bar.
-
-**WRONG:** Using `Scaffold(bottomBar = { BottomNavBar() })` → creates a solid section at the bottom, content doesn't scroll behind it.
+**WRONG:** `Scaffold(bottomBar = { BottomNavBar() })` → creates a solid section at the bottom.
 
 **RIGHT:**
 ```kotlin
-Box(modifier = Modifier.fillMaxSize()) {
-    // Content fills the full screen
+Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
     NavHost(...) { /* screens */ }
-    // Nav overlays on top, at the bottom
-    BottomNavBar(
-        modifier = Modifier.align(Alignment.BottomCenter),
-        // ...
-    )
+    BottomNavBar(modifier = Modifier.align(Alignment.BottomCenter))
 }
 ```
 
@@ -51,18 +88,35 @@ Box(modifier = Modifier.fillMaxSize()) {
 
 ## Bottom nav pill — content-sized active item
 
-**Prototype:** Active nav item expands to fit its full label (e.g., "Settings"). Inactive items are icon-only.
+**WRONG:** `Modifier.weight(0f)` → crashes.
 
-**WRONG:** `Modifier.weight(0f)` for the active item → crashes (weight must be > 0).
+**RIGHT:** Active item = `Modifier` (no weight). Inactive = `Modifier.weight(1f)`.
 
-**RIGHT:** Active item = `Modifier` (no weight = content-sized). Inactive items = `Modifier.weight(1f)`.
+---
 
+## Background color
+
+**CRITICAL**: Set the background on the root container, AND in themes.xml:
 ```kotlin
-items.forEach { item ->
-    NavPill(
-        modifier = if (isActive) Modifier else Modifier.weight(1f),
-        // ...
-    )
+// In NavHost root
+Box(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background))
+```
+```xml
+<!-- In themes.xml — prevents gray flash before Compose loads -->
+<item name="android:colorBackground">#14111F</item>
+```
+
+---
+
+## Container/card padding
+
+**Prototype**: Cards have `margin: 0 16px` (16px from the edge).
+**Android**: 16dp looks too far from the device edge. Use **8dp** outer padding:
+```kotlin
+Surface(
+    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+) {
+    Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)) { ... }
 }
 ```
 
@@ -70,58 +124,31 @@ items.forEach { item ->
 
 ## Custom toggle switch
 
-**Prototype:** 44x26dp pill, surface-5 when off, primary when on. 20dp knob slides right.
-
-**Do NOT use** `Switch` from Material 3 — it looks generic and doesn't match.
-
-**Build custom:**
+**Do NOT use** `Switch` from Material 3. Build custom:
 ```kotlin
-@Composable
-fun CustomToggle(on: Boolean, onChange: (Boolean) -> Unit) {
-    val bgColor by animateColorAsState(if (on) primary else surface5)
-    val knobOffset by animateDpAsState(if (on) 20.dp else 2.dp)
-    Box(
-        modifier = Modifier
-            .width(44.dp).height(26.dp)
-            .clip(CircleShape)
-            .background(bgColor)
-            .clickable { onChange(!on) }
-    ) {
-        Box(modifier = Modifier
-            .offset(x = knobOffset, y = 2.dp)
-            .size(20.dp)
-            .clip(CircleShape)
-            .background(knobColor)
-        )
-    }
+Box(
+    modifier = Modifier.width(44.dp).height(26.dp)
+        .clip(CircleShape).background(if (on) primary else surface5)
+        .clickable { onChange(!on) }
+) {
+    Box(modifier = Modifier.offset(x = knobOffset).size(20.dp).clip(CircleShape).background(knobColor))
 }
 ```
 
 ---
 
-## Text-only segmented control (poster style, card density)
+## Text-only segmented control
 
-**Prototype:** A row of pill buttons in a surface-2 container. Active button has primary background + primaryFg text. Text only, no icons/images.
-
-**Do NOT use** `SingleChoiceSegmentedButtonRow` — it looks generic.
-
-**Build custom:**
+**Do NOT use** `SingleChoiceSegmentedButtonRow`. Build custom:
 ```kotlin
-@Composable
-fun TextSelector(options: List<String>, value: String, onChange: (String) -> Unit) {
-    Surface(color = surface2, shape = RoundedCornerShape(16.dp), modifier = Modifier.padding(4.dp)) {
-        Row {
-            options.forEach { opt ->
-                Surface(
-                    color = if (opt == value) primary else Color.Transparent,
-                    shape = RoundedCornerShape(12.dp),
-                    modifier = Modifier.weight(1f).clickable { onChange(opt) }
-                ) {
-                    Text(opt, color = if (opt == value) primaryFg else onSurfaceVariant,
-                         fontWeight = FontWeight.SemiBold, fontSize = 13.sp,
-                         modifier = Modifier.padding(vertical = 10.dp))
-                }
-            }
+Surface(color = surfaceVariant, shape = RoundedCornerShape(16.dp)) {
+    Row {
+        options.forEach { opt ->
+            Surface(
+                color = if (opt == value) primary else Color.Transparent,
+                shape = RoundedCornerShape(12.dp),
+                modifier = Modifier.weight(1f).clickable { onChange(opt) }
+            ) { Text(opt, fontWeight = FontWeight.ExtraBold) }
         }
     }
 }
@@ -131,72 +158,64 @@ fun TextSelector(options: List<String>, value: String, onChange: (String) -> Uni
 
 ## Settings section groups
 
-**Prototype:**
-- Group label: 11sp bold UPPERCASE, letter-spacing 0.06em, onSurfaceVariant color.
-- Card: surface-1 background, rounded 20dp, contains rows.
-- Row: title (14sp semibold) + description (13sp normal, muted) on the left, control on the right.
-- Divider between rows (1px, surface-3 color), no divider on last row.
-
-```kotlin
-@Composable
-fun SettingsGroup(label: String, content: @Composable ColumnScope.() -> Unit) {
-    Text(label, fontSize = 11.sp, fontWeight = FontWeight.Bold,
-         letterSpacing = 0.06.sp, color = onSurfaceVariant,
-         modifier = Modifier.padding(start = 16.dp, top = 24.dp, bottom = 8.dp))
-    Surface(color = surface1, shape = RoundedCornerShape(20.dp)) {
-        Column(content = content)
-    }
-}
-```
+- Group label: 11sp, `FontWeight.Black`, UPPERCASE, `onSurfaceVariant` color, letter-spacing 0.08sp.
+- Card: surface-1 background, rounded 20dp.
+- Row: title (14sp ExtraBold) + description (13sp Medium, muted) on left, control on right.
+- Divider: 1dp `HorizontalDivider` between rows (inset 16dp), last row no divider.
 
 ---
 
 ## Cover overlap on detail screen
 
-**Prototype:** Cover poster overlaps the banner by 70px (CSS negative margin).
-
 **WRONG:** `Modifier.padding(top = (-70).dp)` → crashes.
 
-**RIGHT:** `Modifier.offset(y = (-70).dp)` — moves the element visually without affecting layout.
+**RIGHT:** `Modifier.offset(y = (-70).dp)`.
 
 ---
 
 ## Grid inside a scrollable page
 
-**Prototype:** Home page has a hero carousel + continue watching + two grids, all in one scroll.
+**WRONG:** `LazyVerticalGrid` inside `verticalScroll` → crashes.
 
-**WRONG:** `LazyVerticalGrid` inside `verticalScroll` → crashes (nested scrolling).
-
-**RIGHT:** Use a regular `Column` with `verticalScroll` and manually chunk items into rows:
+**RIGHT:** Use `Column` + chunked rows:
 ```kotlin
-Column(modifier = Modifier.verticalScroll(scrollState)) {
-    HeroCarousel(...)
-    items.chunked(3).forEach { rowItems ->
-        Row {
-            rowItems.forEach { item ->
-                AnimeCard(anime = item, modifier = Modifier.weight(1f))
-            }
-            // Fill empty slots if rowItems.size < 3
-            repeat(3 - rowItems.size) { Spacer(Modifier.weight(1f)) }
-        }
+items.chunked(3).forEach { rowItems ->
+    Row {
+        rowItems.forEach { AnimeCard(modifier = Modifier.weight(1f)) }
+        repeat(3 - rowItems.size) { Spacer(Modifier.weight(1f)) }
     }
 }
 ```
 
 ---
 
-## Bottom sheet (customize, filters)
+## Filter sheet (accordion + flat views)
 
-**Prototype:** Slides up from the bottom, rounded top corners, scrim backdrop. No drag handle.
+- Use `ModalBottomSheet` with `dragHandle = null` (no dismiss handle).
+- Two view modes: accordion (expandable sections) + flat (tab + content panel).
+- View toggle in header using Material icons (`ViewStream` / `GridView`).
+- Accordion sections: animated expand/collapse via `AnimatedVisibility(expandVertically + fadeIn)`.
+- Chips: outline border when inactive, primaryContainer when active, checkmark icon.
 
-**Use** `ModalBottomSheet` from Material 3:
+---
+
+## Recent searches card
+
+- In a surface-1 card (tinted bg, rounded 20dp, 8dp outer padding).
+- Collapsible: chevron toggle + "Show" pill button to expand.
+- "Clear all" button when expanded.
+- Individual delete (X button) on each item.
+- "Show N more" / "Show less" expander (3 visible by default).
+- Each item: clock icon in a circle + text + delete button.
+
+---
+
+## Theme persistence
+
+**WRONG:** `AnimeAppTheme(darkTheme = true)` — hardcoded, toggle doesn't work.
+
+**RIGHT:**
 ```kotlin
-if (show) {
-    ModalBottomSheet(onDismissRequest = { show = false }) {
-        // Content — no drag handle (the prototype doesn't have one)
-        Column(modifier = Modifier.padding(24.dp)) {
-            // sections...
-        }
-    }
-}
+val settings by settingsRepo.settings.collectAsStateWithLifecycle(initialValue = AppSettings())
+AnimeAppTheme(darkTheme = settings.darkTheme) { AnimeApp() }
 ```

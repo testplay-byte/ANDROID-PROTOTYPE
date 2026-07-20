@@ -9,23 +9,23 @@
 
 **Where:** `BottomNavBar.kt` — `Modifier.weight(0f)` for the active nav pill.
 
-**Root cause:** I wanted the active nav pill to be "content-sized" (wrap its label, not expand). In CSS, `flex: 0` means "don't grow". In Compose, `weight(0f)` is **invalid** — it throws. The correct approach is to **omit `weight()` entirely** for content-sized items.
+**Root cause:** `weight(0f)` is invalid in Compose — it throws. For content-sized items, omit `weight()` entirely.
 
-**Fix:** `modifier = if (isActive) Modifier else Modifier.weight(1f)` — active item has no weight (content-sized), inactive items share space via `weight(1f)`.
+**Fix:** `modifier = if (isActive) Modifier else Modifier.weight(1f)`
 
-**Lesson:** Compose `weight()` ≠ CSS `flex`. `weight(0)` crashes. For content-sized items, don't apply weight at all.
+**Lesson:** Compose `weight()` ≠ CSS `flex`. `weight(0)` crashes. Use no weight for content-sized.
 
 ---
 
 ## Crash 2: `IllegalArgumentException: Padding must be non-negative`
 
-**Where:** `DetailScreen.kt` — `Modifier.padding(top = (-70).dp)` for the cover poster overlapping the banner.
+**Where:** `DetailScreen.kt` — `Modifier.padding(top = (-70).dp)` for cover poster overlap.
 
-**Root cause:** The web prototype uses CSS `margin-top: -70px` to overlap the cover on the banner. Compose's `padding()` does NOT allow negative values — it throws immediately.
+**Root cause:** Compose's `padding()` doesn't allow negative values.
 
-**Fix:** Use `Modifier.offset(y = (-70).dp)` instead. `offset` moves the element visually without affecting the layout flow, and it accepts negative values.
+**Fix:** Use `Modifier.offset(y = (-70).dp)` instead.
 
-**Lesson:** CSS negative margins ≠ Compose padding. Use `offset` for visual overlaps. `padding` must always be ≥ 0.
+**Lesson:** CSS negative margins ≠ Compose padding. Use `offset` for overlaps.
 
 ---
 
@@ -33,48 +33,96 @@
 
 **Where:** `AndroidManifest.xml` referenced `@mipmap/ic_launcher` but no icon resources existed.
 
-**Root cause:** The initial project scaffolding didn't create launcher icons. The build failed at the AAPT resource linking stage.
+**Fix:** Created adaptive icon resources in `res/mipmap-anydpi-v26/` + fallback in `res/drawable-anydpi-v24/`.
 
-**Fix:** Created adaptive icon resources:
-- `res/mipmap-anydpi-v26/ic_launcher.xml` + `ic_launcher_round.xml` (adaptive icon for API 26+)
-- `res/drawable/ic_launcher_background.xml` (purple vector)
-- `res/drawable/ic_launcher_foreground.xml` (play button vector)
-- `res/drawable-anydpi-v24/ic_launcher.xml` + `ic_launcher_round.xml` (layer-list fallback for API 24-25)
-
-**Lesson:** Always create launcher icons. Even a simple vector drawable is better than nothing. The manifest MUST have valid `android:icon` + `android:roundIcon` references.
+**Lesson:** Always create launcher icons. The manifest MUST have valid `android:icon`.
 
 ---
 
 ## Crash 4: Missing Kotlin Serialization plugin
 
-**Where:** `@Serializable` annotations on data classes weren't being processed — `kotlinx.serialization` couldn't find serializers.
+**Where:** `@Serializable` annotations weren't being processed.
 
-**Root cause:** The `org.jetbrains.kotlin.plugin.serialization` Gradle plugin wasn't applied. Without it, `@Serializable` is a no-op annotation.
+**Root cause:** The `org.jetbrains.kotlin.plugin.serialization` Gradle plugin wasn't applied.
 
-**Fix:** Added `id("org.jetbrains.kotlin.plugin.serialization") version "2.0.20"` to both the project-level and app-level `build.gradle.kts` plugins block.
+**Fix:** Added the plugin to both project-level and app-level `build.gradle.kts`.
 
-**Lesson:** `@Serializable` requires the Kotlin serialization compiler plugin. Just adding the runtime dependency (`kotlinx-serialization-json`) is not enough.
+**Lesson:** `@Serializable` requires the compiler plugin, not just the runtime dependency.
 
 ---
 
 ## Crash 5: Experimental API not opted in
 
-**Where:** `FlowRow` (ExperimentalLayoutApi), `combinedClickable` (ExperimentalFoundationApi), `ModalBottomSheet` (ExperimentalMaterial3Api).
+**Where:** `FlowRow`, `combinedClickable`, `ModalBottomSheet`.
 
-**Root cause:** Compose marks new APIs as experimental. Using them without opting in is a compilation error.
+**Fix:** `@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)`
 
-**Fix:** Added `@file:OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class, ExperimentalLayoutApi::class)` at the top of files that use these APIs.
+**Lesson:** Check for `@Experimental*` annotations. Add `@file:OptIn(...)`.
 
-**Lesson:** Check the Compose docs for `@Experimental*` annotations. Add them at the file level with `@file:OptIn(...)`.
+---
+
+## Crash 6: `RowScope` required for `weight()`
+
+**Where:** `SearchScreen.kt` — `SourceToggleBtn` used `Modifier.weight(1f)` but wasn't a `RowScope` extension.
+
+**Root cause:** `weight()` is a `RowScope`/`ColumnScope` extension — it only works inside a `Row` or `Column` composable lambda.
+
+**Fix:** Made `SourceToggleBtn` a `RowScope.SourceToggleBtn` extension function.
+
+**Lesson:** `weight()` requires `RowScope` or `ColumnScope`. If a composable uses `weight()`, it must be called from within a `Row`/`Column` and declared as a `RowScope`/`ColumnScope` extension.
+
+---
+
+## Crash 7: Missing `Surface` import
+
+**Where:** `SearchScreen.kt` — used `Surface` without importing it.
+
+**Fix:** Added `import androidx.compose.material3.Surface`.
+
+**Lesson:** Compose doesn't auto-import. Check ALL imports when using M3 components.
+
+---
+
+## Non-crash issues (UI doesn't match prototype)
+
+### Issue 1: Background color is gray (#303030) instead of M3 purple
+
+**Root cause:** Content area had no background set — transparent, showing the Android window default.
+
+**Fix:** `.background(MaterialTheme.colorScheme.background)` on root Box + `android:colorBackground` in themes.xml.
+
+### Issue 2: Bold text not visible
+
+**Root cause:** `FontWeight.Bold` (700) on Android's Roboto looks similar to Normal at small sizes.
+
+**Fix:** Use `FontWeight.ExtraBold` (800) everywhere.
+
+### Issue 3: Theme toggle doesn't work
+
+**Root cause:** `MainActivity` hardcoded `darkTheme = true`.
+
+**Fix:** Read `settings.darkTheme` from `SettingsRepository` via `collectAsStateWithLifecycle`.
+
+### Issue 4: Title scrolls away
+
+**Root cause:** Title was inside the scrolling Column.
+
+**Fix:** Place `CollapsingHeader` OUTSIDE the scroll Column (above it).
+
+### Issue 5: Bottom nav is a solid section, not floating
+
+**Root cause:** Used `Scaffold(bottomBar = ...)`.
+
+**Fix:** Use `Box` overlay — nav floats on top of scrolling content.
 
 ---
 
 ## Pattern: How to debug a crash from a logcat
 
 1. Look for `FATAL EXCEPTION` in the logcat.
-2. Read the exception class + message (e.g., `IllegalArgumentException: Padding must be non-negative`).
-3. Find the `at com.testplaybyte.animeapp...` line — this tells you the exact file + line number.
+2. Read the exception class + message.
+3. Find the `at com.testplaybyte.animeapp...` line — exact file + line number.
 4. Read that line in the source code.
-5. Understand WHY the exception is thrown (read the Compose docs for that API).
+5. Understand WHY the exception is thrown.
 6. Fix the root cause — don't just try random changes.
 7. Verify the fix doesn't break anything else.
