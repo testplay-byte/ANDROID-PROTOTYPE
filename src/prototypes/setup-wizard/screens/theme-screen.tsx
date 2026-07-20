@@ -9,7 +9,7 @@
 import type { ReactNode } from "react";
 import type { ThemeMode, ThemePalette } from "../lib/themes";
 import { PALETTES } from "../lib/themes";
-import { ThemeIllustration } from "../components/illustrations";
+import { Cat } from "../components/cat";
 
 interface ThemeScreenProps {
   active: boolean;
@@ -78,7 +78,7 @@ export function ThemeScreen({
       <div className="wizard-content">
         {/* Illustration — using --clip class so orbiting dots can't overflow */}
         <div className="illustration illustration--clip" key={active ? "on" : "off"}>
-          <ThemeIllustration />
+          <Cat size={150} />
         </div>
 
         <h1 className="wizard-title" style={{ fontWeight: 800 }}>Choose your theme</h1>

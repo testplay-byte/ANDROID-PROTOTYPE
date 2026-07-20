@@ -9,7 +9,7 @@
  * count-up-style entrance.
  */
 import type { ThemePalette } from "../lib/themes";
-import { StatsIllustration } from "../components/illustrations";
+import { Cat } from "../components/cat";
 
 interface BackupSummaryScreenProps {
   active: boolean;
@@ -36,7 +36,7 @@ export function BackupSummaryScreen({ active, onNext, onBack, palette }: BackupS
       <div className="wizard-content">
         {/* Illustration */}
         <div className="illustration" key={active ? "on" : "off"}>
-          <StatsIllustration />
+          <Cat size={150} />
         </div>
 
         <h1 className="wizard-title" style={{ fontWeight: 800 }}>Backup summary</h1>

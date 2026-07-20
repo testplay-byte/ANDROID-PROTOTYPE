@@ -13,7 +13,7 @@
  * the final step.
  */
 import type { ThemePalette } from "../lib/themes";
-import { FinishIllustration } from "../components/illustrations";
+import { Cat } from "../components/cat";
 
 interface FinishScreenProps {
   active: boolean;
@@ -113,7 +113,7 @@ export function FinishScreen({ active, onRestart, palette }: FinishScreenProps) 
           key={active ? "on" : "off"}
           style={{ animation: "scaleIn 0.6s var(--ease-emphasized-decel) 0.2s backwards, float 4s ease-in-out 0.8s infinite" }}
         >
-          <FinishIllustration />
+          <Cat size={200} />
         </div>
 
         <h1

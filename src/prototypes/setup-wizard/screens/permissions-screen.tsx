@@ -10,7 +10,7 @@
  */
 import type { ReactNode } from "react";
 import type { ThemePalette } from "../lib/themes";
-import { ShieldIllustration } from "../components/illustrations";
+import { Cat } from "../components/cat";
 
 interface Permissions {
   installApps: boolean;
@@ -94,7 +94,7 @@ export function PermissionsScreen({
       <div className="wizard-content">
         {/* Illustration — guardian with shield, big ripples BEHIND */}
         <div className="illustration" key={active ? "on" : "off"}>
-          <ShieldIllustration />
+          <Cat size={150} />
         </div>
 
         <h1 className="wizard-title" style={{ fontWeight: 800 }}>Grant permissions</h1>

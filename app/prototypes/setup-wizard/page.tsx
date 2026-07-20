@@ -1,24 +1,6 @@
 "use client";
 
-/**
- * setup-wizard / page — the prototype entry point.
- *
- * A 7-step animated setup wizard for an anime app.
- * Theme color: #2596be (teal) by default, user can switch palettes.
- *
- * Steps:
- *   0. Welcome
- *   1. Theme selection (light/dark/system + color palette)
- *   2. Folder selection (merged with confirm — auto-advances)
- *   3. Permissions (install apps, notifications, battery — optional)
- *   4. Restore backup welcome (auto-advances after backup selection)
- *   5. Backup summary (mock data)
- *   6. Finish (good luck screen)
- *
- * The wizard applies the selected theme + palette to the .device element
- * so subsequent screens reflect the user's choices immediately.
- */
-import { useState, useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import {
   DeviceThemeProvider,
   DeviceFrame,
@@ -31,7 +13,6 @@ import {
 } from "../../../src/proto-kit";
 import { useWizardState } from "../../../src/prototypes/setup-wizard/hooks/use-wizard-state";
 import { WelcomeScreen } from "../../../src/prototypes/setup-wizard/screens/welcome-screen";
-import { CharacterScreen } from "../../../src/prototypes/setup-wizard/screens/character-screen";
 import { ThemeScreen } from "../../../src/prototypes/setup-wizard/screens/theme-screen";
 import { FolderScreen } from "../../../src/prototypes/setup-wizard/screens/folder-screen";
 import { PermissionsScreen } from "../../../src/prototypes/setup-wizard/screens/permissions-screen";
@@ -42,7 +23,6 @@ import { WizardProgress } from "../../../src/prototypes/setup-wizard/components/
 
 const STEP_NAMES = [
   "Welcome",
-  "Character",
   "Theme",
   "Folder",
   "Permissions",
@@ -53,7 +33,6 @@ const STEP_NAMES = [
 
 const STEP_DESCRIPTIONS = [
   "Welcome to the setup wizard.",
-  "Customize your anime companion.",
   "Choose your theme and colors.",
   "Select your anime folder.",
   "Grant app permissions (optional).",
@@ -66,18 +45,11 @@ export default function Page() {
   const wizard = useWizardState();
   const { step, themeMode, palette } = wizard;
 
-  // Apply the selected palette as CSS custom properties on the .device element
   useEffect(() => {
     const device = document.querySelector(".device") as HTMLElement | null;
     if (!device) return;
-
-    // Determine effective theme (system → dark for prototype)
     const effectiveDark = themeMode !== "light";
-
-    // Apply theme mode
     device.setAttribute("data-theme", effectiveDark ? "dark" : "light");
-
-    // Apply palette colors as CSS custom properties
     const root = device;
     root.style.setProperty("--color-primary", palette.primary);
     root.style.setProperty("--color-primary-fg", palette.onPrimary);
@@ -89,8 +61,6 @@ export default function Page() {
     root.style.setProperty("--color-surface-3", effectiveDark ? palette.surface3Dark : palette.bgLight);
     root.style.setProperty("--color-surface-4", effectiveDark ? palette.surface4Dark : palette.primaryContainerLight);
     root.style.setProperty("--color-surface-5", effectiveDark ? palette.surface5Dark : palette.primaryContainerLight);
-
-    // Stage background
     document.documentElement.style.setProperty("--stage-bg", effectiveDark ? palette.bgDark : "#e0e0e0");
   }, [themeMode, palette]);
 
@@ -105,15 +75,14 @@ export default function Page() {
             <PanelBadge>prototype</PanelBadge>
             <PanelTitle>Setup Wizard</PanelTitle>
             <PanelDesc>
-              An animated 7-step setup wizard for an anime app. Material 3
-              Expressive with a teal (#2596be) primary color. Theme switching,
-              folder selection (auto-advancing), permissions, backup restore,
-              and more.
+              An animated setup wizard for an anime app. Material 3 Expressive
+              with a lime primary color. Theme switching, folder selection,
+              permissions, backup restore, and a cute animated cat companion.
             </PanelDesc>
             <div className="tags">
               <span className="tag">Material 3</span>
               <span className="tag">Animated</span>
-              <span className="tag">Wizard</span>
+              <span className="tag">Cat</span>
             </div>
           </>
         }
@@ -124,7 +93,6 @@ export default function Page() {
               <span className="screeninfo__name">{info}</span>
               <span className="screeninfo__desc">{desc}</span>
             </div>
-
             <PanelHead>Progress</PanelHead>
             <div className="mini-bars">
               {STEP_NAMES.map((name, i) => (
@@ -144,42 +112,21 @@ export default function Page() {
                 </div>
               ))}
             </div>
-
             <PanelHead>Design</PanelHead>
             <div className="kvlist">
-              <div className="kvlist__row">
-                <span>Theme</span>
-                <b>M3 Expressive</b>
-              </div>
-              <div className="kvlist__row">
-                <span>Primary</span>
-                <b style={{ color: palette.primary }}>{palette.primary}</b>
-              </div>
-              <div className="kvlist__row">
-                <span>Mode</span>
-                <b>{themeMode}</b>
-              </div>
+              <div className="kvlist__row"><span>Theme</span><b>M3 Expressive</b></div>
+              <div className="kvlist__row"><span>Primary</span><b style={{ color: palette.primary }}>{palette.primary}</b></div>
+              <div className="kvlist__row"><span>Mode</span><b>{themeMode}</b></div>
             </div>
           </>
         }
       >
         <DeviceFrame theme="dark">
           <Screen>
-            {/* Progress bar at top */}
-            <WizardProgress currentStep={step} totalSteps={8} palette={palette} />
-
-            {/* Screen content — all screens always mounted, visibility via .wizard-step--active */}
-            <WelcomeScreen active={step === 0} onNext={wizard.next} palette={palette} character={wizard.character} />
-            <CharacterScreen
-              active={step === 1}
-              onNext={wizard.next}
-              onBack={wizard.back}
-              character={wizard.character}
-              setCharacter={wizard.setCharacter}
-              palette={palette}
-            />
+            <WizardProgress currentStep={step} totalSteps={7} palette={palette} />
+            <WelcomeScreen active={step === 0} onNext={wizard.next} palette={palette} />
             <ThemeScreen
-              active={step === 2}
+              active={step === 1}
               onNext={wizard.next}
               onBack={wizard.back}
               themeMode={themeMode}
@@ -188,7 +135,7 @@ export default function Page() {
               setPalette={wizard.setPalette}
             />
             <FolderScreen
-              active={step === 3}
+              active={step === 2}
               onNext={wizard.next}
               onBack={wizard.back}
               folderSelected={wizard.folderSelected}
@@ -196,7 +143,7 @@ export default function Page() {
               palette={palette}
             />
             <PermissionsScreen
-              active={step === 4}
+              active={step === 3}
               onNext={wizard.next}
               onBack={wizard.back}
               permissions={wizard.permissionsGranted}
@@ -204,7 +151,7 @@ export default function Page() {
               palette={palette}
             />
             <RestoreScreen
-              active={step === 5}
+              active={step === 4}
               onNext={wizard.next}
               onBack={wizard.back}
               backupSelected={wizard.backupSelected}
@@ -212,12 +159,12 @@ export default function Page() {
               palette={palette}
             />
             <BackupSummaryScreen
-              active={step === 6}
+              active={step === 5}
               onNext={wizard.next}
               onBack={wizard.back}
               palette={palette}
             />
-            <FinishScreen active={step === 7} onRestart={wizard.reset} palette={palette} />
+            <FinishScreen active={step === 6} onRestart={wizard.reset} palette={palette} />
           </Screen>
         </DeviceFrame>
       </Stage>

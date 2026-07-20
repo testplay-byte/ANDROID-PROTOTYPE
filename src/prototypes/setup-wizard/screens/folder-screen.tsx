@@ -12,7 +12,7 @@
  */
 import { useEffect, useState } from "react";
 import type { ThemePalette } from "../lib/themes";
-import { FolderIllustration, CheckIllustration } from "../components/illustrations";
+import { Cat } from "../components/cat";
 
 interface FolderScreenProps {
   active: boolean;
@@ -57,7 +57,7 @@ export function FolderScreen({
       <div className="wizard-content">
         {/* Illustration — swap to CheckIllustration once connected */}
         <div className="illustration" key={`${active ? "on" : "off"}-${showConnected ? "conn" : "empty"}`}>
-          {showConnected ? <CheckIllustration /> : <FolderIllustration />}
+          <Cat size={150} />
         </div>
 
         <h1 className="wizard-title" style={{ fontWeight: 800 }}>

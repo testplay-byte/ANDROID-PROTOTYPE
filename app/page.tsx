@@ -1184,7 +1184,7 @@ export default function Page() {
                   An animated 8-step setup wizard for an anime app. Material 3
                   Expressive with a lime (#b3f35a) primary color. Theme
                   switching, folder selection, permissions, backup restore,
-                  and animated SVG illustrations.
+                  and a cute animated cat companion.
                 </p>
                 <div className="tags">
                   <span className="tag">Material 3</span>

@@ -14,7 +14,7 @@
  */
 import { useEffect, useState } from "react";
 import type { ThemePalette } from "../lib/themes";
-import { CloudIllustration } from "../components/illustrations";
+import { Cat } from "../components/cat";
 
 interface RestoreScreenProps {
   active: boolean;
@@ -57,7 +57,7 @@ export function RestoreScreen({
       <div className="wizard-content">
         {/* Illustration — anime character catching falling data drops */}
         <div className="illustration" key={active ? "on" : "off"}>
-          <CloudIllustration />
+          <Cat size={150} />
         </div>
 
         <h1 className="wizard-title" style={{ fontWeight: 800 }}>Restore backup</h1>
