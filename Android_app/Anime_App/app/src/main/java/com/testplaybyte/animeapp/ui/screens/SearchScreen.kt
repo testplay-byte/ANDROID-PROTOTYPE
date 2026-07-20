@@ -280,7 +280,7 @@ fun SearchScreen(
                     .padding(horizontal = 16.dp, vertical = 4.dp),
             ) {
                 Column(
-                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 12.dp),
+                    modifier = Modifier.padding(horizontal = 4.dp, vertical = 12.dp),
                 ) {
                     // Section header — label + count
                     Row(
@@ -419,8 +419,7 @@ private fun SearchTopBar(
                 .padding(horizontal = 16.dp)
                 .statusBarsPadding(),
         ) {
-            // Row 1: Title + SourceToggle (right) — when expanded
-            // OR: Title + SearchBar (right) — when collapsed
+            // Row: Title + (SourceToggle OR SearchBar) — animated transition
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -437,7 +436,7 @@ private fun SearchTopBar(
                 )
 
                 if (collapsed) {
-                    // When collapsed: search bar moves BESIDE the title (same row)
+                    // When collapsed: search bar moves BESIDE the title
                     Spacer(Modifier.width(12.dp))
                     SearchBar(
                         value = query,
@@ -475,17 +474,26 @@ private fun SearchTopBar(
                 }
             }
 
-            // Search bar below title (only when expanded — not collapsed)
-            if (!collapsed) {
-                Spacer(Modifier.height(4.dp))
-                SearchBar(
-                    value = query,
-                    onChange = onQueryChange,
-                    onClear = onClearQuery,
-                    onSubmit = onSubmit,
-                    compact = false,
-                    modifier = Modifier.fillMaxWidth(),
-                )
+            // Search bar below title — animated appearance when un-collapsing
+            // Uses AnimatedVisibility so it slides/fades in smoothly (not a hard jump)
+            AnimatedVisibility(
+                visible = !collapsed,
+                enter = fadeIn(animationSpec = tween(300, easing = FastOutSlowInEasing)) +
+                    expandVertically(animationSpec = tween(300, easing = FastOutSlowInEasing)),
+                exit = fadeOut(animationSpec = tween(200, easing = FastOutSlowInEasing)) +
+                    shrinkVertically(animationSpec = tween(200, easing = FastOutSlowInEasing)),
+            ) {
+                Column {
+                    Spacer(Modifier.height(4.dp))
+                    SearchBar(
+                        value = query,
+                        onChange = onQueryChange,
+                        onClear = onClearQuery,
+                        onSubmit = onSubmit,
+                        compact = false,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                }
             }
 
             Spacer(Modifier.height(4.dp))
@@ -641,10 +649,10 @@ private fun RecentSearchesCard(
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Text(
                         text = "RECENT SEARCHES",
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        letterSpacing = 0.06.sp,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.Black,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        letterSpacing = 0.08.sp,
                     )
                     if (!collapsed) {
                         Spacer(Modifier.width(4.dp))
