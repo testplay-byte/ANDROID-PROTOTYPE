@@ -61,7 +61,7 @@ export function WelcomeScreen({ active, onNext, palette, character }: WelcomeScr
       <div className="wizard-content" style={{ position: "relative", zIndex: 1 }}>
         {/* Illustration — anime girl waving */}
         <div className="illustration" key={active ? "on" : "off"}>
-          <AnimeCharacter config={{ ...character, expression: "waving" }} size={200} animated={true} />
+          <AnimeCharacter config={character} size={200} animation="waving" />
         </div>
 
         {/* Title — explicitly bold (font-weight: 800) */}

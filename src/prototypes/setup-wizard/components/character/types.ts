@@ -1,119 +1,32 @@
-/**
- * setup-wizard / components / character / types — character configuration types.
- *
- * The character system supports:
- * - 3 art styles: chibi (cute/round), slim (tall/elegant), kemonomimi (fox/cat girl)
- * - Customizable hair color, style, eye color, expression, outfit color
- * - Reusable across the wizard and future app screens
- */
-
-export type ArtStyle = "chibi" | "slim" | "kemonomimi";
-export type HairStyle = "twin_tails" | "long_flow" | "short_bob" | "ponytail";
-export type EarType = "none" | "cat" | "fox" | "bunny";
-export type Expression = "happy" | "waving" | "excited" | "calm" | "wink";
-export type OutfitStyle = "dress" | "hoodie" | "uniform" | "casual";
+export type AnimationState = "idle" | "walking" | "jumping" | "waving";
 
 export interface CharacterConfig {
-  artStyle: ArtStyle;
   hairColor: string;
-  hairStyle: HairStyle;
   eyeColor: string;
-  skinColor: string;
-  earType: EarType;
-  expression: Expression;
   outfitColor: string;
-  outfitStyle: OutfitStyle;
-  /** Accent color (cheeks, accessories) */
   accentColor: string;
+  earType: "cat" | "bunny" | "fox";
 }
 
 export const DEFAULT_CHARACTER: CharacterConfig = {
-  artStyle: "kemonomimi",
-  hairColor: "#ff9ecd",
-  hairStyle: "long_flow",
-  eyeColor: "#4fc3f7",
-  skinColor: "#ffe0d0",
-  earType: "fox",
-  expression: "happy",
+  hairColor: "#7ec8e3",
+  eyeColor: "#5c9ead",
   outfitColor: "#b3f35a",
-  outfitStyle: "hoodie",
   accentColor: "#ff9ecd",
+  earType: "cat",
 };
 
-export interface PresetCharacter {
-  name: string;
-  config: CharacterConfig;
-}
-
-export const CHARACTER_PRESETS: PresetCharacter[] = [
-  {
-    name: "Luna",
-    config: {
-      artStyle: "kemonomimi",
-      hairColor: "#ff9ecd",
-      hairStyle: "long_flow",
-      eyeColor: "#4fc3f7",
-      skinColor: "#ffe0d0",
-      earType: "fox",
-      expression: "happy",
-      outfitColor: "#b3f35a",
-      outfitStyle: "hoodie",
-      accentColor: "#ff9ecd",
-    },
-  },
-  {
-    name: "Sakura",
-    config: {
-      artStyle: "chibi",
-      hairColor: "#ffb3d9",
-      hairStyle: "twin_tails",
-      eyeColor: "#ab47bc",
-      skinColor: "#fff0e8",
-      earType: "cat",
-      expression: "excited",
-      outfitColor: "#ffab91",
-      outfitStyle: "dress",
-      accentColor: "#ffb3d9",
-    },
-  },
-  {
-    name: "Yuki",
-    config: {
-      artStyle: "slim",
-      hairColor: "#90caf9",
-      hairStyle: "long_flow",
-      eyeColor: "#26a69a",
-      skinColor: "#ffe0d0",
-      earType: "bunny",
-      expression: "calm",
-      outfitColor: "#80deea",
-      outfitStyle: "uniform",
-      accentColor: "#90caf9",
-    },
-  },
-  {
-    name: "Miko",
-    config: {
-      artStyle: "kemonomimi",
-      hairColor: "#ffab40",
-      hairStyle: "ponytail",
-      eyeColor: "#ff7043",
-      skinColor: "#fff0e8",
-      earType: "fox",
-      expression: "wink",
-      outfitColor: "#ffcc80",
-      outfitStyle: "casual",
-      accentColor: "#ffab40",
-    },
-  },
-];
-
 export const HAIR_COLORS = [
-  "#ff9ecd", "#ffb3d9", "#90caf9", "#ffab40",
-  "#ab47bc", "#26a69a", "#ef5350", "#fff0e8",
+  "#7ec8e3", "#ff9ecd", "#ffb347", "#c8a2c8",
+  "#a8e6cf", "#ff6b6b", "#ffd93d", "#b0c4de",
 ];
 
 export const EYE_COLORS = [
-  "#4fc3f7", "#ab47bc", "#26a69a", "#ff7043",
+  "#5c9ead", "#ab47bc", "#26a69a", "#ff7043",
   "#5c6bc0", "#ec407a", "#42a5f5", "#66bb6a",
+];
+
+export const OUTFIT_COLORS = [
+  "#b3f35a", "#ff9ecd", "#80deea", "#ffab91",
+  "#ce93d8", "#a5d6a7", "#fff176", "#90caf9",
 ];
