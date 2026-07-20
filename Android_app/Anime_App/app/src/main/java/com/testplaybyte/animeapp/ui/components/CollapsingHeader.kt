@@ -8,6 +8,7 @@ import androidx.compose.ui.*
 import androidx.compose.ui.text.font.*
 import androidx.compose.ui.unit.*
 import androidx.compose.foundation.ScrollState
+import com.testplaybyte.animeapp.theme.RobotoFamily
 
 /**
  * CollapsingHeader — a title that shrinks when the content is scrolled.
@@ -75,6 +76,7 @@ fun CollapsingHeader(
         ) {
             Text(
                 text = title,
+                fontFamily = RobotoFamily,
                 fontSize = fontSize.sp,
                 fontWeight = FontWeight.ExtraBold,
                 letterSpacing = (-0.02).sp,

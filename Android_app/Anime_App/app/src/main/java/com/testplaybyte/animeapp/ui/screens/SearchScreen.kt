@@ -33,6 +33,7 @@ import com.testplaybyte.animeapp.data.AniListClient
 import com.testplaybyte.animeapp.model.Anime
 import com.testplaybyte.animeapp.ui.components.AnimeCard
 import com.testplaybyte.animeapp.ui.components.FilterSheet
+import com.testplaybyte.animeapp.theme.RobotoFamily
 import kotlinx.coroutines.delay
 
 /**
@@ -428,6 +429,7 @@ private fun SearchTopBar(
                 // Title (always visible)
                 Text(
                     text = "Search",
+                    fontFamily = RobotoFamily,
                     fontSize = titleFontSize.sp,
                     fontWeight = FontWeight.ExtraBold,
                     letterSpacing = (-0.02).sp,
