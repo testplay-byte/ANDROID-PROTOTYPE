@@ -3,18 +3,17 @@
 /**
  * setup-wizard / page — the prototype entry point.
  *
- * An 8-step animated setup wizard for an anime app.
+ * A 7-step animated setup wizard for an anime app.
  * Theme color: #2596be (teal) by default, user can switch palettes.
  *
  * Steps:
  *   0. Welcome
  *   1. Theme selection (light/dark/system + color palette)
- *   2. Folder selection (mock)
- *   3. Folder confirmation
- *   4. Permissions (install apps, notifications, battery — optional)
- *   5. Restore backup welcome
- *   6. Backup summary (mock data)
- *   7. Finish (good luck screen)
+ *   2. Folder selection (merged with confirm — auto-advances)
+ *   3. Permissions (install apps, notifications, battery — optional)
+ *   4. Restore backup welcome (auto-advances after backup selection)
+ *   5. Backup summary (mock data)
+ *   6. Finish (good luck screen)
  *
  * The wizard applies the selected theme + palette to the .device element
  * so subsequent screens reflect the user's choices immediately.
@@ -34,7 +33,6 @@ import { useWizardState } from "../../../src/prototypes/setup-wizard/hooks/use-w
 import { WelcomeScreen } from "../../../src/prototypes/setup-wizard/screens/welcome-screen";
 import { ThemeScreen } from "../../../src/prototypes/setup-wizard/screens/theme-screen";
 import { FolderScreen } from "../../../src/prototypes/setup-wizard/screens/folder-screen";
-import { FolderConfirmScreen } from "../../../src/prototypes/setup-wizard/screens/folder-confirm-screen";
 import { PermissionsScreen } from "../../../src/prototypes/setup-wizard/screens/permissions-screen";
 import { RestoreScreen } from "../../../src/prototypes/setup-wizard/screens/restore-screen";
 import { BackupSummaryScreen } from "../../../src/prototypes/setup-wizard/screens/backup-summary-screen";
@@ -45,7 +43,6 @@ const STEP_NAMES = [
   "Welcome",
   "Theme",
   "Folder",
-  "Confirm",
   "Permissions",
   "Restore",
   "Summary",
@@ -55,10 +52,9 @@ const STEP_NAMES = [
 const STEP_DESCRIPTIONS = [
   "Welcome to the setup wizard.",
   "Choose your theme and colors.",
-  "Select your anime folder.",
-  "Folder selected successfully.",
+  "Select your anime folder (auto-advances).",
   "Grant app permissions (optional).",
-  "Restore from a backup.",
+  "Restore from a backup (auto-advances).",
   "Backup summary preview.",
   "You're all set!",
 ];
@@ -106,9 +102,10 @@ export default function Page() {
             <PanelBadge>prototype</PanelBadge>
             <PanelTitle>Setup Wizard</PanelTitle>
             <PanelDesc>
-              An animated 8-step setup wizard for an anime app. Material 3
+              An animated 7-step setup wizard for an anime app. Material 3
               Expressive with a teal (#2596be) primary color. Theme switching,
-              folder selection, permissions, backup restore, and more.
+              folder selection (auto-advancing), permissions, backup restore,
+              and more.
             </PanelDesc>
             <div className="tags">
               <span className="tag">Material 3</span>
@@ -166,7 +163,7 @@ export default function Page() {
         <DeviceFrame theme="dark">
           <Screen>
             {/* Progress bar at top */}
-            <WizardProgress currentStep={step} totalSteps={8} palette={palette} />
+            <WizardProgress currentStep={step} totalSteps={7} palette={palette} />
 
             {/* Screen content — all screens always mounted, visibility via .wizard-step--active */}
             <WelcomeScreen active={step === 0} onNext={wizard.next} palette={palette} />
@@ -187,14 +184,8 @@ export default function Page() {
               setFolderSelected={wizard.setFolderSelected}
               palette={palette}
             />
-            <FolderConfirmScreen
-              active={step === 3}
-              onNext={wizard.next}
-              onBack={wizard.back}
-              palette={palette}
-            />
             <PermissionsScreen
-              active={step === 4}
+              active={step === 3}
               onNext={wizard.next}
               onBack={wizard.back}
               permissions={wizard.permissionsGranted}
@@ -202,7 +193,7 @@ export default function Page() {
               palette={palette}
             />
             <RestoreScreen
-              active={step === 5}
+              active={step === 4}
               onNext={wizard.next}
               onBack={wizard.back}
               backupSelected={wizard.backupSelected}
@@ -210,12 +201,12 @@ export default function Page() {
               palette={palette}
             />
             <BackupSummaryScreen
-              active={step === 6}
+              active={step === 5}
               onNext={wizard.next}
               onBack={wizard.back}
               palette={palette}
             />
-            <FinishScreen active={step === 7} onRestart={wizard.reset} palette={palette} />
+            <FinishScreen active={step === 6} onRestart={wizard.reset} palette={palette} />
           </Screen>
         </DeviceFrame>
       </Stage>

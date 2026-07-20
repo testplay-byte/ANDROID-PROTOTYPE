@@ -1,13 +1,15 @@
 "use client";
 /**
- * setup-wizard / screens / backup-summary-screen — step 6.
+ * setup-wizard / screens / backup-summary-screen — step 5.
  *
- * After the user picks a backup file, this screen shows a stats grid with
- * what was found: 247 anime, 12 categories, 1,432 episodes tracked, 89
- * completed. Each stat card uses a scale-in entry animation (staggered).
+ * After the user picks a backup file (or skips), this screen shows a stats
+ * grid with what was found: 247 anime, 12 categories, 1,432 episodes
+ * tracked, 89 completed. Each stat card has a polished card style (border,
+ * shadow, top-edge highlight) and the values animate in with a scale +
+ * count-up-style entrance.
  */
 import type { ThemePalette } from "../lib/themes";
-import { StatsChart } from "../components/illustrations";
+import { StatsIllustration } from "../components/illustrations";
 
 interface BackupSummaryScreenProps {
   active: boolean;
@@ -34,23 +36,30 @@ export function BackupSummaryScreen({ active, onNext, onBack, palette }: BackupS
       <div className="wizard-content">
         {/* Illustration */}
         <div className="illustration" key={active ? "on" : "off"}>
-          <StatsChart />
+          <StatsIllustration />
         </div>
 
-        <h1 className="wizard-title">Backup summary</h1>
+        <h1 className="wizard-title" style={{ fontWeight: 800 }}>Backup summary</h1>
         <p className="wizard-subtitle">Here&apos;s what we found in your backup</p>
 
-        {/* Stats grid (4 cards, scale-in staggered) */}
+        {/* Stats grid — polished cards, animated value entrance */}
         <div className="stats-grid">
           {STATS.map((stat, i) => (
             <div
               key={stat.label}
               className="stat-card"
               style={{
-                animation: `scaleIn 0.4s var(--ease-emphasized-decel) ${0.1 * i + 0.2}s backwards`,
+                animation: `cardEntry 0.5s var(--ease-emphasized-decel) ${0.08 * i + 0.15}s backwards`,
+                borderColor: `${palette.primary}44`,
               }}
             >
-              <span className="stat-value" style={{ color: palette.primary }}>
+              <span
+                className="stat-value stat-value--anim"
+                style={{
+                  color: palette.primary,
+                  animationDelay: `${0.08 * i + 0.35}s`,
+                }}
+              >
                 {stat.value}
               </span>
               <span className="stat-label">{stat.label}</span>
@@ -60,7 +69,7 @@ export function BackupSummaryScreen({ active, onNext, onBack, palette }: BackupS
       </div>
 
       <div className="wizard-actions">
-        <button type="button" className="wizard-btn wizard-btn--secondary" onClick={onBack}>
+        <button type="button" className="wizard-btn wizard-btn--secondary" onClick={onBack} style={{ fontWeight: 800 }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path
               d="M19 12H5M11 18l-6-6 6-6"
@@ -76,7 +85,7 @@ export function BackupSummaryScreen({ active, onNext, onBack, palette }: BackupS
           type="button"
           className="wizard-btn wizard-btn--primary"
           onClick={onNext}
-          style={{ background: palette.primary, color: palette.onPrimary }}
+          style={{ background: palette.primary, color: palette.onPrimary, fontWeight: 800 }}
         >
           Looks good!
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">

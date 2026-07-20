@@ -1174,6 +1174,203 @@ export default function Page() {
                 </a>
               </div>
             </article>
+
+            {/* ===== Setup Wizard (animated 8-step setup wizard) ===== */}
+            <article className="show">
+              <div className="show__info show__info--left">
+                <span className="tag tag--status">review</span>
+                <h3 className="show__name">Setup Wizard</h3>
+                <p className="show__desc">
+                  An animated 8-step setup wizard for an anime app. Material 3
+                  Expressive with a lime (#b3f35a) primary color. Theme
+                  switching, folder selection, permissions, backup restore,
+                  and animated SVG illustrations.
+                </p>
+                <div className="tags">
+                  <span className="tag">Material 3</span>
+                  <span className="tag">Animated</span>
+                  <span className="tag">Wizard</span>
+                </div>
+              </div>
+              <a
+                className="phone"
+                href="prototypes/setup-wizard/"
+                aria-label="Open Setup Wizard prototype"
+                style={{
+                  borderColor: "#253a25",
+                  background:
+                    "linear-gradient(160deg, #142214, #1f321f)",
+                }}
+              >
+                <span
+                  className="phone__screen"
+                  style={{ background: "#0a120a" }}
+                >
+                  <span
+                    className="phone__statusbar"
+                    style={{ color: "#e8ffd4" }}
+                  >
+                    <span>9:41</span>
+                    <span className="phone__punchhole" />
+                    <span>87%</span>
+                  </span>
+                  <span
+                    style={{
+                      height: 60,
+                      borderRadius: 8,
+                      background: "linear-gradient(135deg, #b3f35a, #8bc34a)",
+                    }}
+                  />
+                  <span
+                    style={{
+                      display: "flex",
+                      gap: 4,
+                      alignItems: "center",
+                      marginTop: 8,
+                    }}
+                  >
+                    <span
+                      style={{
+                        flex: 1,
+                        height: 8,
+                        borderRadius: 999,
+                        background: "#253a25",
+                      }}
+                    />
+                    <span
+                      style={{
+                        width: 8,
+                        height: 8,
+                        borderRadius: 999,
+                        background: "#b3f35a",
+                      }}
+                    />
+                  </span>
+                  <span
+                    style={{
+                      display: "grid",
+                      gridTemplateColumns: "1fr 1fr",
+                      gap: 4,
+                      marginTop: 4,
+                    }}
+                  >
+                    <span
+                      style={{
+                        aspectRatio: "4/3",
+                        borderRadius: 6,
+                        background: "#1a2a1a",
+                      }}
+                    />
+                    <span
+                      style={{
+                        aspectRatio: "4/3",
+                        borderRadius: 6,
+                        background: "#1a2a1a",
+                      }}
+                    />
+                  </span>
+                  <span
+                    className="phone__nav"
+                    style={{
+                      borderTopColor: "#142214",
+                      background: "#142214",
+                    }}
+                  >
+                    <span style={{ background: "#b3f35a" }} />
+                    <span style={{ background: "#253a25" }} />
+                    <span style={{ background: "#253a25" }} />
+                  </span>
+                </span>
+              </a>
+              <div className="show__info show__info--right">
+                <div className="mini-donut">
+                  <svg width="56" height="56" viewBox="0 0 56 56">
+                    <circle
+                      cx="28"
+                      cy="28"
+                      r="22"
+                      fill="none"
+                      stroke="var(--muted)"
+                      strokeWidth="6"
+                    />
+                    <circle
+                      cx="28"
+                      cy="28"
+                      r="22"
+                      fill="none"
+                      stroke="var(--chart-2)"
+                      strokeWidth="6"
+                      strokeDasharray="138 138"
+                      transform="rotate(-90 28 28)"
+                    />
+                  </svg>
+                  <span className="mini-donut__num">8</span>
+                </div>
+                <div className="mini-bars">
+                  <div className="mini-bar-row">
+                    <span className="mini-bar-label">Steps</span>
+                    <div className="mini-bar-track">
+                      <div
+                        className="mini-bar-fill"
+                        style={{
+                          width: "100%",
+                          background: "var(--chart-2)",
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="mini-bar-row">
+                    <span className="mini-bar-label">Animations</span>
+                    <div className="mini-bar-track">
+                      <div
+                        className="mini-bar-fill"
+                        style={{
+                          width: "90%",
+                          background: "var(--chart-3)",
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div className="mini-bar-row">
+                    <span className="mini-bar-label">Palettes</span>
+                    <div className="mini-bar-track">
+                      <div
+                        className="mini-bar-fill"
+                        style={{
+                          width: "60%",
+                          background: "var(--chart-1)",
+                        }}
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="kv">
+                  <div className="kv__row">
+                    <b>8</b>&nbsp;screens
+                  </div>
+                  <div className="kv__row">
+                    <b>Lime</b>&nbsp;theme
+                  </div>
+                </div>
+                <a className="openlink" href="prototypes/setup-wizard/">
+                  Open prototype
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </a>
+              </div>
+            </article>
           </div>
 
           <div className="empty" id="emptyNote" hidden>

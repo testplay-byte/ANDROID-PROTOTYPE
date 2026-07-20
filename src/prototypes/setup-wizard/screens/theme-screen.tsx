@@ -3,13 +3,13 @@
  * setup-wizard / screens / theme-screen — step 1.
  *
  * User picks a theme mode (Dark / Light / System) and a color palette
- * (Teal / Purple / Coral / Forest / Amber). The ThemePalette illustration
- * (swatches orbiting a paint brush) sits at the top.
+ * (Teal / Purple / Coral / Forest / Amber). The ThemeIllustration
+ * (anime girl holding a mirror with orbiting color dots) sits at the top.
  */
 import type { ReactNode } from "react";
 import type { ThemeMode, ThemePalette } from "../lib/themes";
 import { PALETTES } from "../lib/themes";
-import { ThemePalette as ThemePaletteIllustration } from "../components/illustrations";
+import { ThemeIllustration } from "../components/illustrations";
 
 interface ThemeScreenProps {
   active: boolean;
@@ -76,12 +76,12 @@ export function ThemeScreen({
   return (
     <div className={`wizard-step ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        {/* Illustration */}
-        <div className="illustration" key={active ? "on" : "off"}>
-          <ThemePaletteIllustration />
+        {/* Illustration — using --clip class so orbiting dots can't overflow */}
+        <div className="illustration illustration--clip" key={active ? "on" : "off"}>
+          <ThemeIllustration />
         </div>
 
-        <h1 className="wizard-title">Choose your theme</h1>
+        <h1 className="wizard-title" style={{ fontWeight: 800 }}>Choose your theme</h1>
         <p className="wizard-subtitle">
           Pick a mode and a color. You can change this anytime in settings.
         </p>
@@ -136,7 +136,7 @@ export function ThemeScreen({
       </div>
 
       <div className="wizard-actions">
-        <button type="button" className="wizard-btn wizard-btn--secondary" onClick={onBack}>
+        <button type="button" className="wizard-btn wizard-btn--secondary" onClick={onBack} style={{ fontWeight: 800 }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path
               d="M19 12H5M11 18l-6-6 6-6"
@@ -152,7 +152,7 @@ export function ThemeScreen({
           type="button"
           className="wizard-btn wizard-btn--primary"
           onClick={onNext}
-          style={{ background: palette.primary, color: palette.onPrimary }}
+          style={{ background: palette.primary, color: palette.onPrimary, fontWeight: 800 }}
         >
           Next
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">

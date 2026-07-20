@@ -1,15 +1,16 @@
 "use client";
 /**
- * setup-wizard / screens / permissions-screen — step 4.
+ * setup-wizard / screens / permissions-screen — step 3.
  *
  * Optional permission grants. Three rows (Install apps, Notifications,
- * Battery) each with a toggle. All optional — user can skip and continue
- * without granting anything. Both Skip and Continue advance to the next
- * step; Back returns to the folder-confirm screen.
+ * Battery) each with a toggle. All optional — the subtitle still mentions
+ * skipping but there is NO Skip button; only Back + Continue. The
+ * ShieldIllustration (guardian with shield, big ripples behind) sits at
+ * the top.
  */
 import type { ReactNode } from "react";
 import type { ThemePalette } from "../lib/themes";
-import { ShieldLock } from "../components/illustrations";
+import { ShieldIllustration } from "../components/illustrations";
 
 interface Permissions {
   installApps: boolean;
@@ -91,12 +92,12 @@ export function PermissionsScreen({
   return (
     <div className={`wizard-step ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        {/* Illustration */}
+        {/* Illustration — guardian with shield, big ripples BEHIND */}
         <div className="illustration" key={active ? "on" : "off"}>
-          <ShieldLock />
+          <ShieldIllustration />
         </div>
 
-        <h1 className="wizard-title">Grant permissions</h1>
+        <h1 className="wizard-title" style={{ fontWeight: 800 }}>Grant permissions</h1>
         <p className="wizard-subtitle">(optional — you can skip these)</p>
 
         {/* Permission rows */}
@@ -137,7 +138,7 @@ export function PermissionsScreen({
       </div>
 
       <div className="wizard-actions">
-        <button type="button" className="wizard-btn wizard-btn--secondary" onClick={onBack}>
+        <button type="button" className="wizard-btn wizard-btn--secondary" onClick={onBack} style={{ fontWeight: 800 }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path
               d="M19 12H5M11 18l-6-6 6-6"
@@ -149,16 +150,23 @@ export function PermissionsScreen({
           </svg>
           Back
         </button>
-        <button type="button" className="wizard-btn wizard-btn--ghost" onClick={onNext}>
-          Skip
-        </button>
+        {/* Only Continue — no Skip button (subtitle still mentions optional) */}
         <button
           type="button"
           className="wizard-btn wizard-btn--primary"
           onClick={onNext}
-          style={{ background: palette.primary, color: palette.onPrimary }}
+          style={{ background: palette.primary, color: palette.onPrimary, fontWeight: 800 }}
         >
           Continue
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M5 12h14M13 6l6 6-6 6"
+              stroke="currentColor"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </button>
       </div>
     </div>

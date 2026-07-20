@@ -1,10 +1,10 @@
 "use client";
 /**
- * setup-wizard / screens / finish-screen — step 7 (last).
+ * setup-wizard / screens / finish-screen — step 6 (last).
  *
- * Celebration screen. Confetti rains down, a happy star character bounces,
- * and a "Start Exploring" button restarts the wizard (so designers can
- * re-watch the flow). No back button on the final step.
+ * Celebration screen. Confetti rains down, an anime girl character bounces
+ * with arms raised in joy (FinishIllustration), and a "Start Exploring"
+ * button restarts the wizard (so designers can re-watch the flow).
  *
  * The confetti pieces use the global `.confetti` class from setup-wizard.css
  * (2s `confettiFall` with `forwards` fill — they fall once). The confetti
@@ -13,7 +13,7 @@
  * the final step.
  */
 import type { ThemePalette } from "../lib/themes";
-import { Celebration } from "../components/illustrations";
+import { FinishIllustration } from "../components/illustrations";
 
 interface FinishScreenProps {
   active: boolean;
@@ -47,6 +47,8 @@ const CONFETTI_LAYOUT: Omit<ConfettiPiece, "color">[] = [
   { left: 14, top: -28, delay: 0.7, duration: 2.0, size: 6, rotate: 90 },
   { left: 44, top: -28, delay: 0.55, duration: 2.4, size: 8, rotate: -60 },
   { left: 74, top: -28, delay: 0.25, duration: 2.2, size: 7, rotate: 75 },
+  { left: 24, top: -32, delay: 0.85, duration: 2.6, size: 7, rotate: -25 },
+  { left: 64, top: -32, delay: 0.65, duration: 2.3, size: 8, rotate: 50 },
 ];
 
 // Festive accent colors (rotate through these for the non-primary confetti).
@@ -87,26 +89,54 @@ export function FinishScreen({ active, onRestart, palette }: FinishScreenProps) 
       </div>
 
       <div className="wizard-content" style={{ position: "relative", zIndex: 2 }}>
-        {/* Illustration */}
-        <div className="illustration" key={active ? "on" : "off"}>
-          <Celebration />
+        {/* Badge above the illustration */}
+        <span
+          className="finish-badge"
+          style={{
+            background: `${palette.primary}22`,
+            color: palette.primary,
+            animation: "scaleIn 0.5s var(--ease-emphasized-decel) 0.1s backwards",
+          }}
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path
+              d="M12 2l2.4 7.4H22l-6 4.6 2.3 7.4-6.3-4.6-6.3 4.6L7.9 14l-6-4.6h7.6z"
+              fill="currentColor"
+            />
+          </svg>
+          Setup complete
+        </span>
+
+        {/* Illustration — bigger (240×240), anime girl celebrating */}
+        <div
+          className="illustration illustration--lg"
+          key={active ? "on" : "off"}
+          style={{ animation: "scaleIn 0.6s var(--ease-emphasized-decel) 0.2s backwards, float 4s ease-in-out 0.8s infinite" }}
+        >
+          <FinishIllustration />
         </div>
 
         <h1
-          className="wizard-title"
+          className="wizard-title wizard-title--xl"
           style={{
+            fontWeight: 800,
             background: `linear-gradient(135deg, ${palette.primary}, ${palette.primary}aa)`,
             WebkitBackgroundClip: "text",
             backgroundClip: "text",
             WebkitTextFillColor: "transparent",
             color: "transparent",
+            animation: "titleSlideUp 0.5s var(--ease-emphasized-decel) 0.4s backwards",
           }}
         >
           You&apos;re all set!
         </h1>
 
-        <p className="wizard-subtitle">
-          Your anime journey begins now. Enjoy exploring thousands of titles!
+        <p
+          className="wizard-subtitle"
+          style={{ animation: "titleSlideUp 0.5s var(--ease-emphasized-decel) 0.55s backwards" }}
+        >
+          Your anime journey begins now. Enjoy exploring thousands of titles,
+          tracking your progress, and never missing a new episode.
         </p>
       </div>
 
@@ -118,7 +148,9 @@ export function FinishScreen({ active, onRestart, palette }: FinishScreenProps) 
           style={{
             background: palette.primary,
             color: palette.onPrimary,
+            fontWeight: 800,
             boxShadow: `0 6px 24px ${palette.primary}55`,
+            animation: "scaleIn 0.5s var(--ease-emphasized-decel) 0.7s backwards",
           }}
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">

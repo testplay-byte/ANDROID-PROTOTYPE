@@ -1,8 +1,11 @@
 /**
  * setup-wizard / hooks / use-wizard-state — wizard step management.
  *
- * Manages the current step (0-7), theme mode, selected palette,
+ * Manages the current step (0-6), theme mode, selected palette,
  * and folder/backup mock state. Provides next/back/reset functions.
+ *
+ * Folder selection + confirmation are merged into a single step (step 2),
+ * so the wizard now has 7 steps total instead of 8.
  */
 import { useState, useCallback } from "react";
 import type { ThemeMode, ThemePalette } from "../lib/themes";
@@ -21,7 +24,7 @@ export interface WizardState {
   };
 }
 
-export const TOTAL_STEPS = 8;
+export const TOTAL_STEPS = 7;
 
 export function useWizardState() {
   const [step, setStep] = useState(0);

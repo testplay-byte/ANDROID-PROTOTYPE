@@ -2,13 +2,13 @@
 /**
  * setup-wizard / screens / welcome-screen — step 0.
  *
- * The first screen of the wizard. Welcomes the user with an animated cat
- * character waving hello, plus decorative blurred background orbs that use
- * the active palette's primary color. A single "Get Started" CTA advances
- * to the theme screen. No back button (first step).
+ * The first screen of the wizard. Welcomes the user with an animated anime
+ * girl waving hello (WelcomeIllustration), plus decorative blurred background
+ * orbs that use the active palette's primary color. A single "Get Started"
+ * CTA advances to the theme screen. No back button (first step).
  */
 import type { ThemePalette } from "../lib/themes";
-import { WelcomeCat } from "../components/illustrations";
+import { WelcomeIllustration } from "../components/illustrations";
 
 interface WelcomeScreenProps {
   active: boolean;
@@ -57,13 +57,15 @@ export function WelcomeScreen({ active, onNext, palette }: WelcomeScreenProps) {
       </div>
 
       <div className="wizard-content" style={{ position: "relative", zIndex: 1 }}>
-        {/* Illustration */}
+        {/* Illustration — anime girl waving */}
         <div className="illustration" key={active ? "on" : "off"}>
-          <WelcomeCat />
+          <WelcomeIllustration />
         </div>
 
-        {/* Title */}
-        <h1 className="wizard-title">Welcome to Anime App!</h1>
+        {/* Title — explicitly bold (font-weight: 800) */}
+        <h1 className="wizard-title" style={{ fontWeight: 800 }}>
+          Welcome to Anime App!
+        </h1>
 
         {/* Subtitle */}
         <p className="wizard-subtitle">
@@ -78,7 +80,7 @@ export function WelcomeScreen({ active, onNext, palette }: WelcomeScreenProps) {
           type="button"
           className="wizard-btn wizard-btn--primary"
           onClick={onNext}
-          style={{ background: palette.primary, color: palette.onPrimary }}
+          style={{ background: palette.primary, color: palette.onPrimary, fontWeight: 800 }}
         >
           Get Started
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
