@@ -4,13 +4,13 @@
  *
  * Optional permission grants. Three rows (Install apps, Notifications,
  * Battery) each with a toggle. All optional — the subtitle still mentions
- * skipping but there is NO Skip button; only Back + Continue. The
- * ShieldIllustration (guardian with shield, big ripples behind) sits at
- * the top.
+ * skipping but there is NO Skip button; only Back + Continue. An abstract
+ * shield visual with radiating ripple rings + an animated checkmark sits
+ * at the top.
  */
 import type { ReactNode } from "react";
 import type { ThemePalette } from "../lib/themes";
-import { CatIllustration } from "../components/cat-illustration";
+import { PermissionsVisual } from "../components/visuals";
 
 interface Permissions {
   installApps: boolean;
@@ -92,9 +92,9 @@ export function PermissionsScreen({
   return (
     <div className={`wizard-step ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        {/* Illustration — cat with floating shield */}
+        {/* Illustration — shield with ripple rings + animated checkmark */}
         <div className="illustration" key={active ? "on" : "off"}>
-          <CatIllustration variant="permissions" />
+          <PermissionsVisual />
         </div>
 
         <h1 className="wizard-title" style={{ fontWeight: 800 }}>Grant permissions</h1>

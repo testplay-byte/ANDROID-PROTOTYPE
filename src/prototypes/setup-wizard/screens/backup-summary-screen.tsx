@@ -4,16 +4,16 @@
  *
  * After the user picks a backup file, this screen shows a stats grid with
  * what was found: 247 anime, 12 categories, 1,432 episodes tracked, 89
- * completed. A side-view cat sits next to a small bar chart. Each stat
- * card has a polished card style and the values animate in with a scale +
- * count-up-style entrance.
+ * completed. An abstract growing bar chart with a trend arrow sits at the
+ * top. Each stat card has a polished card style and the values animate in
+ * with a scale + count-up-style entrance.
  *
  * NOTE: This screen is now ONLY reached when the user actually selected a
  * backup. Skipping the backup (via the Skip button on the restore screen)
  * jumps directly to the Finish screen, bypassing this summary entirely.
  */
 import type { ThemePalette } from "../lib/themes";
-import { CatIllustration } from "../components/cat-illustration";
+import { SummaryVisual } from "../components/visuals";
 
 interface BackupSummaryScreenProps {
   active: boolean;
@@ -38,9 +38,9 @@ export function BackupSummaryScreen({ active, onNext, onBack, palette }: BackupS
   return (
     <div className={`wizard-step ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        {/* Illustration — cat next to bar chart */}
+        {/* Illustration — growing bar chart with trend arrow */}
         <div className="illustration" key={active ? "on" : "off"}>
-          <CatIllustration variant="summary" />
+          <SummaryVisual />
         </div>
 
         <h1 className="wizard-title" style={{ fontWeight: 800 }}>Backup summary</h1>

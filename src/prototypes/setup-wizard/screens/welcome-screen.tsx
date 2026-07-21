@@ -2,13 +2,14 @@
 /**
  * setup-wizard / screens / welcome-screen — step 0.
  *
- * The first screen of the wizard. Welcomes the user with an animated cat
- * companion (side-view, waving paw, sparkles), plus decorative blurred
- * background orbs that use the active palette's primary color. A single
- * "Get Started" CTA advances to the theme screen. No back button (first step).
+ * The first screen of the wizard. Welcomes the user with an animated
+ * abstract app logo (concentric pulsing rings + orbiting dots + central
+ * play-mark), plus decorative blurred background orbs that use the active
+ * palette's primary color. A single "Get Started" CTA advances to the
+ * theme screen. No back button (first step).
  */
 import type { ThemePalette } from "../lib/themes";
-import { CatIllustration } from "../components/cat-illustration";
+import { WelcomeVisual } from "../components/visuals";
 
 interface WelcomeScreenProps {
   active: boolean;
@@ -57,9 +58,9 @@ export function WelcomeScreen({ active, onNext, palette }: WelcomeScreenProps) {
       </div>
 
       <div className="wizard-content" style={{ position: "relative", zIndex: 1 }}>
-        {/* Illustration — cat companion waving */}
+        {/* Illustration — animated abstract logo */}
         <div className="illustration" key={active ? "on" : "off"}>
-          <CatIllustration variant="welcome" />
+          <WelcomeVisual />
         </div>
 
         {/* Title — explicitly bold (font-weight: 800) */}

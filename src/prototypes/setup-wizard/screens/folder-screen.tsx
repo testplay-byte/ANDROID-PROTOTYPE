@@ -5,9 +5,9 @@
  * Combines folder selection + confirmation into ONE screen.
  *
  * Flow:
- *   1. Initially: FolderIllustration + compact "Select Folder" button.
+ *   1. Initially: FolderVisual + compact "Select Folder" button.
  *   2. On click → setFolderSelected(true), setScanning(true).
- *   3. While scanning: swap to CheckIllustration + show the selected folder
+ *   3. While scanning: keep FolderVisual + show the selected folder
  *      card with a "Scanning..." badge. After ~1.5s → auto-advance via
  *      onNext(). The user never has to click "Next".
  *   4. If the user navigates back to this screen after auto-advance, they
@@ -16,7 +16,7 @@
  */
 import { useEffect, useState } from "react";
 import type { ThemePalette } from "../lib/themes";
-import { CatIllustration } from "../components/cat-illustration";
+import { FolderVisual } from "../components/visuals";
 
 interface FolderScreenProps {
   active: boolean;
@@ -57,9 +57,9 @@ export function FolderScreen({
   return (
     <div className={`wizard-step ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        {/* Illustration — cat peeking at folder; same cat either way */}
+        {/* Illustration — animated folder with floating file cards */}
         <div className="illustration" key={`${active ? "on" : "off"}-${folderSelected ? "sel" : "empty"}`}>
-          <CatIllustration variant="folder" />
+          <FolderVisual />
         </div>
 
         <h1 className="wizard-title" style={{ fontWeight: 800 }}>

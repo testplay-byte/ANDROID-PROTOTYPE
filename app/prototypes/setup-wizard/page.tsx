@@ -16,8 +16,8 @@
  *   6. Finish (good luck screen)
  *
  * The wizard applies the selected theme + palette to the .device element
- * so subsequent screens reflect the user's choices immediately. A side-view
- * cat companion appears on every screen with variant-specific animations.
+ * so subsequent screens reflect the user's choices immediately. Abstract
+ * animated visuals appear on every screen with per-screen motion graphics.
  */
 import { useState, useEffect, useMemo } from "react";
 import {
@@ -106,12 +106,12 @@ export default function Page() {
               An animated 7-step setup wizard for an anime app. Material 3
               Expressive with a lime (#b3f35a) primary color. Theme switching,
               folder selection (auto-advancing), permissions, backup restore,
-              and a cute animated cat companion on every screen.
+              and abstract animated visuals on every screen.
             </PanelDesc>
             <div className="tags">
               <span className="tag">Material 3</span>
               <span className="tag">Animated</span>
-              <span className="tag">Cat</span>
+              <span className="tag">Abstract</span>
             </div>
           </>
         }

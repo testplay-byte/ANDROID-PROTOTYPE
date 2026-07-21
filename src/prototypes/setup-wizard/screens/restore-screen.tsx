@@ -19,7 +19,7 @@
  */
 import { useEffect, useState } from "react";
 import type { ThemePalette } from "../lib/themes";
-import { CatIllustration } from "../components/cat-illustration";
+import { RestoreVisual } from "../components/visuals";
 
 interface RestoreScreenProps {
   active: boolean;
@@ -63,9 +63,9 @@ export function RestoreScreen({
   return (
     <div className={`wizard-step ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        {/* Illustration — cat watching data drops fall */}
+        {/* Illustration — cloud with flowing data stream */}
         <div className="illustration" key={active ? "on" : "off"}>
-          <CatIllustration variant="restore" />
+          <RestoreVisual />
         </div>
 
         <h1 className="wizard-title" style={{ fontWeight: 800 }}>Restore backup</h1>

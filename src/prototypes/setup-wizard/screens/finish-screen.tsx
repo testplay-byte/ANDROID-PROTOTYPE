@@ -2,9 +2,10 @@
 /**
  * setup-wizard / screens / finish-screen — step 6 (last).
  *
- * Celebration screen. Confetti rains down, a side-view cat leaps with joy
- * (mid-air pose, confetti around it), and a "Start Exploring" button
- * restarts the wizard (so designers can re-watch the flow).
+ * Celebration screen. Confetti rains down, an abstract celebration visual
+ * (expanding rings + a glowing checkmark badge + ambient sparkles) sits
+ * center-stage, and a "Start Exploring" button restarts the wizard (so
+ * designers can re-watch the flow).
  *
  * The confetti pieces use the global `.confetti` class from setup-wizard.css
  * (2s `confettiFall` with `forwards` fill — they fall once). The confetti
@@ -13,7 +14,7 @@
  * the final step.
  */
 import type { ThemePalette } from "../lib/themes";
-import { CatIllustration } from "../components/cat-illustration";
+import { FinishVisual } from "../components/visuals";
 
 interface FinishScreenProps {
   active: boolean;
@@ -107,13 +108,13 @@ export function FinishScreen({ active, onRestart, palette }: FinishScreenProps) 
           Setup complete
         </span>
 
-        {/* Illustration — bigger (240×240), cat leaping with joy */}
+        {/* Illustration — bigger (240×240), expanding celebration rings + glowing check */}
         <div
           className="illustration illustration--lg"
           key={active ? "on" : "off"}
           style={{ animation: "scaleIn 0.6s var(--ease-emphasized-decel) 0.2s backwards, float 4s ease-in-out 0.8s infinite" }}
         >
-          <CatIllustration variant="finish" />
+          <FinishVisual />
         </div>
 
         <h1

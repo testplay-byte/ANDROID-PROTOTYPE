@@ -3,13 +3,13 @@
  * setup-wizard / screens / theme-screen — step 1.
  *
  * User picks a theme mode (Dark / Light / System) and a color palette
- * (Lime / Teal / Purple / Coral / Forest / Amber). A side-view cat
- * companion with 3 orbiting color dots sits at the top.
+ * (Lime / Teal / Purple / Coral / Forest / Amber). An abstract animated
+ * visual of orbiting color orbs around a central swatch sits at the top.
  */
 import type { ReactNode } from "react";
 import type { ThemeMode, ThemePalette } from "../lib/themes";
 import { PALETTES } from "../lib/themes";
-import { CatIllustration } from "../components/cat-illustration";
+import { ThemeVisual } from "../components/visuals";
 
 interface ThemeScreenProps {
   active: boolean;
@@ -76,9 +76,9 @@ export function ThemeScreen({
   return (
     <div className={`wizard-step ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        {/* Illustration — cat with orbiting color dots */}
+        {/* Illustration — orbiting color orbs around a central swatch */}
         <div className="illustration illustration--clip" key={active ? "on" : "off"}>
-          <CatIllustration variant="theme" />
+          <ThemeVisual />
         </div>
 
         <h1 className="wizard-title" style={{ fontWeight: 800 }}>Choose your theme</h1>
