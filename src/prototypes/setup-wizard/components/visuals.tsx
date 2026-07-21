@@ -16,20 +16,23 @@
  *   - Per-instance useId() namespacing so multiple can coexist
  *
  * The visuals:
- *   1. WelcomeVisual      — animated app logo: concentric rings + orbiting
- *                            dots + pulsing core (a "loading into life" feel)
- *   2. ThemeVisual        — three orbiting color orbs circling a central
- *                            swatch (palette preview in motion)
- *   3. FolderVisual       — a folder that opens, with file cards floating
- *                            up out of it (library being scanned)
- *   4. PermissionsVisual  — a shield with radiating ripple rings + a
- *                            checkmark that periodically redraws
- *   5. RestoreVisual      — a cloud with a flowing stream of data dots
- *                            falling into a tray below
- *   6. SummaryVisual      — a growing bar chart with a trend arrow that
- *                            bobs + sparkle accents
- *   7. FinishVisual       — concentric celebration rings expanding outward
- *                            + a glowing check + ambient sparkles
+ *   1. WelcomeVisual      — moving background only: concentric pulsing
+ *                            rings + orbiting dots + ambient sparkles
+ *                            (central logo removed per user request)
+ *   2. ThemeVisual        — two counter-rotating orbits of color dots
+ *                            around a central palette swatch
+ *   3. FolderVisual       — a tall folder with floating file cards;
+ *                            supports a `selected` prop that overlays a
+ *                            success checkmark badge
+ *   4. PermissionsVisual  — shield with rich animated background: rotating
+ *                            dashed rings + floating particles + ripple
+ *                            waves + animated checkmark
+ *   5. RestoreVisual      — larger cloud with flowing data stream into a
+ *                            tray, with animated background rings
+ *   6. SummaryVisual      — growing bar chart with trend arrow + sparkles
+ *   7. FinishVisual       — elegant celebration: rotating light rays +
+ *                            multi-layer expanding rings + glowing star
+ *                            badge + drifting sparkle particles
  */
 import { useId } from "react";
 
@@ -49,12 +52,12 @@ function Glow({ cx, cy, r, color, opacity = 0.35 }: {
 }
 
 /* ------------------------------------------------------------------ */
-/* 1. WelcomeVisual — animated app logo                               */
+/* 1. WelcomeVisual — moving background only (no central logo)        */
 /* ------------------------------------------------------------------ */
 export function WelcomeVisual() {
   const uid = useId().replace(/[:]/g, "");
   return (
-    <svg viewBox="0 0 200 200" role="img" aria-label="Animated app logo" style={{ overflow: "visible" }}>
+    <svg viewBox="0 0 200 200" role="img" aria-label="Animated welcome background" style={{ overflow: "visible" }}>
       <style>{`
         .wv-ring-${uid} {
           transform-box: fill-box;
@@ -63,27 +66,20 @@ export function WelcomeVisual() {
         .wv-ring-1-${uid} { animation: wv-pulse-${uid} 3s ease-in-out infinite; }
         .wv-ring-2-${uid} { animation: wv-pulse-${uid} 3s ease-in-out infinite 0.4s; }
         .wv-ring-3-${uid} { animation: wv-pulse-${uid} 3s ease-in-out infinite 0.8s; }
+        .wv-ring-4-${uid} { animation: wv-pulse-${uid} 3s ease-in-out infinite 1.2s; }
         @keyframes wv-pulse-${uid} {
-          0%, 100% { transform: scale(0.92); opacity: 0.35; }
-          50% { transform: scale(1.08); opacity: 0.75; }
+          0%, 100% { transform: scale(0.9); opacity: 0.3; }
+          50% { transform: scale(1.1); opacity: 0.7; }
         }
         .wv-orbit-${uid} {
           transform-box: fill-box;
           transform-origin: 100px 100px;
-          animation: wv-spin-${uid} 8s linear infinite;
         }
+        .wv-orbit-1-${uid} { animation: wv-spin-${uid} 8s linear infinite; }
+        .wv-orbit-2-${uid} { animation: wv-spin-${uid} 12s linear infinite reverse; }
         @keyframes wv-spin-${uid} {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
-        }
-        .wv-core-${uid} {
-          transform-box: fill-box;
-          transform-origin: center;
-          animation: wv-breathe-${uid} 2.4s ease-in-out infinite;
-        }
-        @keyframes wv-breathe-${uid} {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.12); }
         }
         .wv-spark-${uid} {
           transform-box: fill-box;
@@ -91,42 +87,47 @@ export function WelcomeVisual() {
           animation: wv-twinkle-${uid} 1.8s ease-in-out infinite;
         }
         @keyframes wv-twinkle-${uid} {
-          0%, 100% { opacity: 0.2; transform: scale(0.6); }
-          50% { opacity: 1; transform: scale(1.1); }
+          0%, 100% { opacity: 0.15; transform: scale(0.5); }
+          50% { opacity: 1; transform: scale(1.2); }
         }
         @media (prefers-reduced-motion: reduce) {
-          .wv-ring-${uid}, .wv-orbit-${uid}, .wv-core-${uid}, .wv-spark-${uid} {
+          .wv-ring-${uid}, .wv-orbit-${uid}, .wv-spark-${uid} {
             animation: none !important;
           }
         }
       `}</style>
 
       {/* Soft glow behind everything */}
-      <Glow cx={100} cy={100} r={56} color="var(--color-primary)" opacity={0.28} />
+      <Glow cx={100} cy={100} r={60} color="var(--color-primary)" opacity={0.25} />
 
-      {/* Concentric pulsing rings */}
-      <circle className={`wv-ring wv-ring-1-${uid}`} cx={100} cy={100} r={70} fill="none" stroke="var(--color-primary)" strokeWidth={2} opacity={0.4} />
-      <circle className={`wv-ring wv-ring-2-${uid}`} cx={100} cy={100} r={54} fill="none" stroke="var(--color-primary)" strokeWidth={2} opacity={0.55} />
-      <circle className={`wv-ring wv-ring-3-${uid}`} cx={100} cy={100} r={38} fill="none" stroke="var(--color-primary)" strokeWidth={2} opacity={0.7} />
+      {/* Concentric pulsing rings (4 layers for richer depth) */}
+      <circle className={`wv-ring wv-ring-1-${uid}`} cx={100} cy={100} r={80} fill="none" stroke="var(--color-primary)" strokeWidth={1.5} opacity={0.3} />
+      <circle className={`wv-ring wv-ring-2-${uid}`} cx={100} cy={100} r={62} fill="none" stroke="var(--color-primary)" strokeWidth={2} opacity={0.45} />
+      <circle className={`wv-ring wv-ring-3-${uid}`} cx={100} cy={100} r={44} fill="none" stroke="var(--color-primary)" strokeWidth={2} opacity={0.6} />
+      <circle className={`wv-ring wv-ring-4-${uid}`} cx={100} cy={100} r={26} fill="none" stroke="var(--color-primary)" strokeWidth={2.5} opacity={0.75} />
 
-      {/* Orbiting dots (3 dots at 120° apart, rotating around center) */}
-      <g className={`wv-orbit-${uid}`}>
+      {/* Inner orbit (3 dots, faster) */}
+      <g className={`wv-orbit wv-orbit-1-${uid}`}>
         <circle cx={100} cy={44} r={5} fill="var(--color-primary)" />
         <circle cx={148.5} cy={128} r={4} fill="var(--color-tertiary)" />
         <circle cx={51.5} cy={128} r={4} fill="var(--color-warn)" />
       </g>
 
-      {/* Central logo mark — a stylized play triangle in a rounded square */}
-      <g className={`wv-core-${uid}`}>
-        <rect x={78} y={78} width={44} height={44} rx={12} fill="var(--color-primary)" />
-        <path d="M 92 90 L 92 110 L 110 100 Z" fill="var(--color-on-primary)" />
+      {/* Outer orbit (4 dots, slower, reverse) */}
+      <g className={`wv-orbit wv-orbit-2-${uid}`}>
+        <circle cx={100} cy={24} r={3} fill="var(--color-secondary)" />
+        <circle cx={176} cy={100} r={3} fill="var(--color-primary)" opacity={0.7} />
+        <circle cx={100} cy={176} r={3} fill="var(--color-tertiary)" opacity={0.7} />
+        <circle cx={24} cy={100} r={3} fill="var(--color-warn)" opacity={0.7} />
       </g>
 
-      {/* Ambient sparkles */}
+      {/* Ambient sparkles (6, scattered) */}
       <circle className={`wv-spark-${uid}`} cx={36} cy={50} r={2.5} fill="var(--color-primary)" />
       <circle className={`wv-spark-${uid}`} cx={168} cy={60} r={2} fill="var(--color-tertiary)" style={{ animationDelay: "0.6s" }} />
       <circle className={`wv-spark-${uid}`} cx={40} cy={158} r={2} fill="var(--color-warn)" style={{ animationDelay: "1.1s" }} />
       <circle className={`wv-spark-${uid}`} cx={164} cy={150} r={2.5} fill="var(--color-primary)" style={{ animationDelay: "0.3s" }} />
+      <circle className={`wv-spark-${uid}`} cx={100} cy={20} r={1.8} fill="var(--color-secondary)" style={{ animationDelay: "0.9s" }} />
+      <circle className={`wv-spark-${uid}`} cx={100} cy={180} r={1.8} fill="var(--color-primary)" style={{ animationDelay: "1.4s" }} />
     </svg>
   );
 }
@@ -190,16 +191,17 @@ export function ThemeVisual() {
 }
 
 /* ------------------------------------------------------------------ */
-/* 3. FolderVisual — opening folder with floating file cards           */
+/* 3. FolderVisual — tall folder with floating file cards              */
+/*    `selected` prop overlays a success checkmark badge              */
 /* ------------------------------------------------------------------ */
-export function FolderVisual() {
+export function FolderVisual({ selected = false }: { selected?: boolean }) {
   const uid = useId().replace(/[:]/g, "");
   return (
     <svg viewBox="0 0 200 200" role="img" aria-label="Folder with floating files" style={{ overflow: "visible" }}>
       <style>{`
         .fv-folder-${uid} {
           transform-box: fill-box;
-          transform-origin: 100px 130px;
+          transform-origin: 100px 140px;
           animation: fv-bob-${uid} 3.6s ease-in-out infinite;
         }
         @keyframes fv-bob-${uid} {
@@ -234,32 +236,42 @@ export function FolderVisual() {
           0%, 100% { opacity: 0.2; }
           50% { opacity: 0.9; }
         }
+        .fv-badge-${uid} {
+          transform-box: fill-box;
+          transform-origin: center;
+          animation: fv-pop-${uid} 0.5s var(--ease-emphasized-decel) both;
+        }
+        @keyframes fv-pop-${uid} {
+          0% { transform: scale(0); opacity: 0; }
+          60% { transform: scale(1.2); }
+          100% { transform: scale(1); opacity: 1; }
+        }
         @media (prefers-reduced-motion: reduce) {
-          .fv-folder-${uid}, .fv-card-${uid}, .fv-spark-${uid} { animation: none !important; }
+          .fv-folder-${uid}, .fv-card-${uid}, .fv-spark-${uid}, .fv-badge-${uid} { animation: none !important; }
         }
       `}</style>
 
-      <Glow cx={100} cy={130} r={56} color="var(--color-primary)" opacity={0.22} />
+      <Glow cx={100} cy={140} r={60} color="var(--color-primary)" opacity={0.22} />
 
       {/* Floating file cards (behind folder) */}
       <g className={`fv-card fv-card-3-${uid}`}>
-        <rect x={60} y={56} width={36} height={46} rx={4} fill="var(--color-surface-3)" stroke="var(--color-primary)" strokeWidth={1.2} />
-        <rect x={66} y={64} width={24} height={3} rx={1.5} fill="var(--color-primary)" opacity={0.6} />
-        <rect x={66} y={70} width={20} height={3} rx={1.5} fill="var(--color-primary)" opacity={0.4} />
-        <rect x={66} y={76} width={22} height={3} rx={1.5} fill="var(--color-primary)" opacity={0.4} />
+        <rect x={56} y={44} width={36} height={46} rx={4} fill="var(--color-surface-3)" stroke="var(--color-primary)" strokeWidth={1.2} />
+        <rect x={62} y={52} width={24} height={3} rx={1.5} fill="var(--color-primary)" opacity={0.6} />
+        <rect x={62} y={58} width={20} height={3} rx={1.5} fill="var(--color-primary)" opacity={0.4} />
+        <rect x={62} y={64} width={22} height={3} rx={1.5} fill="var(--color-primary)" opacity={0.4} />
       </g>
       <g className={`fv-card fv-card-2-${uid}`}>
-        <rect x={104} y={48} width={36} height={46} rx={4} fill="var(--color-surface-4)" stroke="var(--color-tertiary)" strokeWidth={1.2} />
-        <rect x={110} y={56} width={24} height={3} rx={1.5} fill="var(--color-tertiary)" opacity={0.7} />
-        <rect x={110} y={62} width={20} height={3} rx={1.5} fill="var(--color-tertiary)" opacity={0.5} />
-        <rect x={110} y={68} width={22} height={3} rx={1.5} fill="var(--color-tertiary)" opacity={0.5} />
+        <rect x={108} y={36} width={36} height={46} rx={4} fill="var(--color-surface-4)" stroke="var(--color-tertiary)" strokeWidth={1.2} />
+        <rect x={114} y={44} width={24} height={3} rx={1.5} fill="var(--color-tertiary)" opacity={0.7} />
+        <rect x={114} y={50} width={20} height={3} rx={1.5} fill="var(--color-tertiary)" opacity={0.5} />
+        <rect x={114} y={56} width={22} height={3} rx={1.5} fill="var(--color-tertiary)" opacity={0.5} />
       </g>
 
-      {/* Folder body */}
+      {/* Folder body — TALLER (extends from y=100 to y=172) */}
       <g className={`fv-folder-${uid}`}>
         {/* Folder back (tab) */}
         <path
-          d="M 44 110 L 44 156 Q 44 162 50 162 L 150 162 Q 156 162 156 156 L 156 116 L 88 116 L 80 110 Z"
+          d="M 40 108 L 40 166 Q 40 172 46 172 L 154 172 Q 160 172 160 166 L 160 114 L 90 114 L 82 108 Z"
           fill="var(--color-primary-container)"
           stroke="var(--color-primary)"
           strokeWidth={2}
@@ -267,7 +279,7 @@ export function FolderVisual() {
         />
         {/* Folder front flap */}
         <path
-          d="M 44 124 L 80 124 L 88 130 L 156 130 L 156 156 Q 156 162 150 162 L 50 162 Q 44 162 44 156 Z"
+          d="M 40 124 L 82 124 L 90 130 L 160 130 L 160 166 Q 160 172 154 172 L 46 172 Q 40 172 40 166 Z"
           fill="var(--color-primary)"
           opacity={0.92}
           stroke="var(--color-primary)"
@@ -275,28 +287,38 @@ export function FolderVisual() {
           strokeLinejoin="round"
         />
         {/* Folder highlight */}
-        <path d="M 50 128 L 78 128" stroke="var(--color-on-primary)" strokeWidth={2} strokeLinecap="round" opacity={0.35} />
+        <path d="M 48 128 L 78 128" stroke="var(--color-on-primary)" strokeWidth={2} strokeLinecap="round" opacity={0.35} />
+        {/* Folder seam line */}
+        <path d="M 40 124 L 82 124 L 90 130 L 160 130" fill="none" stroke="var(--color-on-primary)" strokeWidth={1} opacity={0.15} />
       </g>
 
       {/* Front floating card (in front of folder) */}
       <g className={`fv-card fv-card-1-${uid}`}>
-        <rect x={82} y={70} width={36} height={46} rx={4} fill="var(--color-surface-5)" stroke="var(--color-primary)" strokeWidth={1.4} />
-        <circle cx={100} cy={82} r={5} fill="var(--color-warn)" opacity={0.8} />
-        <rect x={88} y={92} width={24} height={3} rx={1.5} fill="var(--color-primary)" opacity={0.7} />
-        <rect x={88} y={98} width={18} height={3} rx={1.5} fill="var(--color-primary)" opacity={0.5} />
-        <rect x={88} y={104} width={22} height={3} rx={1.5} fill="var(--color-primary)" opacity={0.5} />
+        <rect x={82} y={58} width={36} height={46} rx={4} fill="var(--color-surface-5)" stroke="var(--color-primary)" strokeWidth={1.4} />
+        <circle cx={100} cy={70} r={5} fill="var(--color-warn)" opacity={0.8} />
+        <rect x={88} y={80} width={24} height={3} rx={1.5} fill="var(--color-primary)" opacity={0.7} />
+        <rect x={88} y={86} width={18} height={3} rx={1.5} fill="var(--color-primary)" opacity={0.5} />
+        <rect x={88} y={92} width={22} height={3} rx={1.5} fill="var(--color-primary)" opacity={0.5} />
       </g>
 
+      {/* Success checkmark badge — only shown when selected */}
+      {selected && (
+        <g className={`fv-badge-${uid}`}>
+          <circle cx={150} cy={110} r={18} fill="var(--color-primary)" stroke="var(--color-bg)" strokeWidth={3} />
+          <path d="M 142 110 L 148 116 L 158 106" stroke="var(--color-on-primary)" strokeWidth={3.5} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+        </g>
+      )}
+
       {/* Sparkles */}
-      <circle className={`fv-spark-${uid}`} cx={32} cy={80} r={2.5} fill="var(--color-primary)" />
-      <circle className={`fv-spark-${uid}`} cx={172} cy={90} r={2} fill="var(--color-tertiary)" style={{ animationDelay: "0.7s" }} />
-      <circle className={`fv-spark-${uid}`} cx={170} cy={40} r={1.8} fill="var(--color-warn)" style={{ animationDelay: "1.2s" }} />
+      <circle className={`fv-spark-${uid}`} cx={28} cy={80} r={2.5} fill="var(--color-primary)" />
+      <circle className={`fv-spark-${uid}`} cx={176} cy={90} r={2} fill="var(--color-tertiary)" style={{ animationDelay: "0.7s" }} />
+      <circle className={`fv-spark-${uid}`} cx={174} cy={36} r={1.8} fill="var(--color-warn)" style={{ animationDelay: "1.2s" }} />
     </svg>
   );
 }
 
 /* ------------------------------------------------------------------ */
-/* 4. PermissionsVisual — shield with radiating ripple rings           */
+/* 4. PermissionsVisual — shield with rich animated background         */
 /* ------------------------------------------------------------------ */
 export function PermissionsVisual() {
   const uid = useId().replace(/[:]/g, "");
@@ -312,7 +334,28 @@ export function PermissionsVisual() {
         .pm-ring-3-${uid} { animation: pm-ripple-${uid} 2.8s ease-out infinite 1.8s; }
         @keyframes pm-ripple-${uid} {
           0% { transform: scale(0.5); opacity: 0.7; }
-          100% { transform: scale(1.6); opacity: 0; }
+          100% { transform: scale(1.8); opacity: 0; }
+        }
+        .pm-dash-${uid} {
+          transform-box: fill-box;
+          transform-origin: 100px 100px;
+        }
+        .pm-dash-1-${uid} { animation: pm-spin-${uid} 14s linear infinite; }
+        .pm-dash-2-${uid} { animation: pm-spin-${uid} 20s linear infinite reverse; }
+        @keyframes pm-spin-${uid} {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        .pm-particle-${uid} {
+          transform-box: fill-box;
+          transform-origin: center;
+          animation: pm-drift-${uid} 6s ease-in-out infinite;
+        }
+        @keyframes pm-drift-${uid} {
+          0%, 100% { transform: translate(0, 0); opacity: 0.3; }
+          25% { transform: translate(6px, -8px); opacity: 0.8; }
+          50% { transform: translate(-4px, -12px); opacity: 0.5; }
+          75% { transform: translate(-8px, -4px); opacity: 0.7; }
         }
         .pm-shield-${uid} {
           transform-box: fill-box;
@@ -334,12 +377,25 @@ export function PermissionsVisual() {
           100% { stroke-dashoffset: 60; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .pm-ring-${uid}, .pm-shield-${uid}, .pm-check-${uid} { animation: none !important; }
+          .pm-ring-${uid}, .pm-dash-${uid}, .pm-particle-${uid}, .pm-shield-${uid}, .pm-check-${uid} { animation: none !important; }
           .pm-check-${uid} { stroke-dashoffset: 0; }
         }
       `}</style>
 
-      <Glow cx={100} cy={100} r={50} color="var(--color-primary)" opacity={0.25} />
+      {/* Soft glow */}
+      <Glow cx={100} cy={100} r={60} color="var(--color-primary)" opacity={0.22} />
+
+      {/* Rotating dashed rings (background layer) */}
+      <circle className={`pm-dash pm-dash-1-${uid}`} cx={100} cy={100} r={78} fill="none" stroke="var(--color-primary)" strokeWidth={1.5} strokeDasharray="4 8" opacity={0.25} />
+      <circle className={`pm-dash pm-dash-2-${uid}`} cx={100} cy={100} r={68} fill="none" stroke="var(--color-tertiary)" strokeWidth={1} strokeDasharray="2 6" opacity={0.3} />
+
+      {/* Floating background particles */}
+      <circle className={`pm-particle-${uid}`} cx={40} cy={60} r={2} fill="var(--color-primary)" />
+      <circle className={`pm-particle-${uid}`} cx={160} cy={50} r={1.8} fill="var(--color-tertiary)" style={{ animationDelay: "1.5s" }} />
+      <circle className={`pm-particle-${uid}`} cx={170} cy={140} r={2} fill="var(--color-warn)" style={{ animationDelay: "3s" }} />
+      <circle className={`pm-particle-${uid}`} cx={34} cy={150} r={1.8} fill="var(--color-primary)" style={{ animationDelay: "4.5s" }} />
+      <circle className={`pm-particle-${uid}`} cx={100} cy={28} r={1.5} fill="var(--color-secondary)" style={{ animationDelay: "2s" }} />
+      <circle className={`pm-particle-${uid}`} cx={100} cy={172} r={1.5} fill="var(--color-primary)" style={{ animationDelay: "3.5s" }} />
 
       {/* Ripple rings (expanding outward) */}
       <circle className={`pm-ring pm-ring-1-${uid}`} cx={100} cy={100} r={48} fill="none" stroke="var(--color-primary)" strokeWidth={2} opacity={0.5} />
@@ -379,13 +435,31 @@ export function PermissionsVisual() {
 }
 
 /* ------------------------------------------------------------------ */
-/* 5. RestoreVisual — cloud with flowing data stream                   */
+/* 5. RestoreVisual — larger cloud + animated background               */
 /* ------------------------------------------------------------------ */
 export function RestoreVisual() {
   const uid = useId().replace(/[:]/g, "");
   return (
     <svg viewBox="0 0 200 200" role="img" aria-label="Cloud backup restore" style={{ overflow: "visible" }}>
       <style>{`
+        .rv-bg-ring-${uid} {
+          transform-box: fill-box;
+          transform-origin: center;
+          animation: rv-bg-pulse-${uid} 4s ease-in-out infinite;
+        }
+        @keyframes rv-bg-pulse-${uid} {
+          0%, 100% { transform: scale(0.85); opacity: 0.15; }
+          50% { transform: scale(1.1); opacity: 0.35; }
+        }
+        .rv-bg-dash-${uid} {
+          transform-box: fill-box;
+          transform-origin: 100px 80px;
+          animation: rv-bg-spin-${uid} 18s linear infinite;
+        }
+        @keyframes rv-bg-spin-${uid} {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
         .rv-cloud-${uid} {
           transform-box: fill-box;
           transform-origin: center;
@@ -393,7 +467,7 @@ export function RestoreVisual() {
         }
         @keyframes rv-float-${uid} {
           0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-4px); }
+          50% { transform: translateY(-5px); }
         }
         .rv-drop-${uid} {
           transform-box: fill-box;
@@ -404,7 +478,7 @@ export function RestoreVisual() {
           0% { transform: translateY(-6px); opacity: 0; }
           20% { opacity: 1; }
           80% { opacity: 1; }
-          100% { transform: translateY(50px); opacity: 0; }
+          100% { transform: translateY(54px); opacity: 0; }
         }
         .rv-tray-${uid} {
           transform-box: fill-box;
@@ -412,18 +486,23 @@ export function RestoreVisual() {
           animation: rv-pulse-${uid} 2.4s ease-in-out infinite;
         }
         @keyframes rv-pulse-${uid} {
-          0%, 100% { transform: scaleY(1); opacity: 0.8; }
+          0%, 100% { transform: scaleY(1); opacity: 0.85; }
           50% { transform: scaleY(1.08); opacity: 1; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .rv-cloud-${uid}, .rv-drop-${uid}, .rv-tray-${uid} { animation: none !important; }
+          .rv-bg-ring-${uid}, .rv-bg-dash-${uid}, .rv-cloud-${uid}, .rv-drop-${uid}, .rv-tray-${uid} { animation: none !important; }
         }
       `}</style>
 
-      <Glow cx={100} cy={70} r={44} color="var(--color-primary)" opacity={0.22} />
+      {/* Animated background rings (behind cloud) */}
+      <circle className={`rv-bg-ring rv-bg-ring-${uid}`} cx={100} cy={80} r={72} fill="none" stroke="var(--color-primary)" strokeWidth={1.5} opacity={0.2} />
+      <circle className={`rv-bg-dash rv-bg-dash-${uid}`} cx={100} cy={80} r={62} fill="none" stroke="var(--color-tertiary)" strokeWidth={1} strokeDasharray="3 7" opacity={0.25} />
 
-      {/* Cloud */}
-      <g className={`rv-cloud-${uid}`}>
+      {/* Glow */}
+      <Glow cx={100} cy={70} r={50} color="var(--color-primary)" opacity={0.22} />
+
+      {/* Cloud — LARGER (scaled up ~15%) */}
+      <g className={`rv-cloud-${uid}`} transform="translate(-4 0) scale(1.15)" style={{ transformOrigin: "100px 70px" }}>
         <ellipse cx={74} cy={70} rx={20} ry={18} fill="var(--color-surface-3)" stroke="var(--color-primary)" strokeWidth={1.5} />
         <ellipse cx={100} cy={58} rx={28} ry={24} fill="var(--color-surface-3)" stroke="var(--color-primary)" strokeWidth={1.5} />
         <ellipse cx={126} cy={70} rx={20} ry={18} fill="var(--color-surface-3)" stroke="var(--color-primary)" strokeWidth={1.5} />
@@ -434,29 +513,29 @@ export function RestoreVisual() {
 
       {/* Falling data drops (staggered) */}
       <g className={`rv-drop-${uid}`} style={{ animationDelay: "0s" }}>
-        <rect x={72} y={90} width={6} height={9} rx={1.5} fill="var(--color-primary)" transform="rotate(12 75 94)" />
+        <rect x={72} y={92} width={6} height={9} rx={1.5} fill="var(--color-primary)" transform="rotate(12 75 96)" />
       </g>
       <g className={`rv-drop-${uid}`} style={{ animationDelay: "0.6s" }}>
-        <circle cx={96} cy={92} r={3.5} fill="var(--color-tertiary)" />
+        <circle cx={96} cy={94} r={3.5} fill="var(--color-tertiary)" />
       </g>
       <g className={`rv-drop-${uid}`} style={{ animationDelay: "1.2s" }}>
-        <rect x={120} y={90} width={6} height={9} rx={1.5} fill="var(--color-warn)" transform="rotate(-12 123 94)" />
+        <rect x={120} y={92} width={6} height={9} rx={1.5} fill="var(--color-warn)" transform="rotate(-12 123 96)" />
       </g>
       <g className={`rv-drop-${uid}`} style={{ animationDelay: "1.8s" }}>
-        <circle cx={108} cy={92} r={3} fill="var(--color-primary)" opacity={0.85} />
+        <circle cx={108} cy={94} r={3} fill="var(--color-primary)" opacity={0.85} />
       </g>
 
       {/* Tray / collection basin at bottom */}
       <g className={`rv-tray-${uid}`}>
         <path
-          d="M 56 148 L 64 168 L 136 168 L 144 148 Z"
+          d="M 56 150 L 64 170 L 136 170 L 144 150 Z"
           fill="var(--color-primary-container)"
           stroke="var(--color-primary)"
           strokeWidth={2}
           strokeLinejoin="round"
         />
         {/* Tray fill line (data collecting) */}
-        <path d="M 66 156 L 134 156" stroke="var(--color-primary)" strokeWidth={2} strokeLinecap="round" opacity={0.6} />
+        <path d="M 66 158 L 134 158" stroke="var(--color-primary)" strokeWidth={2} strokeLinecap="round" opacity={0.6} />
       </g>
     </svg>
   );
@@ -533,23 +612,36 @@ export function SummaryVisual() {
 }
 
 /* ------------------------------------------------------------------ */
-/* 7. FinishVisual — expanding celebration rings + glowing check       */
+/* 7. FinishVisual — elegant celebration (completely reworked)         */
+/*    Rotating light rays + multi-layer expanding rings + glowing      */
+/*    star badge + drifting sparkle particles                          */
 /* ------------------------------------------------------------------ */
 export function FinishVisual() {
   const uid = useId().replace(/[:]/g, "");
   return (
     <svg viewBox="0 0 200 200" role="img" aria-label="Setup complete celebration" style={{ overflow: "visible" }}>
       <style>{`
+        .fn-rays-${uid} {
+          transform-box: fill-box;
+          transform-origin: 100px 100px;
+          animation: fn-rotate-${uid} 20s linear infinite;
+        }
+        @keyframes fn-rotate-${uid} {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
         .fn-ring-${uid} {
           transform-box: fill-box;
           transform-origin: center;
         }
         .fn-ring-1-${uid} { animation: fn-expand-${uid} 3s ease-out infinite; }
-        .fn-ring-2-${uid} { animation: fn-expand-${uid} 3s ease-out infinite 0.6s; }
-        .fn-ring-3-${uid} { animation: fn-expand-${uid} 3s ease-out infinite 1.2s; }
+        .fn-ring-2-${uid} { animation: fn-expand-${uid} 3s ease-out infinite 0.5s; }
+        .fn-ring-3-${uid} { animation: fn-expand-${uid} 3s ease-out infinite 1s; }
+        .fn-ring-4-${uid} { animation: fn-expand-${uid} 3s ease-out infinite 1.5s; }
+        .fn-ring-5-${uid} { animation: fn-expand-${uid} 3s ease-out infinite 2s; }
         @keyframes fn-expand-${uid} {
-          0% { transform: scale(0.3); opacity: 0.9; }
-          100% { transform: scale(1.8); opacity: 0; }
+          0% { transform: scale(0.2); opacity: 1; }
+          100% { transform: scale(2); opacity: 0; }
         }
         .fn-core-${uid} {
           transform-box: fill-box;
@@ -573,34 +665,71 @@ export function FinishVisual() {
         .fn-spark-${uid} {
           transform-box: fill-box;
           transform-origin: center;
-          animation: fn-twinkle-${uid} 1.6s ease-in-out infinite;
+          animation: fn-drift-${uid} 3s ease-in-out infinite;
         }
-        @keyframes fn-twinkle-${uid} {
-          0%, 100% { opacity: 0.2; transform: scale(0.5); }
-          50% { opacity: 1; transform: scale(1.2); }
+        @keyframes fn-drift-${uid} {
+          0% { transform: translate(0, 0) scale(0.5); opacity: 0.2; }
+          50% { transform: translate(0, -12px) scale(1.2); opacity: 1; }
+          100% { transform: translate(0, -24px) scale(0.6); opacity: 0; }
+        }
+        .fn-glow-${uid} {
+          transform-box: fill-box;
+          transform-origin: center;
+          animation: fn-glow-pulse-${uid} 2.4s ease-in-out infinite;
+        }
+        @keyframes fn-glow-pulse-${uid} {
+          0%, 100% { opacity: 0.25; transform: scale(1); }
+          50% { opacity: 0.45; transform: scale(1.15); }
         }
         @media (prefers-reduced-motion: reduce) {
-          .fn-ring-${uid}, .fn-core-${uid}, .fn-check-${uid}, .fn-spark-${uid} { animation: none !important; }
+          .fn-rays-${uid}, .fn-ring-${uid}, .fn-core-${uid}, .fn-check-${uid}, .fn-spark-${uid}, .fn-glow-${uid} { animation: none !important; }
           .fn-check-${uid} { stroke-dashoffset: 0; }
         }
       `}</style>
 
-      {/* Big soft glow */}
-      <Glow cx={100} cy={100} r={64} color="var(--color-primary)" opacity={0.32} />
+      {/* Layer 1: Big pulsing glow behind everything */}
+      <Glow cx={100} cy={100} r={70} color="var(--color-primary)" opacity={0.3} />
+      <circle className={`fn-glow-${uid}`} cx={100} cy={100} r={60} fill="var(--color-primary)" opacity={0.15} style={{ filter: "blur(16px)" }} />
 
-      {/* Expanding celebration rings */}
-      <circle className={`fn-ring fn-ring-1-${uid}`} cx={100} cy={100} r={40} fill="none" stroke="var(--color-primary)" strokeWidth={3} />
-      <circle className={`fn-ring fn-ring-2-${uid}`} cx={100} cy={100} r={40} fill="none" stroke="var(--color-tertiary)" strokeWidth={2.5} />
-      <circle className={`fn-ring fn-ring-3-${uid}`} cx={100} cy={100} r={40} fill="none" stroke="var(--color-warn)" strokeWidth={2} />
+      {/* Layer 2: Rotating light rays (12 rays radiating from center) */}
+      <g className={`fn-rays-${uid}`}>
+        {Array.from({ length: 12 }).map((_, i) => {
+          const angle = (i * 30) * Math.PI / 180;
+          const x1 = 100 + Math.cos(angle) * 36;
+          const y1 = 100 + Math.sin(angle) * 36;
+          const x2 = 100 + Math.cos(angle) * 80;
+          const y2 = 100 + Math.sin(angle) * 80;
+          return (
+            <line
+              key={i}
+              x1={x1} y1={y1} x2={x2} y2={y2}
+              stroke="var(--color-primary)"
+              strokeWidth={i % 2 === 0 ? 2.5 : 1.5}
+              strokeLinecap="round"
+              opacity={i % 2 === 0 ? 0.5 : 0.25}
+            />
+          );
+        })}
+      </g>
 
-      {/* Central badge */}
+      {/* Layer 3: Multi-layer expanding celebration rings (5 rings, staggered, multi-color) */}
+      <circle className={`fn-ring fn-ring-1-${uid}`} cx={100} cy={100} r={36} fill="none" stroke="var(--color-primary)" strokeWidth={3} />
+      <circle className={`fn-ring fn-ring-2-${uid}`} cx={100} cy={100} r={36} fill="none" stroke="var(--color-tertiary)" strokeWidth={2.5} />
+      <circle className={`fn-ring fn-ring-3-${uid}`} cx={100} cy={100} r={36} fill="none" stroke="var(--color-warn)" strokeWidth={2} />
+      <circle className={`fn-ring fn-ring-4-${uid}`} cx={100} cy={100} r={36} fill="none" stroke="var(--color-primary)" strokeWidth={2.5} />
+      <circle className={`fn-ring fn-ring-5-${uid}`} cx={100} cy={100} r={36} fill="none" stroke="var(--color-tertiary)" strokeWidth={1.5} />
+
+      {/* Layer 4: Central glowing star badge */}
       <g className={`fn-core-${uid}`}>
-        <circle cx={100} cy={100} r={42} fill="var(--color-primary)" />
-        <circle cx={100} cy={100} r={42} fill="none" stroke="var(--color-bg)" strokeWidth={3} opacity={0.3} />
+        {/* Outer badge ring */}
+        <circle cx={100} cy={100} r={38} fill="var(--color-primary)" />
+        {/* Inner gradient highlight */}
+        <circle cx={100} cy={100} r={38} fill="none" stroke="var(--color-bg)" strokeWidth={2} opacity={0.2} />
+        <circle cx={100} cy={92} r={20} fill="var(--color-bg)" opacity={0.08} />
         {/* Checkmark (animated draw) */}
         <path
           className={`fn-check-${uid}`}
-          d="M 80 100 L 94 114 L 122 86"
+          d="M 82 100 L 94 113 L 120 87"
           stroke="var(--color-on-primary)"
           strokeWidth={6}
           strokeLinecap="round"
@@ -609,13 +738,15 @@ export function FinishVisual() {
         />
       </g>
 
-      {/* Ambient sparkles around the badge */}
-      <circle className={`fn-spark-${uid}`} cx={36} cy={56} r={3} fill="var(--color-primary)" />
-      <circle className={`fn-spark-${uid}`} cx={168} cy={64} r={2.5} fill="var(--color-tertiary)" style={{ animationDelay: "0.4s" }} />
-      <circle className={`fn-spark-${uid}`} cx={32} cy={148} r={2.5} fill="var(--color-warn)" style={{ animationDelay: "0.8s" }} />
-      <circle className={`fn-spark-${uid}`} cx={170} cy={150} r={3} fill="var(--color-primary)" style={{ animationDelay: "1.2s" }} />
-      <circle className={`fn-spark-${uid}`} cx={100} cy={30} r={2} fill="var(--color-tertiary)" style={{ animationDelay: "0.6s" }} />
-      <circle className={`fn-spark-${uid}`} cx={100} cy={172} r={2} fill="var(--color-warn)" style={{ animationDelay: "1s" }} />
+      {/* Layer 5: Drifting sparkle particles (8, around the badge) */}
+      <circle className={`fn-spark-${uid}`} cx={40} cy={70} r={3} fill="var(--color-primary)" />
+      <circle className={`fn-spark-${uid}`} cx={160} cy={60} r={2.5} fill="var(--color-tertiary)" style={{ animationDelay: "0.4s" }} />
+      <circle className={`fn-spark-${uid}`} cx={170} cy={120} r={3} fill="var(--color-warn)" style={{ animationDelay: "0.8s" }} />
+      <circle className={`fn-spark-${uid}`} cx={30} cy={130} r={2.5} fill="var(--color-primary)" style={{ animationDelay: "1.2s" }} />
+      <circle className={`fn-spark-${uid}`} cx={100} cy={30} r={2.5} fill="var(--color-tertiary)" style={{ animationDelay: "0.6s" }} />
+      <circle className={`fn-spark-${uid}`} cx={100} cy={170} r={2.5} fill="var(--color-warn)" style={{ animationDelay: "1s" }} />
+      <circle className={`fn-spark-${uid}`} cx={50} cy={40} r={2} fill="var(--color-secondary)" style={{ animationDelay: "1.5s" }} />
+      <circle className={`fn-spark-${uid}`} cx={150} cy={160} r={2} fill="var(--color-primary)" style={{ animationDelay: "1.8s" }} />
     </svg>
   );
 }

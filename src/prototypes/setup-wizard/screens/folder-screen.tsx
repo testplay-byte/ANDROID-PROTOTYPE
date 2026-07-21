@@ -7,12 +7,17 @@
  * Flow:
  *   1. Initially: FolderVisual + compact "Select Folder" button.
  *   2. On click → setFolderSelected(true), setScanning(true).
- *   3. While scanning: keep FolderVisual + show the selected folder
- *      card with a "Scanning..." badge. After ~1.5s → auto-advance via
- *      onNext(). The user never has to click "Next".
- *   4. If the user navigates back to this screen after auto-advance, they
+ *   3. While scanning: FolderVisual shows the folder with a "Scanning..."
+ *      badge. After ~1.5s → scanning stops, success checkmark appears
+ *      on the folder (FolderVisual `selected` prop). The screen STAYS —
+ *      the user clicks Continue to advance.
+ *   4. If the user navigates back to this screen after selecting, they
  *      see the selected card with a Continue button (no re-trigger of
  *      scanning unless they click Select Folder again).
+ *
+ * NOTE: Auto-advance was REMOVED per user request — the screen now stays
+ * after selection and shows a success animation, requiring an explicit
+ * Continue click.
  */
 import { useEffect, useState } from "react";
 import type { ThemePalette } from "../lib/themes";
@@ -37,17 +42,16 @@ export function FolderScreen({
 }: FolderScreenProps) {
   const [scanning, setScanning] = useState(false);
 
-  // Trigger auto-advance when user just clicked "Select Folder".
-  // Only fires when scanning=true (set on click), so navigating back to this
-  // screen does not re-trigger the auto-advance.
+  // When user clicks "Select Folder", show scanning animation for ~1.5s,
+  // then stop scanning and reveal the success checkmark on the folder.
+  // The screen STAYS — no auto-advance.
   useEffect(() => {
     if (!scanning) return;
     const t = setTimeout(() => {
       setScanning(false);
-      onNext();
     }, 1500);
     return () => clearTimeout(t);
-  }, [scanning, onNext]);
+  }, [scanning]);
 
   const handleSelectFolder = () => {
     setFolderSelected(true);
@@ -57,9 +61,9 @@ export function FolderScreen({
   return (
     <div className={`wizard-step ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        {/* Illustration — animated folder with floating file cards */}
+        {/* Illustration — folder with floating files; shows success badge when selected */}
         <div className="illustration" key={`${active ? "on" : "off"}-${folderSelected ? "sel" : "empty"}`}>
-          <FolderVisual />
+          <FolderVisual selected={folderSelected && !scanning} />
         </div>
 
         <h1 className="wizard-title" style={{ fontWeight: 800 }}>
@@ -67,7 +71,9 @@ export function FolderScreen({
         </h1>
         <p className="wizard-subtitle">
           {folderSelected
-            ? "We\u2019re scanning your library in the background. Hang tight…"
+            ? scanning
+              ? "Scanning your library…"
+              : "Your library is ready to go. Continue when you are."
             : "Pick the folder where your anime library lives. We\u2019ll scan it and organize everything for you."}
         </p>
 
@@ -174,9 +180,9 @@ export function FolderScreen({
           </svg>
           Back
         </button>
-        {/* While scanning, show the scanning pill instead of a Next button.
-            If the user navigated back after auto-advance (folderSelected but
-            not scanning), show a Continue button so they can move forward. */}
+        {/* While scanning, show a disabled "Scanning…" state.
+            Once scanning is done (folderSelected && !scanning), show an
+            active Continue button so the user can advance explicitly. */}
         {scanning ? (
           <span
             className="wizard-btn wizard-btn--ghost"
@@ -186,7 +192,7 @@ export function FolderScreen({
               fontWeight: 800,
             }}
           >
-            Auto-advancing…
+            Scanning…
           </span>
         ) : (
           <button

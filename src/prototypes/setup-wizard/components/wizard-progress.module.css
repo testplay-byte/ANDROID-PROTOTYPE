@@ -1,13 +1,14 @@
-/* WizardProgress — animated progress bar at the top of the device screen. */
+/* WizardProgress — animated progress bar at the top of the device screen.
+   Now positioned in the flex flow (between status bar and screen) instead
+   of absolutely-positioned inside the screen. This prevents any overlap
+   with the status bar on mobile. */
 
 .progressContainer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 10;
+  position: relative;
+  flex: 0 0 auto;
   padding: 6px 16px 4px;
   background: var(--color-bg);
+  z-index: 3;
 }
 
 .progressTrack {

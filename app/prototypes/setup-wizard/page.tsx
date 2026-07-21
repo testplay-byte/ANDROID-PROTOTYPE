@@ -162,10 +162,11 @@ export default function Page() {
         }
       >
         <DeviceFrame theme="dark">
+          {/* Progress bar — OUTSIDE Screen so it flows in the flex column
+              between the status bar and the screen. This prevents any
+              overlap with the status bar on mobile. */}
+          <WizardProgress currentStep={step} totalSteps={7} palette={palette} />
           <Screen>
-            {/* Progress bar at top */}
-            <WizardProgress currentStep={step} totalSteps={7} palette={palette} />
-
             {/* Screen content — all screens always mounted, visibility via .wizard-step--active */}
             <WelcomeScreen active={step === 0} onNext={wizard.next} palette={palette} />
             <ThemeScreen

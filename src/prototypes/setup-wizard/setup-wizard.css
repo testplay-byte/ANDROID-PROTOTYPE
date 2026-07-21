@@ -17,7 +17,8 @@
   overflow-y: auto;
   scrollbar-width: none;
   -ms-overflow-style: none;
-  padding-top: 36px; /* space for the progress bar */
+  /* No padding-top needed — the progress bar now flows in the flex column
+     above the Screen, so wizard content starts at the top of the Screen. */
 }
 .wizard-step::-webkit-scrollbar { display: none; }
 

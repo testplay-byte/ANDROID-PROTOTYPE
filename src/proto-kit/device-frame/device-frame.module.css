@@ -39,6 +39,9 @@
   position: relative;
   height: 36px;
   padding: 0 18px;
+  /* On mobile (fullscreen), respect the safe-area inset (notch / Dynamic Island)
+     so the time + icons are never covered by the OS or the progress bar. */
+  padding-top: env(safe-area-inset-top, 0px);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -46,7 +49,7 @@
   font-weight: 600;
   flex: 0 0 auto;
   color: var(--color-text);
-  z-index: 4;
+  z-index: 30;
 }
 .statusbar__time {
   font-variant-numeric: tabular-nums;
