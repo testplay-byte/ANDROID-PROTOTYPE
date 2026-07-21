@@ -37,6 +37,15 @@ export function useWizardState() {
     setStep((s) => Math.max(s - 1, 0));
   }, []);
 
+  /**
+   * Jump directly to the Finish screen (last step), skipping intermediate
+   * screens. Used by the Restore screen's "Skip" button so that skipping a
+   * backup bypasses the Backup Summary screen entirely (nothing to summarize).
+   */
+  const skipToFinish = useCallback(() => {
+    setStep(TOTAL_STEPS - 1);
+  }, []);
+
   const reset = useCallback(() => {
     setStep(0);
     setThemeMode("dark");
@@ -64,6 +73,7 @@ export function useWizardState() {
     togglePermission,
     next,
     back,
+    skipToFinish,
     reset,
   };
 }

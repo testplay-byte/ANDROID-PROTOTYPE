@@ -2,14 +2,18 @@
 /**
  * setup-wizard / screens / backup-summary-screen — step 5.
  *
- * After the user picks a backup file (or skips), this screen shows a stats
- * grid with what was found: 247 anime, 12 categories, 1,432 episodes
- * tracked, 89 completed. Each stat card has a polished card style (border,
- * shadow, top-edge highlight) and the values animate in with a scale +
+ * After the user picks a backup file, this screen shows a stats grid with
+ * what was found: 247 anime, 12 categories, 1,432 episodes tracked, 89
+ * completed. A side-view cat sits next to a small bar chart. Each stat
+ * card has a polished card style and the values animate in with a scale +
  * count-up-style entrance.
+ *
+ * NOTE: This screen is now ONLY reached when the user actually selected a
+ * backup. Skipping the backup (via the Skip button on the restore screen)
+ * jumps directly to the Finish screen, bypassing this summary entirely.
  */
 import type { ThemePalette } from "../lib/themes";
-import { Cat } from "../components/cat";
+import { CatIllustration } from "../components/cat-illustration";
 
 interface BackupSummaryScreenProps {
   active: boolean;
@@ -34,9 +38,9 @@ export function BackupSummaryScreen({ active, onNext, onBack, palette }: BackupS
   return (
     <div className={`wizard-step ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        {/* Illustration */}
+        {/* Illustration — cat next to bar chart */}
         <div className="illustration" key={active ? "on" : "off"}>
-          <Cat size={150} />
+          <CatIllustration variant="summary" />
         </div>
 
         <h1 className="wizard-title" style={{ fontWeight: 800 }}>Backup summary</h1>

@@ -11,15 +11,22 @@
  * If the user navigates back to this screen after auto-advance, they see
  * the selected backup card with a Continue button (no re-trigger of the
  * loading state unless they click Select Backup File again).
+ *
+ * SKIP BUG FIX: The "Skip" button (shown only when NO backup is selected)
+ * now calls `onSkip` instead of `onNext`. `onSkip` jumps directly to the
+ * Finish screen (step 6), skipping the Backup Summary screen entirely —
+ * because there's nothing to summarize if the user skipped the backup.
  */
 import { useEffect, useState } from "react";
 import type { ThemePalette } from "../lib/themes";
-import { Cat } from "../components/cat";
+import { CatIllustration } from "../components/cat-illustration";
 
 interface RestoreScreenProps {
   active: boolean;
   onNext: () => void;
   onBack: () => void;
+  /** Jump directly to the Finish screen, skipping Backup Summary. */
+  onSkip: () => void;
   backupSelected: boolean;
   setBackupSelected: (selected: boolean) => void;
   palette: ThemePalette;
@@ -29,6 +36,7 @@ export function RestoreScreen({
   active,
   onNext,
   onBack,
+  onSkip,
   backupSelected,
   setBackupSelected,
   palette,
@@ -55,9 +63,9 @@ export function RestoreScreen({
   return (
     <div className={`wizard-step ${active ? "wizard-step--active" : ""}`}>
       <div className="wizard-content">
-        {/* Illustration — anime character catching falling data drops */}
+        {/* Illustration — cat watching data drops fall */}
         <div className="illustration" key={active ? "on" : "off"}>
-          <Cat size={150} />
+          <CatIllustration variant="restore" />
         </div>
 
         <h1 className="wizard-title" style={{ fontWeight: 800 }}>Restore backup</h1>
@@ -209,7 +217,7 @@ export function RestoreScreen({
           <button
             type="button"
             className="wizard-btn wizard-btn--ghost"
-            onClick={onNext}
+            onClick={onSkip}
             style={{ fontWeight: 800 }}
           >
             Skip

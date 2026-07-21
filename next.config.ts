@@ -22,6 +22,9 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
+  // Fix Turbopack workspace-root detection when multiple lockfiles exist
+  // in the parent directory (local dev). On CI there's only one lockfile.
+  outputFileTracingRoot: __dirname,
   // Suppress build errors from old static HTML in public/ (it isn't compiled).
   typescript: {
     ignoreBuildErrors: false,

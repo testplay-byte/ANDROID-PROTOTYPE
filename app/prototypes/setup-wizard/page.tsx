@@ -1,6 +1,25 @@
 "use client";
 
-import { useEffect } from "react";
+/**
+ * setup-wizard / page — the prototype entry point.
+ *
+ * A 7-step animated setup wizard for an anime app.
+ * Theme color: #b3f35a (lime) by default, user can switch palettes.
+ *
+ * Steps:
+ *   0. Welcome
+ *   1. Theme selection (light/dark/system + color palette)
+ *   2. Folder selection (merged with confirm — auto-advances)
+ *   3. Permissions (install apps, notifications, battery — optional)
+ *   4. Restore backup (auto-advances after backup selection; Skip jumps to Finish)
+ *   5. Backup summary (mock data — only shown if a backup was selected)
+ *   6. Finish (good luck screen)
+ *
+ * The wizard applies the selected theme + palette to the .device element
+ * so subsequent screens reflect the user's choices immediately. A side-view
+ * cat companion appears on every screen with variant-specific animations.
+ */
+import { useState, useEffect, useMemo } from "react";
 import {
   DeviceThemeProvider,
   DeviceFrame,
@@ -34,9 +53,9 @@ const STEP_NAMES = [
 const STEP_DESCRIPTIONS = [
   "Welcome to the setup wizard.",
   "Choose your theme and colors.",
-  "Select your anime folder.",
+  "Select your anime folder (auto-advances).",
   "Grant app permissions (optional).",
-  "Restore from a backup.",
+  "Restore from a backup (auto-advances).",
   "Backup summary preview.",
   "You're all set!",
 ];
@@ -45,11 +64,18 @@ export default function Page() {
   const wizard = useWizardState();
   const { step, themeMode, palette } = wizard;
 
+  // Apply the selected palette as CSS custom properties on the .device element
   useEffect(() => {
     const device = document.querySelector(".device") as HTMLElement | null;
     if (!device) return;
+
+    // Determine effective theme (system → dark for prototype)
     const effectiveDark = themeMode !== "light";
+
+    // Apply theme mode
     device.setAttribute("data-theme", effectiveDark ? "dark" : "light");
+
+    // Apply palette colors as CSS custom properties
     const root = device;
     root.style.setProperty("--color-primary", palette.primary);
     root.style.setProperty("--color-primary-fg", palette.onPrimary);
@@ -61,6 +87,8 @@ export default function Page() {
     root.style.setProperty("--color-surface-3", effectiveDark ? palette.surface3Dark : palette.bgLight);
     root.style.setProperty("--color-surface-4", effectiveDark ? palette.surface4Dark : palette.primaryContainerLight);
     root.style.setProperty("--color-surface-5", effectiveDark ? palette.surface5Dark : palette.primaryContainerLight);
+
+    // Stage background
     document.documentElement.style.setProperty("--stage-bg", effectiveDark ? palette.bgDark : "#e0e0e0");
   }, [themeMode, palette]);
 
@@ -75,9 +103,10 @@ export default function Page() {
             <PanelBadge>prototype</PanelBadge>
             <PanelTitle>Setup Wizard</PanelTitle>
             <PanelDesc>
-              An animated setup wizard for an anime app. Material 3 Expressive
-              with a lime primary color. Theme switching, folder selection,
-              permissions, backup restore, and a cute animated cat companion.
+              An animated 7-step setup wizard for an anime app. Material 3
+              Expressive with a lime (#b3f35a) primary color. Theme switching,
+              folder selection (auto-advancing), permissions, backup restore,
+              and a cute animated cat companion on every screen.
             </PanelDesc>
             <div className="tags">
               <span className="tag">Material 3</span>
@@ -93,6 +122,7 @@ export default function Page() {
               <span className="screeninfo__name">{info}</span>
               <span className="screeninfo__desc">{desc}</span>
             </div>
+
             <PanelHead>Progress</PanelHead>
             <div className="mini-bars">
               {STEP_NAMES.map((name, i) => (
@@ -112,18 +142,31 @@ export default function Page() {
                 </div>
               ))}
             </div>
+
             <PanelHead>Design</PanelHead>
             <div className="kvlist">
-              <div className="kvlist__row"><span>Theme</span><b>M3 Expressive</b></div>
-              <div className="kvlist__row"><span>Primary</span><b style={{ color: palette.primary }}>{palette.primary}</b></div>
-              <div className="kvlist__row"><span>Mode</span><b>{themeMode}</b></div>
+              <div className="kvlist__row">
+                <span>Theme</span>
+                <b>M3 Expressive</b>
+              </div>
+              <div className="kvlist__row">
+                <span>Primary</span>
+                <b style={{ color: palette.primary }}>{palette.primary}</b>
+              </div>
+              <div className="kvlist__row">
+                <span>Mode</span>
+                <b>{themeMode}</b>
+              </div>
             </div>
           </>
         }
       >
         <DeviceFrame theme="dark">
           <Screen>
+            {/* Progress bar at top */}
             <WizardProgress currentStep={step} totalSteps={7} palette={palette} />
+
+            {/* Screen content — all screens always mounted, visibility via .wizard-step--active */}
             <WelcomeScreen active={step === 0} onNext={wizard.next} palette={palette} />
             <ThemeScreen
               active={step === 1}
@@ -154,6 +197,7 @@ export default function Page() {
               active={step === 4}
               onNext={wizard.next}
               onBack={wizard.back}
+              onSkip={wizard.skipToFinish}
               backupSelected={wizard.backupSelected}
               setBackupSelected={wizard.setBackupSelected}
               palette={palette}

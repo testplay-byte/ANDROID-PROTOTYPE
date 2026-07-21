@@ -2,11 +2,13 @@
 /**
  * setup-wizard / screens / welcome-screen — step 0.
  *
- * Welcomes the user with an animated cat illustration and decorative
- * background orbs. A single "Get Started" CTA advances to the theme screen.
+ * The first screen of the wizard. Welcomes the user with an animated cat
+ * companion (side-view, waving paw, sparkles), plus decorative blurred
+ * background orbs that use the active palette's primary color. A single
+ * "Get Started" CTA advances to the theme screen. No back button (first step).
  */
 import type { ThemePalette } from "../lib/themes";
-import { Cat } from "../components/cat";
+import { CatIllustration } from "../components/cat-illustration";
 
 interface WelcomeScreenProps {
   active: boolean;
@@ -22,53 +24,73 @@ export function WelcomeScreen({ active, onNext, palette }: WelcomeScreenProps) {
         <div
           className="bg-orb"
           style={{
-            width: 180, height: 180, top: "10%", left: "5%",
+            width: 180,
+            height: 180,
+            top: -40,
+            left: -40,
             background: palette.primary,
-            animationDelay: "0s",
           }}
         />
         <div
           className="bg-orb"
           style={{
-            width: 140, height: 140, bottom: "15%", right: "8%",
+            width: 140,
+            height: 140,
+            bottom: 80,
+            right: -30,
             background: palette.primary,
-            animationDelay: "2s",
+            animationDelay: "1.5s",
+          }}
+        />
+        <div
+          className="bg-orb"
+          style={{
+            width: 100,
+            height: 100,
+            top: "40%",
+            right: "10%",
+            background: palette.primary,
+            opacity: 0.1,
+            animationDelay: "0.8s",
           }}
         />
       </div>
 
       <div className="wizard-content" style={{ position: "relative", zIndex: 1 }}>
-        {/* Cat illustration */}
+        {/* Illustration — cat companion waving */}
         <div className="illustration" key={active ? "on" : "off"}>
-          <Cat size={200} />
+          <CatIllustration variant="welcome" />
         </div>
 
-        {/* Title */}
+        {/* Title — explicitly bold (font-weight: 800) */}
         <h1 className="wizard-title" style={{ fontWeight: 800 }}>
           Welcome to Anime App!
         </h1>
 
         {/* Subtitle */}
         <p className="wizard-subtitle">
-          Let's set up your anime library in just a few steps. Your furry companion will guide you along the way.
+          Let&apos;s get you set up in just a few steps. Pick a theme, point us at
+          your anime library, and start watching.
         </p>
       </div>
 
+      {/* Actions — single primary CTA, no back button (first step) */}
       <div className="wizard-actions">
-        {/* Single CTA — no back button on first screen */}
         <button
           type="button"
           className="wizard-btn wizard-btn--primary"
           onClick={onNext}
-          style={{
-            background: palette.primary,
-            color: palette.onPrimary,
-            fontWeight: 800,
-          }}
+          style={{ background: palette.primary, color: palette.onPrimary, fontWeight: 800 }}
         >
           Get Started
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path d="M5 12h14M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M5 12h14M13 6l6 6-6 6"
+              stroke="currentColor"
+              strokeWidth="2.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
         </button>
       </div>
