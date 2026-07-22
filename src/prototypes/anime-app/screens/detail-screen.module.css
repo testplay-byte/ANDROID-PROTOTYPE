@@ -281,9 +281,49 @@
 .episodeList {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 10px;
 }
 
+/* Episode section header: title + gear icon */
+.episodeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.episodeHeader .sectionTitle {
+  margin: 0;
+}
+
+.episodeSettingsBtn {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: 0 0 auto;
+  transition: background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard),
+    transform var(--dur-1) var(--ease-emphasized);
+}
+
+.episodeSettingsBtn:active {
+  transform: scale(0.92);
+  background: var(--color-surface-3);
+}
+
+.episodeSettingsBtn:hover {
+  color: var(--color-primary);
+}
+
+/* Legacy episode row styles kept for reference but no longer used —
+   the new EpisodeRow component has its own module.css. */
 .episodeRow {
   display: flex;
   gap: 10px;

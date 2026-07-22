@@ -14,14 +14,26 @@
  *
  * The back button calls onBack() which the page wires to history.back()
  * so the browser's popstate + the slide-out animation both fire.
+ *
+ * Episode list: uses generateMockEpisodes() to synthesize per-episode data
+ * (title, description, release date, sub/dub, thumbnail) since AniList
+ * doesn't provide per-episode metadata via the Media query. The episode
+ * list respects the user's episode display settings (decorative backgrounds,
+ * two-line title) from useSettings().
+ *
+ * A gear icon on the Episodes section header opens the EpisodeSettingsView
+ * (a pushed sub-view) where the user can configure the episode display.
  */
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useAnimeDetail } from "../hooks/use-anilist";
 import { useHistory } from "../hooks/use-history";
 import { useLibrary } from "../hooks/use-library";
-import { fmtScore, stripHtml } from "../lib/anilist";
+import { useSettings } from "../hooks/use-settings";
+import { fmtScore, stripHtml, generateMockEpisodes } from "../lib/anilist";
 import { formatLabel, statusLabel } from "../lib/filters";
 import type { LibraryStatus } from "../lib/types";
+import { EpisodeRow } from "../components/episode-row";
+import { EpisodeSettingsView } from "../components/episode-settings-view";
 import styles from "./detail-screen.module.css";
 
 interface DetailScreenProps {
@@ -36,11 +48,13 @@ export function DetailScreen({ active, animeId, onBack }: DetailScreenProps) {
   const { has, add: addToLib, remove: removeFromLib } = useLibrary();
   const [synopsisExpanded, setSynopsisExpanded] = useState(false);
   const [statusSelectorOpen, setStatusSelectorOpen] = useState(false);
+  const [showEpisodeSettings, setShowEpisodeSettings] = useState(false);
 
   // Reset transient UI state when the anime changes.
   useEffect(() => {
     setSynopsisExpanded(false);
     setStatusSelectorOpen(false);
+    setShowEpisodeSettings(false);
   }, [animeId]);
 
   // Push into history when the anime becomes available.
@@ -61,67 +75,76 @@ export function DetailScreen({ active, animeId, onBack }: DetailScreenProps) {
   }
 
   return (
-    <section
-      className={`view ${active ? "view--active" : ""}`}
-      data-view="detail"
-      aria-label="Anime detail"
-      aria-hidden={!active}
-    >
-      <div className={styles.content}>
-        {!animeId && <Placeholder />}
+    <>
+      <section
+        className={`view ${active && !showEpisodeSettings ? "view--active" : ""}`}
+        data-view="detail"
+        aria-label="Anime detail"
+        aria-hidden={!active}
+      >
+        <div className={styles.content}>
+          {!animeId && <Placeholder />}
 
-        {animeId && loading && <DetailSkeleton />}
+          {animeId && loading && <DetailSkeleton />}
 
-        {animeId && !loading && error && (
-          <div className={styles.errorState}>
-            <div className={styles.errorIcon}>
-              <svg
-                width="28"
-                height="28"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
+          {animeId && !loading && error && (
+            <div className={styles.errorState}>
+              <div className={styles.errorIcon}>
+                <svg
+                  width="28"
+                  height="28"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+              </div>
+              <h3 className={styles.errorTitle}>Could not load anime</h3>
+              <p className={styles.errorDesc}>
+                Check your connection and try again.
+              </p>
+              <button
+                type="button"
+                className="btn-outlined"
+                style={{ marginTop: 12, flex: "0 0 auto" }}
+                onClick={onBack}
               >
-                <circle cx="12" cy="12" r="10" />
-                <line x1="12" y1="8" x2="12" y2="12" />
-                <line x1="12" y1="16" x2="12.01" y2="16" />
-              </svg>
+                Go back
+              </button>
             </div>
-            <h3 className={styles.errorTitle}>Could not load anime</h3>
-            <p className={styles.errorDesc}>
-              Check your connection and try again.
-            </p>
-            <button
-              type="button"
-              className="btn-outlined"
-              style={{ marginTop: 12, flex: "0 0 auto" }}
-              onClick={onBack}
-            >
-              Go back
-            </button>
-          </div>
-        )}
+          )}
 
-        {animeId && !loading && !error && anime && (
-          <DetailBody
-            anime={anime}
-            inLib={inLib}
-            synopsisExpanded={synopsisExpanded}
-            onToggleSynopsis={() => setSynopsisExpanded((v) => !v)}
-            onBack={onBack}
-            onLibraryToggle={() => handleLibraryToggle("watching")}
-            onPickStatus={(s) => handleLibraryToggle(s)}
-            statusSelectorOpen={statusSelectorOpen}
-            onToggleStatusSelector={() =>
-              setStatusSelectorOpen((v) => !v)
-            }
-          />
-        )}
-      </div>
-    </section>
+          {animeId && !loading && !error && anime && (
+            <DetailBody
+              anime={anime}
+              inLib={inLib}
+              synopsisExpanded={synopsisExpanded}
+              onToggleSynopsis={() => setSynopsisExpanded((v) => !v)}
+              onBack={onBack}
+              onLibraryToggle={() => handleLibraryToggle("watching")}
+              onPickStatus={(s) => handleLibraryToggle(s)}
+              statusSelectorOpen={statusSelectorOpen}
+              onToggleStatusSelector={() =>
+                setStatusSelectorOpen((v) => !v)
+              }
+              onOpenEpisodeSettings={() => setShowEpisodeSettings(true)}
+            />
+          )}
+        </div>
+      </section>
+
+      {/* Episode settings sub-view — slides in on top of the detail view */}
+      <EpisodeSettingsView
+        active={active && showEpisodeSettings}
+        onBack={() => setShowEpisodeSettings(false)}
+      />
+    </>
   );
 }
 
@@ -139,6 +162,7 @@ interface DetailBodyProps {
   onPickStatus: (s: LibraryStatus) => void;
   statusSelectorOpen: boolean;
   onToggleStatusSelector: () => void;
+  onOpenEpisodeSettings: () => void;
 }
 
 function DetailBody({
@@ -151,7 +175,9 @@ function DetailBody({
   onPickStatus,
   statusSelectorOpen,
   onToggleStatusSelector,
+  onOpenEpisodeSettings,
 }: DetailBodyProps) {
+  const { settings } = useSettings();
   const title = anime.title.romaji || anime.title.english || "Unknown";
   const englishSub =
     anime.title.english && anime.title.english !== title
@@ -175,8 +201,11 @@ function DetailBody({
     metaPills.push(`Ep ${anime.nextAiringEpisode.episode} soon`);
   if (anime.format) metaPills.push(formatLabel(anime.format));
 
-  // Episode list — number up to a.episodes, capped at 24.
-  const epCount = Math.min(anime.episodes ?? 12, 24);
+  // Generate mock episode data (memoized so it's stable across re-renders).
+  const episodes = useMemo(
+    () => generateMockEpisodes(anime),
+    [anime],
+  );
 
   return (
     <>
@@ -286,22 +315,39 @@ function DetailBody({
           </button>
         </div>
 
-        {epCount > 0 && (
+        {episodes.length > 0 && (
           <div className={styles.section}>
-            <h3 className={styles.sectionTitle}>Episodes</h3>
+            <div className={styles.episodeHeader}>
+              <h3 className={styles.sectionTitle}>Episodes</h3>
+              <button
+                type="button"
+                className={styles.episodeSettingsBtn}
+                onClick={onOpenEpisodeSettings}
+                aria-label="Episode display settings"
+              >
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <circle cx="12" cy="12" r="3" />
+                  <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                </svg>
+              </button>
+            </div>
             <div className={styles.episodeList}>
-              {Array.from({ length: epCount }).map((_, i) => (
-                <div key={i} className={styles.episodeRow}>
-                  <div className={styles.episodeNum}>{i + 1}</div>
-                  <div className={styles.episodeInfo}>
-                    <span className={styles.episodeTitle}>
-                      Episode {i + 1}
-                    </span>
-                    <span className={styles.episodeMeta}>
-                      {anime.format ? formatLabel(anime.format) : "TV"}
-                    </span>
-                  </div>
-                </div>
+              {episodes.map((ep) => (
+                <EpisodeRow
+                  key={ep.number}
+                  episode={ep}
+                  showDecorativeBackgrounds={settings.episodeShowDecorativeBackgrounds}
+                  allowTwoLineTitle={settings.episodeAllowTwoLineTitle}
+                />
               ))}
             </div>
           </div>

@@ -226,3 +226,117 @@ export function fetchAiringSchedule(
       .sort((a, b) => a.airingAt - b.airingAt);
   });
 }
+
+// ---------------------------------------------------------------------------
+// Mock episode data (prototype only — AniList doesn't provide per-episode
+// titles/descriptions/thumbnails via the Media query, so we synthesize
+// plausible episode data for the detail screen's episode list).
+// ---------------------------------------------------------------------------
+
+import type { EpisodeData } from "./types";
+
+/** Curated pool of plausible-sounding episode titles. */
+const EPISODE_TITLES = [
+  "A New Beginning",
+  "The Journey Starts",
+  "First Light",
+  "Whispers in the Dark",
+  "The Unlikely Alliance",
+  "Crossroads of Fate",
+  "Echoes of the Past",
+  "The Hidden Path",
+  "Storm Brewing",
+  "Bonds Forged in Battle",
+  "The Silent Oath",
+  "Shadows of Tomorrow",
+  "Breaking the Chains",
+  "The Cost of Courage",
+  "Where Dreams Collide",
+  "A Glimmer of Hope",
+  "The Turning Point",
+  "Beyond the Horizon",
+  "Fractured Reflections",
+  "The Final Promise",
+  "Embers of Resolve",
+  "Crimson Twilight",
+  "The weight of Wings",
+  "Dawn of a New Era",
+];
+
+/** Curated pool of plausible-sounding episode descriptions. */
+const EPISODE_DESCRIPTIONS = [
+  "Our hero sets out on a journey that will change everything. Old memories resurface as the first steps are taken into the unknown.",
+  "Tensions rise as the team faces their first real challenge. Friendships are tested and unlikely bonds begin to form.",
+  "A long-buried secret comes to light, forcing everyone to question what they thought they knew about the world.",
+  "The stakes grow higher as a new threat emerges from the shadows. Time is running out to prepare.",
+  "In the aftermath of battle, hard choices must be made. Some wounds cut deeper than any blade.",
+  "A quiet moment of peace is shattered when an unexpected visitor arrives with urgent news.",
+  "Loyalties are tested as the group is forced to choose between their mission and their hearts.",
+  "The truth behind the legend is finally revealed, and nothing will ever be the same again.",
+  "With the clock ticking, our heroes must race against time to prevent a catastrophe.",
+  "Old rivals cross paths once more as the past and present collide in an explosive confrontation.",
+  "A sacrifice changes the course of everything, leaving the group forever altered.",
+  "The final battle looms on the horizon as alliances are forged and broken.",
+  "In the darkest hour, a glimmer of hope appears from the most unlikely of places.",
+  "Everything has been leading to this moment. The fate of the world hangs in the balance.",
+];
+
+/** Month labels for generating release dates. */
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/**
+ * Generate a list of mock episodes for the given anime.
+ *
+ * Uses the anime's cover/banner image as the per-episode thumbnail (AniList
+ * does not provide real per-episode stills). Titles, descriptions, release
+ * dates, and sub/dub availability are all deterministic-but-varied so the
+ * same anime always produces the same episode list (stable across re-renders).
+ *
+ * @param anime The anime to generate episodes for.
+ * @param count How many episodes to generate (defaults to anime.episodes, capped at 24).
+ */
+export function generateMockEpisodes(
+  anime: Anime,
+  count?: number,
+): EpisodeData[] {
+  const n = Math.min(count ?? anime.episodes ?? 12, 24);
+  if (n <= 0) return [];
+
+  const thumb =
+    anime.bannerImage ||
+    anime.coverImage.extraLarge ||
+    anime.coverImage.large ||
+    "";
+
+  const startDate = anime.nextAiringEpisode?.airingAt
+    ? new Date(anime.nextAiringEpisode.airingAt * 1000)
+    : new Date(anime.seasonYear ?? 2024, 0, 7);
+
+  const list: EpisodeData[] = [];
+  for (let i = 0; i < n; i++) {
+    // Deterministic pseudo-random based on anime id + episode index so the
+    // same anime always yields the same episode data across re-renders.
+    const seed = (anime.id * 31 + i * 7) % 1000;
+    const titleIdx = (seed + i) % EPISODE_TITLES.length;
+    const descIdx = (seed * 3 + i * 5) % EPISODE_DESCRIPTIONS.length;
+
+    // Release date: ~7 days apart starting from startDate.
+    const epDate = new Date(startDate.getTime() + i * 7 * 24 * 60 * 60 * 1000);
+    const releaseDate = `${MONTHS[epDate.getMonth()]} ${epDate.getDate()}, ${epDate.getFullYear()}`;
+
+    // Sub/dub availability: sub is almost always available; dub ~70% of the time.
+    const subAvailable = true;
+    const dubAvailable = (seed % 10) < 7;
+
+    list.push({
+      number: i + 1,
+      title: EPISODE_TITLES[titleIdx],
+      description: EPISODE_DESCRIPTIONS[descIdx],
+      releaseDate,
+      subAvailable,
+      dubAvailable,
+      thumbnail: thumb,
+    });
+  }
+  return list;
+}

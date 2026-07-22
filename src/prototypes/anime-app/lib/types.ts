@@ -137,6 +137,14 @@ export interface Settings {
   libraryShowEpisodes: boolean;
   /** Where to show the episode badge on grid covers. */
   libraryEpisodePosition: LibraryEpisodePosition;
+  /** Episode-list-specific display options. */
+  /** Show/hide the "fun" decorative background colors behind episode count,
+   *  sub/dub status, release date, etc. When off, labels render as plain
+   *  text with no background chip. */
+  episodeShowDecorativeBackgrounds: boolean;
+  /** Allow long episode titles to wrap onto a second line. When off,
+   *  titles are clamped to a single line with ellipsis. */
+  episodeAllowTwoLineTitle: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -150,4 +158,27 @@ export const DEFAULT_SETTINGS: Settings = {
   libraryShowFormat: true,
   libraryShowEpisodes: true,
   libraryEpisodePosition: "bottom-right",
+  episodeShowDecorativeBackgrounds: true,
+  episodeAllowTwoLineTitle: false,
 };
+
+// ---------------------------------------------------------------------------
+// Episode data (mock — used by the detail screen's episode list)
+// ---------------------------------------------------------------------------
+
+export interface EpisodeData {
+  /** 1-based episode number. */
+  number: number;
+  /** Episode title (may be long). */
+  title: string;
+  /** Short synopsis / description of the episode. */
+  description: string;
+  /** Human-readable release date, e.g. "Jan 15, 2024". */
+  releaseDate: string;
+  /** Whether a subtitled version is available. */
+  subAvailable: boolean;
+  /** Whether a dubbed version is available. */
+  dubAvailable: boolean;
+  /** Thumbnail image URL (per-episode — falls back to the anime cover). */
+  thumbnail: string;
+}

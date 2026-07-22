@@ -132,9 +132,22 @@ button {
   transform: none;
 }
 
+/* Episode-settings sub-view also slides in from the right (stacks on detail). */
+.view[data-view="episode-settings"] {
+  transform: translateX(100%);
+  transition: transform var(--dur-4) var(--ease-emphasized),
+    opacity var(--dur-3) var(--ease-emphasized-decel);
+  z-index: 20;
+}
+
+.view[data-view="episode-settings"].view--active {
+  transform: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .view,
-  .view[data-view="detail"] {
+  .view[data-view="detail"],
+  .view[data-view="episode-settings"] {
     transition: none !important;
   }
 }

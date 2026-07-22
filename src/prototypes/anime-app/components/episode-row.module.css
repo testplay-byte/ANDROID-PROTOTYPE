@@ -1,0 +1,234 @@
+/* EpisodeRow — a single episode list entry.
+   Layout: top section (thumbnail + title/meta) + bottom section (description).
+   The entry container has a uniform lighter background (no alternating). */
+
+.entry {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  border-radius: 14px;
+  overflow: hidden;
+  cursor: pointer;
+  /* Uniform lighter background — same for every entry, no alternating. */
+  background: var(--color-surface-2);
+  transition: background var(--dur-1) var(--ease-standard),
+    transform var(--dur-1) var(--ease-emphasized);
+}
+
+.entry:active {
+  background: var(--color-surface-3);
+  transform: scale(0.985);
+}
+
+/* ---- Top section: thumbnail (left) + right side ---- */
+.top {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+}
+
+/* ---- Thumbnail ---- */
+.thumbWrap {
+  position: relative;
+  width: 120px;
+  /* Height is flexible — driven by the aspect ratio of the thumbnail.
+     Using aspect-ratio keeps it responsive without hard-coded heights. */
+  aspect-ratio: 16 / 9;
+  flex: 0 0 auto;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--color-surface-3);
+}
+
+.thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.thumbPlaceholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    var(--color-surface-3),
+    var(--color-surface-4)
+  );
+}
+
+/* Episode number badge — overlaid on the thumbnail (top-left corner).
+   Minimal vertical padding so the bg tightly hugs the text. */
+.epBadge {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.2;
+  /* Decorative background (primary-tinted) — hidden when noDecor. */
+  background: color-mix(in srgb, var(--color-primary) 85%, black);
+  color: var(--color-on-primary);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+/* ---- Right side: title (upper) + meta (lower) ---- */
+.right {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  /* Two equal-height stacked sections. */
+  justify-content: stretch;
+  gap: 6px;
+}
+
+/* Upper right: title section */
+.titleWrap {
+  flex: 1 1 0;
+  display: flex;
+  align-items: flex-start;
+  /* Eye-catching title background — modern, distinct from other elements.
+     A subtle primary-tinted gradient. */
+  border-radius: 8px;
+  padding: 6px 9px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-primary) 22%, transparent),
+    color-mix(in srgb, var(--color-primary) 8%, transparent)
+  );
+  border: 1px solid color-mix(in srgb, var(--color-primary) 30%, transparent);
+  min-height: 0;
+}
+
+.title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.3;
+  width: 100%;
+}
+
+/* Single-line title (default) — clamp to 1 line with ellipsis. */
+.titleOneLine {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+}
+
+/* Two-line title (when allowTwoLineTitle is on) — clamp to 2 lines. */
+.titleTwoLine {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Lower right: release date + sub/dub */
+.meta {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* Minimal-padding label badges — tightly hug the text (ANIKUTA-style).
+   No excessive top/bottom empty space. */
+.dateBadge,
+.subDubBadge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.25;
+  white-space: nowrap;
+}
+
+.dateBadge {
+  /* Decorative background for release date — surface-3 tint. */
+  background: var(--color-surface-4);
+  color: var(--color-text);
+}
+
+.subDubBadge {
+  /* Decorative background for sub/dub — primary-tinted. */
+  background: color-mix(in srgb, var(--color-primary) 20%, transparent);
+  color: var(--color-primary);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 35%, transparent);
+}
+
+/* ---- Bottom section: description only ---- */
+.bottom {
+  padding: 0 10px 10px;
+}
+
+.description {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.55;
+  color: var(--color-text-muted);
+  /* Clamp to 3 lines so very long descriptions don't bloat the row. */
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ---- noDecor mode: hide all decorative backgrounds ----
+   When showDecorativeBackgrounds is off, labels render as plain text
+   with no background chips. The title background also goes plain. */
+.noDecor .titleWrap {
+  background: transparent;
+  border-color: transparent;
+  padding: 2px 0;
+}
+
+.noDecor .epBadge {
+  background: rgba(0, 0, 0, 0.55);
+  color: #fff;
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.noDecor .dateBadge,
+.noDecor .subDubBadge {
+  background: transparent;
+  border: none;
+  padding: 0;
+  color: var(--color-text-muted);
+}
+
+/* Plain label variant — used when noDecor is active on individual badges. */
+.plainLabel {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  color: var(--color-text-muted) !important;
+}
+
+/* ---- Responsive: narrower thumbnail on very small screens ---- */
+@media (max-width: 360px) {
+  .thumbWrap {
+    width: 100px;
+  }
+  .title {
+    font-size: 12.5px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .entry {
+    transition: none !important;
+  }
+}
