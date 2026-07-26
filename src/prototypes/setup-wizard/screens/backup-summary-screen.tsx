@@ -1,16 +1,11 @@
 "use client";
 /**
- * setup-wizard / screens / backup-summary-screen — step 5.
+ * setup-wizard / screens / backup-summary-screen — step 7.
  *
- * After the user picks a backup file, this screen shows a stats grid with
- * what was found: 247 anime, 12 categories, 1,432 episodes tracked, 89
- * completed. An abstract growing bar chart with a trend arrow sits at the
- * top. Each stat card has a polished card style and the values animate in
- * with a scale + count-up-style entrance.
- *
- * NOTE: This screen is now ONLY reached when the user actually selected a
- * backup. Skipping the backup (via the Skip button on the restore screen)
- * jumps directly to the Finish screen, bypassing this summary entirely.
+ * Shows the backup summary with stats (anime, categories, episodes, etc.)
+ * + a RED manga warning at the bottom ("Manga entries detected, manga
+ * is not supported"). Two buttons: Cancel (back) and Restore (advance to
+ * the linking anime screen).
  */
 import type { ThemePalette } from "../lib/themes";
 import { SummaryVisual } from "../components/visuals";
@@ -46,7 +41,7 @@ export function BackupSummaryScreen({ active, onNext, onBack, palette }: BackupS
         <h1 className="wizard-title" style={{ fontWeight: 800 }}>Backup summary</h1>
         <p className="wizard-subtitle">Here&apos;s what we found in your backup</p>
 
-        {/* Stats grid — polished cards, animated value entrance */}
+        {/* Stats grid */}
         <div className="stats-grid">
           {STATS.map((stat, i) => (
             <div
@@ -70,20 +65,40 @@ export function BackupSummaryScreen({ active, onNext, onBack, palette }: BackupS
             </div>
           ))}
         </div>
+
+        {/* Manga warning — RED format */}
+        <div
+          style={{
+            width: "100%",
+            maxWidth: 320,
+            padding: "12px 16px",
+            borderRadius: "var(--r-md)",
+            background: "color-mix(in srgb, var(--color-error) 15%, transparent)",
+            border: "1px solid color-mix(in srgb, var(--color-error) 40%, transparent)",
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            animation: "cardEntry 0.5s var(--ease-emphasized-decel) 0.55s backwards",
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" style={{ color: "var(--color-error)", flex: "0 0 auto" }}>
+            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" />
+            <path d="M12 8v4M12 16h.01" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "var(--color-error)" }}>
+              Manga entries detected
+            </p>
+            <p style={{ margin: 0, fontSize: 11, color: "var(--color-text-muted)", marginTop: 2 }}>
+              Manga is not supported — these entries will be skipped.
+            </p>
+          </div>
+        </div>
       </div>
 
       <div className="wizard-actions">
         <button type="button" className="wizard-btn wizard-btn--secondary" onClick={onBack} style={{ fontWeight: 800 }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-            <path
-              d="M19 12H5M11 18l-6-6 6-6"
-              stroke="currentColor"
-              strokeWidth="2.4"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-          Back
+          Cancel
         </button>
         <button
           type="button"
@@ -91,7 +106,7 @@ export function BackupSummaryScreen({ active, onNext, onBack, palette }: BackupS
           onClick={onNext}
           style={{ background: palette.primary, color: palette.onPrimary, fontWeight: 800 }}
         >
-          Looks good!
+          Restore
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true">
             <path
               d="M5 12h14M13 6l6 6-6 6"

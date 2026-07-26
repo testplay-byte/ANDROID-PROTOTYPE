@@ -3,23 +3,28 @@
 /**
  * setup-wizard / page — the prototype entry point.
  *
- * A 7-step animated setup wizard for an anime app.
+ * A 13-step animated setup wizard for an anime app.
  * Theme color: #b3f35a (lime) by default, user can switch palettes.
  *
  * Steps:
- *   0. Welcome
- *   1. Theme selection (light/dark/system + color palette)
- *   2. Folder selection (merged with confirm — auto-advances)
- *   3. Permissions (install apps, notifications, battery — optional)
- *   4. Restore backup (auto-advances after backup selection; Skip jumps to Finish)
- *   5. Backup summary (mock data — only shown if a backup was selected)
- *   6. Finish (good luck screen)
+ *   0.  Welcome
+ *   1.  Theme selection (light/dark/system + color palette)
+ *   2.  Folder selection (stays on screen with success animation)
+ *   3.  Permissions (install apps, notifications, battery — optional)
+ *   4.  Restore backup (Select Backup File / Skip)
+ *   5.  Format not supported (fun warning screen)
+ *   6.  Processing backup (~2s animation, auto-advances)
+ *   7.  Backup summary (stats + manga red warning + Cancel/Restore)
+ *   8.  Linking anime (progressive linking list + stats)
+ *   9.  Manual linking (unlinked anime → search → link)
+ *   10. Restore summary (final summary → Restore Now)
+ *   11. Restore successful (auto-close 5s or Continue)
+ *   12. Finish / URL set (modern animation + Start Exploring)
  *
- * The wizard applies the selected theme + palette to the .device element
- * so subsequent screens reflect the user's choices immediately. Abstract
- * animated visuals appear on every screen with per-screen motion graphics.
+ * Skip (on step 4) jumps directly to the Finish screen (step 12),
+ * bypassing the entire restore flow.
  */
-import { useState, useEffect, useMemo } from "react";
+import { useEffect } from "react";
 import {
   DeviceThemeProvider,
   DeviceFrame,
@@ -36,7 +41,13 @@ import { ThemeScreen } from "../../../src/prototypes/setup-wizard/screens/theme-
 import { FolderScreen } from "../../../src/prototypes/setup-wizard/screens/folder-screen";
 import { PermissionsScreen } from "../../../src/prototypes/setup-wizard/screens/permissions-screen";
 import { RestoreScreen } from "../../../src/prototypes/setup-wizard/screens/restore-screen";
+import { FormatNotSupportedScreen } from "../../../src/prototypes/setup-wizard/screens/format-not-supported-screen";
+import { ProcessingBackupScreen } from "../../../src/prototypes/setup-wizard/screens/processing-backup-screen";
 import { BackupSummaryScreen } from "../../../src/prototypes/setup-wizard/screens/backup-summary-screen";
+import { LinkingAnimeScreen } from "../../../src/prototypes/setup-wizard/screens/linking-anime-screen";
+import { ManualLinkingScreen } from "../../../src/prototypes/setup-wizard/screens/manual-linking-screen";
+import { RestoreSummaryScreen } from "../../../src/prototypes/setup-wizard/screens/restore-summary-screen";
+import { RestoreSuccessfulScreen } from "../../../src/prototypes/setup-wizard/screens/restore-successful-screen";
 import { FinishScreen } from "../../../src/prototypes/setup-wizard/screens/finish-screen";
 import { WizardProgress } from "../../../src/prototypes/setup-wizard/components/wizard-progress";
 
@@ -46,17 +57,29 @@ const STEP_NAMES = [
   "Folder",
   "Permissions",
   "Restore",
+  "Format",
+  "Processing",
   "Summary",
+  "Linking",
+  "Manual",
+  "Restore",
+  "Success",
   "Finish",
 ];
 
 const STEP_DESCRIPTIONS = [
   "Welcome to the setup wizard.",
   "Choose your theme and colors.",
-  "Select your anime folder (auto-advances).",
+  "Select your anime folder.",
   "Grant app permissions (optional).",
-  "Restore from a backup (auto-advances).",
-  "Backup summary preview.",
+  "Restore from a backup or skip.",
+  "Backup format not supported.",
+  "Processing your backup file…",
+  "Backup summary with manga warning.",
+  "Linking anime to AniList entries.",
+  "Manually link unlinked anime.",
+  "Final restore summary.",
+  "Restore successful!",
   "You're all set!",
 ];
 
@@ -92,8 +115,8 @@ export default function Page() {
     document.documentElement.style.setProperty("--stage-bg", effectiveDark ? palette.bgDark : "#e0e0e0");
   }, [themeMode, palette]);
 
-  const info = STEP_NAMES[step];
-  const desc = STEP_DESCRIPTIONS[step];
+  const info = STEP_NAMES[step] || "Unknown";
+  const desc = STEP_DESCRIPTIONS[step] || "";
 
   return (
     <DeviceThemeProvider storageKey="setup-wizard-theme" initialTheme="dark">
@@ -103,10 +126,11 @@ export default function Page() {
             <PanelBadge>prototype</PanelBadge>
             <PanelTitle>Setup Wizard</PanelTitle>
             <PanelDesc>
-              An animated 7-step setup wizard for an anime app. Material 3
+              An animated 13-step setup wizard for an anime app. Material 3
               Expressive with a lime (#b3f35a) primary color. Theme switching,
-              folder selection (auto-advancing), permissions, backup restore,
-              and abstract animated visuals on every screen.
+              folder selection, permissions, full backup restore flow
+              (format detection, processing, summary, anime linking, manual
+              linking, restore), and abstract animated visuals on every screen.
             </PanelDesc>
             <div className="tags">
               <span className="tag">Material 3</span>
@@ -126,7 +150,7 @@ export default function Page() {
             <PanelHead>Progress</PanelHead>
             <div className="mini-bars">
               {STEP_NAMES.map((name, i) => (
-                <div key={name} className="mini-bar-row">
+                <div key={`${name}-${i}`} className="mini-bar-row">
                   <span className="mini-bar-label">{name}</span>
                   <div className="mini-bar-track">
                     <div
@@ -162,10 +186,8 @@ export default function Page() {
         }
       >
         <DeviceFrame theme="dark">
-          {/* Progress bar — OUTSIDE Screen so it flows in the flex column
-              between the status bar and the screen. This prevents any
-              overlap with the status bar on mobile. */}
-          <WizardProgress currentStep={step} totalSteps={7} palette={palette} />
+          {/* Progress bar — flows in the flex column between status bar and screen */}
+          <WizardProgress currentStep={step} totalSteps={13} palette={palette} />
           <Screen>
             {/* Screen content — all screens always mounted, visibility via .wizard-step--active */}
             <WelcomeScreen active={step === 0} onNext={wizard.next} palette={palette} />
@@ -199,17 +221,54 @@ export default function Page() {
               onNext={wizard.next}
               onBack={wizard.back}
               onSkip={wizard.skipToFinish}
-              backupSelected={wizard.backupSelected}
-              setBackupSelected={wizard.setBackupSelected}
               palette={palette}
             />
-            <BackupSummaryScreen
+            <FormatNotSupportedScreen
               active={step === 5}
               onNext={wizard.next}
               onBack={wizard.back}
               palette={palette}
             />
-            <FinishScreen active={step === 6} onRestart={wizard.reset} palette={palette} />
+            <ProcessingBackupScreen
+              active={step === 6}
+              onNext={wizard.next}
+              palette={palette}
+            />
+            <BackupSummaryScreen
+              active={step === 7}
+              onNext={wizard.next}
+              onBack={wizard.back}
+              palette={palette}
+            />
+            <LinkingAnimeScreen
+              active={step === 8}
+              onNext={wizard.next}
+              onBack={wizard.back}
+              palette={palette}
+              linkedAnime={wizard.linkedAnime}
+            />
+            <ManualLinkingScreen
+              active={step === 9}
+              onNext={wizard.next}
+              onBack={wizard.back}
+              palette={palette}
+              linkedAnime={wizard.linkedAnime}
+              onLink={wizard.linkAnime}
+            />
+            <RestoreSummaryScreen
+              active={step === 10}
+              onNext={wizard.next}
+              onBack={wizard.back}
+              palette={palette}
+              linkedAnime={wizard.linkedAnime}
+            />
+            <RestoreSuccessfulScreen
+              active={step === 11}
+              onNext={wizard.next}
+              palette={palette}
+              linkedAnime={wizard.linkedAnime}
+            />
+            <FinishScreen active={step === 12} onRestart={wizard.reset} palette={palette} />
           </Screen>
         </DeviceFrame>
       </Stage>

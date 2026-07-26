@@ -201,7 +201,7 @@ export function FolderVisual({ selected = false }: { selected?: boolean }) {
       <style>{`
         .fv-folder-${uid} {
           transform-box: fill-box;
-          transform-origin: 100px 140px;
+          transform-origin: 100px 145px;
           animation: fv-bob-${uid} 3.6s ease-in-out infinite;
         }
         @keyframes fv-bob-${uid} {
@@ -251,27 +251,27 @@ export function FolderVisual({ selected = false }: { selected?: boolean }) {
         }
       `}</style>
 
-      <Glow cx={100} cy={140} r={60} color="var(--color-primary)" opacity={0.22} />
+      <Glow cx={100} cy={145} r={64} color="var(--color-primary)" opacity={0.22} />
 
       {/* Floating file cards (behind folder) */}
       <g className={`fv-card fv-card-3-${uid}`}>
-        <rect x={56} y={44} width={36} height={46} rx={4} fill="var(--color-surface-3)" stroke="var(--color-primary)" strokeWidth={1.2} />
-        <rect x={62} y={52} width={24} height={3} rx={1.5} fill="var(--color-primary)" opacity={0.6} />
-        <rect x={62} y={58} width={20} height={3} rx={1.5} fill="var(--color-primary)" opacity={0.4} />
-        <rect x={62} y={64} width={22} height={3} rx={1.5} fill="var(--color-primary)" opacity={0.4} />
+        <rect x={54} y={40} width={36} height={46} rx={4} fill="var(--color-surface-3)" stroke="var(--color-primary)" strokeWidth={1.2} />
+        <rect x={60} y={48} width={24} height={3} rx={1.5} fill="var(--color-primary)" opacity={0.6} />
+        <rect x={60} y={54} width={20} height={3} rx={1.5} fill="var(--color-primary)" opacity={0.4} />
+        <rect x={60} y={60} width={22} height={3} rx={1.5} fill="var(--color-primary)" opacity={0.4} />
       </g>
       <g className={`fv-card fv-card-2-${uid}`}>
-        <rect x={108} y={36} width={36} height={46} rx={4} fill="var(--color-surface-4)" stroke="var(--color-tertiary)" strokeWidth={1.2} />
-        <rect x={114} y={44} width={24} height={3} rx={1.5} fill="var(--color-tertiary)" opacity={0.7} />
-        <rect x={114} y={50} width={20} height={3} rx={1.5} fill="var(--color-tertiary)" opacity={0.5} />
-        <rect x={114} y={56} width={22} height={3} rx={1.5} fill="var(--color-tertiary)" opacity={0.5} />
+        <rect x={110} y={32} width={36} height={46} rx={4} fill="var(--color-surface-4)" stroke="var(--color-tertiary)" strokeWidth={1.2} />
+        <rect x={116} y={40} width={24} height={3} rx={1.5} fill="var(--color-tertiary)" opacity={0.7} />
+        <rect x={116} y={46} width={20} height={3} rx={1.5} fill="var(--color-tertiary)" opacity={0.5} />
+        <rect x={116} y={52} width={22} height={3} rx={1.5} fill="var(--color-tertiary)" opacity={0.5} />
       </g>
 
-      {/* Folder body — TALLER (extends from y=100 to y=172) */}
+      {/* Folder body — MUCH TALLER (extends from y=96 to y=180, height ~84px) */}
       <g className={`fv-folder-${uid}`}>
         {/* Folder back (tab) */}
         <path
-          d="M 40 108 L 40 166 Q 40 172 46 172 L 154 172 Q 160 172 160 166 L 160 114 L 90 114 L 82 108 Z"
+          d="M 36 104 L 36 174 Q 36 180 42 180 L 158 180 Q 164 180 164 174 L 164 110 L 92 110 L 84 104 Z"
           fill="var(--color-primary-container)"
           stroke="var(--color-primary)"
           strokeWidth={2}
@@ -279,7 +279,7 @@ export function FolderVisual({ selected = false }: { selected?: boolean }) {
         />
         {/* Folder front flap */}
         <path
-          d="M 40 124 L 82 124 L 90 130 L 160 130 L 160 166 Q 160 172 154 172 L 46 172 Q 40 172 40 166 Z"
+          d="M 36 120 L 84 120 L 92 126 L 164 126 L 164 174 Q 164 180 158 180 L 42 180 Q 36 180 36 174 Z"
           fill="var(--color-primary)"
           opacity={0.92}
           stroke="var(--color-primary)"
@@ -287,9 +287,13 @@ export function FolderVisual({ selected = false }: { selected?: boolean }) {
           strokeLinejoin="round"
         />
         {/* Folder highlight */}
-        <path d="M 48 128 L 78 128" stroke="var(--color-on-primary)" strokeWidth={2} strokeLinecap="round" opacity={0.35} />
+        <path d="M 44 124 L 80 124" stroke="var(--color-on-primary)" strokeWidth={2} strokeLinecap="round" opacity={0.35} />
         {/* Folder seam line */}
-        <path d="M 40 124 L 82 124 L 90 130 L 160 130" fill="none" stroke="var(--color-on-primary)" strokeWidth={1} opacity={0.15} />
+        <path d="M 36 120 L 84 120 L 92 126 L 164 126" fill="none" stroke="var(--color-on-primary)" strokeWidth={1} opacity={0.15} />
+        {/* Folder content lines (suggesting files inside) */}
+        <path d="M 52 142 L 148 142" stroke="var(--color-on-primary)" strokeWidth={1.5} strokeLinecap="round" opacity={0.2} />
+        <path d="M 52 152 L 130 152" stroke="var(--color-on-primary)" strokeWidth={1.5} strokeLinecap="round" opacity={0.15} />
+        <path d="M 52 162 L 140 162" stroke="var(--color-on-primary)" strokeWidth={1.5} strokeLinecap="round" opacity={0.12} />
       </g>
 
       {/* Front floating card (in front of folder) */}
@@ -435,7 +439,9 @@ export function PermissionsVisual() {
 }
 
 /* ------------------------------------------------------------------ */
-/* 5. RestoreVisual — larger cloud + animated background               */
+/* 5. RestoreVisual — beautiful cloud with flowing data stream          */
+/*    Redesigned: bigger cloud with soft puffs, animated stream of      */
+/*    data particles flowing into a glowing tray with fill animation    */
 /* ------------------------------------------------------------------ */
 export function RestoreVisual() {
   const uid = useId().replace(/[:]/g, "");
@@ -448,12 +454,12 @@ export function RestoreVisual() {
           animation: rv-bg-pulse-${uid} 4s ease-in-out infinite;
         }
         @keyframes rv-bg-pulse-${uid} {
-          0%, 100% { transform: scale(0.85); opacity: 0.15; }
-          50% { transform: scale(1.1); opacity: 0.35; }
+          0%, 100% { transform: scale(0.85); opacity: 0.12; }
+          50% { transform: scale(1.1); opacity: 0.25; }
         }
         .rv-bg-dash-${uid} {
           transform-box: fill-box;
-          transform-origin: 100px 80px;
+          transform-origin: 100px 72px;
           animation: rv-bg-spin-${uid} 18s linear infinite;
         }
         @keyframes rv-bg-spin-${uid} {
@@ -463,79 +469,126 @@ export function RestoreVisual() {
         .rv-cloud-${uid} {
           transform-box: fill-box;
           transform-origin: center;
-          animation: rv-float-${uid} 3.6s ease-in-out infinite;
+          animation: rv-float-${uid} 4s ease-in-out infinite;
         }
         @keyframes rv-float-${uid} {
           0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-5px); }
+          50% { transform: translateY(-6px); }
         }
         .rv-drop-${uid} {
           transform-box: fill-box;
           transform-origin: center;
-          animation: rv-fall-${uid} 2.4s ease-in infinite;
+          animation: rv-fall-${uid} 2s ease-in infinite;
         }
         @keyframes rv-fall-${uid} {
-          0% { transform: translateY(-6px); opacity: 0; }
-          20% { opacity: 1; }
-          80% { opacity: 1; }
-          100% { transform: translateY(54px); opacity: 0; }
+          0% { transform: translateY(0); opacity: 0; }
+          15% { opacity: 1; }
+          85% { opacity: 1; }
+          100% { transform: translateY(58px); opacity: 0; }
         }
         .rv-tray-${uid} {
           transform-box: fill-box;
           transform-origin: center;
-          animation: rv-pulse-${uid} 2.4s ease-in-out infinite;
+          animation: rv-tray-breathe-${uid} 2s ease-in-out infinite;
         }
-        @keyframes rv-pulse-${uid} {
-          0%, 100% { transform: scaleY(1); opacity: 0.85; }
-          50% { transform: scaleY(1.08); opacity: 1; }
+        @keyframes rv-tray-breathe-${uid} {
+          0%, 100% { transform: scaleY(1); }
+          50% { transform: scaleY(1.05); }
+        }
+        .rv-tray-glow-${uid} {
+          transform-box: fill-box;
+          transform-origin: center;
+          animation: rv-tray-glow-${uid} 2s ease-in-out infinite;
+        }
+        @keyframes rv-tray-glow-${uid} {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 0.7; }
+        }
+        .rv-fill-${uid} {
+          transform-box: fill-box;
+          transform-origin: bottom;
+          animation: rv-fill-up-${uid} 2s ease-in-out infinite;
+        }
+        @keyframes rv-fill-up-${uid} {
+          0% { transform: scaleY(0.2); opacity: 0.4; }
+          50% { transform: scaleY(0.7); opacity: 0.7; }
+          100% { transform: scaleY(1); opacity: 0.5; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .rv-bg-ring-${uid}, .rv-bg-dash-${uid}, .rv-cloud-${uid}, .rv-drop-${uid}, .rv-tray-${uid} { animation: none !important; }
+          .rv-bg-ring-${uid}, .rv-bg-dash-${uid}, .rv-cloud-${uid}, .rv-drop-${uid}, .rv-tray-${uid}, .rv-tray-glow-${uid}, .rv-fill-${uid} { animation: none !important; }
         }
       `}</style>
 
       {/* Animated background rings (behind cloud) */}
-      <circle className={`rv-bg-ring rv-bg-ring-${uid}`} cx={100} cy={80} r={72} fill="none" stroke="var(--color-primary)" strokeWidth={1.5} opacity={0.2} />
-      <circle className={`rv-bg-dash rv-bg-dash-${uid}`} cx={100} cy={80} r={62} fill="none" stroke="var(--color-tertiary)" strokeWidth={1} strokeDasharray="3 7" opacity={0.25} />
+      <circle className={`rv-bg-ring rv-bg-ring-${uid}`} cx={100} cy={72} r={78} fill="none" stroke="var(--color-primary)" strokeWidth={1.5} opacity={0.18} />
+      <circle className={`rv-bg-dash rv-bg-dash-${uid}`} cx={100} cy={72} r={66} fill="none" stroke="var(--color-tertiary)" strokeWidth={1} strokeDasharray="3 7" opacity={0.22} />
 
-      {/* Glow */}
-      <Glow cx={100} cy={70} r={50} color="var(--color-primary)" opacity={0.22} />
+      {/* Glow behind cloud */}
+      <Glow cx={100} cy={68} r={52} color="var(--color-primary)" opacity={0.2} />
 
-      {/* Cloud — LARGER (scaled up ~15%) */}
-      <g className={`rv-cloud-${uid}`} transform="translate(-4 0) scale(1.15)" style={{ transformOrigin: "100px 70px" }}>
-        <ellipse cx={74} cy={70} rx={20} ry={18} fill="var(--color-surface-3)" stroke="var(--color-primary)" strokeWidth={1.5} />
-        <ellipse cx={100} cy={58} rx={28} ry={24} fill="var(--color-surface-3)" stroke="var(--color-primary)" strokeWidth={1.5} />
-        <ellipse cx={126} cy={70} rx={20} ry={18} fill="var(--color-surface-3)" stroke="var(--color-primary)" strokeWidth={1.5} />
-        <rect x={62} y={70} width={76} height={18} rx={9} fill="var(--color-surface-3)" stroke="var(--color-primary)" strokeWidth={1.5} />
-        {/* Cloud highlight */}
-        <ellipse cx={90} cy={52} rx={9} ry={4} fill="var(--color-bg)" opacity={0.2} />
+      {/* Cloud — bigger, softer, with multiple puffs */}
+      <g className={`rv-cloud-${uid}`}>
+        {/* Cloud shadow (soft drop shadow) */}
+        <ellipse cx={100} cy={84} rx={48} ry={8} fill="rgba(0,0,0,0.12)" opacity={0.5} style={{ filter: "blur(4px)" }} />
+        {/* Cloud body — 4 overlapping puffs for a fuller look */}
+        <ellipse cx={68} cy={72} rx={22} ry={20} fill="var(--color-surface-3)" stroke="var(--color-primary)" strokeWidth={1.5} />
+        <ellipse cx={100} cy={58} rx={32} ry={26} fill="var(--color-surface-3)" stroke="var(--color-primary)" strokeWidth={1.5} />
+        <ellipse cx={132} cy={72} rx={22} ry={20} fill="var(--color-surface-3)" stroke="var(--color-primary)" strokeWidth={1.5} />
+        {/* Cloud bottom bar */}
+        <rect x={56} y={72} width={88} height={20} rx={10} fill="var(--color-surface-3)" stroke="var(--color-primary)" strokeWidth={1.5} />
+        {/* Cloud highlights (top of each puff) */}
+        <ellipse cx={92} cy={50} rx={12} ry={5} fill="var(--color-bg)" opacity={0.25} />
+        <ellipse cx={64} cy={64} rx={8} ry={3} fill="var(--color-bg)" opacity={0.15} />
+        <ellipse cx={128} cy={64} rx={8} ry={3} fill="var(--color-bg)" opacity={0.15} />
       </g>
 
-      {/* Falling data drops (staggered) */}
+      {/* Falling data particles — 6 particles, staggered, varied shapes/colors */}
       <g className={`rv-drop-${uid}`} style={{ animationDelay: "0s" }}>
-        <rect x={72} y={92} width={6} height={9} rx={1.5} fill="var(--color-primary)" transform="rotate(12 75 96)" />
+        <rect x={68} y={96} width={7} height={10} rx={2} fill="var(--color-primary)" transform="rotate(10 71 101)" />
+      </g>
+      <g className={`rv-drop-${uid}`} style={{ animationDelay: "0.3s" }}>
+        <circle cx={88} cy={98} r={4} fill="var(--color-tertiary)" />
       </g>
       <g className={`rv-drop-${uid}`} style={{ animationDelay: "0.6s" }}>
-        <circle cx={96} cy={94} r={3.5} fill="var(--color-tertiary)" />
+        <rect x={108} y={96} width={7} height={10} rx={2} fill="var(--color-warn)" transform="rotate(-10 111 101)" />
+      </g>
+      <g className={`rv-drop-${uid}`} style={{ animationDelay: "0.9s" }}>
+        <circle cx={128} cy={98} r={3.5} fill="var(--color-primary)" opacity={0.85} />
       </g>
       <g className={`rv-drop-${uid}`} style={{ animationDelay: "1.2s" }}>
-        <rect x={120} y={92} width={6} height={9} rx={1.5} fill="var(--color-warn)" transform="rotate(-12 123 96)" />
+        <rect x={78} y={96} width={6} height={9} rx={2} fill="var(--color-secondary)" transform="rotate(5 81 100)" />
       </g>
-      <g className={`rv-drop-${uid}`} style={{ animationDelay: "1.8s" }}>
-        <circle cx={108} cy={94} r={3} fill="var(--color-primary)" opacity={0.85} />
+      <g className={`rv-drop-${uid}`} style={{ animationDelay: "1.5s" }}>
+        <circle cx={118} cy={98} r={3} fill="var(--color-tertiary)" opacity={0.8} />
       </g>
 
-      {/* Tray / collection basin at bottom */}
+      {/* Tray / collection basin — glowing, with fill animation */}
+      <g className={`rv-tray-glow-${uid}`}>
+        <Glow cx={100} cy={158} r={36} color="var(--color-primary)" opacity={0.3} />
+      </g>
       <g className={`rv-tray-${uid}`}>
+        {/* Tray outer shape (trapezoid) */}
         <path
-          d="M 56 150 L 64 170 L 136 170 L 144 150 Z"
+          d="M 50 142 L 60 172 L 140 172 L 150 142 Z"
           fill="var(--color-primary-container)"
           stroke="var(--color-primary)"
           strokeWidth={2}
           strokeLinejoin="round"
         />
-        {/* Tray fill line (data collecting) */}
-        <path d="M 66 158 L 134 158" stroke="var(--color-primary)" strokeWidth={2} strokeLinecap="round" opacity={0.6} />
+        {/* Tray inner fill (animated, rising) */}
+        <g className={`rv-fill-${uid}`}>
+          <path
+            d="M 56 148 L 62 168 L 138 168 L 144 148 Z"
+            fill="var(--color-primary)"
+            opacity={0.25}
+          />
+        </g>
+        {/* Tray top rim highlight */}
+        <path d="M 52 144 L 148 144" stroke="var(--color-primary)" strokeWidth={2.5} strokeLinecap="round" opacity={0.7} />
+        {/* Tray "data collected" indicator dots */}
+        <circle cx={80} cy={160} r={2} fill="var(--color-primary)" opacity={0.6} />
+        <circle cx={100} cy={162} r={2.5} fill="var(--color-primary)" opacity={0.8} />
+        <circle cx={120} cy={160} r={2} fill="var(--color-primary)" opacity={0.6} />
       </g>
     </svg>
   );
@@ -612,19 +665,30 @@ export function SummaryVisual() {
 }
 
 /* ------------------------------------------------------------------ */
-/* 7. FinishVisual — elegant celebration (completely reworked)         */
-/*    Rotating light rays + multi-layer expanding rings + glowing      */
-/*    star badge + drifting sparkle particles                          */
+/* 7. FinishVisual — elegant celebration (completely reworked v2)       */
+/*    Layered design: aurora glow + rotating light rays + confetti      */
+/*    burst + expanding rings + central glowing star with checkmark     */
+/*    + drifting sparkle particles. Much more beautiful and dynamic.    */
 /* ------------------------------------------------------------------ */
 export function FinishVisual() {
   const uid = useId().replace(/[:]/g, "");
   return (
     <svg viewBox="0 0 200 200" role="img" aria-label="Setup complete celebration" style={{ overflow: "visible" }}>
       <style>{`
+        .fn-aurora-${uid} {
+          transform-box: fill-box;
+          transform-origin: center;
+          animation: fn-aurora-${uid} 6s ease-in-out infinite;
+        }
+        @keyframes fn-aurora-${uid} {
+          0%, 100% { transform: scale(1) rotate(0deg); opacity: 0.25; }
+          33% { transform: scale(1.1) rotate(120deg); opacity: 0.35; }
+          66% { transform: scale(0.95) rotate(240deg); opacity: 0.3; }
+        }
         .fn-rays-${uid} {
           transform-box: fill-box;
           transform-origin: 100px 100px;
-          animation: fn-rotate-${uid} 20s linear infinite;
+          animation: fn-rotate-${uid} 24s linear infinite;
         }
         @keyframes fn-rotate-${uid} {
           from { transform: rotate(0deg); }
@@ -634,23 +698,24 @@ export function FinishVisual() {
           transform-box: fill-box;
           transform-origin: center;
         }
-        .fn-ring-1-${uid} { animation: fn-expand-${uid} 3s ease-out infinite; }
-        .fn-ring-2-${uid} { animation: fn-expand-${uid} 3s ease-out infinite 0.5s; }
-        .fn-ring-3-${uid} { animation: fn-expand-${uid} 3s ease-out infinite 1s; }
-        .fn-ring-4-${uid} { animation: fn-expand-${uid} 3s ease-out infinite 1.5s; }
-        .fn-ring-5-${uid} { animation: fn-expand-${uid} 3s ease-out infinite 2s; }
+        .fn-ring-1-${uid} { animation: fn-expand-${uid} 2.8s ease-out infinite; }
+        .fn-ring-2-${uid} { animation: fn-expand-${uid} 2.8s ease-out infinite 0.4s; }
+        .fn-ring-3-${uid} { animation: fn-expand-${uid} 2.8s ease-out infinite 0.8s; }
+        .fn-ring-4-${uid} { animation: fn-expand-${uid} 2.8s ease-out infinite 1.2s; }
+        .fn-ring-5-${uid} { animation: fn-expand-${uid} 2.8s ease-out infinite 1.6s; }
+        .fn-ring-6-${uid} { animation: fn-expand-${uid} 2.8s ease-out infinite 2s; }
         @keyframes fn-expand-${uid} {
-          0% { transform: scale(0.2); opacity: 1; }
-          100% { transform: scale(2); opacity: 0; }
+          0% { transform: scale(0.15); opacity: 1; }
+          100% { transform: scale(2.2); opacity: 0; }
         }
-        .fn-core-${uid} {
+        .fn-star-${uid} {
           transform-box: fill-box;
           transform-origin: center;
-          animation: fn-breathe-${uid} 2.4s ease-in-out infinite;
+          animation: fn-star-pulse-${uid} 2s ease-in-out infinite;
         }
-        @keyframes fn-breathe-${uid} {
-          0%, 100% { transform: scale(1); }
-          50% { transform: scale(1.08); }
+        @keyframes fn-star-pulse-${uid} {
+          0%, 100% { transform: scale(1); filter: drop-shadow(0 0 8px var(--color-primary)); }
+          50% { transform: scale(1.06); filter: drop-shadow(0 0 16px var(--color-primary)); }
         }
         .fn-check-${uid} {
           stroke-dasharray: 70;
@@ -668,64 +733,88 @@ export function FinishVisual() {
           animation: fn-drift-${uid} 3s ease-in-out infinite;
         }
         @keyframes fn-drift-${uid} {
-          0% { transform: translate(0, 0) scale(0.5); opacity: 0.2; }
-          50% { transform: translate(0, -12px) scale(1.2); opacity: 1; }
-          100% { transform: translate(0, -24px) scale(0.6); opacity: 0; }
+          0% { transform: translate(0, 0) scale(0.3); opacity: 0; }
+          20% { opacity: 1; }
+          50% { transform: translate(0, -16px) scale(1.3); opacity: 1; }
+          80% { opacity: 0.5; }
+          100% { transform: translate(0, -32px) scale(0.5); opacity: 0; }
         }
-        .fn-glow-${uid} {
+        .fn-confetti-${uid} {
           transform-box: fill-box;
           transform-origin: center;
-          animation: fn-glow-pulse-${uid} 2.4s ease-in-out infinite;
+          animation: fn-confetti-fall-${uid} 2.5s ease-in infinite;
         }
-        @keyframes fn-glow-pulse-${uid} {
-          0%, 100% { opacity: 0.25; transform: scale(1); }
-          50% { opacity: 0.45; transform: scale(1.15); }
+        @keyframes fn-confetti-fall-${uid} {
+          0% { transform: translate(0, -20px) rotate(0deg); opacity: 0; }
+          15% { opacity: 1; }
+          85% { opacity: 1; }
+          100% { transform: translate(0, 40px) rotate(180deg); opacity: 0; }
         }
         @media (prefers-reduced-motion: reduce) {
-          .fn-rays-${uid}, .fn-ring-${uid}, .fn-core-${uid}, .fn-check-${uid}, .fn-spark-${uid}, .fn-glow-${uid} { animation: none !important; }
+          .fn-aurora-${uid}, .fn-rays-${uid}, .fn-ring-${uid}, .fn-star-${uid}, .fn-check-${uid}, .fn-spark-${uid}, .fn-confetti-${uid} { animation: none !important; }
           .fn-check-${uid} { stroke-dashoffset: 0; }
         }
       `}</style>
 
-      {/* Layer 1: Big pulsing glow behind everything */}
-      <Glow cx={100} cy={100} r={70} color="var(--color-primary)" opacity={0.3} />
-      <circle className={`fn-glow-${uid}`} cx={100} cy={100} r={60} fill="var(--color-primary)" opacity={0.15} style={{ filter: "blur(16px)" }} />
+      {/* Layer 1: Aurora glow — big soft rotating gradient blob */}
+      <g className={`fn-aurora-${uid}`}>
+        <Glow cx={100} cy={100} r={80} color="var(--color-primary)" opacity={0.3} />
+        <Glow cx={70} cy={80} r={40} color="var(--color-tertiary)" opacity={0.2} />
+        <Glow cx={130} cy={120} r={40} color="var(--color-warn)" opacity={0.15} />
+      </g>
 
-      {/* Layer 2: Rotating light rays (12 rays radiating from center) */}
+      {/* Layer 2: Rotating light rays (16 rays — alternating thick/thin) */}
       <g className={`fn-rays-${uid}`}>
-        {Array.from({ length: 12 }).map((_, i) => {
-          const angle = (i * 30) * Math.PI / 180;
-          const x1 = 100 + Math.cos(angle) * 36;
-          const y1 = 100 + Math.sin(angle) * 36;
-          const x2 = 100 + Math.cos(angle) * 80;
-          const y2 = 100 + Math.sin(angle) * 80;
+        {Array.from({ length: 16 }).map((_, i) => {
+          const angle = (i * 22.5) * Math.PI / 180;
+          const isThick = i % 2 === 0;
+          const r1 = 38;
+          const r2 = isThick ? 88 : 76;
+          const x1 = 100 + Math.cos(angle) * r1;
+          const y1 = 100 + Math.sin(angle) * r1;
+          const x2 = 100 + Math.cos(angle) * r2;
+          const y2 = 100 + Math.sin(angle) * r2;
           return (
             <line
               key={i}
               x1={x1} y1={y1} x2={x2} y2={y2}
-              stroke="var(--color-primary)"
-              strokeWidth={i % 2 === 0 ? 2.5 : 1.5}
+              stroke={isThick ? "var(--color-primary)" : "var(--color-tertiary)"}
+              strokeWidth={isThick ? 3 : 1.5}
               strokeLinecap="round"
-              opacity={i % 2 === 0 ? 0.5 : 0.25}
+              opacity={isThick ? 0.45 : 0.2}
             />
           );
         })}
       </g>
 
-      {/* Layer 3: Multi-layer expanding celebration rings (5 rings, staggered, multi-color) */}
-      <circle className={`fn-ring fn-ring-1-${uid}`} cx={100} cy={100} r={36} fill="none" stroke="var(--color-primary)" strokeWidth={3} />
-      <circle className={`fn-ring fn-ring-2-${uid}`} cx={100} cy={100} r={36} fill="none" stroke="var(--color-tertiary)" strokeWidth={2.5} />
-      <circle className={`fn-ring fn-ring-3-${uid}`} cx={100} cy={100} r={36} fill="none" stroke="var(--color-warn)" strokeWidth={2} />
-      <circle className={`fn-ring fn-ring-4-${uid}`} cx={100} cy={100} r={36} fill="none" stroke="var(--color-primary)" strokeWidth={2.5} />
-      <circle className={`fn-ring fn-ring-5-${uid}`} cx={100} cy={100} r={36} fill="none" stroke="var(--color-tertiary)" strokeWidth={1.5} />
+      {/* Layer 3: 6 multi-color expanding celebration rings (staggered) */}
+      <circle className={`fn-ring fn-ring-1-${uid}`} cx={100} cy={100} r={34} fill="none" stroke="var(--color-primary)" strokeWidth={3} />
+      <circle className={`fn-ring fn-ring-2-${uid}`} cx={100} cy={100} r={34} fill="none" stroke="var(--color-tertiary)" strokeWidth={2.5} />
+      <circle className={`fn-ring fn-ring-3-${uid}`} cx={100} cy={100} r={34} fill="none" stroke="var(--color-warn)" strokeWidth={2} />
+      <circle className={`fn-ring fn-ring-4-${uid}`} cx={100} cy={100} r={34} fill="none" stroke="var(--color-primary)" strokeWidth={2.5} />
+      <circle className={`fn-ring fn-ring-5-${uid}`} cx={100} cy={100} r={34} fill="none" stroke="var(--color-tertiary)" strokeWidth={2} />
+      <circle className={`fn-ring fn-ring-6-${uid}`} cx={100} cy={100} r={34} fill="none" stroke="var(--color-warn)" strokeWidth={1.5} />
 
-      {/* Layer 4: Central glowing star badge */}
-      <g className={`fn-core-${uid}`}>
-        {/* Outer badge ring */}
+      {/* Layer 4: Central glowing star badge with animated checkmark */}
+      <g className={`fn-star-${uid}`}>
+        {/* Outer glow ring */}
+        <circle cx={100} cy={100} r={42} fill="var(--color-primary)" opacity={0.15} style={{ filter: "blur(6px)" }} />
+        {/* Star burst points (8-point star) */}
+        {Array.from({ length: 8 }).map((_, i) => {
+          const angle = (i * 45) * Math.PI / 180;
+          const x1 = 100 + Math.cos(angle) * 42;
+          const y1 = 100 + Math.sin(angle) * 42;
+          const x2 = 100 + Math.cos(angle) * 50;
+          const y2 = 100 + Math.sin(angle) * 50;
+          return (
+            <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="var(--color-primary)" strokeWidth={4} strokeLinecap="round" opacity={0.6} />
+          );
+        })}
+        {/* Main badge circle */}
         <circle cx={100} cy={100} r={38} fill="var(--color-primary)" />
-        {/* Inner gradient highlight */}
-        <circle cx={100} cy={100} r={38} fill="none" stroke="var(--color-bg)" strokeWidth={2} opacity={0.2} />
-        <circle cx={100} cy={92} r={20} fill="var(--color-bg)" opacity={0.08} />
+        {/* Inner highlight */}
+        <circle cx={100} cy={100} r={38} fill="none" stroke="var(--color-bg)" strokeWidth={2} opacity={0.25} />
+        <circle cx={100} cy={90} r={22} fill="var(--color-bg)" opacity={0.1} />
         {/* Checkmark (animated draw) */}
         <path
           className={`fn-check-${uid}`}
@@ -738,15 +827,25 @@ export function FinishVisual() {
         />
       </g>
 
-      {/* Layer 5: Drifting sparkle particles (8, around the badge) */}
-      <circle className={`fn-spark-${uid}`} cx={40} cy={70} r={3} fill="var(--color-primary)" />
-      <circle className={`fn-spark-${uid}`} cx={160} cy={60} r={2.5} fill="var(--color-tertiary)" style={{ animationDelay: "0.4s" }} />
-      <circle className={`fn-spark-${uid}`} cx={170} cy={120} r={3} fill="var(--color-warn)" style={{ animationDelay: "0.8s" }} />
-      <circle className={`fn-spark-${uid}`} cx={30} cy={130} r={2.5} fill="var(--color-primary)" style={{ animationDelay: "1.2s" }} />
-      <circle className={`fn-spark-${uid}`} cx={100} cy={30} r={2.5} fill="var(--color-tertiary)" style={{ animationDelay: "0.6s" }} />
-      <circle className={`fn-spark-${uid}`} cx={100} cy={170} r={2.5} fill="var(--color-warn)" style={{ animationDelay: "1s" }} />
-      <circle className={`fn-spark-${uid}`} cx={50} cy={40} r={2} fill="var(--color-secondary)" style={{ animationDelay: "1.5s" }} />
-      <circle className={`fn-spark-${uid}`} cx={150} cy={160} r={2} fill="var(--color-primary)" style={{ animationDelay: "1.8s" }} />
+      {/* Layer 5: Drifting sparkle particles (10, around the badge) */}
+      <circle className={`fn-spark-${uid}`} cx={36} cy={70} r={3} fill="var(--color-primary)" />
+      <circle className={`fn-spark-${uid}`} cx={164} cy={60} r={2.5} fill="var(--color-tertiary)" style={{ animationDelay: "0.3s" }} />
+      <circle className={`fn-spark-${uid}`} cx={170} cy={130} r={3} fill="var(--color-warn)" style={{ animationDelay: "0.6s" }} />
+      <circle className={`fn-spark-${uid}`} cx={30} cy={140} r={2.5} fill="var(--color-primary)" style={{ animationDelay: "0.9s" }} />
+      <circle className={`fn-spark-${uid}`} cx={100} cy={28} r={2.5} fill="var(--color-tertiary)" style={{ animationDelay: "0.4s" }} />
+      <circle className={`fn-spark-${uid}`} cx={100} cy={172} r={2.5} fill="var(--color-warn)" style={{ animationDelay: "0.7s" }} />
+      <circle className={`fn-spark-${uid}`} cx={48} cy={40} r={2} fill="var(--color-secondary)" style={{ animationDelay: "1.1s" }} />
+      <circle className={`fn-spark-${uid}`} cx={152} cy={160} r={2} fill="var(--color-primary)" style={{ animationDelay: "1.4s" }} />
+      <circle className={`fn-spark-${uid}`} cx={20} cy={100} r={2} fill="var(--color-tertiary)" style={{ animationDelay: "0.5s" }} />
+      <circle className={`fn-spark-${uid}`} cx={180} cy={100} r={2} fill="var(--color-warn)" style={{ animationDelay: "0.8s" }} />
+
+      {/* Layer 6: Falling confetti pieces (6, staggered) */}
+      <rect className={`fn-confetti-${uid}`} x={48} y={20} width={5} height={5} rx={1} fill="var(--color-primary)" transform="rotate(20 50 22)" />
+      <rect className={`fn-confetti-${uid}`} x={100} y={10} width={5} height={5} rx={1} fill="var(--color-tertiary)" transform="rotate(-15 102 12)" style={{ animationDelay: "0.4s" }} />
+      <rect className={`fn-confetti-${uid}`} x={152} y={18} width={5} height={5} rx={1} fill="var(--color-warn)" transform="rotate(45 154 20)" style={{ animationDelay: "0.8s" }} />
+      <rect className={`fn-confetti-${uid}`} x={70} y={5} width={4} height={4} rx={1} fill="var(--color-secondary)" transform="rotate(-30 72 7)" style={{ animationDelay: "1.2s" }} />
+      <rect className={`fn-confetti-${uid}`} x={130} y={8} width={4} height={4} rx={1} fill="var(--color-primary)" transform="rotate(60 132 10)" style={{ animationDelay: "1.6s" }} />
+      <rect className={`fn-confetti-${uid}`} x={30} y={15} width={4} height={4} rx={1} fill="var(--color-tertiary)" transform="rotate(-45 32 17)" style={{ animationDelay: "2s" }} />
     </svg>
   );
 }

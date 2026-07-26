@@ -1,20 +1,13 @@
 "use client";
 /**
- * setup-wizard / screens / finish-screen — step 6 (last).
+ * setup-wizard / screens / finish-screen — step 12 (last).
  *
- * Celebration screen. Confetti rains down, an abstract celebration visual
- * (expanding rings + a glowing checkmark badge + ambient sparkles) sits
- * center-stage, and a "Start Exploring" button restarts the wizard (so
- * designers can re-watch the flow).
- *
- * The confetti pieces use the global `.confetti` class from setup-wizard.css
- * (2s `confettiFall` with `forwards` fill — they fall once). The confetti
- * container has `key={active}` so the pieces re-mount whenever this screen
- * becomes active, replaying the fall animation every time the user reaches
- * the final step.
+ * The final "URL set" screen. Shows a beautiful modern animation
+ * (abstract app logo with orbiting elements + URL/link visual) and a
+ * "Start Exploring" button that restarts the wizard.
  */
 import type { ThemePalette } from "../lib/themes";
-import { FinishVisual } from "../components/visuals";
+import { WelcomeVisual } from "../components/visuals";
 
 interface FinishScreenProps {
   active: boolean;
@@ -22,73 +15,9 @@ interface FinishScreenProps {
   palette: ThemePalette;
 }
 
-interface ConfettiPiece {
-  left: number;
-  top: number;
-  color: string;
-  delay: number;
-  duration: number;
-  size: number;
-  rotate: number;
-}
-
-// Static layout (positions, delays, sizes) for confetti — kept at module scope
-// so SSR and client output match (no Math.random in render). The dynamic
-// palette.primary color is merged in inside the component.
-const CONFETTI_LAYOUT: Omit<ConfettiPiece, "color">[] = [
-  { left: 8, top: -8, delay: 0, duration: 2.0, size: 8, rotate: 20 },
-  { left: 18, top: -20, delay: 0.3, duration: 2.2, size: 6, rotate: -15 },
-  { left: 28, top: -8, delay: 0.1, duration: 1.8, size: 9, rotate: 45 },
-  { left: 38, top: -25, delay: 0.5, duration: 2.4, size: 7, rotate: 60 },
-  { left: 48, top: -8, delay: 0.2, duration: 2.0, size: 8, rotate: -30 },
-  { left: 58, top: -20, delay: 0.4, duration: 2.2, size: 6, rotate: 15 },
-  { left: 68, top: -8, delay: 0.6, duration: 1.9, size: 9, rotate: -45 },
-  { left: 78, top: -25, delay: 0.15, duration: 2.3, size: 7, rotate: 30 },
-  { left: 88, top: -8, delay: 0.45, duration: 2.1, size: 8, rotate: -20 },
-  { left: 14, top: -28, delay: 0.7, duration: 2.0, size: 6, rotate: 90 },
-  { left: 44, top: -28, delay: 0.55, duration: 2.4, size: 8, rotate: -60 },
-  { left: 74, top: -28, delay: 0.25, duration: 2.2, size: 7, rotate: 75 },
-  { left: 24, top: -32, delay: 0.85, duration: 2.6, size: 7, rotate: -25 },
-  { left: 64, top: -32, delay: 0.65, duration: 2.3, size: 8, rotate: 50 },
-];
-
-// Festive accent colors (rotate through these for the non-primary confetti).
-const CONFETTI_ACCENTS = ["#ffcc80", "#efb8c8", "#a5d6a7", "#ccc2dc"];
-
 export function FinishScreen({ active, onRestart, palette }: FinishScreenProps) {
-  // Build the final confetti list — primary palette color interleaved with
-  // festive accents so the celebration picks up the user's chosen theme.
-  const confetti: ConfettiPiece[] = CONFETTI_LAYOUT.map((c, i) => ({
-    ...c,
-    color: i % 3 === 0 ? palette.primary : CONFETTI_ACCENTS[i % CONFETTI_ACCENTS.length],
-  }));
-
   return (
     <div className={`wizard-step ${active ? "wizard-step--active" : ""}`}>
-      {/* Confetti — re-mounts on active so it re-falls each time */}
-      <div
-        key={active ? "confetti-on" : "confetti-off"}
-        aria-hidden="true"
-        style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none", zIndex: 1 }}
-      >
-        {confetti.map((c, i) => (
-          <span
-            key={i}
-            className="confetti"
-            style={{
-              left: `${c.left}%`,
-              top: `${c.top}px`,
-              width: c.size,
-              height: c.size,
-              background: c.color,
-              transform: `rotate(${c.rotate}deg)`,
-              animationDelay: `${c.delay}s`,
-              animationDuration: `${c.duration}s`,
-            }}
-          />
-        ))}
-      </div>
-
       <div className="wizard-content" style={{ position: "relative", zIndex: 2 }}>
         {/* Badge above the illustration */}
         <span
@@ -108,13 +37,13 @@ export function FinishScreen({ active, onRestart, palette }: FinishScreenProps) 
           Setup complete
         </span>
 
-        {/* Illustration — bigger (240×240), expanding celebration rings + glowing check */}
+        {/* Illustration — modern abstract visual (moving background) */}
         <div
           className="illustration illustration--lg"
           key={active ? "on" : "off"}
           style={{ animation: "scaleIn 0.6s var(--ease-emphasized-decel) 0.2s backwards, float 4s ease-in-out 0.8s infinite" }}
         >
-          <FinishVisual />
+          <WelcomeVisual />
         </div>
 
         <h1
@@ -139,6 +68,38 @@ export function FinishScreen({ active, onRestart, palette }: FinishScreenProps) 
           Your anime journey begins now. Enjoy exploring thousands of titles,
           tracking your progress, and never missing a new episode.
         </p>
+
+        {/* URL set card */}
+        <div
+          style={{
+            width: "100%",
+            maxWidth: 320,
+            padding: "12px 16px",
+            borderRadius: "var(--r-md)",
+            background: "var(--color-surface-2)",
+            border: `1px solid ${palette.primary}33`,
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            animation: "cardEntry 0.5s var(--ease-emphasized-decel) 0.7s backwards",
+          }}
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke={palette.primary} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flex: "0 0 auto" }}>
+            <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
+          </svg>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <p style={{ margin: 0, fontSize: 11, color: "var(--color-text-muted)", fontWeight: 600 }}>
+              API URL
+            </p>
+            <p style={{ margin: 0, fontSize: 13, color: "var(--color-text)", fontWeight: 700, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+              https://api.anilist.co
+            </p>
+          </div>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke={palette.primary} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" style={{ flex: "0 0 auto" }}>
+            <path d="M20 6L9 17l-5-5" />
+          </svg>
+        </div>
       </div>
 
       <div className="wizard-actions" style={{ position: "relative", zIndex: 2 }}>
@@ -151,7 +112,7 @@ export function FinishScreen({ active, onRestart, palette }: FinishScreenProps) 
             color: palette.onPrimary,
             fontWeight: 800,
             boxShadow: `0 6px 24px ${palette.primary}55`,
-            animation: "scaleIn 0.5s var(--ease-emphasized-decel) 0.7s backwards",
+            animation: "scaleIn 0.5s var(--ease-emphasized-decel) 0.9s backwards",
           }}
         >
           <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
