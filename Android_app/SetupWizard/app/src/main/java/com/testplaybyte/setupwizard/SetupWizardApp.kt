@@ -26,7 +26,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.weight
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -296,7 +295,6 @@ private fun PrimaryButton(
             disabledContainerColor = palette.primary.copy(alpha = 0.4f),
             disabledContentColor = palette.onPrimary.copy(alpha = 0.6f),
         ),
-        elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             Text(text, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp)
@@ -323,7 +321,6 @@ private fun SecondaryButton(
         colors = ButtonDefaults.outlinedButtonColors(
             contentColor = TextLight,
         ),
-        elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp),
     ) {
         Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
             if (icon != null) {
@@ -351,7 +348,6 @@ private fun GhostButton(
             containerColor = Color.Transparent,
             contentColor = TextLight,
         ),
-        elevation = ButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp),
     ) {
         Text(text, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp)
     }
@@ -1246,8 +1242,9 @@ private fun ManualLinkingScreen(
                                         .fillMaxWidth()
                                         .clip(RoundedCornerShape(10.dp))
                                         .clickable {
-                                            if (selectedAnimeId != null) {
-                                                onLink(selectedAnimeId, result)
+                                            val id = selectedAnimeId
+                                            if (id != null) {
+                                                onLink(id, result)
                                             }
                                             searchOpen = false
                                             selectedAnimeId = null
