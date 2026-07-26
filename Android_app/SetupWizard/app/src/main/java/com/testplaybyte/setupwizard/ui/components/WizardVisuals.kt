@@ -41,23 +41,23 @@ import kotlin.math.cos
 import kotlin.math.sin
 
 /* =====================================================================================
- *  WizardVisuals.kt — abstract animated illustrations drawn with Compose Canvas.
+ *  WizardVisuals.kt — polished, animated illustrations drawn with Compose Canvas.
  *
- *  7 self-contained 200x200dp visuals, one per wizard step. Each uses a single
- *  InfiniteTransition driving cheap (transform + alpha only) draw operations
- *  inside a Canvas, all colors sourced from LocalWizardPalette + a handful of
- *  hardcoded accent colors. The Canvas is scaled so coordinates are written in
- *  a 200x200 logical space (matching the original SVG viewBox), which keeps
- *  the per-visual code compact and easy to read.
+ *  7 self-contained 200x200dp visuals (one per wizard step) + 3 inline visuals
+ *  (used by SetupWizardApp.kt). Each uses an InfiniteTransition driving cheap
+ *  (transform + alpha only) draw operations inside a Canvas. All colors come
+ *  from LocalWizardPalette + a handful of hardcoded accents. The Canvas is
+ *  scaled so coordinates are written in a 200x200 logical space, keeping each
+ *  visual compact and easy to read.
  *
  *  Visuals:
- *    1. WelcomeVisual      — pulsing rings + counter-rotating dot orbits + sparkles
- *    2. ThemeVisual        — orbiting color dots around a central palette swatch
- *    3. FolderVisual       — tall folder + floating file cards (+ success badge)
- *    4. PermissionsVisual  — shield + ripple rings + dashed orbits + checkmark draw
- *    5. RestoreVisual      — cloud + falling data particles + filling tray
- *    6. SummaryVisual      — growing bar chart + trend arrow + sparkles
- *    7. FinishVisual       — 6-layer celebration (aurora + rays + rings + star + ...)
+ *    1. WelcomeVisual      — 4 dramatic pulsing rings + 2 orbits + 6 twinkles
+ *    2. ThemeVisual        — 2 counter-rotating orbits around breathing swatch
+ *    3. FolderVisual       — tall folder + 3 floating file cards + bouncy badge
+ *    4. PermissionsVisual  — big shield + 3 ripples + 2 dashed orbits + check
+ *    5. RestoreVisual      — beautiful soft cloud + 6 data drops + glowing tray
+ *    6. SummaryVisual      — 4 staggered growing bars + trend arrow + sparkles
+ *    7. FinishVisual       — 6-layer celebration (aurora + rays + rings + ...)
  * ===================================================================================== */
 
 // -------------------------------------------------------------------------------------
@@ -151,7 +151,7 @@ private fun DrawScope.withLogicalSpace(block: DrawScope.() -> Unit) {
 }
 
 // =====================================================================================
-// 1. WelcomeVisual — pulsing rings + orbits + sparkles (no central logo)
+// 1. WelcomeVisual — 4 dramatic pulsing rings + 2 orbits + 6 twinkling sparkles
 // =====================================================================================
 @Composable
 fun WelcomeVisual() {
@@ -164,23 +164,28 @@ fun WelcomeVisual() {
     val infinite = rememberInfiniteTransition(label = "welcome")
     val pulsePhase by infinite.animateFloat(
         initialValue = 0f, targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(3000, easing = LinearEasing)),
+        animationSpec = infiniteRepeatable(tween(2800, easing = LinearEasing)),
         label = "pulse",
     )
     val orbit1 by infinite.animateFloat(
         initialValue = 0f, targetValue = 360f,
-        animationSpec = infiniteRepeatable(tween(8000, easing = LinearEasing)),
+        animationSpec = infiniteRepeatable(tween(7000, easing = LinearEasing)),
         label = "orbit1",
     )
     val orbit2 by infinite.animateFloat(
         initialValue = 360f, targetValue = 0f,
-        animationSpec = infiniteRepeatable(tween(12000, easing = LinearEasing)),
+        animationSpec = infiniteRepeatable(tween(11000, easing = LinearEasing)),
         label = "orbit2",
     )
     val twinklePhase by infinite.animateFloat(
         initialValue = 0f, targetValue = 1f,
-        animationSpec = infiniteRepeatable(tween(1800, easing = LinearEasing)),
+        animationSpec = infiniteRepeatable(tween(1600, easing = LinearEasing)),
         label = "twinkle",
+    )
+    val breathPhase by infinite.animateFloat(
+        initialValue = 0f, targetValue = 1f,
+        animationSpec = infiniteRepeatable(tween(3200, easing = LinearEasing)),
+        label = "breath",
     )
 
     Canvas(modifier = Modifier.size(200.dp)) {
@@ -188,22 +193,29 @@ fun WelcomeVisual() {
             val cx = 100f
             val cy = 100f
 
-            // Soft glow behind everything
-            glow(cx, cy, 60f, primary, 0.25f)
+            // Soft outer glow that breathes
+            val bf = pulse(breathPhase, 0f)
+            val glowAlpha = 0.22f + 0.18f * (0.5f + 0.5f * bf)
+            glow(cx, cy, 72f, primary, glowAlpha)
 
-            // 4 concentric pulsing rings
+            // 4 dramatic pulsing rings — wider amplitude + staggered phase
             val rings = listOf(
-                floatArrayOf(80f, 1.5f, 0.00f, 0.30f, 0.40f),
-                floatArrayOf(62f, 2.0f, 0.13f, 0.45f, 0.25f),
-                floatArrayOf(44f, 2.0f, 0.26f, 0.60f, 0.15f),
-                floatArrayOf(26f, 2.5f, 0.39f, 0.75f, 0.00f),
+                // r,  strokeW, phaseOff, baseA, deltaA
+                floatArrayOf(86f, 1.6f, 0.00f, 0.30f, 0.45f),
+                floatArrayOf(66f, 2.2f, 0.18f, 0.42f, 0.35f),
+                floatArrayOf(46f, 2.4f, 0.36f, 0.55f, 0.30f),
+                floatArrayOf(28f, 2.8f, 0.54f, 0.70f, 0.20f),
             )
             rings.forEach { spec ->
-                val r = spec[0]; val sw = spec[1]; val off = spec[2]
-                val baseA = spec[3]; val deltaA = spec[4]
+                val r = spec[0]
+                val sw = spec[1]
+                val off = spec[2]
+                val baseA = spec[3]
+                val deltaA = spec[4]
                 val f = pulse(pulsePhase, off)
-                val alpha = baseA + deltaA * f
-                val sr = r * (0.9f + 0.2f * f)
+                val alpha = (baseA + deltaA * f).coerceIn(0f, 1f)
+                // More dramatic — radius oscillates between 0.78x and 1.22x
+                val sr = r * (0.78f + 0.44f * f)
                 drawCircle(
                     color = primary.copy(alpha = alpha),
                     radius = sr,
@@ -212,35 +224,56 @@ fun WelcomeVisual() {
                 )
             }
 
-            // Inner orbit (3 dots, faster)
+            // Inner orbit (3 dots, faster) — bigger & brighter
             rotate(orbit1, pivot = Offset(cx, cy)) {
-                drawCircle(primary, 5f, Offset(100f, 44f))
-                drawCircle(tertiary, 4f, Offset(148.5f, 128f))
-                drawCircle(warn, 4f, Offset(51.5f, 128f))
+                drawCircle(primary, 6f, Offset(100f, 42f))
+                drawCircle(tertiary, 5f, Offset(150f, 130f))
+                drawCircle(warn, 5f, Offset(50f, 130f))
+                // Small trailing accent dots
+                drawCircle(primary.copy(alpha = 0.4f), 2.5f, Offset(125f, 70f))
+                drawCircle(tertiary.copy(alpha = 0.4f), 2.5f, Offset(75f, 70f))
             }
 
             // Outer orbit (4 dots, slower, reverse)
             rotate(orbit2, pivot = Offset(cx, cy)) {
-                drawCircle(secondary, 3f, Offset(100f, 24f))
-                drawCircle(primary.copy(alpha = 0.7f), 3f, Offset(176f, 100f))
-                drawCircle(tertiary.copy(alpha = 0.7f), 3f, Offset(100f, 176f))
-                drawCircle(warn.copy(alpha = 0.7f), 3f, Offset(24f, 100f))
+                drawCircle(secondary, 3.5f, Offset(100f, 22f))
+                drawCircle(primary.copy(alpha = 0.8f), 3.5f, Offset(178f, 100f))
+                drawCircle(tertiary.copy(alpha = 0.8f), 3.5f, Offset(100f, 178f))
+                drawCircle(warn.copy(alpha = 0.8f), 3.5f, Offset(22f, 100f))
             }
 
-            // 6 ambient twinkling sparkles
+            // 6 ambient twinkling sparkles with varied sizes & phases
             val sparkles = listOf(
-                Sparkle(36f, 50f, 2.5f, primary),
-                Sparkle(168f, 60f, 2.0f, tertiary),
-                Sparkle(40f, 158f, 2.0f, warn),
-                Sparkle(164f, 150f, 2.5f, primary),
-                Sparkle(100f, 20f, 1.8f, secondary),
-                Sparkle(100f, 180f, 1.8f, primary),
+                Sparkle(36f, 50f, 3.0f, primary),
+                Sparkle(168f, 60f, 2.5f, tertiary),
+                Sparkle(40f, 158f, 2.5f, warn),
+                Sparkle(164f, 150f, 3.0f, primary),
+                Sparkle(100f, 18f, 2.0f, secondary),
+                Sparkle(100f, 182f, 2.0f, primary),
             )
             sparkles.forEachIndexed { i, sp ->
                 val f = pulse(twinklePhase, i * 0.17f)
-                val alpha = 0.15f + 0.85f * f
-                val sr = sp.r * (0.5f + 0.7f * f)
+                val alpha = 0.12f + 0.88f * f
+                val sr = sp.r * (0.4f + 0.8f * f)
+                // Twinkle cross (4-point star) for extra polish
+                val cf = (0.5f + 0.5f * f).coerceIn(0f, 1f)
                 drawCircle(sp.color.copy(alpha = alpha), sr, Offset(sp.x, sp.y))
+                if (cf > 0.3f) {
+                    drawLine(
+                        color = sp.color.copy(alpha = alpha * 0.6f),
+                        start = Offset(sp.x - sr * 2f, sp.y),
+                        end = Offset(sp.x + sr * 2f, sp.y),
+                        strokeWidth = 0.8f,
+                        cap = StrokeCap.Round,
+                    )
+                    drawLine(
+                        color = sp.color.copy(alpha = alpha * 0.6f),
+                        start = Offset(sp.x, sp.y - sr * 2f),
+                        end = Offset(sp.x, sp.y + sr * 2f),
+                        strokeWidth = 0.8f,
+                        cap = StrokeCap.Round,
+                    )
+                }
             }
         }
     }
@@ -249,7 +282,7 @@ fun WelcomeVisual() {
 private data class Sparkle(val x: Float, val y: Float, val r: Float, val color: Color)
 
 // =====================================================================================
-// 2. ThemeVisual — orbiting color dots around a central palette swatch
+// 2. ThemeVisual — 2 counter-rotating orbits around a breathing palette swatch
 // =====================================================================================
 @Composable
 fun ThemeVisual() {
@@ -262,51 +295,97 @@ fun ThemeVisual() {
 
     val infinite = rememberInfiniteTransition(label = "theme")
     val orbit1 by infinite.animateFloat(
-        0f, 360f, infiniteRepeatable(tween(9000, easing = LinearEasing)), "o1",
+        0f, 360f, infiniteRepeatable(tween(8000, easing = LinearEasing)), "o1",
     )
     val orbit2 by infinite.animateFloat(
         360f, 0f, infiniteRepeatable(tween(12000, easing = LinearEasing)), "o2",
     )
     val breathePhase by infinite.animateFloat(
-        0f, 1f, infiniteRepeatable(tween(3400, easing = LinearEasing)), "breathe",
+        0f, 1f, infiniteRepeatable(tween(3000, easing = LinearEasing)), "breathe",
+    )
+    val sparklePhase by infinite.animateFloat(
+        0f, 1f, infiniteRepeatable(tween(2000, easing = LinearEasing)), "sp",
     )
 
     Canvas(modifier = Modifier.size(200.dp)) {
         withLogicalSpace {
-            glow(100f, 100f, 48f, primary, 0.25f)
+            glow(100f, 100f, 52f, primary, 0.25f)
 
-            // Inner orbit (3 dots)
+            // Outer dashed ring (slowly rotating)
+            rotate(orbit2 * 0.5f, pivot = Offset(100f, 100f)) {
+                drawCircle(
+                    color = primary.copy(alpha = 0.18f),
+                    radius = 82f, center = Offset(100f, 100f),
+                    style = Stroke(width = 1.2f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(4f, 10f))),
+                )
+            }
+
+            // Inner orbit (3 big dots) — bigger & more colorful
             rotate(orbit1, pivot = Offset(100f, 100f)) {
-                drawCircle(primary, 7f, Offset(100f, 56f))
-                drawCircle(tertiary, 6f, Offset(138f, 122f))
-                drawCircle(warn, 6f, Offset(62f, 122f))
+                // Trailing comet effect (smaller fade dots)
+                drawCircle(primary.copy(alpha = 0.25f), 4f, Offset(110f, 56f))
+                drawCircle(primary.copy(alpha = 0.5f), 5f, Offset(105f, 56f))
+                drawCircle(primary, 7.5f, Offset(100f, 56f))
+
+                drawCircle(tertiary.copy(alpha = 0.5f), 4.5f, Offset(133f, 116f))
+                drawCircle(tertiary, 6.5f, Offset(138f, 122f))
+
+                drawCircle(warn.copy(alpha = 0.5f), 4.5f, Offset(67f, 116f))
+                drawCircle(warn, 6.5f, Offset(62f, 122f))
             }
 
             // Outer orbit (4 dots, reverse)
             rotate(orbit2, pivot = Offset(100f, 100f)) {
-                drawCircle(secondary, 4f, Offset(100f, 32f))
-                drawCircle(primary.copy(alpha = 0.7f), 4f, Offset(160f, 100f))
-                drawCircle(tertiary.copy(alpha = 0.7f), 4f, Offset(100f, 168f))
-                drawCircle(warn.copy(alpha = 0.7f), 4f, Offset(40f, 100f))
+                drawCircle(secondary, 4.5f, Offset(100f, 32f))
+                drawCircle(primary.copy(alpha = 0.8f), 4.5f, Offset(160f, 100f))
+                drawCircle(tertiary.copy(alpha = 0.8f), 4.5f, Offset(100f, 168f))
+                drawCircle(warn.copy(alpha = 0.8f), 4.5f, Offset(40f, 100f))
             }
 
-            // Central swatch — breathing scale
+            // Central swatch — breathing scale (more dramatic)
             val f = pulse(breathePhase, 0f)
-            val s = 1f + 0.06f * f
+            val s = 1f + 0.10f * f
             scale(s, s, pivot = Offset(100f, 100f)) {
-                fillStrokeRoundRect(
-                    left = 76f, top = 76f, width = 48f, height = 48f,
-                    cornerRadius = 14f,
-                    fill = primaryContainer, stroke = primary, strokeWidth = 2f,
+                // Outer ring around swatch
+                drawCircle(
+                    color = primary.copy(alpha = 0.4f),
+                    radius = 36f, center = Offset(100f, 100f),
+                    style = Stroke(width = 2f),
                 )
-                drawCircle(primary, 12f, Offset(100f, 100f))
+                // Rounded square swatch
+                fillStrokeRoundRect(
+                    left = 72f, top = 72f, width = 56f, height = 56f,
+                    cornerRadius = 16f,
+                    fill = primaryContainer, stroke = primary, strokeWidth = 2.5f,
+                )
+                // Inner circle
+                drawCircle(primary, 14f, Offset(100f, 100f))
+                // Highlight
+                drawOval(
+                    color = primary.copy(alpha = 0.3f),
+                    topLeft = Offset(82f, 80f), size = Size(20f, 12f),
+                )
+            }
+
+            // 4 sparkles
+            val sparks = listOf(
+                Sparkle(36f, 60f, 2.5f, secondary),
+                Sparkle(164f, 50f, 2.0f, tertiary),
+                Sparkle(170f, 150f, 2.5f, primary),
+                Sparkle(34f, 142f, 2.0f, warn),
+            )
+            sparks.forEachIndexed { i, sp ->
+                val sf = pulse(sparklePhase, i * 0.25f)
+                val alpha = 0.15f + 0.85f * sf
+                val sr = sp.r * (0.5f + 0.6f * sf)
+                drawCircle(sp.color.copy(alpha = alpha), sr, Offset(sp.x, sp.y))
             }
         }
     }
 }
 
 // =====================================================================================
-// 3. FolderVisual — tall folder with floating file cards; success badge when selected
+// 3. FolderVisual — tall folder + 3 floating file cards; bouncy success badge
 // =====================================================================================
 @Composable
 fun FolderVisual(selected: Boolean = false) {
@@ -323,7 +402,7 @@ fun FolderVisual(selected: Boolean = false) {
 
     val infinite = rememberInfiniteTransition(label = "folder")
     val bobPhase by infinite.animateFloat(
-        0f, 1f, infiniteRepeatable(tween(3600, easing = LinearEasing)), "bob",
+        0f, 1f, infiniteRepeatable(tween(3400, easing = LinearEasing)), "bob",
     )
     val cardPhase1 by infinite.animateFloat(
         0f, 1f, infiniteRepeatable(tween(4000, easing = LinearEasing)), "c1",
@@ -338,7 +417,7 @@ fun FolderVisual(selected: Boolean = false) {
         0f, 1f, infiniteRepeatable(tween(2000, easing = LinearEasing)), "sp",
     )
 
-    // Pop-in scale for the success badge (0 → 1.2 → 1, reversed when deselected)
+    // Pop-in scale for the success badge — bouncy spring
     val badgeScale by animateFloatAsState(
         targetValue = if (selected) 1f else 0f,
         animationSpec = spring(
@@ -350,57 +429,58 @@ fun FolderVisual(selected: Boolean = false) {
 
     val folderBack = remember {
         Path().apply {
-            moveTo(36f, 104f)
-            lineTo(36f, 174f)
-            quadraticBezierTo(36f, 180f, 42f, 180f)
-            lineTo(158f, 180f)
-            quadraticBezierTo(164f, 180f, 164f, 174f)
-            lineTo(164f, 110f)
-            lineTo(92f, 110f)
-            lineTo(84f, 104f)
+            // Taller folder — extends from y=82 to y=184
+            moveTo(28f, 96f)
+            lineTo(28f, 178f)
+            quadraticBezierTo(28f, 184f, 34f, 184f)
+            lineTo(166f, 184f)
+            quadraticBezierTo(172f, 184f, 172f, 178f)
+            lineTo(172f, 102f)
+            lineTo(96f, 102f)
+            lineTo(86f, 96f)
             close()
         }
     }
     val folderFront = remember {
         Path().apply {
-            moveTo(36f, 120f)
-            lineTo(84f, 120f)
-            lineTo(92f, 126f)
-            lineTo(164f, 126f)
-            lineTo(164f, 174f)
-            quadraticBezierTo(164f, 180f, 158f, 180f)
-            lineTo(42f, 180f)
-            quadraticBezierTo(36f, 180f, 36f, 174f)
+            moveTo(28f, 116f)
+            lineTo(86f, 116f)
+            lineTo(96f, 124f)
+            lineTo(172f, 124f)
+            lineTo(172f, 178f)
+            quadraticBezierTo(172f, 184f, 166f, 184f)
+            lineTo(34f, 184f)
+            quadraticBezierTo(28f, 184f, 28f, 178f)
             close()
         }
     }
 
     Canvas(modifier = Modifier.size(200.dp)) {
         withLogicalSpace {
-            glow(100f, 145f, 64f, primary, 0.22f)
+            glow(100f, 145f, 68f, primary, 0.24f)
 
             // Back card 3 (left, behind folder)
             val f3 = pulse(cardPhase3, 0f)
-            translate(-1f * f3, -12f * f3) {
-                rotate(-2f + 2f * f3, pivot = Offset(72f, 63f)) {
+            translate(-1f * f3, -14f * f3) {
+                rotate(-3f + 2f * f3, pivot = Offset(74f, 61f)) {
                     fillStrokeRoundRect(
-                        left = 54f, top = 40f, width = 36f, height = 46f,
-                        cornerRadius = 4f,
-                        fill = surface3, stroke = primary, strokeWidth = 1.2f,
+                        left = 54f, top = 38f, width = 40f, height = 50f,
+                        cornerRadius = 5f,
+                        fill = surface3, stroke = primary, strokeWidth = 1.4f,
                     )
                     drawRoundRect(
                         color = primary.copy(alpha = 0.6f),
-                        topLeft = Offset(60f, 48f), size = Size(24f, 3f),
+                        topLeft = Offset(60f, 46f), size = Size(28f, 3.5f),
                         cornerRadius = CornerRadius(1.5f, 1.5f),
                     )
                     drawRoundRect(
                         color = primary.copy(alpha = 0.4f),
-                        topLeft = Offset(60f, 54f), size = Size(20f, 3f),
+                        topLeft = Offset(60f, 53f), size = Size(22f, 3.5f),
                         cornerRadius = CornerRadius(1.5f, 1.5f),
                     )
                     drawRoundRect(
                         color = primary.copy(alpha = 0.4f),
-                        topLeft = Offset(60f, 60f), size = Size(22f, 3f),
+                        topLeft = Offset(60f, 60f), size = Size(25f, 3.5f),
                         cornerRadius = CornerRadius(1.5f, 1.5f),
                     )
                 }
@@ -408,26 +488,26 @@ fun FolderVisual(selected: Boolean = false) {
 
             // Back card 2 (right, behind folder)
             val f2 = pulse(cardPhase2, 0f)
-            translate(3f * f2, -10f * f2) {
-                rotate(4f + 2f * f2, pivot = Offset(128f, 55f)) {
+            translate(3f * f2, -12f * f2) {
+                rotate(5f + 2f * f2, pivot = Offset(130f, 53f)) {
                     fillStrokeRoundRect(
-                        left = 110f, top = 32f, width = 36f, height = 46f,
-                        cornerRadius = 4f,
-                        fill = surface4, stroke = tertiary, strokeWidth = 1.2f,
+                        left = 108f, top = 30f, width = 40f, height = 50f,
+                        cornerRadius = 5f,
+                        fill = surface4, stroke = tertiary, strokeWidth = 1.4f,
                     )
                     drawRoundRect(
                         color = tertiary.copy(alpha = 0.7f),
-                        topLeft = Offset(116f, 40f), size = Size(24f, 3f),
+                        topLeft = Offset(114f, 38f), size = Size(28f, 3.5f),
                         cornerRadius = CornerRadius(1.5f, 1.5f),
                     )
                     drawRoundRect(
                         color = tertiary.copy(alpha = 0.5f),
-                        topLeft = Offset(116f, 46f), size = Size(20f, 3f),
+                        topLeft = Offset(114f, 45f), size = Size(22f, 3.5f),
                         cornerRadius = CornerRadius(1.5f, 1.5f),
                     )
                     drawRoundRect(
                         color = tertiary.copy(alpha = 0.5f),
-                        topLeft = Offset(116f, 52f), size = Size(22f, 3f),
+                        topLeft = Offset(114f, 52f), size = Size(25f, 3.5f),
                         cornerRadius = CornerRadius(1.5f, 1.5f),
                     )
                 }
@@ -435,104 +515,108 @@ fun FolderVisual(selected: Boolean = false) {
 
             // Folder body — bob + slight rotate, pivot at (100, 145)
             val fb = pulse(bobPhase, 0f)
-            translate(0f, -4f * fb) {
+            translate(0f, -5f * fb) {
                 rotate(-1f * fb, pivot = Offset(100f, 145f)) {
                     // Folder back (container fill)
                     drawPath(folderBack, color = primaryContainer)
                     drawPath(
                         folderBack, color = primary,
-                        style = Stroke(width = 2f, join = StrokeJoin.Round),
+                        style = Stroke(width = 2.4f, join = StrokeJoin.Round),
                     )
                     // Folder front flap (primary fill)
                     drawPath(folderFront, color = primary.copy(alpha = 0.92f))
                     drawPath(
                         folderFront, color = primary,
-                        style = Stroke(width = 2f, join = StrokeJoin.Round),
+                        style = Stroke(width = 2.4f, join = StrokeJoin.Round),
                     )
                     // Highlight on the flap
                     drawLine(
-                        color = onPrimary.copy(alpha = 0.35f),
-                        start = Offset(44f, 124f), end = Offset(80f, 124f),
-                        strokeWidth = 2f, cap = StrokeCap.Round,
+                        color = onPrimary.copy(alpha = 0.4f),
+                        start = Offset(38f, 120f), end = Offset(82f, 120f),
+                        strokeWidth = 2.4f, cap = StrokeCap.Round,
                     )
                     // Content lines (suggesting files inside)
                     drawLine(
-                        color = onPrimary.copy(alpha = 0.20f),
-                        start = Offset(52f, 142f), end = Offset(148f, 142f),
-                        strokeWidth = 1.5f, cap = StrokeCap.Round,
+                        color = onPrimary.copy(alpha = 0.22f),
+                        start = Offset(46f, 142f), end = Offset(154f, 142f),
+                        strokeWidth = 1.8f, cap = StrokeCap.Round,
+                    )
+                    drawLine(
+                        color = onPrimary.copy(alpha = 0.18f),
+                        start = Offset(46f, 154f), end = Offset(132f, 154f),
+                        strokeWidth = 1.8f, cap = StrokeCap.Round,
                     )
                     drawLine(
                         color = onPrimary.copy(alpha = 0.15f),
-                        start = Offset(52f, 152f), end = Offset(130f, 152f),
-                        strokeWidth = 1.5f, cap = StrokeCap.Round,
-                    )
-                    drawLine(
-                        color = onPrimary.copy(alpha = 0.12f),
-                        start = Offset(52f, 162f), end = Offset(140f, 162f),
-                        strokeWidth = 1.5f, cap = StrokeCap.Round,
+                        start = Offset(46f, 166f), end = Offset(144f, 166f),
+                        strokeWidth = 1.8f, cap = StrokeCap.Round,
                     )
                 }
             }
 
             // Front card 1 (in front of folder)
             val f1 = pulse(cardPhase1, 0f)
-            translate(-2f * f1, -8f * f1) {
-                rotate(-6f - 2f * f1, pivot = Offset(100f, 81f)) {
+            translate(-2f * f1, -10f * f1) {
+                rotate(-6f - 2f * f1, pivot = Offset(102f, 79f)) {
                     fillStrokeRoundRect(
-                        left = 82f, top = 58f, width = 36f, height = 46f,
-                        cornerRadius = 4f,
-                        fill = surface5, stroke = primary, strokeWidth = 1.4f,
+                        left = 80f, top = 56f, width = 40f, height = 50f,
+                        cornerRadius = 5f,
+                        fill = surface5, stroke = primary, strokeWidth = 1.6f,
                     )
-                    drawCircle(warn.copy(alpha = 0.8f), 5f, Offset(100f, 70f))
+                    // File icon decoration (warn circle)
+                    drawCircle(warn.copy(alpha = 0.85f), 5.5f, Offset(100f, 70f))
                     drawRoundRect(
                         color = primary.copy(alpha = 0.7f),
-                        topLeft = Offset(88f, 80f), size = Size(24f, 3f),
+                        topLeft = Offset(86f, 80f), size = Size(28f, 3.5f),
                         cornerRadius = CornerRadius(1.5f, 1.5f),
                     )
                     drawRoundRect(
                         color = primary.copy(alpha = 0.5f),
-                        topLeft = Offset(88f, 86f), size = Size(18f, 3f),
+                        topLeft = Offset(86f, 87f), size = Size(20f, 3.5f),
                         cornerRadius = CornerRadius(1.5f, 1.5f),
                     )
                     drawRoundRect(
                         color = primary.copy(alpha = 0.5f),
-                        topLeft = Offset(88f, 92f), size = Size(22f, 3f),
+                        topLeft = Offset(86f, 94f), size = Size(24f, 3.5f),
                         cornerRadius = CornerRadius(1.5f, 1.5f),
                     )
                 }
             }
 
-            // Success checkmark badge (only when selected)
+            // Success checkmark badge (only when selected) — bouncy spring
             if (badgeScale > 0.01f) {
-                scale(badgeScale, badgeScale, pivot = Offset(150f, 110f)) {
+                scale(badgeScale, badgeScale, pivot = Offset(158f, 116f)) {
+                    // Glow
+                    glow(158f, 116f, 26f, primary, 0.6f)
                     fillStrokeCircle(
-                        cx = 150f, cy = 110f, r = 18f,
-                        fill = primary, stroke = bg, strokeWidth = 3f,
+                        cx = 158f, cy = 116f, r = 20f,
+                        fill = primary, stroke = bg, strokeWidth = 3.5f,
                     )
                     drawLine(
                         color = onPrimary,
-                        start = Offset(142f, 110f),
-                        end = Offset(148f, 116f),
-                        strokeWidth = 3.5f, cap = StrokeCap.Round,
+                        start = Offset(149f, 116f),
+                        end = Offset(156f, 123f),
+                        strokeWidth = 4f, cap = StrokeCap.Round,
                     )
                     drawLine(
                         color = onPrimary,
-                        start = Offset(148f, 116f),
-                        end = Offset(158f, 106f),
-                        strokeWidth = 3.5f, cap = StrokeCap.Round,
+                        start = Offset(156f, 123f),
+                        end = Offset(168f, 110f),
+                        strokeWidth = 4f, cap = StrokeCap.Round,
                     )
                 }
             }
 
-            // 3 sparkles
+            // 4 sparkles
             val sparks = listOf(
-                Sparkle(28f, 80f, 2.5f, primary),
-                Sparkle(176f, 90f, 2.0f, tertiary),
+                Sparkle(26f, 80f, 2.5f, primary),
+                Sparkle(178f, 90f, 2.0f, tertiary),
                 Sparkle(174f, 36f, 1.8f, warn),
+                Sparkle(24f, 30f, 1.8f, primary),
             )
             sparks.forEachIndexed { i, sp ->
-                val f = pulse(sparklePhase, i * 0.35f)
-                val alpha = 0.2f + 0.7f * f
+                val f = pulse(sparklePhase, i * 0.27f)
+                val alpha = 0.18f + 0.72f * f
                 drawCircle(sp.color.copy(alpha = alpha), sp.r, Offset(sp.x, sp.y))
             }
         }
@@ -540,7 +624,7 @@ fun FolderVisual(selected: Boolean = false) {
 }
 
 // =====================================================================================
-// 4. PermissionsVisual — shield + ripples + dashed orbits + animated checkmark
+// 4. PermissionsVisual — big shield + 3 ripples + 2 dashed orbits + checkmark
 // =====================================================================================
 @Composable
 fun PermissionsVisual() {
@@ -553,7 +637,7 @@ fun PermissionsVisual() {
 
     val infinite = rememberInfiniteTransition(label = "perms")
     val ripplePhase by infinite.animateFloat(
-        0f, 1f, infiniteRepeatable(tween(2800, easing = LinearEasing)), "ripple",
+        0f, 1f, infiniteRepeatable(tween(2600, easing = LinearEasing)), "ripple",
     )
     val dash1 by infinite.animateFloat(
         0f, 360f, infiniteRepeatable(tween(14000, easing = LinearEasing)), "d1",
@@ -570,34 +654,38 @@ fun PermissionsVisual() {
     val checkPhase by infinite.animateFloat(
         0f, 1f, infiniteRepeatable(tween(2400, easing = LinearEasing)), "check",
     )
+    val glowPhase by infinite.animateFloat(
+        0f, 1f, infiniteRepeatable(tween(2000, easing = LinearEasing)), "glow",
+    )
 
     val shieldPath = remember {
         Path().apply {
-            moveTo(100f, 56f)
-            lineTo(138f, 70f)
-            lineTo(138f, 104f)
-            quadraticBezierTo(138f, 134f, 100f, 150f)
-            quadraticBezierTo(62f, 134f, 62f, 104f)
-            lineTo(62f, 70f)
+            // Bigger shield — extends from y=46 to y=156
+            moveTo(100f, 46f)
+            lineTo(142f, 62f)
+            lineTo(142f, 102f)
+            quadraticBezierTo(142f, 134f, 100f, 156f)
+            quadraticBezierTo(58f, 134f, 58f, 102f)
+            lineTo(58f, 62f)
             close()
         }
     }
     val shieldInner = remember {
         Path().apply {
-            moveTo(100f, 62f)
-            lineTo(132f, 74f)
-            lineTo(132f, 104f)
-            quadraticBezierTo(132f, 129f, 100f, 143f)
-            quadraticBezierTo(68f, 129f, 68f, 104f)
-            lineTo(68f, 74f)
+            moveTo(100f, 53f)
+            lineTo(135f, 67f)
+            lineTo(135f, 102f)
+            quadraticBezierTo(135f, 128f, 100f, 148f)
+            quadraticBezierTo(65f, 128f, 65f, 102f)
+            lineTo(65f, 67f)
             close()
         }
     }
     val checkPath = remember {
         Path().apply {
-            moveTo(84f, 100f)
-            lineTo(95f, 112f)
-            lineTo(118f, 88f)
+            moveTo(80f, 100f)
+            lineTo(94f, 114f)
+            lineTo(122f, 86f)
         }
     }
     val checkMeasure = remember(checkPath) {
@@ -606,32 +694,34 @@ fun PermissionsVisual() {
 
     Canvas(modifier = Modifier.size(200.dp)) {
         withLogicalSpace {
-            glow(100f, 100f, 60f, primary, 0.22f)
+            // Breathing glow
+            val gf = pulse(glowPhase, 0f)
+            glow(100f, 100f, 64f, primary, 0.18f + 0.14f * gf)
 
             // Rotating dashed rings
             rotate(dash1, pivot = Offset(100f, 100f)) {
                 drawCircle(
-                    color = primary.copy(alpha = 0.25f),
-                    radius = 78f, center = Offset(100f, 100f),
-                    style = Stroke(width = 1.5f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(4f, 8f))),
+                    color = primary.copy(alpha = 0.28f),
+                    radius = 84f, center = Offset(100f, 100f),
+                    style = Stroke(width = 1.8f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(4f, 8f))),
                 )
             }
             rotate(dash2, pivot = Offset(100f, 100f)) {
                 drawCircle(
-                    color = tertiary.copy(alpha = 0.3f),
-                    radius = 68f, center = Offset(100f, 100f),
-                    style = Stroke(width = 1f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(2f, 6f))),
+                    color = tertiary.copy(alpha = 0.32f),
+                    radius = 72f, center = Offset(100f, 100f),
+                    style = Stroke(width = 1.2f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(2f, 6f))),
                 )
             }
 
             // 6 floating particles (drift via combined sine waves)
             val particles = listOf(
-                Sparkle(40f, 60f, 2f, primary),
-                Sparkle(160f, 50f, 1.8f, tertiary),
-                Sparkle(170f, 140f, 2f, warn),
-                Sparkle(34f, 150f, 1.8f, primary),
-                Sparkle(100f, 28f, 1.5f, secondary),
-                Sparkle(100f, 172f, 1.5f, primary),
+                Sparkle(38f, 58f, 2.2f, primary),
+                Sparkle(162f, 48f, 2.0f, tertiary),
+                Sparkle(170f, 142f, 2.2f, warn),
+                Sparkle(32f, 152f, 2.0f, primary),
+                Sparkle(100f, 26f, 1.8f, secondary),
+                Sparkle(100f, 174f, 1.8f, primary),
             )
             particles.forEachIndexed { i, p ->
                 val ph = (particlePhase + i * 0.16f) % 1f
@@ -645,31 +735,36 @@ fun PermissionsVisual() {
                 )
             }
 
-            // 3 expanding ripple rings (staggered)
+            // 3 expanding ripple rings (staggered) — bigger now
             val ringColors = listOf(primary, primary, primary)
             ringColors.forEachIndexed { i, c ->
                 val ph = (ripplePhase + i * 0.32f) % 1f
-                val scaleR = 0.5f + 1.3f * ph
+                val scaleR = 0.5f + 1.4f * ph
                 val alpha = (0.7f * (1f - ph)).coerceAtLeast(0f)
                 drawCircle(
                     color = c.copy(alpha = alpha),
-                    radius = 48f * scaleR,
+                    radius = 50f * scaleR,
                     center = Offset(100f, 100f),
-                    style = Stroke(width = 2f),
+                    style = Stroke(width = 2.5f),
                 )
             }
 
             // Shield — floating up/down
             val f = pulse(shieldFloat, 0f)
-            translate(0f, -4f * f) {
+            translate(0f, -5f * f) {
                 drawPath(shieldPath, color = primaryContainer)
                 drawPath(
                     shieldPath, color = primary,
-                    style = Stroke(width = 2.5f, join = StrokeJoin.Round),
+                    style = Stroke(width = 2.8f, join = StrokeJoin.Round),
                 )
                 drawPath(
-                    shieldInner, color = primary.copy(alpha = 0.3f),
-                    style = Stroke(width = 1f, join = StrokeJoin.Round),
+                    shieldInner, color = primary.copy(alpha = 0.32f),
+                    style = Stroke(width = 1.2f, join = StrokeJoin.Round),
+                )
+                // Inner top highlight on shield
+                drawOval(
+                    color = primary.copy(alpha = 0.15f),
+                    topLeft = Offset(78f, 60f), size = Size(44f, 14f),
                 )
 
                 // Animated checkmark draw (segment of the path)
@@ -680,7 +775,7 @@ fun PermissionsVisual() {
                     checkMeasure.getSegment(0f, totalLen * progress, subPath, true)
                     drawPath(
                         subPath, color = primary,
-                        style = Stroke(width = 4f, cap = StrokeCap.Round, join = StrokeJoin.Round),
+                        style = Stroke(width = 5f, cap = StrokeCap.Round, join = StrokeJoin.Round),
                     )
                 }
             }
@@ -689,7 +784,7 @@ fun PermissionsVisual() {
 }
 
 // =====================================================================================
-// 5. RestoreVisual — cloud + falling data particles + filling tray
+// 5. RestoreVisual — COMPLETE REDO: beautiful soft cloud + 6 data drops + tray
 // =====================================================================================
 @Composable
 fun RestoreVisual() {
@@ -698,6 +793,7 @@ fun RestoreVisual() {
     val primaryContainer = palette.primaryContainer
     val bg = palette.background
     val surface3 = palette.surface3
+    val surface4 = palette.surface4
     val tertiary = TertiaryPink
     val warn = WarnAmber
     val secondary = SecondaryLavender
@@ -707,22 +803,24 @@ fun RestoreVisual() {
         0f, 1f, infiniteRepeatable(tween(4000, easing = LinearEasing)), "bg",
     )
     val bgDash by infinite.animateFloat(
-        0f, 360f, infiniteRepeatable(tween(18000, easing = LinearEasing)), "bgDash",
+        0f, 360f, infiniteRepeatable(tween(22000, easing = LinearEasing)), "bgDash",
     )
     val cloudFloat by infinite.animateFloat(
         0f, 1f, infiniteRepeatable(tween(4000, easing = LinearEasing)), "cloud",
     )
+    val cloudBreathe by infinite.animateFloat(
+        0f, 1f, infiniteRepeatable(tween(2800, easing = LinearEasing)), "cloudBreathe",
+    )
     val dropPhase by infinite.animateFloat(
-        0f, 1f, infiniteRepeatable(tween(2000, easing = LinearEasing)), "drop",
+        0f, 1f, infiniteRepeatable(tween(2400, easing = LinearEasing)), "drop",
     )
     val trayBreathe by infinite.animateFloat(
         0f, 1f, infiniteRepeatable(tween(2000, easing = LinearEasing)), "tray",
     )
     val fillPhase by infinite.animateFloat(
-        0f, 1f, infiniteRepeatable(tween(2000, easing = LinearEasing)), "fill",
+        0f, 1f, infiniteRepeatable(tween(2400, easing = LinearEasing)), "fill",
     )
 
-    // Tray paths
     val trayOuter = remember {
         Path().apply {
             moveTo(50f, 142f)
@@ -744,72 +842,108 @@ fun RestoreVisual() {
 
     Canvas(modifier = Modifier.size(200.dp)) {
         withLogicalSpace {
-            // Background rings (behind cloud)
+            // Background pulse ring
             val bp = pulse(bgPulse, 0f)
-            val bgScale = 0.85f + 0.25f * bp
-            val bgAlpha = 0.12f + 0.13f * bp
+            val bgAlpha = 0.10f + 0.12f * bp
             drawCircle(
                 color = primary.copy(alpha = bgAlpha),
-                radius = 78f * bgScale,
-                center = Offset(100f, 72f),
+                radius = 78f * (0.88f + 0.22f * bp),
+                center = Offset(100f, 70f),
                 style = Stroke(width = 1.5f),
             )
-            rotate(bgDash, pivot = Offset(100f, 72f)) {
+            rotate(bgDash, pivot = Offset(100f, 70f)) {
                 drawCircle(
                     color = tertiary.copy(alpha = 0.22f),
-                    radius = 66f, center = Offset(100f, 72f),
+                    radius = 66f, center = Offset(100f, 70f),
                     style = Stroke(width = 1f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(3f, 7f))),
                 )
             }
 
-            glow(100f, 68f, 52f, primary, 0.2f)
+            // Cloud glow
+            val cb = pulse(cloudBreathe, 0f)
+            glow(100f, 68f, 56f, primary, 0.22f + 0.10f * cb)
 
-            // Cloud — float up/down
+            // Cloud — smooth gentle floating
             val cf = pulse(cloudFloat, 0f)
-            translate(0f, -6f * cf) {
-                // Shadow ellipse (semi-transparent)
+            val cloudY = -6f * cf
+            translate(0f, cloudY) {
+                // Soft cloud shadow on ground
                 drawOval(
                     color = Color.Black.copy(alpha = 0.18f),
-                    topLeft = Offset(52f, 80f),
-                    size = Size(96f, 16f),
+                    topLeft = Offset(50f, 94f),
+                    size = Size(100f, 12f),
                 )
-                // 3 puffs
-                fillStrokeOval(68f, 72f, 22f, 20f, surface3, primary, 1.5f)
-                fillStrokeOval(100f, 58f, 32f, 26f, surface3, primary, 1.5f)
-                fillStrokeOval(132f, 72f, 22f, 20f, surface3, primary, 1.5f)
-                // Bottom bar
+
+                // Cloud body — soft, fluffy puffs with subtle highlights
+                // Use a slightly lighter fill for the cloud body
+                val cloudFill = surface4.copy(alpha = 0.95f)
+                val cloudStroke = primary.copy(alpha = 0.7f)
+                val cloudHighlight = primary.copy(alpha = 0.12f)
+
+                // Layer 1 (back) — widest bottom puff (4 overlapping circles for soft cloud silhouette)
+                // We draw 4 puffs slightly overlapping to create a fluffy cloud shape
+                fillStrokeOval(70f, 70f, 22f, 22f, cloudFill, cloudStroke, 1.8f)
+                fillStrokeOval(130f, 70f, 22f, 22f, cloudFill, cloudStroke, 1.8f)
+                fillStrokeOval(100f, 56f, 30f, 26f, cloudFill, cloudStroke, 1.8f)
+                fillStrokeOval(85f, 64f, 18f, 18f, cloudFill, cloudStroke, 1.4f)
+                fillStrokeOval(115f, 64f, 18f, 18f, cloudFill, cloudStroke, 1.4f)
+
+                // Bottom flat bar (closes the cloud silhouette)
                 fillStrokeRoundRect(
-                    left = 56f, top = 72f, width = 88f, height = 20f,
-                    cornerRadius = 10f,
-                    fill = surface3, stroke = primary, strokeWidth = 1.5f,
+                    left = 54f, top = 70f, width = 92f, height = 22f,
+                    cornerRadius = 11f,
+                    fill = cloudFill, stroke = cloudStroke, strokeWidth = 1.8f,
                 )
-                // Highlights on puffs
+
+                // Soft inner highlights (give the cloud a "puffy" feel)
+                // Top highlight on center puff
                 drawOval(
-                    color = bg.copy(alpha = 0.25f),
-                    topLeft = Offset(80f, 45f), size = Size(24f, 10f),
+                    color = cloudHighlight,
+                    topLeft = Offset(86f, 42f), size = Size(28f, 10f),
+                )
+                // Side puff highlights
+                drawOval(
+                    color = cloudHighlight,
+                    topLeft = Offset(60f, 60f), size = Size(14f, 6f),
                 )
                 drawOval(
-                    color = bg.copy(alpha = 0.15f),
-                    topLeft = Offset(56f, 61f), size = Size(16f, 6f),
+                    color = cloudHighlight,
+                    topLeft = Offset(122f, 60f), size = Size(14f, 6f),
                 )
-                drawOval(
-                    color = bg.copy(alpha = 0.15f),
-                    topLeft = Offset(120f, 61f), size = Size(16f, 6f),
+
+                // Download arrow inside the cloud (subtle, primary-colored)
+                val arrowColor = primary
+                // Vertical stem
+                drawLine(
+                    color = arrowColor,
+                    start = Offset(100f, 60f), end = Offset(100f, 80f),
+                    strokeWidth = 3.5f, cap = StrokeCap.Round,
+                )
+                // Arrow head (V shape)
+                drawLine(
+                    color = arrowColor,
+                    start = Offset(90f, 72f), end = Offset(100f, 82f),
+                    strokeWidth = 3.5f, cap = StrokeCap.Round,
+                )
+                drawLine(
+                    color = arrowColor,
+                    start = Offset(110f, 72f), end = Offset(100f, 82f),
+                    strokeWidth = 3.5f, cap = StrokeCap.Round,
                 )
             }
 
-            // 6 falling data particles (staggered)
+            // 6 falling data particles — varied colors & shapes
             val drops = listOf(
-                Drop(68f, 96f, primary, shape = DropShape.Rect, rot = 10f),
-                Drop(88f, 98f, tertiary, shape = DropShape.Circle, rot = 0f),
-                Drop(108f, 96f, warn, shape = DropShape.Rect, rot = -10f),
-                Drop(128f, 98f, primary, shape = DropShape.Circle, rot = 0f, alpha = 0.85f),
-                Drop(78f, 96f, secondary, shape = DropShape.RectSmall, rot = 5f),
-                Drop(118f, 98f, tertiary, shape = DropShape.Circle, rot = 0f, alpha = 0.8f),
+                Drop(70f, 96f, primary, DropShape.Rect, 10f),
+                Drop(88f, 100f, tertiary, DropShape.Circle, 0f),
+                Drop(110f, 96f, warn, DropShape.Rect, -10f),
+                Drop(128f, 100f, primary, DropShape.Circle, 0f, 0.9f),
+                Drop(78f, 96f, secondary, DropShape.RectSmall, 6f),
+                Drop(120f, 100f, tertiary, DropShape.Circle, 0f, 0.9f),
             )
             drops.forEachIndexed { i, d ->
-                val ph = (dropPhase + i * 0.15f) % 1f
-                val dy = 58f * ph
+                val ph = (dropPhase + i * 0.16f) % 1f
+                val dy = 56f * ph
                 val alpha = when {
                     ph < 0.15f -> ph / 0.15f
                     ph < 0.85f -> 1f
@@ -843,32 +977,32 @@ fun RestoreVisual() {
 
             // Tray glow
             val tg = pulse(trayBreathe, 0f)
-            glow(100f, 158f, 36f, primary, 0.3f + 0.4f * tg)
+            glow(100f, 158f, 40f, primary, 0.28f + 0.30f * tg)
 
-            // Tray — slight vertical breathe
-            val ts = 1f + 0.05f * tg
+            // Tray — vertical breathe
+            val ts = 1f + 0.04f * tg
             scale(1f, ts, pivot = Offset(100f, 172f)) {
                 // Outer trapezoid
                 drawPath(trayOuter, color = primaryContainer)
                 drawPath(
                     trayOuter, color = primary,
-                    style = Stroke(width = 2f, join = StrokeJoin.Round),
+                    style = Stroke(width = 2.4f, join = StrokeJoin.Round),
                 )
                 // Inner fill (rising)
                 val fs = 0.2f + 0.8f * fillPhase
                 scale(1f, fs, pivot = Offset(100f, 168f)) {
-                    drawPath(trayFill, color = primary.copy(alpha = 0.5f))
+                    drawPath(trayFill, color = primary.copy(alpha = 0.55f))
                 }
                 // Top rim highlight
                 drawLine(
-                    color = primary.copy(alpha = 0.7f),
+                    color = primary.copy(alpha = 0.85f),
                     start = Offset(52f, 144f), end = Offset(148f, 144f),
-                    strokeWidth = 2.5f, cap = StrokeCap.Round,
+                    strokeWidth = 3f, cap = StrokeCap.Round,
                 )
                 // Collected indicator dots
-                drawCircle(primary.copy(alpha = 0.6f), 2f, Offset(80f, 160f))
-                drawCircle(primary.copy(alpha = 0.8f), 2.5f, Offset(100f, 162f))
-                drawCircle(primary.copy(alpha = 0.6f), 2f, Offset(120f, 160f))
+                drawCircle(primary.copy(alpha = 0.7f), 2.2f, Offset(80f, 160f))
+                drawCircle(primary.copy(alpha = 0.9f), 2.6f, Offset(100f, 162f))
+                drawCircle(primary.copy(alpha = 0.7f), 2.2f, Offset(120f, 160f))
             }
         }
     }
@@ -885,7 +1019,7 @@ private data class Drop(
 )
 
 // =====================================================================================
-// 6. SummaryVisual — growing bar chart + trend arrow + sparkles
+// 6. SummaryVisual — 4 staggered growing bars + trend arrow + sparkles
 // =====================================================================================
 @Composable
 fun SummaryVisual() {
@@ -907,82 +1041,119 @@ fun SummaryVisual() {
     val bar2 = remember { Animatable(0f) }
     val bar3 = remember { Animatable(0f) }
     val bar4 = remember { Animatable(0f) }
-    LaunchedEffect(Unit) {
-        bar1.animateTo(1f, tween(1400, delayMillis = 100))
-    }
-    LaunchedEffect(Unit) {
-        bar2.animateTo(1f, tween(1400, delayMillis = 250))
-    }
-    LaunchedEffect(Unit) {
-        bar3.animateTo(1f, tween(1400, delayMillis = 400))
-    }
-    LaunchedEffect(Unit) {
-        bar4.animateTo(1f, tween(1400, delayMillis = 550))
-    }
+    LaunchedEffect(Unit) { bar1.animateTo(1f, tween(1300, delayMillis = 100)) }
+    LaunchedEffect(Unit) { bar2.animateTo(1f, tween(1300, delayMillis = 250)) }
+    LaunchedEffect(Unit) { bar3.animateTo(1f, tween(1300, delayMillis = 400)) }
+    LaunchedEffect(Unit) { bar4.animateTo(1f, tween(1300, delayMillis = 550)) }
 
     Canvas(modifier = Modifier.size(200.dp)) {
         withLogicalSpace {
-            glow(100f, 120f, 52f, primary, 0.2f)
+            glow(100f, 120f, 54f, primary, 0.22f)
+
+            // Backplate rounded rect (chart area)
+            fillStrokeRoundRect(
+                left = 30f, top = 50f, width = 140f, height = 120f,
+                cornerRadius = 14f,
+                fill = palette.surface2.copy(alpha = 0.4f),
+                stroke = palette.surface4, strokeWidth = 1.2f,
+            )
 
             // Baseline
             drawLine(
                 color = palette.surface5,
                 start = Offset(40f, 160f), end = Offset(160f, 160f),
-                strokeWidth = 1.5f, cap = StrokeCap.Round,
+                strokeWidth = 1.8f, cap = StrokeCap.Round,
+            )
+            // Horizontal gridlines
+            drawLine(
+                color = palette.surface4.copy(alpha = 0.5f),
+                start = Offset(40f, 130f), end = Offset(160f, 130f),
+                strokeWidth = 0.8f,
+            )
+            drawLine(
+                color = palette.surface4.copy(alpha = 0.5f),
+                start = Offset(40f, 100f), end = Offset(160f, 100f),
+                strokeWidth = 0.8f,
+            )
+            drawLine(
+                color = palette.surface4.copy(alpha = 0.5f),
+                start = Offset(40f, 70f), end = Offset(160f, 70f),
+                strokeWidth = 0.8f,
             )
 
             // 4 bars — staggered grow-in (scaleY from bottom)
             val bars = listOf(
-                BarSpec(48f, 130f, 18f, 30f, primary.copy(alpha = 0.7f), bar1.value),
-                BarSpec(76f, 112f, 18f, 48f, primary.copy(alpha = 0.85f), bar2.value),
-                BarSpec(104f, 92f, 18f, 68f, tertiary, bar3.value),
-                BarSpec(132f, 74f, 18f, 86f, primary, bar4.value),
+                BarSpec(48f, 130f, 20f, 30f, primary.copy(alpha = 0.7f), bar1.value),
+                BarSpec(76f, 112f, 20f, 48f, primary.copy(alpha = 0.85f), bar2.value),
+                BarSpec(104f, 92f, 20f, 68f, tertiary, bar3.value),
+                BarSpec(132f, 74f, 20f, 86f, primary, bar4.value),
             )
             bars.forEach { b ->
                 scale(1f, b.progress, pivot = Offset(b.x + b.w / 2f, 160f)) {
+                    // Bar fill
                     drawRoundRect(
                         color = b.color,
                         topLeft = Offset(b.x, b.y),
                         size = Size(b.w, b.h),
-                        cornerRadius = CornerRadius(3f, 3f),
+                        cornerRadius = CornerRadius(4f, 4f),
+                    )
+                    // Top highlight
+                    drawRoundRect(
+                        color = b.color.copy(alpha = 0.6f).compositeLighten(),
+                        topLeft = Offset(b.x, b.y),
+                        size = Size(b.w, 4f),
+                        cornerRadius = CornerRadius(4f, 4f),
                     )
                 }
             }
 
             // Trend arrow line — bobbing
             val tb = pulse(trendBob, 0f)
-            translate(0f, -5f * tb) {
+            translate(0f, -6f * tb) {
                 val trendColor = warn
                 // Polyline through bar tops
-                val pts = listOf(Offset(52f, 122f), Offset(82f, 104f), Offset(112f, 84f), Offset(140f, 64f))
+                val pts = listOf(Offset(58f, 124f), Offset(86f, 106f), Offset(114f, 86f), Offset(142f, 68f))
                 for (i in 0 until pts.size - 1) {
                     drawLine(
                         color = trendColor,
                         start = pts[i], end = pts[i + 1],
-                        strokeWidth = 2.4f, cap = StrokeCap.Round,
+                        strokeWidth = 2.6f, cap = StrokeCap.Round,
                     )
                 }
                 // Arrowhead corner
-                drawLine(trendColor, Offset(130f, 64f), Offset(142f, 64f), strokeWidth = 2.4f, cap = StrokeCap.Round)
-                drawLine(trendColor, Offset(142f, 64f), Offset(142f, 76f), strokeWidth = 2.4f, cap = StrokeCap.Round)
+                drawLine(trendColor, Offset(132f, 68f), Offset(144f, 68f), strokeWidth = 2.6f, cap = StrokeCap.Round)
+                drawLine(trendColor, Offset(144f, 68f), Offset(144f, 80f), strokeWidth = 2.6f, cap = StrokeCap.Round)
                 // Trend dot
-                drawCircle(trendColor, 4f, Offset(140f, 64f))
+                drawCircle(trendColor, 4.5f, Offset(142f, 68f))
+                // Outer ring around trend dot
+                drawCircle(trendColor.copy(alpha = 0.4f), 8f, Offset(142f, 68f), style = Stroke(width = 1.2f))
             }
 
-            // 3 sparkles
+            // 4 sparkles
             val sparks = listOf(
                 Sparkle(36f, 60f, 2.5f, primary),
                 Sparkle(170f, 92f, 2.0f, tertiary),
                 Sparkle(160f, 40f, 2.0f, warn),
+                Sparkle(36f, 36f, 2.0f, primary),
             )
             sparks.forEachIndexed { i, sp ->
-                val f = pulse(sparklePhase, i * 0.35f)
+                val f = pulse(sparklePhase, i * 0.27f)
                 val alpha = 0.2f + 0.8f * f
                 val sr = sp.r * (0.6f + 0.5f * f)
                 drawCircle(sp.color.copy(alpha = alpha), sr, Offset(sp.x, sp.y))
             }
         }
     }
+}
+
+/** Lighten a color slightly for highlight overlays. */
+private fun Color.compositeLighten(): Color {
+    return Color(
+        red = (red + 0.15f).coerceAtMost(1f),
+        green = (green + 0.15f).coerceAtMost(1f),
+        blue = (blue + 0.15f).coerceAtMost(1f),
+        alpha = alpha,
+    )
 }
 
 private data class BarSpec(
@@ -1043,13 +1214,13 @@ fun FinishVisual() {
         withLogicalSpace {
             // ---- Layer 1: Aurora glow (3 blobs, slow scale + rotate) ----
             val ap = auroraPhase
-            val auroraScale = 1f + 0.1f * sin(ap * 2f * PI.toFloat())
+            val auroraScale = 1f + 0.10f * sin(ap * 2f * PI.toFloat())
             val auroraRot = 360f * ap
             rotate(auroraRot, pivot = Offset(100f, 100f)) {
                 scale(auroraScale, auroraScale, pivot = Offset(100f, 100f)) {
-                    glow(100f, 100f, 80f, primary, 0.3f)
-                    glow(70f, 80f, 40f, tertiary, 0.2f)
-                    glow(130f, 120f, 40f, warn, 0.15f)
+                    glow(100f, 100f, 82f, primary, 0.32f)
+                    glow(70f, 80f, 42f, tertiary, 0.22f)
+                    glow(130f, 120f, 42f, warn, 0.17f)
                 }
             }
 
@@ -1060,7 +1231,7 @@ fun FinishVisual() {
                     val angleRad = angleDeg * PI.toFloat() / 180f
                     val isThick = i % 2 == 0
                     val r1 = 38f
-                    val r2 = if (isThick) 88f else 76f
+                    val r2 = if (isThick) 90f else 78f
                     val x1 = 100f + cos(angleRad) * r1
                     val y1 = 100f + sin(angleRad) * r1
                     val x2 = 100f + cos(angleRad) * r2
@@ -1068,9 +1239,9 @@ fun FinishVisual() {
                     drawLine(
                         color = if (isThick) primary else tertiary,
                         start = Offset(x1, y1), end = Offset(x2, y2),
-                        strokeWidth = if (isThick) 3f else 1.5f,
+                        strokeWidth = if (isThick) 3.5f else 1.8f,
                         cap = StrokeCap.Round,
-                        alpha = if (isThick) 0.45f else 0.2f,
+                        alpha = if (isThick) 0.5f else 0.22f,
                     )
                 }
             }
@@ -1098,35 +1269,35 @@ fun FinishVisual() {
 
             // ---- Layer 4: 8-point star burst badge + animated checkmark ----
             val sp = pulse(starPulse, 0f)
-            val starScale = 1f + 0.06f * sp
+            val starScale = 1f + 0.07f * sp
             scale(starScale, starScale, pivot = Offset(100f, 100f)) {
                 // Outer glow ring
-                glow(100f, 100f, 42f, primary, 0.15f)
-                // 8 star burst points (short lines from r42 to r50)
+                glow(100f, 100f, 44f, primary, 0.17f)
+                // 8 star burst points (short lines from r42 to r52)
                 for (i in 0 until 8) {
                     val angleRad = (i * 45f) * PI.toFloat() / 180f
                     val x1 = 100f + cos(angleRad) * 42f
                     val y1 = 100f + sin(angleRad) * 42f
-                    val x2 = 100f + cos(angleRad) * 50f
-                    val y2 = 100f + sin(angleRad) * 50f
+                    val x2 = 100f + cos(angleRad) * 52f
+                    val y2 = 100f + sin(angleRad) * 52f
                     drawLine(
-                        color = primary.copy(alpha = 0.6f),
+                        color = primary.copy(alpha = 0.65f),
                         start = Offset(x1, y1), end = Offset(x2, y2),
-                        strokeWidth = 4f, cap = StrokeCap.Round,
+                        strokeWidth = 4.5f, cap = StrokeCap.Round,
                     )
                 }
                 // Main badge circle
-                drawCircle(primary, 38f, Offset(100f, 100f))
+                drawCircle(primary, 40f, Offset(100f, 100f))
                 // Inner highlight stroke
                 drawCircle(
-                    color = bg.copy(alpha = 0.25f),
-                    radius = 38f, center = Offset(100f, 100f),
-                    style = Stroke(width = 2f),
+                    color = bg.copy(alpha = 0.28f),
+                    radius = 40f, center = Offset(100f, 100f),
+                    style = Stroke(width = 2.2f),
                 )
                 // Inner top highlight
                 drawOval(
-                    color = bg.copy(alpha = 0.1f),
-                    topLeft = Offset(78f, 68f), size = Size(44f, 44f),
+                    color = bg.copy(alpha = 0.12f),
+                    topLeft = Offset(76f, 66f), size = Size(48f, 48f),
                 )
                 // Animated checkmark (segment of the path)
                 val progress = checkProgress(checkPhase)
@@ -1136,7 +1307,7 @@ fun FinishVisual() {
                     checkMeasure.getSegment(0f, totalLen * progress, subPath, true)
                     drawPath(
                         subPath, color = onPrimary,
-                        style = Stroke(width = 6f, cap = StrokeCap.Round, join = StrokeJoin.Round),
+                        style = Stroke(width = 7f, cap = StrokeCap.Round, join = StrokeJoin.Round),
                     )
                 }
             }
@@ -1172,12 +1343,12 @@ fun FinishVisual() {
 
             // ---- Layer 6: 6 falling confetti pieces (staggered) ----
             val confetti = listOf(
-                Confetti(48f, 20f, 5f, 5f, 20f, primary),
-                Confetti(100f, 10f, 5f, 5f, -15f, tertiary),
-                Confetti(152f, 18f, 5f, 5f, 45f, warn),
-                Confetti(70f, 5f, 4f, 4f, -30f, secondary),
-                Confetti(130f, 8f, 4f, 4f, 60f, primary),
-                Confetti(30f, 15f, 4f, 4f, -45f, tertiary),
+                Confetti(48f, 20f, 6f, 6f, 20f, primary),
+                Confetti(100f, 10f, 6f, 6f, -15f, tertiary),
+                Confetti(152f, 18f, 6f, 6f, 45f, warn),
+                Confetti(70f, 5f, 5f, 5f, -30f, secondary),
+                Confetti(130f, 8f, 5f, 5f, 60f, primary),
+                Confetti(30f, 15f, 5f, 5f, -45f, tertiary),
             )
             confetti.forEachIndexed { i, c ->
                 val ph = (confettiPhase + i * 0.16f) % 1f
@@ -1194,7 +1365,7 @@ fun FinishVisual() {
                             color = c.color.copy(alpha = alpha),
                             topLeft = Offset(c.x, c.y),
                             size = Size(c.w, c.h),
-                            cornerRadius = CornerRadius(1f, 1f),
+                            cornerRadius = CornerRadius(1.5f, 1.5f),
                         )
                     }
                 }

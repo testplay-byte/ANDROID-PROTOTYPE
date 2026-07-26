@@ -1,16 +1,25 @@
 package com.testplaybyte.setupwizard
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateColorAsState
 import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,6 +29,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -74,8 +84,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.PathMeasure
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.StrokeJoin
@@ -83,8 +95,10 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.drawscope.scale
 import androidx.compose.ui.graphics.drawscope.translate
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -110,6 +124,9 @@ import com.testplaybyte.setupwizard.ui.theme.TextMutedLight
 import com.testplaybyte.setupwizard.ui.theme.WarnAmber
 import com.testplaybyte.setupwizard.ui.theme.WizardPalette
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.text.NumberFormat
+import java.util.Locale
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -121,29 +138,14 @@ import kotlin.math.sin
  *    - WizardState data class holds all mutable state (step, theme, folder,
  *      permissions, linked anime list, etc.)
  *    - SetupWizardApp() owns the state via remember { mutableStateOf(...) }
- *      and exposes simple lambdas for navigation (next/back/skipToFinish/
- *      linkAnime/reset).
- *    - The active palette + dark mode are applied via SetupWizardTheme,
- *      which re-renders the entire tree when the user picks a new theme.
- *    - A thin LinearProgressIndicator at the top shows step / 13.
+ *      and exposes simple lambdas for navigation.
+ *    - Palette colors are animated via animateColorAsState so switching
+ *      themes transitions smoothly instead of snapping.
+ *    - A thin LinearProgressIndicator at the top shows step / 12.
  *    - AnimatedContent swaps between screens with a horizontal slide + fade.
- *    - Each screen is a vertical-scroll Column (content) + fixed bottom
- *      action Row (Back / Next / etc.).
- *
- *  Screens (step 0..12):
- *    0  Welcome                 — WelcomeVisual + Get Started
- *    1  Theme                   — ThemeVisual + dark/light toggle + 4 palettes
- *    2  Folder                  — FolderVisual(selected) + scan + Continue
- *    3  Permissions             — PermissionsVisual + 3 toggles + Continue
- *    4  Restore                 — RestoreVisual + Select Backup File + Skip
- *    5  FormatNotSupported      — warning visual + Don't worry restore it
- *    6  ProcessingBackup        — processing visual (auto-advance ~2s)
- *    7  BackupSummary           — SummaryVisual + 4 stats + manga warning
- *    8  LinkingAnime            — stats + progressive list
- *    9  ManualLinking           — unlinked list + search overlay
- *    10 RestoreSummary          — 4 stats + info note
- *    11 RestoreSuccessful       — success visual (auto-advance ~5s)
- *    12 Finish                  — WelcomeVisual + API URL card + reset
+ *    - Each screen follows a consistent pattern: scrollable Column (content)
+ *      + fixed bottom Row (actions), with a coordinated entrance animation
+ *      driven by rememberEntranceState().
  * ===================================================================================== */
 
 // -------------------------------------------------------------------------------------
@@ -224,19 +226,42 @@ fun SetupWizardApp() {
         )
     }
 
-    val palette = AllPalettes[state.paletteIndex]
+    // --- Animated palette (smooth color transitions when switching palettes) ---
+    val targetPalette = AllPalettes[state.paletteIndex]
+    val animatedPrimary by animateColorAsState(targetPalette.primary, tween(500), label = "p")
+    val animatedOnPrimary by animateColorAsState(targetPalette.onPrimary, tween(500), label = "op")
+    val animatedPrimaryContainer by animateColorAsState(targetPalette.primaryContainer, tween(500), label = "pc")
+    val animatedOnPrimaryContainer by animateColorAsState(targetPalette.onPrimaryContainer, tween(500), label = "opc")
+    val animatedBackground by animateColorAsState(targetPalette.background, tween(500), label = "bg")
+    val animatedSurface1 by animateColorAsState(targetPalette.surface1, tween(500), label = "s1")
+    val animatedSurface2 by animateColorAsState(targetPalette.surface2, tween(500), label = "s2")
+    val animatedSurface3 by animateColorAsState(targetPalette.surface3, tween(500), label = "s3")
+    val animatedSurface4 by animateColorAsState(targetPalette.surface4, tween(500), label = "s4")
+    val animatedSurface5 by animateColorAsState(targetPalette.surface5, tween(500), label = "s5")
+    val animatedPalette = WizardPalette(
+        primary = animatedPrimary,
+        onPrimary = animatedOnPrimary,
+        primaryContainer = animatedPrimaryContainer,
+        onPrimaryContainer = animatedOnPrimaryContainer,
+        background = animatedBackground,
+        surface1 = animatedSurface1,
+        surface2 = animatedSurface2,
+        surface3 = animatedSurface3,
+        surface4 = animatedSurface4,
+        surface5 = animatedSurface5,
+    )
 
-    SetupWizardTheme(palette = palette, isDark = state.isDark) {
-        Surface(modifier = Modifier.fillMaxSize(), color = palette.background) {
+    SetupWizardTheme(palette = animatedPalette, isDark = state.isDark) {
+        Surface(modifier = Modifier.fillMaxSize(), color = animatedPalette.background) {
             Column(modifier = Modifier.fillMaxSize()) {
                 // Top progress bar
                 LinearProgressIndicator(
                     progress = { state.step / 12f },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(3.dp),
-                    color = palette.primary,
-                    trackColor = palette.surface3,
+                        .height(4.dp),
+                    color = animatedPalette.primary,
+                    trackColor = animatedPalette.surface3,
                 )
 
                 // Screen content
@@ -245,30 +270,131 @@ fun SetupWizardApp() {
                     modifier = Modifier.weight(1f),
                     transitionSpec = {
                         val direction = if (targetState > initialState) 1 else -1
-                        (slideInHorizontally(tween(300)) { it * direction / 4 } + fadeIn(tween(300))) togetherWith
-                            (slideOutHorizontally(tween(300)) { -it * direction / 4 } + fadeOut(tween(300)))
+                        (slideInHorizontally(tween(320)) { it * direction / 4 } + fadeIn(tween(320))) togetherWith
+                            (slideOutHorizontally(tween(320)) { -it * direction / 4 } + fadeOut(tween(320)))
                     },
                     label = "wizard",
                 ) { step ->
                     when (step) {
-                        0 -> WelcomeScreen(state, onNext, palette)
-                        1 -> ThemeScreen(state, onNext, onBack, palette, onDarkChange, onPaletteChange)
-                        2 -> FolderScreen(state, onNext, onBack, palette, onFolderSelected)
-                        3 -> PermissionsScreen(state, onNext, onBack, palette, onTogglePermission)
-                        4 -> RestoreScreen(state, onNext, onBack, palette, onSkipToFinish)
-                        5 -> FormatNotSupportedScreen(state, onNext, onBack, palette)
-                        6 -> ProcessingBackupScreen(state, onNext, palette)
-                        7 -> BackupSummaryScreen(state, onNext, onBack, palette)
-                        8 -> LinkingAnimeScreen(state, onNext, onBack, palette)
-                        9 -> ManualLinkingScreen(state, onNext, onBack, palette, onLinkAnime)
-                        10 -> RestoreSummaryScreen(state, onNext, onBack, palette)
-                        11 -> RestoreSuccessfulScreen(state, onNext, palette)
-                        12 -> FinishScreen(state, onReset, palette)
+                        0 -> WelcomeScreen(state, onNext, animatedPalette)
+                        1 -> ThemeScreen(state, onNext, onBack, animatedPalette, onDarkChange, onPaletteChange)
+                        2 -> FolderScreen(state, onNext, onBack, animatedPalette, onFolderSelected)
+                        3 -> PermissionsScreen(state, onNext, onBack, animatedPalette, onTogglePermission)
+                        4 -> RestoreScreen(state, onNext, onBack, animatedPalette, onSkipToFinish)
+                        5 -> FormatNotSupportedScreen(state, onNext, onBack, animatedPalette)
+                        6 -> ProcessingBackupScreen(state, onNext, animatedPalette)
+                        7 -> BackupSummaryScreen(state, onNext, onBack, animatedPalette)
+                        8 -> LinkingAnimeScreen(state, onNext, onBack, animatedPalette)
+                        9 -> ManualLinkingScreen(state, onNext, onBack, animatedPalette, onLinkAnime)
+                        10 -> RestoreSummaryScreen(state, onNext, onBack, animatedPalette)
+                        11 -> RestoreSuccessfulScreen(state, onNext, animatedPalette)
+                        12 -> FinishScreen(state, onReset, animatedPalette)
                     }
                 }
             }
         }
     }
+}
+
+// =====================================================================================
+// Animation helpers
+// =====================================================================================
+
+/**
+ * Holds the entrance-animation values for a screen. Each screen creates one
+ * of these via [rememberEntranceState] and a single LaunchedEffect drives the
+ * whole sequence (visual → title → subtitle → content → actions).
+ */
+private class EntranceState {
+    val visualScale = Animatable(0f)
+    val visualAlpha = Animatable(0f)
+    val titleAlpha = Animatable(0f)
+    val titleOffset = Animatable(30f)
+    val subtitleAlpha = Animatable(0f)
+    val subtitleOffset = Animatable(16f)
+    val contentAlpha = Animatable(0f)
+    val contentOffset = Animatable(20f)
+    val actionsAlpha = Animatable(0f)
+    val actionsOffset = Animatable(24f)
+}
+
+/**
+ * Returns an [EntranceState] and triggers the entrance animation sequence:
+ * visual scales in → title slides up + fades in → subtitle fades in →
+ * content fades in → actions fade in. The sequence takes ~1.2s total.
+ */
+@Composable
+private fun rememberEntranceState(): EntranceState {
+    val state = remember { EntranceState() }
+    LaunchedEffect(Unit) {
+        // Visual scales in with a gentle spring
+        launch { state.visualAlpha.animateTo(1f, tween(220)) }
+        launch {
+            state.visualScale.animateTo(
+                1f,
+                spring(dampingRatio = 0.62f, stiffness = 380f),
+            )
+        }
+        // Title slides up + fades in
+        delay(160)
+        launch { state.titleAlpha.animateTo(1f, tween(520, easing = FastOutSlowInEasing)) }
+        launch {
+            state.titleOffset.animateTo(
+                0f,
+                spring(dampingRatio = 0.78f, stiffness = 360f),
+            )
+        }
+        // Subtitle fades in
+        delay(120)
+        launch { state.subtitleAlpha.animateTo(1f, tween(500, easing = FastOutSlowInEasing)) }
+        launch { state.subtitleOffset.animateTo(0f, tween(500, easing = FastOutSlowInEasing)) }
+        // Content fades in
+        delay(120)
+        launch { state.contentAlpha.animateTo(1f, tween(460, easing = FastOutSlowInEasing)) }
+        launch { state.contentOffset.animateTo(0f, tween(460, easing = FastOutSlowInEasing)) }
+        // Actions fade in
+        delay(120)
+        launch { state.actionsAlpha.animateTo(1f, tween(420, easing = FastOutSlowInEasing)) }
+        launch { state.actionsOffset.animateTo(0f, tween(420, easing = FastOutSlowInEasing)) }
+    }
+    return state
+}
+
+/**
+ * Counts an integer up from 0 to [target] with a smooth tween, used by stat
+ * cards in the summary screens.
+ */
+@Composable
+private fun CountUpText(
+    target: Int,
+    modifier: Modifier = Modifier,
+    color: Color,
+    fontSize: androidx.compose.ui.unit.TextUnit = 32.sp,
+    fontWeight: FontWeight = FontWeight.ExtraBold,
+    durationMs: Int = 1000,
+    delayMs: Int = 350,
+) {
+    val animatedValue = remember(target) { Animatable(0f) }
+    LaunchedEffect(target) {
+        delay(delayMs)
+        animatedValue.animateTo(
+            target.toFloat(),
+            tween(durationMs, easing = FastOutSlowInEasing),
+        )
+    }
+    val displayValue = animatedValue.value.toInt()
+    Text(
+        text = formatNumber(displayValue),
+        modifier = modifier,
+        color = color,
+        fontSize = fontSize,
+        fontWeight = fontWeight,
+        textAlign = TextAlign.Center,
+    )
+}
+
+private fun formatNumber(value: Int): String {
+    return NumberFormat.getNumberInstance(Locale.US).format(value)
 }
 
 // =====================================================================================
@@ -286,20 +412,20 @@ private fun PrimaryButton(
     val palette = LocalWizardPalette.current
     Button(
         onClick = onClick,
-        modifier = modifier.height(50.dp),
+        modifier = modifier.height(54.dp),
         enabled = enabled,
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = palette.primary,
             contentColor = palette.onPrimary,
-            disabledContainerColor = palette.primary.copy(alpha = 0.4f),
-            disabledContentColor = palette.onPrimary.copy(alpha = 0.6f),
+            disabledContainerColor = palette.primary.copy(alpha = 0.35f),
+            disabledContentColor = palette.onPrimary.copy(alpha = 0.55f),
         ),
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
-            Text(text, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp)
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(text, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
             if (icon != null) {
-                Icon(icon, null, Modifier.size(18.dp))
+                Icon(icon, null, Modifier.size(20.dp))
             }
         }
     }
@@ -315,18 +441,18 @@ private fun SecondaryButton(
     val palette = LocalWizardPalette.current
     OutlinedButton(
         onClick = onClick,
-        modifier = modifier.height(50.dp),
-        shape = RoundedCornerShape(14.dp),
-        border = androidx.compose.foundation.BorderStroke(1.dp, palette.surface5),
+        modifier = modifier.height(54.dp),
+        shape = RoundedCornerShape(16.dp),
+        border = BorderStroke(1.5.dp, palette.surface5),
         colors = ButtonDefaults.outlinedButtonColors(
             contentColor = TextLight,
         ),
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
             if (icon != null) {
-                Icon(icon, null, Modifier.size(18.dp))
+                Icon(icon, null, Modifier.size(20.dp))
             }
-            Text(text, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp)
+            Text(text, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
         }
     }
 }
@@ -341,15 +467,15 @@ private fun GhostButton(
     val palette = LocalWizardPalette.current
     Button(
         onClick = onClick,
-        modifier = modifier.height(50.dp),
+        modifier = modifier.height(54.dp),
         enabled = enabled,
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = Color.Transparent,
-            contentColor = TextLight,
+            containerColor = palette.surface2,
+            contentColor = if (enabled) TextLight else TextMutedLight,
         ),
     ) {
-        Text(text, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp)
+        Text(text, fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
     }
 }
 
@@ -361,37 +487,46 @@ private fun ScanningPill(text: String) {
         modifier = Modifier
             .clip(RoundedCornerShape(50))
             .background(palette.primary.copy(alpha = 0.15f))
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .padding(horizontal = 14.dp, vertical = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp),
     ) {
         CircularProgressIndicator(
-            modifier = Modifier.size(12.dp),
-            strokeWidth = 1.5.dp,
+            modifier = Modifier.size(14.dp),
+            strokeWidth = 2.dp,
             color = palette.primary,
         )
-        Text(text, color = palette.primary, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+        Text(text, color = palette.primary, fontSize = 13.sp, fontWeight = FontWeight.SemiBold)
     }
 }
 
-/** Title text used at the top of every screen. */
+/** Big bold title used at the top of every screen. */
 @Composable
-private fun WizardTitle(text: String, color: Color = TextLight) {
+private fun WizardTitle(
+    text: String,
+    color: Color = TextLight,
+    style: TextStyle = MaterialTheme.typography.displayMedium,
+    brush: Brush? = null,
+) {
+    val finalStyle = if (brush != null) style.copy(brush = brush) else style
     Text(
         text = text,
-        style = MaterialTheme.typography.displayMedium,
+        style = finalStyle,
         fontWeight = FontWeight.ExtraBold,
-        color = color,
+        color = if (brush != null) Color.Unspecified else color,
         textAlign = TextAlign.Center,
     )
 }
 
 /** Subtitle text below the title. */
 @Composable
-private fun WizardSubtitle(text: String, color: Color = TextMutedLight) {
+private fun WizardSubtitle(
+    text: String,
+    color: Color = TextMutedLight,
+) {
     Text(
         text = text,
-        style = MaterialTheme.typography.bodyMedium,
+        style = MaterialTheme.typography.bodyLarge,
         color = color,
         textAlign = TextAlign.Center,
     )
@@ -399,23 +534,38 @@ private fun WizardSubtitle(text: String, color: Color = TextMutedLight) {
 
 /** Stat card used by BackupSummary and RestoreSummary screens. */
 @Composable
-private fun StatCard(value: String, label: String, valueColor: Color) {
+private fun StatCard(
+    target: Int,
+    label: String,
+    valueColor: Color,
+    modifier: Modifier = Modifier,
+) {
     val palette = LocalWizardPalette.current
     Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(86.dp),
-        shape = RoundedCornerShape(14.dp),
+        modifier = modifier.height(96.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = palette.surface2),
-        border = androidx.compose.foundation.BorderStroke(1.dp, palette.surface4),
+        border = BorderStroke(1.dp, palette.primary.copy(alpha = 0.33f)),
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().padding(8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            Text(value, color = valueColor, fontSize = 24.sp, fontWeight = FontWeight.ExtraBold)
-            Text(label, color = TextMutedLight, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+            CountUpText(
+                target = target,
+                color = valueColor,
+                fontSize = 30.sp,
+                fontWeight = FontWeight.ExtraBold,
+            )
+            Spacer(Modifier.height(2.dp))
+            Text(
+                label,
+                color = TextMutedLight,
+                fontSize = 12.sp,
+                fontWeight = FontWeight.SemiBold,
+                textAlign = TextAlign.Center,
+            )
         }
     }
 }
@@ -423,6 +573,8 @@ private fun StatCard(value: String, label: String, valueColor: Color) {
 /** Common screen layout: scrollable content above, fixed action row below. */
 @Composable
 private fun WizardScreenLayout(
+    actionsAlpha: Float = 1f,
+    actionsOffset: Float = 0f,
     vararg actions: @Composable RowScope.() -> Unit,
     content: @Composable ColumnScope.() -> Unit,
 ) {
@@ -431,21 +583,44 @@ private fun WizardScreenLayout(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp, vertical = 16.dp),
+                .padding(horizontal = 24.dp, vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(14.dp, Alignment.CenterVertically),
+            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
             content = content,
         )
         if (actions.isNotEmpty()) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
+                    .graphicsLayer {
+                        alpha = actionsAlpha
+                        translationY = actionsOffset
+                    }
                     .padding(horizontal = 24.dp, vertical = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 actions.forEach { it() }
             }
         }
+    }
+}
+
+/** Wrapper that applies the visual entrance scale + alpha from [EntranceState]. */
+@Composable
+private fun AnimatedVisualBlock(
+    scale: Float,
+    alpha: Float,
+    content: @Composable () -> Unit,
+) {
+    Box(
+        modifier = Modifier.graphicsLayer {
+            scaleX = scale
+            scaleY = scale
+            this.alpha = alpha
+        },
+        contentAlignment = Alignment.Center,
+    ) {
+        content()
     }
 }
 
@@ -458,12 +633,40 @@ private fun WelcomeScreen(
     onNext: () -> Unit,
     palette: WizardPalette,
 ) {
+    val entrance = rememberEntranceState()
+
     WizardScreenLayout(
-        { PrimaryButton("Get Started", onNext, Modifier.weight(1f)) },
+        actionsAlpha = entrance.actionsAlpha.value,
+        actionsOffset = entrance.actionsOffset.value,
+        { PrimaryButton("Get Started", onNext, Modifier.fillMaxWidth()) },
     ) {
-        WelcomeVisual()
-        WizardTitle("Welcome to Anime App!")
-        WizardSubtitle("Let's get you set up in just a few steps. Pick a theme, point us at your anime library, and start watching.")
+        AnimatedVisualBlock(entrance.visualScale.value, entrance.visualAlpha.value) {
+            WelcomeVisual()
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.titleAlpha.value
+                translationY = entrance.titleOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            WizardTitle(
+                text = "Welcome to Anime App!",
+                style = MaterialTheme.typography.displayLarge,
+                brush = Brush.horizontalGradient(
+                    colors = listOf(palette.primary, TertiaryPink),
+                ),
+            )
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.subtitleAlpha.value
+                translationY = entrance.subtitleOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            WizardSubtitle("Let's get you set up in just a few steps. Pick a theme, point us at your anime library, and start watching.")
+        }
     }
 }
 
@@ -479,38 +682,74 @@ private fun ThemeScreen(
     onDarkChange: (Boolean) -> Unit,
     onPaletteChange: (Int) -> Unit,
 ) {
+    val entrance = rememberEntranceState()
+
     WizardScreenLayout(
+        actionsAlpha = entrance.actionsAlpha.value,
+        actionsOffset = entrance.actionsOffset.value,
         { SecondaryButton("Back", onBack, Modifier.weight(1f)) },
         { PrimaryButton("Next", onNext, Modifier.weight(1f)) },
     ) {
-        ThemeVisual()
-        WizardTitle("Choose your theme")
-        WizardSubtitle("Pick a mode and a color. You can change this anytime in settings.")
-
-        // Dark/Light segmented toggle
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clip(RoundedCornerShape(50))
-                .background(palette.surface2)
-                .padding(4.dp),
-        ) {
-            ModeButton("Dark", Icons.Default.DarkMode, state.isDark, { onDarkChange(true) }, Modifier.weight(1f))
-            ModeButton("Light", Icons.Default.WbSunny, !state.isDark, { onDarkChange(false) }, Modifier.weight(1f))
+        AnimatedVisualBlock(entrance.visualScale.value, entrance.visualAlpha.value) {
+            ThemeVisual()
         }
-
-        // 4 palette cards in a 2x2 grid
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.titleAlpha.value
+                translationY = entrance.titleOffset.value
+            },
+            contentAlignment = Alignment.Center,
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                PaletteCard(0, state.paletteIndex, onPaletteChange, Modifier.weight(1f))
-                PaletteCard(1, state.paletteIndex, onPaletteChange, Modifier.weight(1f))
+            WizardTitle("Choose Your Theme")
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.subtitleAlpha.value
+                translationY = entrance.subtitleOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            WizardSubtitle("Pick a mode and a color. You can change this anytime in settings.")
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.contentAlpha.value
+                translationY = entrance.contentOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            // Dark/Light segmented toggle (bigger touch targets)
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(50))
+                    .background(palette.surface2)
+                    .padding(5.dp),
+            ) {
+                ModeButton("Dark", Icons.Default.DarkMode, state.isDark, { onDarkChange(true) }, Modifier.weight(1f))
+                ModeButton("Light", Icons.Default.WbSunny, !state.isDark, { onDarkChange(false) }, Modifier.weight(1f))
             }
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp), modifier = Modifier.fillMaxWidth()) {
-                PaletteCard(2, state.paletteIndex, onPaletteChange, Modifier.weight(1f))
-                PaletteCard(3, state.paletteIndex, onPaletteChange, Modifier.weight(1f))
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.contentAlpha.value
+                translationY = entrance.contentOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            // 4 palette cards in a 2x2 grid (bigger swatches, bold names)
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                    PaletteCard(0, state.paletteIndex, onPaletteChange, Modifier.weight(1f))
+                    PaletteCard(1, state.paletteIndex, onPaletteChange, Modifier.weight(1f))
+                }
+                Row(horizontalArrangement = Arrangement.spacedBy(10.dp), modifier = Modifier.fillMaxWidth()) {
+                    PaletteCard(2, state.paletteIndex, onPaletteChange, Modifier.weight(1f))
+                    PaletteCard(3, state.paletteIndex, onPaletteChange, Modifier.weight(1f))
+                }
             }
         }
     }
@@ -527,7 +766,7 @@ private fun ModeButton(
     val palette = LocalWizardPalette.current
     Box(
         modifier = modifier
-            .height(40.dp)
+            .height(48.dp)
             .clip(RoundedCornerShape(50))
             .background(if (isSelected) palette.primary else Color.Transparent)
             .clickable { onClick() },
@@ -535,10 +774,15 @@ private fun ModeButton(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
         ) {
-            Icon(icon, null, Modifier.size(14.dp), tint = if (isSelected) palette.onPrimary else TextLight)
-            Text(text, fontSize = 12.sp, fontWeight = FontWeight.Bold, color = if (isSelected) palette.onPrimary else TextLight)
+            Icon(icon, null, Modifier.size(18.dp), tint = if (isSelected) palette.onPrimary else TextLight)
+            Text(
+                text,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.ExtraBold,
+                color = if (isSelected) palette.onPrimary else TextLight,
+            )
         }
     }
 }
@@ -553,40 +797,55 @@ private fun PaletteCard(
     val palette = LocalWizardPalette.current
     val cardPalette = AllPalettes[index]
     val isSelected = index == selectedIndex
+    // Pop-in scale when selected
+    val swatchScale by animateFloatAsState(
+        targetValue = if (isSelected) 1.05f else 1f,
+        animationSpec = spring(dampingRatio = 0.6f, stiffness = 400f),
+        label = "swatch",
+    )
     Card(
         modifier = modifier
-            .height(72.dp)
-            .clip(RoundedCornerShape(14.dp))
+            .height(82.dp)
+            .clip(RoundedCornerShape(16.dp))
             .clickable { onPaletteChange(index) },
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = palette.surface2),
-        border = androidx.compose.foundation.BorderStroke(
-            2.dp,
+        border = BorderStroke(
+            2.5.dp,
             if (isSelected) palette.primary else palette.surface4,
         ),
     ) {
         Row(
             modifier = Modifier.fillMaxSize().padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            // Color swatch
+            // Color swatch (bigger, with checkmark when selected)
             Box(
                 modifier = Modifier
-                    .size(36.dp)
-                    .clip(RoundedCornerShape(10.dp))
+                    .size(46.dp)
+                    .graphicsLayer {
+                        scaleX = swatchScale
+                        scaleY = swatchScale
+                    }
+                    .clip(RoundedCornerShape(12.dp))
                     .background(cardPalette.primary),
                 contentAlignment = Alignment.Center,
             ) {
                 if (isSelected) {
-                    Icon(Icons.Default.Check, null, tint = cardPalette.onPrimary, modifier = Modifier.size(20.dp))
+                    Icon(
+                        Icons.Default.Check,
+                        null,
+                        tint = cardPalette.onPrimary,
+                        modifier = Modifier.size(24.dp),
+                    )
                 }
             }
             Text(
                 PaletteNames[index],
                 color = TextLight,
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Bold,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.ExtraBold,
             )
         }
     }
@@ -603,94 +862,188 @@ private fun FolderScreen(
     palette: WizardPalette,
     onFolderSelected: () -> Unit,
 ) {
-    var scanning by remember { mutableStateOf(false) }
-    LaunchedEffect(scanning) {
-        if (scanning) {
+    val entrance = rememberEntranceState()
+
+    // phase: 0 = initial, 1 = scanning, 2 = success
+    var phase by remember { mutableStateOf(if (state.folderSelected) 2 else 0) }
+
+    LaunchedEffect(phase) {
+        if (phase == 1) {
             delay(1500)
-            scanning = false
+            onFolderSelected()
+            phase = 2
         }
     }
 
     WizardScreenLayout(
+        actionsAlpha = entrance.actionsAlpha.value,
+        actionsOffset = entrance.actionsOffset.value,
         { SecondaryButton("Back", onBack, Modifier.weight(1f)) },
         {
-            if (scanning) {
+            if (phase == 2) {
+                PrimaryButton("Continue", onNext, Modifier.weight(1f))
+            } else if (phase == 1) {
                 GhostButton("Scanning…", {}, Modifier.weight(1f), enabled = false)
             } else {
-                PrimaryButton("Continue", onNext, Modifier.weight(1f), enabled = state.folderSelected)
+                GhostButton("Select Folder First", {}, Modifier.weight(1f), enabled = false)
             }
         },
     ) {
-        FolderVisual(selected = state.folderSelected && !scanning)
-        WizardTitle(if (state.folderSelected) "Folder connected!" else "Select your anime folder")
-        WizardSubtitle(
-            if (state.folderSelected) {
-                if (scanning) "Scanning your library…" else "Your library is ready to go. Continue when you are."
-            } else {
-                "Pick the folder where your anime library lives. We'll scan it and organize everything for you."
+        AnimatedVisualBlock(entrance.visualScale.value, entrance.visualAlpha.value) {
+            FolderVisual(selected = phase == 2)
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.titleAlpha.value
+                translationY = entrance.titleOffset.value
             },
-        )
+            contentAlignment = Alignment.Center,
+        ) {
+            WizardTitle(
+                when (phase) {
+                    1 -> "Scanning…"
+                    2 -> "Folder Connected!"
+                    else -> "Select Your Anime Folder"
+                },
+            )
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.subtitleAlpha.value
+                translationY = entrance.subtitleOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            WizardSubtitle(
+                when (phase) {
+                    1 -> "Looking through your library for anime files…"
+                    2 -> "Your library is ready to go. Continue when you are."
+                    else -> "Pick the folder where your anime library lives. We'll scan it and organize everything for you."
+                },
+            )
+        }
 
-        if (!state.folderSelected) {
-            // Compact "Select Folder" outlined button
-            OutlinedButton(
-                onClick = { onFolderSelected(); scanning = true },
-                modifier = Modifier.height(46.dp),
-                shape = RoundedCornerShape(14.dp),
-                border = androidx.compose.foundation.BorderStroke(1.dp, palette.primary),
-                colors = ButtonDefaults.outlinedButtonColors(contentColor = palette.primary),
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Icon(Icons.Default.Folder, null, Modifier.size(18.dp))
-                    Text("Select Folder", fontWeight = FontWeight.ExtraBold, fontSize = 14.sp)
-                }
-            }
-        } else {
-            // Selected card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = palette.surface2),
-                border = androidx.compose.foundation.BorderStroke(1.dp, palette.primary),
-            ) {
-                Row(
-                    modifier = Modifier.padding(12.dp).fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .clip(RoundedCornerShape(10.dp))
-                            .background(palette.primaryContainer),
-                        contentAlignment = Alignment.Center,
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.contentAlpha.value
+                translationY = entrance.contentOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            when (phase) {
+                0 -> {
+                    OutlinedButton(
+                        onClick = { phase = 1 },
+                        modifier = Modifier.height(54.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        border = BorderStroke(1.5.dp, palette.primary),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = palette.primary),
                     ) {
-                        Icon(Icons.Default.Folder, null, tint = palette.onPrimaryContainer, modifier = Modifier.size(22.dp))
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                            Icon(Icons.Default.Folder, null, Modifier.size(20.dp))
+                            Text("Select Folder", fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
+                        }
                     }
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            "/storage/anime-library",
-                            color = TextLight,
-                            fontSize = 14.sp,
-                            fontWeight = FontWeight.Bold,
-                        )
-                        Text(
-                            if (scanning) "Scanning…" else "247 items · ready",
-                            color = TextMutedLight,
-                            fontSize = 12.sp,
-                        )
-                    }
-                    if (scanning) {
-                        ScanningPill("Scanning")
-                    } else {
-                        Box(
-                            modifier = Modifier
-                                .size(32.dp)
-                                .clip(CircleShape)
-                                .background(palette.primary.copy(alpha = 0.18f)),
-                            contentAlignment = Alignment.Center,
+                }
+                1 -> {
+                    // Selected card with scanning pill
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = palette.surface2),
+                        border = BorderStroke(1.dp, palette.primary),
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp),
                         ) {
-                            Icon(Icons.Default.Check, null, tint = palette.primary, modifier = Modifier.size(20.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(46.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(palette.primaryContainer),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Icon(
+                                    Icons.Default.Folder,
+                                    null,
+                                    tint = palette.onPrimaryContainer,
+                                    modifier = Modifier.size(24.dp),
+                                )
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    "/storage/anime-library",
+                                    color = TextLight,
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                                Text(
+                                    "Scanning your library…",
+                                    color = TextMutedLight,
+                                    fontSize = 13.sp,
+                                )
+                            }
+                            ScanningPill("Scanning")
+                        }
+                    }
+                }
+                2 -> {
+                    // Success card
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = palette.surface2),
+                        border = BorderStroke(1.5.dp, palette.primary),
+                    ) {
+                        Row(
+                            modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp),
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(46.dp)
+                                    .clip(RoundedCornerShape(12.dp))
+                                    .background(palette.primaryContainer),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Icon(
+                                    Icons.Default.Folder,
+                                    null,
+                                    tint = palette.onPrimaryContainer,
+                                    modifier = Modifier.size(24.dp),
+                                )
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    "/storage/anime-library",
+                                    color = TextLight,
+                                    fontSize = 15.sp,
+                                    fontWeight = FontWeight.Bold,
+                                )
+                                Text(
+                                    "247 items · ready",
+                                    color = palette.primary,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                )
+                            }
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(palette.primary.copy(alpha = 0.18f)),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                Icon(
+                                    Icons.Default.Check,
+                                    null,
+                                    tint = palette.primary,
+                                    modifier = Modifier.size(22.dp),
+                                )
+                            }
                         }
                     }
                 }
@@ -710,27 +1063,55 @@ private fun PermissionsScreen(
     palette: WizardPalette,
     onTogglePermission: (String) -> Unit,
 ) {
+    val entrance = rememberEntranceState()
     val permRows = listOf(
-        PermRow("installApps", "Install apps", "Allow installing anime extensions", Icons.Default.Download),
+        PermRow("installApps", "Install Apps", "Allow installing anime extensions", Icons.Default.Download),
         PermRow("notifications", "Notifications", "Get notified about new episodes", Icons.Default.Notifications),
         PermRow("battery", "Battery", "Allow background sync for updates", Icons.Default.BatteryFull),
     )
 
     WizardScreenLayout(
+        actionsAlpha = entrance.actionsAlpha.value,
+        actionsOffset = entrance.actionsOffset.value,
         { SecondaryButton("Back", onBack, Modifier.weight(1f)) },
         { PrimaryButton("Continue", onNext, Modifier.weight(1f)) },
     ) {
-        PermissionsVisual()
-        WizardTitle("Grant permissions")
-        WizardSubtitle("(optional — you can skip these)")
-
-        Column(
-            modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+        AnimatedVisualBlock(entrance.visualScale.value, entrance.visualAlpha.value) {
+            PermissionsVisual()
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.titleAlpha.value
+                translationY = entrance.titleOffset.value
+            },
+            contentAlignment = Alignment.Center,
         ) {
-            permRows.forEach { row ->
-                val isOn = state.permissions[row.key] ?: false
-                PermissionRow(row, isOn) { onTogglePermission(row.key) }
+            WizardTitle("Grant Permissions")
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.subtitleAlpha.value
+                translationY = entrance.subtitleOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            WizardSubtitle("(optional — you can skip these)")
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.contentAlpha.value
+                translationY = entrance.contentOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                permRows.forEach { row ->
+                    val isOn = state.permissions[row.key] ?: false
+                    PermissionRow(row, isOn) { onTogglePermission(row.key) }
+                }
             }
         }
     }
@@ -748,27 +1129,35 @@ private fun PermissionRow(row: PermRow, isOn: Boolean, onToggle: () -> Unit) {
     val palette = LocalWizardPalette.current
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(14.dp),
+        shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = palette.surface2),
-        border = androidx.compose.foundation.BorderStroke(1.dp, palette.surface4),
+        border = BorderStroke(
+            1.dp,
+            if (isOn) palette.primary.copy(alpha = 0.5f) else palette.surface4,
+        ),
     ) {
         Row(
-            modifier = Modifier.padding(12.dp).fillMaxWidth(),
+            modifier = Modifier.padding(14.dp).fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(14.dp),
         ) {
             Box(
                 modifier = Modifier
-                    .size(40.dp)
-                    .clip(RoundedCornerShape(10.dp))
+                    .size(46.dp)
+                    .clip(RoundedCornerShape(12.dp))
                     .background(if (isOn) palette.primary else palette.surface4),
                 contentAlignment = Alignment.Center,
             ) {
-                Icon(row.icon, null, tint = if (isOn) palette.onPrimary else TextLight, modifier = Modifier.size(20.dp))
+                Icon(
+                    row.icon,
+                    null,
+                    tint = if (isOn) palette.onPrimary else TextLight,
+                    modifier = Modifier.size(24.dp),
+                )
             }
             Column(modifier = Modifier.weight(1f)) {
-                Text(row.title, color = TextLight, fontSize = 14.sp, fontWeight = FontWeight.Bold)
-                Text(row.desc, color = TextMutedLight, fontSize = 12.sp)
+                Text(row.title, color = TextLight, fontSize = 16.sp, fontWeight = FontWeight.ExtraBold)
+                Text(row.desc, color = TextMutedLight, fontSize = 13.sp)
             }
             Switch(
                 checked = isOn,
@@ -795,24 +1184,53 @@ private fun RestoreScreen(
     palette: WizardPalette,
     onSkip: () -> Unit,
 ) {
+    val entrance = rememberEntranceState()
+
     WizardScreenLayout(
-        { SecondaryButton("Back", onBack, Modifier.weight(1f)) },
+        actionsAlpha = entrance.actionsAlpha.value,
+        actionsOffset = entrance.actionsOffset.value,
+        { SecondaryButton("Back", onBack, Modifier.weight(1f), icon = null) },
         { GhostButton("Skip", onSkip, Modifier.weight(1f)) },
     ) {
-        RestoreVisual()
-        WizardTitle("Restore backup")
-        WizardSubtitle("Got a backup from a previous install? Restore your library, history, and settings in one tap.")
-
-        OutlinedButton(
-            onClick = onNext,
-            modifier = Modifier.height(46.dp),
-            shape = RoundedCornerShape(14.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, palette.primary),
-            colors = ButtonDefaults.outlinedButtonColors(contentColor = palette.primary),
+        AnimatedVisualBlock(entrance.visualScale.value, entrance.visualAlpha.value) {
+            RestoreVisual()
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.titleAlpha.value
+                translationY = entrance.titleOffset.value
+            },
+            contentAlignment = Alignment.Center,
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Icon(Icons.Default.Download, null, Modifier.size(18.dp))
-                Text("Select Backup File", fontWeight = FontWeight.ExtraBold, fontSize = 14.sp)
+            WizardTitle("Restore Backup")
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.subtitleAlpha.value
+                translationY = entrance.subtitleOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            WizardSubtitle("Got a backup from a previous install? Restore your library, history, and settings in one tap.")
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.contentAlpha.value
+                translationY = entrance.contentOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            OutlinedButton(
+                onClick = onNext,
+                modifier = Modifier.height(54.dp),
+                shape = RoundedCornerShape(16.dp),
+                border = BorderStroke(1.5.dp, palette.primary),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = palette.primary),
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    Icon(Icons.Default.Download, null, Modifier.size(20.dp))
+                    Text("Select Backup File", fontWeight = FontWeight.ExtraBold, fontSize = 16.sp)
+                }
             }
         }
     }
@@ -828,38 +1246,71 @@ private fun FormatNotSupportedScreen(
     onBack: () -> Unit,
     palette: WizardPalette,
 ) {
-    WizardScreenLayout(
-        { SecondaryButton("Back", onBack, Modifier.weight(1f)) },
-        { PrimaryButton("Don't worry, restore it", onNext, Modifier.weight(1f)) },
-    ) {
-        WarningFileVisual()
-        WizardTitle("Format not supported", color = WarnAmber)
-        WizardSubtitle("We don't recognize this backup format. But don't worry — we can still try to restore from it!")
+    val entrance = rememberEntranceState()
 
-        // Info card with the file name
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = palette.surface2),
-            border = androidx.compose.foundation.BorderStroke(1.dp, palette.primary.copy(alpha = 0.27f)),
+    WizardScreenLayout(
+        actionsAlpha = entrance.actionsAlpha.value,
+        actionsOffset = entrance.actionsOffset.value,
+        { SecondaryButton("Back", onBack, Modifier.weight(1f), icon = null) },
+        { PrimaryButton("Don't Worry, Restore It", onNext, Modifier.weight(1f)) },
+    ) {
+        AnimatedVisualBlock(entrance.visualScale.value, entrance.visualAlpha.value) {
+            WarningFileVisual()
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.titleAlpha.value
+                translationY = entrance.titleOffset.value
+            },
+            contentAlignment = Alignment.Center,
         ) {
-            Row(
-                modifier = Modifier.padding(12.dp).fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            WizardTitle("Format Not Supported", color = WarnAmber)
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.subtitleAlpha.value
+                translationY = entrance.subtitleOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            WizardSubtitle("We don't recognize this backup format. But don't worry — we can still try to restore from it!")
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.contentAlpha.value
+                translationY = entrance.contentOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = palette.surface2),
+                border = BorderStroke(1.dp, palette.primary.copy(alpha = 0.33f)),
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(40.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .background(palette.primary.copy(alpha = 0.15f)),
-                    contentAlignment = Alignment.Center,
+                Row(
+                    modifier = Modifier.padding(14.dp).fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
                 ) {
-                    Icon(Icons.Default.Info, null, tint = palette.primary, modifier = Modifier.size(22.dp))
-                }
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("anime_backup_2025-01-15.json", color = TextLight, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                    Text("2.3 MB · unknown format", color = TextMutedLight, fontSize = 12.sp)
+                    Box(
+                        modifier = Modifier
+                            .size(46.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(palette.primary.copy(alpha = 0.15f)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(Icons.Default.Info, null, tint = palette.primary, modifier = Modifier.size(24.dp))
+                    }
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            "anime_backup_2025-01-15.json",
+                            color = TextLight,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Text("2.3 MB · unknown format", color = TextMutedLight, fontSize = 13.sp)
+                    }
                 }
             }
         }
@@ -875,6 +1326,7 @@ private fun ProcessingBackupScreen(
     onNext: () -> Unit,
     palette: WizardPalette,
 ) {
+    val entrance = rememberEntranceState()
     LaunchedEffect(Unit) {
         delay(2000)
         onNext()
@@ -885,20 +1337,46 @@ private fun ProcessingBackupScreen(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp, vertical = 16.dp),
+                .padding(horizontal = 24.dp, vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(14.dp, Alignment.CenterVertically),
+            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         ) {
-            ProcessingBackupVisual()
-            WizardTitle("Processing backup")
-            WizardSubtitle("Reading your backup file and extracting data…")
-            ScanningPill("Processing")
+            AnimatedVisualBlock(entrance.visualScale.value, entrance.visualAlpha.value) {
+                ProcessingBackupVisual()
+            }
+            Box(
+                modifier = Modifier.graphicsLayer {
+                    alpha = entrance.titleAlpha.value
+                    translationY = entrance.titleOffset.value
+                },
+                contentAlignment = Alignment.Center,
+            ) {
+                WizardTitle("Processing Backup")
+            }
+            Box(
+                modifier = Modifier.graphicsLayer {
+                    alpha = entrance.subtitleAlpha.value
+                    translationY = entrance.subtitleOffset.value
+                },
+                contentAlignment = Alignment.Center,
+            ) {
+                WizardSubtitle("Reading your backup file and extracting data…")
+            }
+            Box(
+                modifier = Modifier.graphicsLayer { alpha = entrance.contentAlpha.value },
+                contentAlignment = Alignment.Center,
+            ) {
+                ScanningPill("Processing")
+            }
         }
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer { alpha = entrance.actionsAlpha.value }
+                .padding(horizontal = 24.dp, vertical = 16.dp),
             horizontalArrangement = Arrangement.Center,
         ) {
-            Text("Please wait…", color = TextMutedLight, fontWeight = FontWeight.ExtraBold)
+            Text("Please wait…", color = TextMutedLight, fontWeight = FontWeight.ExtraBold, fontSize = 15.sp)
         }
     }
 }
@@ -913,61 +1391,110 @@ private fun BackupSummaryScreen(
     onBack: () -> Unit,
     palette: WizardPalette,
 ) {
+    val entrance = rememberEntranceState()
     val stats = listOf(
-        "247" to "Anime detected",
-        "12" to "Categories",
-        "1,432" to "Episodes tracked",
-        "89" to "Completed",
+        247 to "Anime Detected",
+        12 to "Categories",
+        1432 to "Episodes Tracked",
+        89 to "Completed",
     )
 
     WizardScreenLayout(
+        actionsAlpha = entrance.actionsAlpha.value,
+        actionsOffset = entrance.actionsOffset.value,
         { SecondaryButton("Cancel", onBack, Modifier.weight(1f), icon = null) },
         { PrimaryButton("Restore", onNext, Modifier.weight(1f)) },
     ) {
-        SummaryVisual()
-        WizardTitle("Backup summary")
-        WizardSubtitle("Here's what we found in your backup")
-
-        // 4 stat cards in 2x2 grid
-        Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatCard(stats[0].first, stats[0].second, palette.primary)
-                StatCard(stats[1].first, stats[1].second, palette.primary)
-            }
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatCard(stats[2].first, stats[2].second, palette.primary)
-                StatCard(stats[3].first, stats[3].second, palette.primary)
+        AnimatedVisualBlock(entrance.visualScale.value, entrance.visualAlpha.value) {
+            SummaryVisual()
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.titleAlpha.value
+                translationY = entrance.titleOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            WizardTitle("Backup Summary")
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.subtitleAlpha.value
+                translationY = entrance.subtitleOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            WizardSubtitle("Here's what we found in your backup.")
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.contentAlpha.value
+                translationY = entrance.contentOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    StatCard(stats[0].first, stats[0].second, palette.primary, Modifier.weight(1f))
+                    StatCard(stats[1].first, stats[1].second, palette.primary, Modifier.weight(1f))
+                }
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    StatCard(stats[2].first, stats[2].second, palette.primary, Modifier.weight(1f))
+                    StatCard(stats[3].first, stats[3].second, palette.primary, Modifier.weight(1f))
+                }
             }
         }
-
-        // Manga warning (red)
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = ErrorRed.copy(alpha = 0.12f)),
-            border = androidx.compose.foundation.BorderStroke(1.dp, ErrorRed.copy(alpha = 0.4f)),
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.contentAlpha.value
+                translationY = entrance.contentOffset.value
+            },
+            contentAlignment = Alignment.Center,
         ) {
-            Row(
-                modifier = Modifier.padding(12.dp).fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            // RED manga warning box (prominent)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = ErrorRed.copy(alpha = 0.14f)),
+                border = BorderStroke(1.5.dp, ErrorRed.copy(alpha = 0.5f)),
             ) {
-                Icon(Icons.Default.Warning, null, tint = ErrorRed, modifier = Modifier.size(20.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("Manga entries detected", color = ErrorRed, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                    Text(
-                        "Manga is not supported — these entries will be skipped.",
-                        color = TextMutedLight,
-                        fontSize = 11.sp,
-                    )
+                Row(
+                    modifier = Modifier.padding(14.dp).fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(ErrorRed.copy(alpha = 0.25f)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(Icons.Default.Warning, null, tint = ErrorRed, modifier = Modifier.size(22.dp))
+                    }
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            "Manga Entries Detected",
+                            color = ErrorRed,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.ExtraBold,
+                        )
+                        Text(
+                            "Manga is not supported — these entries will be skipped.",
+                            color = TextMutedLight,
+                            fontSize = 13.sp,
+                        )
+                    }
                 }
             }
         }
     }
 }
 
+
+
 // =====================================================================================
-// Screen 8 — Linking anime (progressive reveal)
+// Screen 8 — Linking anime (progressive reveal + count-up stats)
 // =====================================================================================
 @Composable
 private fun LinkingAnimeScreen(
@@ -976,85 +1503,97 @@ private fun LinkingAnimeScreen(
     onBack: () -> Unit,
     palette: WizardPalette,
 ) {
+    val entrance = rememberEntranceState()
     var revealedCount by remember { mutableStateOf(0) }
     LaunchedEffect(Unit) {
         for (i in 1..state.linkedAnime.size) {
-            delay(400)
+            delay(380)
             revealedCount = i
         }
     }
 
-    val linkedCount = state.linkedAnime.count { it.linked }
-    val unlinkedCount = state.linkedAnime.count { !it.linked }
+    val revealedLinked = state.linkedAnime.take(revealedCount).count { it.linked }
+    val revealedUnlinked = state.linkedAnime.take(revealedCount).count { !it.linked }
     val allRevealed = revealedCount >= state.linkedAnime.size
 
     WizardScreenLayout(
+        actionsAlpha = entrance.actionsAlpha.value,
+        actionsOffset = entrance.actionsOffset.value,
         { SecondaryButton("Back", onBack, Modifier.weight(1f)) },
         { PrimaryButton("Next", onNext, Modifier.weight(1f), enabled = allRevealed) },
     ) {
-        WizardTitle("Linking anime")
-        WizardSubtitle("Matching your backup entries to AniList…")
-
-        // 3 stat boxes
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-            LinkStatBox(linkedCount.toString(), "Linked", palette.primary, Modifier.weight(1f))
-            LinkStatBox(unlinkedCount.toString(), "No match", ErrorRed, Modifier.weight(1f))
-            LinkStatBox(state.linkedAnime.size.toString(), "Total", TextLight, Modifier.weight(1f))
-        }
-
-        // Progressive list
-        Column(
-            modifier = Modifier.fillMaxWidth().heightIn(max = 220.dp).verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(6.dp),
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.titleAlpha.value
+                translationY = entrance.titleOffset.value
+            },
+            contentAlignment = Alignment.Center,
         ) {
-            state.linkedAnime.take(revealedCount).forEach { anime ->
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(10.dp),
-                    colors = CardDefaults.cardColors(containerColor = palette.surface2),
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp).fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        Text(
-                            anime.backupName,
-                            modifier = Modifier.weight(1f),
-                            color = TextLight,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
-                        )
-                        if (anime.linked) {
-                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Icon(Icons.Default.Check, null, tint = palette.primary, modifier = Modifier.size(12.dp))
-                                Text(
-                                    anime.matchedName ?: "",
-                                    color = palette.primary,
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
-                                )
-                            }
-                        } else {
-                            Text("No match", color = ErrorRed, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
+            WizardTitle("Linking Anime")
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.subtitleAlpha.value
+                translationY = entrance.subtitleOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            WizardSubtitle("Matching your backup entries to AniList…")
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.contentAlpha.value
+                translationY = entrance.contentOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            // 3 stat boxes with count-up
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                LinkStatBox(revealedLinked, "Linked", palette.primary, Modifier.weight(1f))
+                LinkStatBox(revealedUnlinked, "No Match", ErrorRed, Modifier.weight(1f))
+                LinkStatBox(revealedCount, "Total", TextLight, Modifier.weight(1f))
+            }
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.contentAlpha.value
+                translationY = entrance.contentOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            // Progressive list (entries animate in one by one)
+            Column(
+                modifier = Modifier.fillMaxWidth().heightIn(max = 240.dp).verticalScroll(rememberScrollState()),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                state.linkedAnime.take(revealedCount).forEach { anime ->
+                    // Per-item entrance animation: alpha + slide-up
+                    val itemAlpha = remember { Animatable(0f) }
+                    val itemOffset = remember { Animatable(-28f) }
+                    LaunchedEffect(Unit) {
+                        launch { itemAlpha.animateTo(1f, tween(280, easing = FastOutSlowInEasing)) }
+                        launch { itemOffset.animateTo(0f, tween(280, easing = FastOutSlowInEasing)) }
+                    }
+                    Box(
+                        modifier = Modifier.graphicsLayer {
+                            alpha = itemAlpha.value
+                            translationY = itemOffset.value
                         }
+                    ) {
+                        LinkedAnimeRow(anime, palette)
                     }
                 }
-            }
-            if (!allRevealed) {
-                Box(
-                    modifier = Modifier.fillMaxWidth().padding(8.dp),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(16.dp),
-                        strokeWidth = 2.dp,
-                        color = palette.primary,
-                    )
+                if (!allRevealed) {
+                    Box(
+                        modifier = Modifier.fillMaxWidth().padding(8.dp),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        CircularProgressIndicator(
+                            modifier = Modifier.size(18.dp),
+                            strokeWidth = 2.dp,
+                            color = palette.primary,
+                        )
+                    }
                 }
             }
         }
@@ -1062,20 +1601,66 @@ private fun LinkingAnimeScreen(
 }
 
 @Composable
-private fun LinkStatBox(value: String, label: String, valueColor: Color, modifier: Modifier = Modifier) {
+private fun LinkedAnimeRow(anime: LinkedAnime, palette: WizardPalette) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = palette.surface2),
+        border = BorderStroke(1.dp, palette.surface4),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp).fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Text(
+                anime.backupName,
+                modifier = Modifier.weight(1f),
+                color = TextLight,
+                fontSize = 13.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            if (anime.linked) {
+                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Icon(Icons.Default.Check, null, tint = palette.primary, modifier = Modifier.size(14.dp))
+                    Text(
+                        anime.matchedName ?: "",
+                        color = palette.primary,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
+            } else {
+                Text("No Match", color = ErrorRed, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+            }
+        }
+    }
+}
+
+@Composable
+private fun LinkStatBox(value: Int, label: String, valueColor: Color, modifier: Modifier = Modifier) {
     val palette = LocalWizardPalette.current
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(containerColor = palette.surface2),
-        border = androidx.compose.foundation.BorderStroke(1.dp, palette.surface4),
+        border = BorderStroke(1.dp, palette.surface4),
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(value, color = valueColor, fontSize = 20.sp, fontWeight = FontWeight.ExtraBold)
-            Text(label, color = TextMutedLight, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
+            Text(
+                value.toString(),
+                color = valueColor,
+                fontSize = 26.sp,
+                fontWeight = FontWeight.ExtraBold,
+            )
+            Text(label, color = TextMutedLight, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
         }
     }
 }
@@ -1091,78 +1676,106 @@ private fun ManualLinkingScreen(
     palette: WizardPalette,
     onLink: (Int, String) -> Unit,
 ) {
+    val entrance = rememberEntranceState()
     var searchOpen by remember { mutableStateOf(false) }
     var searchQuery by remember { mutableStateOf("") }
     var selectedAnimeId by remember { mutableStateOf<Int?>(null) }
+    var revealedResults by remember { mutableStateOf(0) }
 
-    val unlinked = state.linkedAnime.filter { !it.linked }
+    val unlinkedCount = state.linkedAnime.count { !it.linked }
     val selectedAnime = state.linkedAnime.find { it.id == selectedAnimeId }
+
+    val filtered = if (searchQuery.isBlank()) {
+        MOCK_SEARCH_RESULTS
+    } else {
+        MOCK_SEARCH_RESULTS.filter { it.contains(searchQuery, ignoreCase = true) }
+    }
+
+    // Animate search results in with stagger
+    LaunchedEffect(searchOpen) {
+        if (searchOpen) {
+            revealedResults = 0
+            delay(180)
+            for (i in 1..MOCK_SEARCH_RESULTS.size) {
+                delay(70)
+                revealedResults = i
+            }
+        } else {
+            revealedResults = 0
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         WizardScreenLayout(
+            actionsAlpha = entrance.actionsAlpha.value,
+            actionsOffset = entrance.actionsOffset.value,
             { SecondaryButton("Back", onBack, Modifier.weight(1f)) },
             { PrimaryButton("Continue", onNext, Modifier.weight(1f)) },
         ) {
-            WizardTitle("Manual linking")
-            WizardSubtitle(
-                if (unlinked.isEmpty()) "All anime are linked! You're ready to continue."
-                else "${unlinked.size} anime need your help. Tap any entry to search for a match.",
-            )
-
-            if (unlinked.isEmpty()) {
-                // All linked card
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = palette.surface2),
-                    border = androidx.compose.foundation.BorderStroke(1.dp, palette.primary.copy(alpha = 0.2f)),
-                ) {
+            Box(
+                modifier = Modifier.graphicsLayer {
+                    alpha = entrance.titleAlpha.value
+                    translationY = entrance.titleOffset.value
+                },
+                contentAlignment = Alignment.Center,
+            ) {
+                WizardTitle("Manual Linking")
+            }
+            Box(
+                modifier = Modifier.graphicsLayer {
+                    alpha = entrance.subtitleAlpha.value
+                    translationY = entrance.subtitleOffset.value
+                },
+                contentAlignment = Alignment.Center,
+            ) {
+                WizardSubtitle(
+                    if (unlinkedCount == 0) "All anime are linked! You're ready to continue."
+                    else "$unlinkedCount anime need your help. Tap any entry to search for a match.",
+                )
+            }
+            Box(
+                modifier = Modifier.graphicsLayer {
+                    alpha = entrance.contentAlpha.value
+                    translationY = entrance.contentOffset.value
+                },
+                contentAlignment = Alignment.Center,
+            ) {
+                if (unlinkedCount == 0) {
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = CardDefaults.cardColors(containerColor = palette.surface2),
+                        border = BorderStroke(1.5.dp, palette.primary.copy(alpha = 0.4f)),
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxWidth().padding(24.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.spacedBy(10.dp),
+                        ) {
+                            Icon(Icons.Default.Check, null, tint = palette.primary, modifier = Modifier.size(48.dp))
+                            Text("All Linked!", color = palette.primary, fontSize = 18.sp, fontWeight = FontWeight.ExtraBold)
+                        }
+                    }
+                } else {
                     Column(
-                        modifier = Modifier.fillMaxWidth().padding(24.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally,
+                        modifier = Modifier.fillMaxWidth().heightIn(max = 320.dp).verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        Icon(Icons.Default.Check, null, tint = palette.primary, modifier = Modifier.size(40.dp))
-                        Text("All linked!", color = palette.primary, fontSize = 13.sp, fontWeight = FontWeight.Bold)
-                    }
-                }
-            } else {
-                Column(
-                    modifier = Modifier.fillMaxWidth().heightIn(max = 280.dp).verticalScroll(rememberScrollState()),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    unlinked.forEach { anime ->
-                        Card(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clip(RoundedCornerShape(10.dp))
-                                .clickable {
-                                    selectedAnimeId = anime.id
-                                    searchQuery = anime.backupName
-                                    searchOpen = true
-                                },
-                            shape = RoundedCornerShape(10.dp),
-                            colors = CardDefaults.cardColors(containerColor = palette.surface2),
-                            border = androidx.compose.foundation.BorderStroke(1.dp, palette.surface4),
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp).fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        // Iterate over all anime; AnimatedVisibility animates the exit when linked
+                        state.linkedAnime.forEach { anime ->
+                            AnimatedVisibility(
+                                visible = !anime.linked,
+                                enter = fadeIn(tween(280)) + slideInVertically(tween(280)) { -it / 6 },
+                                exit = fadeOut(tween(280)) + slideOutVertically(tween(280)) { it / 6 },
                             ) {
-                                Text(
-                                    anime.backupName,
-                                    modifier = Modifier.weight(1f),
-                                    color = TextLight,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    maxLines = 1,
-                                    overflow = TextOverflow.Ellipsis,
+                                UnlinkedAnimeCard(
+                                    anime = anime,
+                                    onClick = {
+                                        selectedAnimeId = anime.id
+                                        searchQuery = anime.backupName
+                                        searchOpen = true
+                                    },
                                 )
-                                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                                    Text("Search", color = TextMutedLight, fontSize = 10.sp, fontWeight = FontWeight.SemiBold)
-                                    Icon(Icons.Default.ArrowForward, null, tint = TextMutedLight, modifier = Modifier.size(12.dp))
-                                }
                             }
                         }
                     }
@@ -1171,34 +1784,39 @@ private fun ManualLinkingScreen(
         }
 
         // Search overlay (covers the entire screen when open)
-        if (searchOpen) {
+        AnimatedVisibility(
+            visible = searchOpen,
+            enter = fadeIn(tween(220)) + slideInVertically(tween(300)) { it / 4 },
+            exit = fadeOut(tween(200)) + slideOutVertically(tween(260)) { it / 4 },
+        ) {
             Surface(modifier = Modifier.fillMaxSize(), color = palette.background) {
                 Column(modifier = Modifier.fillMaxSize()) {
                     // Header
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(12.dp),
+                        modifier = Modifier.fillMaxWidth().padding(16.dp),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(36.dp)
+                                .size(48.dp)
                                 .clip(CircleShape)
                                 .background(palette.surface2)
                                 .clickable {
                                     searchOpen = false
                                     selectedAnimeId = null
+                                    searchQuery = ""
                                 },
                             contentAlignment = Alignment.Center,
                         ) {
-                            Icon(Icons.Default.ArrowBack, null, tint = TextLight, modifier = Modifier.size(18.dp))
+                            Icon(Icons.Default.ArrowBack, null, tint = TextLight, modifier = Modifier.size(22.dp))
                         }
                         OutlinedTextField(
                             value = searchQuery,
                             onValueChange = { searchQuery = it },
                             modifier = Modifier.weight(1f),
-                            placeholder = { Text("Search for anime…", color = TextMutedLight, fontSize = 13.sp) },
-                            leadingIcon = { Icon(Icons.Default.Search, null, tint = TextMutedLight, modifier = Modifier.size(16.dp)) },
+                            placeholder = { Text("Search for anime…", color = TextMutedLight, fontSize = 15.sp) },
+                            leadingIcon = { Icon(Icons.Default.Search, null, tint = TextMutedLight, modifier = Modifier.size(20.dp)) },
                             singleLine = true,
                             shape = RoundedCornerShape(50),
                             colors = OutlinedTextFieldDefaults.colors(
@@ -1213,12 +1831,12 @@ private fun ManualLinkingScreen(
                     // Search info
                     Text(
                         "Linking: ${selectedAnime?.backupName ?: ""}",
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 6.dp),
                         color = TextMutedLight,
-                        fontSize = 11.sp,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.SemiBold,
                     )
                     // Results list
-                    val filtered = MOCK_SEARCH_RESULTS.filter { it.contains(searchQuery, ignoreCase = true) }
                     if (filtered.isEmpty()) {
                         Box(
                             modifier = Modifier.fillMaxSize().padding(24.dp),
@@ -1227,58 +1845,97 @@ private fun ManualLinkingScreen(
                             Text(
                                 "No results found. Try a different search.",
                                 color = TextMutedLight,
-                                fontSize = 12.sp,
+                                fontSize = 14.sp,
                                 textAlign = TextAlign.Center,
                             )
                         }
                     } else {
                         Column(
-                            modifier = Modifier.fillMaxWidth().padding(12.dp).verticalScroll(rememberScrollState()),
-                            verticalArrangement = Arrangement.spacedBy(6.dp),
+                            modifier = Modifier.fillMaxWidth().padding(16.dp).verticalScroll(rememberScrollState()),
+                            verticalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            filtered.forEach { result ->
-                                Card(
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .clip(RoundedCornerShape(10.dp))
-                                        .clickable {
-                                            val id = selectedAnimeId
-                                            if (id != null) {
-                                                onLink(id, result)
-                                            }
-                                            searchOpen = false
-                                            selectedAnimeId = null
-                                            searchQuery = ""
-                                        },
-                                    shape = RoundedCornerShape(10.dp),
-                                    colors = CardDefaults.cardColors(containerColor = palette.surface2),
-                                    border = androidx.compose.foundation.BorderStroke(1.dp, palette.surface4),
+                            filtered.forEachIndexed { idx, result ->
+                                AnimatedVisibility(
+                                    visible = idx < revealedResults,
+                                    enter = fadeIn(tween(260)) + slideInVertically(tween(280)) { -it / 6 },
                                 ) {
-                                    Row(
-                                        modifier = Modifier.padding(10.dp).fillMaxWidth(),
-                                        verticalAlignment = Alignment.CenterVertically,
-                                        horizontalArrangement = Arrangement.spacedBy(10.dp),
+                                    Card(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clip(RoundedCornerShape(12.dp))
+                                            .clickable {
+                                                val id = selectedAnimeId
+                                                if (id != null) {
+                                                    onLink(id, result)
+                                                }
+                                                searchOpen = false
+                                                selectedAnimeId = null
+                                                searchQuery = ""
+                                            },
+                                        shape = RoundedCornerShape(12.dp),
+                                        colors = CardDefaults.cardColors(containerColor = palette.surface2),
+                                        border = BorderStroke(1.dp, palette.surface4),
                                     ) {
-                                        Box(
-                                            modifier = Modifier
-                                                .size(32.dp, 44.dp)
-                                                .clip(RoundedCornerShape(4.dp))
-                                                .background(palette.primary.copy(alpha = 0.2f)),
-                                        )
-                                        Text(
-                                            result,
-                                            modifier = Modifier.weight(1f),
-                                            color = TextLight,
-                                            fontSize = 12.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                        )
-                                        Icon(Icons.Default.Add, null, tint = palette.primary, modifier = Modifier.size(16.dp))
+                                        Row(
+                                            modifier = Modifier.padding(12.dp).fillMaxWidth(),
+                                            verticalAlignment = Alignment.CenterVertically,
+                                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                                        ) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(38.dp, 52.dp)
+                                                    .clip(RoundedCornerShape(6.dp))
+                                                    .background(palette.primary.copy(alpha = 0.18f)),
+                                            )
+                                            Text(
+                                                result,
+                                                modifier = Modifier.weight(1f),
+                                                color = TextLight,
+                                                fontSize = 14.sp,
+                                                fontWeight = FontWeight.SemiBold,
+                                            )
+                                            Icon(Icons.Default.Add, null, tint = palette.primary, modifier = Modifier.size(20.dp))
+                                        }
                                     }
                                 }
                             }
                         }
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun UnlinkedAnimeCard(anime: LinkedAnime, onClick: () -> Unit) {
+    val palette = LocalWizardPalette.current
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .clickable { onClick() },
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = palette.surface2),
+        border = BorderStroke(1.dp, palette.surface4),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp).fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+        ) {
+            Text(
+                anime.backupName,
+                modifier = Modifier.weight(1f),
+                color = TextLight,
+                fontSize = 14.sp,
+                fontWeight = FontWeight.SemiBold,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Text("Search", color = TextMutedLight, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                Icon(Icons.Default.ArrowForward, null, tint = TextMutedLight, modifier = Modifier.size(14.dp))
             }
         }
     }
@@ -1294,51 +1951,92 @@ private fun RestoreSummaryScreen(
     onBack: () -> Unit,
     palette: WizardPalette,
 ) {
+    val entrance = rememberEntranceState()
     val linkedCount = state.linkedAnime.count { it.linked }
     val unlinkedCount = state.linkedAnime.count { !it.linked }
     val stats = listOf(
-        "247" to "Anime to restore",
-        linkedCount.toString() to "Auto-linked",
-        unlinkedCount.toString() to "Manually linked",
-        "1,432" to "Episodes",
+        247 to "Anime to Restore",
+        linkedCount to "Auto-Linked",
+        unlinkedCount to "Manually Linked",
+        1432 to "Episodes",
     )
 
     WizardScreenLayout(
+        actionsAlpha = entrance.actionsAlpha.value,
+        actionsOffset = entrance.actionsOffset.value,
         { SecondaryButton("Back", onBack, Modifier.weight(1f)) },
         { PrimaryButton("Restore Now", onNext, Modifier.weight(1f)) },
     ) {
-        WizardTitle("Restore summary")
-        WizardSubtitle("Ready to restore. Review the details below.")
-
-        Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatCard(stats[0].first, stats[0].second, palette.primary)
-                StatCard(stats[1].first, stats[1].second, palette.primary)
-            }
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                StatCard(stats[2].first, stats[2].second, palette.primary)
-                StatCard(stats[3].first, stats[3].second, palette.primary)
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.titleAlpha.value
+                translationY = entrance.titleOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            WizardTitle("Restore Summary")
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.subtitleAlpha.value
+                translationY = entrance.subtitleOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            WizardSubtitle("Ready to restore. Review the details below.")
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.contentAlpha.value
+                translationY = entrance.contentOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            Column(modifier = Modifier.fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    StatCard(stats[0].first, stats[0].second, palette.primary, Modifier.weight(1f))
+                    StatCard(stats[1].first, stats[1].second, palette.primary, Modifier.weight(1f))
+                }
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                    StatCard(stats[2].first, stats[2].second, palette.primary, Modifier.weight(1f))
+                    StatCard(stats[3].first, stats[3].second, palette.primary, Modifier.weight(1f))
+                }
             }
         }
-
-        // Info note
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = palette.primary.copy(alpha = 0.07f)),
-            border = androidx.compose.foundation.BorderStroke(1.dp, palette.primary.copy(alpha = 0.2f)),
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.contentAlpha.value
+                translationY = entrance.contentOffset.value
+            },
+            contentAlignment = Alignment.Center,
         ) {
-            Row(
-                modifier = Modifier.padding(12.dp).fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            // Info note about overwriting
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = palette.primary.copy(alpha = 0.08f)),
+                border = BorderStroke(1.dp, palette.primary.copy(alpha = 0.3f)),
             ) {
-                Icon(Icons.Default.Info, null, tint = palette.primary, modifier = Modifier.size(20.dp))
-                Text(
-                    "This will overwrite any existing library data. The restore process may take a few moments.",
-                    color = TextMutedLight,
-                    fontSize = 12.sp,
-                )
+                Row(
+                    modifier = Modifier.padding(14.dp).fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(palette.primary.copy(alpha = 0.18f)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(Icons.Default.Info, null, tint = palette.primary, modifier = Modifier.size(22.dp))
+                    }
+                    Text(
+                        "This will overwrite any existing library data. The restore process may take a few moments.",
+                        color = TextMutedLight,
+                        fontSize = 13.sp,
+                    )
+                }
             }
         }
     }
@@ -1353,44 +2051,69 @@ private fun RestoreSuccessfulScreen(
     onNext: () -> Unit,
     palette: WizardPalette,
 ) {
+    val entrance = rememberEntranceState()
     LaunchedEffect(Unit) {
         delay(5000)
         onNext()
     }
+
+    val restoredCount = state.linkedAnime.count { it.linked } + 247
 
     Column(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier
                 .weight(1f)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 24.dp, vertical = 16.dp),
+                .padding(horizontal = 24.dp, vertical = 20.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(14.dp, Alignment.CenterVertically),
+            verticalArrangement = Arrangement.spacedBy(16.dp, Alignment.CenterVertically),
         ) {
-            RestoreSuccessVisual()
-            Text(
-                "Restore successful!",
-                style = MaterialTheme.typography.displayMedium,
-                fontWeight = FontWeight.ExtraBold,
-                color = palette.primary,
-                textAlign = TextAlign.Center,
-            )
-            val restoredCount = state.linkedAnime.count { it.linked } + 247
-            Text(
-                buildAnnotatedString {
-                    withStyle(SpanStyle(color = palette.primary, fontWeight = FontWeight.Bold)) {
-                        append(restoredCount.toString())
-                    }
-                    withStyle(SpanStyle(color = TextMutedLight)) {
-                        append(" anime have been restored to your library. You're all set to go!")
-                    }
+            AnimatedVisualBlock(entrance.visualScale.value, entrance.visualAlpha.value) {
+                RestoreSuccessVisual()
+            }
+            Box(
+                modifier = Modifier.graphicsLayer {
+                    alpha = entrance.titleAlpha.value
+                    translationY = entrance.titleOffset.value
                 },
-                fontSize = 14.sp,
-                textAlign = TextAlign.Center,
-            )
+                contentAlignment = Alignment.Center,
+            ) {
+                WizardTitle(
+                    text = "Restore Successful!",
+                    style = MaterialTheme.typography.displayLarge,
+                    brush = Brush.horizontalGradient(
+                        colors = listOf(palette.primary, TertiaryPink, WarnAmber),
+                    ),
+                )
+            }
+            Box(
+                modifier = Modifier.graphicsLayer {
+                    alpha = entrance.subtitleAlpha.value
+                    translationY = entrance.subtitleOffset.value
+                },
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    buildAnnotatedString {
+                        withStyle(SpanStyle(color = palette.primary, fontWeight = FontWeight.ExtraBold, fontSize = 18.sp)) {
+                            append(formatNumber(restoredCount))
+                        }
+                        withStyle(SpanStyle(color = TextMutedLight, fontSize = 16.sp)) {
+                            append(" anime have been restored to your library. You're all set to go!")
+                        }
+                    },
+                    textAlign = TextAlign.Center,
+                )
+            }
         }
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 24.dp, vertical = 16.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer {
+                    alpha = entrance.actionsAlpha.value
+                    translationY = entrance.actionsOffset.value
+                }
+                .padding(horizontal = 24.dp, vertical = 16.dp),
         ) {
             PrimaryButton("Continue", onNext, Modifier.fillMaxWidth())
         }
@@ -1398,7 +2121,7 @@ private fun RestoreSuccessfulScreen(
 }
 
 // =====================================================================================
-// Screen 12 — Finish (URL set + restart)
+// Screen 12 — Finish (gradient title + API URL card + reset)
 // =====================================================================================
 @Composable
 private fun FinishScreen(
@@ -1406,52 +2129,91 @@ private fun FinishScreen(
     onRestart: () -> Unit,
     palette: WizardPalette,
 ) {
+    val entrance = rememberEntranceState()
+
     WizardScreenLayout(
+        actionsAlpha = entrance.actionsAlpha.value,
+        actionsOffset = entrance.actionsOffset.value,
         { PrimaryButton("Start Exploring", onRestart, Modifier.fillMaxWidth(), icon = Icons.Default.Refresh) },
     ) {
-        // "Setup complete" badge
-        Row(
-            modifier = Modifier
-                .clip(RoundedCornerShape(50))
-                .background(palette.primary.copy(alpha = 0.15f))
-                .padding(horizontal = 12.dp, vertical = 6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-        ) {
-            Icon(Icons.Default.Star, null, tint = palette.primary, modifier = Modifier.size(14.dp))
-            Text("Setup complete", color = palette.primary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+        AnimatedVisualBlock(entrance.visualScale.value, entrance.visualAlpha.value) {
+            WelcomeVisual()
         }
-
-        WelcomeVisual()
-
-        Text(
-            "You're all set!",
-            style = MaterialTheme.typography.displayMedium,
-            fontWeight = FontWeight.ExtraBold,
-            color = palette.primary,
-            textAlign = TextAlign.Center,
-        )
-
-        WizardSubtitle("Your anime journey begins now. Enjoy exploring thousands of titles, tracking your progress, and never missing a new episode.")
-
-        // API URL card
-        Card(
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(14.dp),
-            colors = CardDefaults.cardColors(containerColor = palette.surface2),
-            border = androidx.compose.foundation.BorderStroke(1.dp, palette.primary.copy(alpha = 0.2f)),
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.titleAlpha.value
+                translationY = entrance.titleOffset.value
+            },
+            contentAlignment = Alignment.Center,
         ) {
-            Row(
-                modifier = Modifier.padding(12.dp).fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+            WizardTitle(
+                text = "You're All Set!",
+                style = MaterialTheme.typography.displayLarge,
+                brush = Brush.horizontalGradient(
+                    colors = listOf(palette.primary, TertiaryPink, WarnAmber),
+                ),
+            )
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.subtitleAlpha.value
+                translationY = entrance.subtitleOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            WizardSubtitle("Your anime journey begins now. Enjoy exploring thousands of titles, tracking your progress, and never missing a new episode.")
+        }
+        Box(
+            modifier = Modifier.graphicsLayer {
+                alpha = entrance.contentAlpha.value
+                translationY = entrance.contentOffset.value
+            },
+            contentAlignment = Alignment.Center,
+        ) {
+            // API URL card
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(containerColor = palette.surface2),
+                border = BorderStroke(1.dp, palette.primary.copy(alpha = 0.33f)),
             ) {
-                Icon(Icons.Default.Link, null, tint = palette.primary, modifier = Modifier.size(20.dp))
-                Column(modifier = Modifier.weight(1f)) {
-                    Text("API URL", color = TextMutedLight, fontSize = 11.sp, fontWeight = FontWeight.SemiBold)
-                    Text("https://api.anilist.co", color = TextLight, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                Row(
+                    modifier = Modifier.padding(16.dp).fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(14.dp),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(46.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(palette.primary.copy(alpha = 0.18f)),
+                        contentAlignment = Alignment.Center,
+                    ) {
+                        Icon(Icons.Default.Link, null, tint = palette.primary, modifier = Modifier.size(22.dp))
+                    }
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text("API URL", color = TextMutedLight, fontSize = 12.sp, fontWeight = FontWeight.SemiBold)
+                        Text("https://api.anilist.co", color = TextLight, fontSize = 15.sp, fontWeight = FontWeight.Bold)
+                    }
+                    Icon(Icons.Default.Check, null, tint = palette.primary, modifier = Modifier.size(20.dp))
                 }
-                Icon(Icons.Default.Check, null, tint = palette.primary, modifier = Modifier.size(16.dp))
+            }
+        }
+        Box(
+            modifier = Modifier.graphicsLayer { alpha = entrance.contentAlpha.value },
+            contentAlignment = Alignment.Center,
+        ) {
+            // "Setup complete" badge
+            Row(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(50))
+                    .background(palette.primary.copy(alpha = 0.15f))
+                    .padding(horizontal = 14.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Icon(Icons.Default.Star, null, tint = palette.primary, modifier = Modifier.size(16.dp))
+                Text("Setup Complete", color = palette.primary, fontSize = 13.sp, fontWeight = FontWeight.ExtraBold)
             }
         }
     }
@@ -1475,24 +2237,28 @@ private fun WarningFileVisual() {
     val sparkPhase by infinite.animateFloat(
         0f, 1f, infiniteRepeatable(tween(2000, easing = LinearEasing)), "spark",
     )
+    val glowPhase by infinite.animateFloat(
+        0f, 1f, infiniteRepeatable(tween(2200, easing = LinearEasing)), "glow",
+    )
 
     Canvas(modifier = Modifier.size(200.dp)) {
         val s = size.minDimension / 200f
         scale(s, s, pivot = Offset.Zero) {
             // Glow
+            val gf = 0.5f + 0.5f * sin(glowPhase * 2f * PI.toFloat())
             drawCircle(
-                brush = androidx.compose.ui.graphics.Brush.radialGradient(
-                    colors = listOf(WarnAmber.copy(alpha = 0.18f), WarnAmber.copy(alpha = 0f)),
+                brush = Brush.radialGradient(
+                    colors = listOf(WarnAmber.copy(alpha = 0.18f + 0.10f * gf), WarnAmber.copy(alpha = 0f)),
                     center = Offset(100f, 100f),
-                    radius = 60f,
+                    radius = 64f,
                 ),
                 center = Offset(100f, 100f),
-                radius = 60f,
+                radius = 64f,
             )
 
             // File body (bobbing)
             val f = sin(bobPhase * PI.toFloat()).coerceIn(-1f, 1f)
-            translate(0f, -6f * f) {
+            translate(0f, -8f * f) {
                 val file = Path().apply {
                     moveTo(64f, 50f)
                     lineTo(64f, 150f)
@@ -1504,30 +2270,34 @@ private fun WarningFileVisual() {
                     close()
                 }
                 drawPath(file, color = palette.surface3)
-                drawPath(file, color = WarnAmber, style = Stroke(width = 2f, join = StrokeJoin.Round))
+                drawPath(file, color = WarnAmber, style = Stroke(width = 2.5f, join = StrokeJoin.Round))
+                // Folded corner detail
+                drawLine(WarnAmber, Offset(114f, 50f), Offset(114f, 72f), strokeWidth = 2f, cap = StrokeCap.Round)
+                drawLine(WarnAmber, Offset(114f, 72f), Offset(136f, 72f), strokeWidth = 2f, cap = StrokeCap.Round)
                 // File content lines
-                drawRoundRect(WarnAmber.copy(alpha = 0.5f), Offset(76f, 86f), Size(48f, 4f), CornerRadius(2f, 2f))
-                drawRoundRect(WarnAmber.copy(alpha = 0.35f), Offset(76f, 98f), Size(40f, 4f), CornerRadius(2f, 2f))
-                drawRoundRect(WarnAmber.copy(alpha = 0.35f), Offset(76f, 110f), Size(44f, 4f), CornerRadius(2f, 2f))
-                drawRoundRect(WarnAmber.copy(alpha = 0.3f), Offset(76f, 122f), Size(36f, 4f), CornerRadius(2f, 2f))
+                drawRoundRect(WarnAmber.copy(alpha = 0.6f), Offset(76f, 86f), Size(48f, 4f), CornerRadius(2f, 2f))
+                drawRoundRect(WarnAmber.copy(alpha = 0.4f), Offset(76f, 98f), Size(40f, 4f), CornerRadius(2f, 2f))
+                drawRoundRect(WarnAmber.copy(alpha = 0.4f), Offset(76f, 110f), Size(44f, 4f), CornerRadius(2f, 2f))
+                drawRoundRect(WarnAmber.copy(alpha = 0.35f), Offset(76f, 122f), Size(36f, 4f), CornerRadius(2f, 2f))
             }
 
             // Warning triangle badge (pulsing)
             val wf = 0.5f + 0.5f * sin(warnPhase * 2f * PI.toFloat())
-            val ws = 0.95f + 0.1f * wf
+            val ws = 0.95f + 0.12f * wf
             scale(ws, ws, pivot = Offset(140f, 140f)) {
-                drawCircle(WarnAmber, 22f, Offset(140f, 140f))
-                drawCircle(palette.background, 22f, Offset(140f, 140f), style = Stroke(width = 2f))
+                drawCircle(WarnAmber, 24f, Offset(140f, 140f))
+                drawCircle(palette.background, 24f, Offset(140f, 140f), style = Stroke(width = 2.5f))
                 // Exclamation
-                drawLine(palette.background, Offset(140f, 128f), Offset(140f, 142f), strokeWidth = 3.5f, cap = StrokeCap.Round)
-                drawCircle(palette.background, 2f, Offset(140f, 150f))
+                drawLine(palette.background, Offset(140f, 128f), Offset(140f, 142f), strokeWidth = 4f, cap = StrokeCap.Round)
+                drawCircle(palette.background, 2.5f, Offset(140f, 150f))
             }
 
             // Sparkles
             val sparks = listOf(
-                Sparkle(40f, 60f, 3f, WarnAmber),
-                Sparkle(160f, 50f, 2.5f, TertiaryPink),
-                Sparkle(36f, 150f, 2f, palette.primary),
+                InlineSparkle(40f, 60f, 3f, WarnAmber),
+                InlineSparkle(160f, 50f, 2.5f, TertiaryPink),
+                InlineSparkle(36f, 150f, 2f, palette.primary),
+                InlineSparkle(170f, 150f, 2.5f, WarnAmber),
             )
             sparks.forEachIndexed { i, sp ->
                 val pf = 0.5f + 0.5f * sin((sparkPhase + i * 0.33f) * 2f * PI.toFloat())
@@ -1537,7 +2307,7 @@ private fun WarningFileVisual() {
     }
 }
 
-private data class Sparkle(val x: Float, val y: Float, val r: Float, val color: Color)
+private data class InlineSparkle(val x: Float, val y: Float, val r: Float, val color: Color)
 
 /** Circular spinner + central file icon for the Processing-Backup screen. */
 @Composable
@@ -1563,61 +2333,62 @@ private fun ProcessingBackupVisual() {
             // Glow
             val ga = 0.2f + 0.3f * (0.5f + 0.5f * sin(glowPhase * 2f * PI.toFloat()))
             drawCircle(
-                brush = androidx.compose.ui.graphics.Brush.radialGradient(
+                brush = Brush.radialGradient(
                     colors = listOf(palette.primary.copy(alpha = ga), palette.primary.copy(alpha = 0f)),
                     center = Offset(100f, 100f),
-                    radius = 60f,
+                    radius = 64f,
                 ),
                 center = Offset(100f, 100f),
-                radius = 60f,
+                radius = 64f,
             )
 
             // Outer ring (rotating dashes + dots)
             rotate(ring1, pivot = Offset(100f, 100f)) {
                 drawCircle(
-                    color = palette.primary.copy(alpha = 0.4f),
-                    radius = 64f, center = Offset(100f, 100f),
-                    style = Stroke(width = 2f, pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(6f, 10f))),
+                    color = palette.primary.copy(alpha = 0.5f),
+                    radius = 68f, center = Offset(100f, 100f),
+                    style = Stroke(width = 2.5f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(6f, 10f))),
                 )
-                drawCircle(palette.primary, 5f, Offset(100f, 36f))
-                drawCircle(TertiaryPink, 4f, Offset(164f, 100f))
-                drawCircle(WarnAmber, 4f, Offset(100f, 164f))
-                drawCircle(SecondaryLavender, 4f, Offset(36f, 100f))
+                drawCircle(palette.primary, 6f, Offset(100f, 32f))
+                drawCircle(TertiaryPink, 5f, Offset(168f, 100f))
+                drawCircle(WarnAmber, 5f, Offset(100f, 168f))
+                drawCircle(SecondaryLavender, 5f, Offset(32f, 100f))
             }
             // Inner ring (reverse)
             rotate(ring2, pivot = Offset(100f, 100f)) {
                 drawCircle(
-                    color = TertiaryPink.copy(alpha = 0.3f),
-                    radius = 48f, center = Offset(100f, 100f),
-                    style = Stroke(width = 1.5f, pathEffect = androidx.compose.ui.graphics.PathEffect.dashPathEffect(floatArrayOf(3f, 6f))),
+                    color = TertiaryPink.copy(alpha = 0.4f),
+                    radius = 50f, center = Offset(100f, 100f),
+                    style = Stroke(width = 1.8f, pathEffect = PathEffect.dashPathEffect(floatArrayOf(3f, 6f))),
                 )
             }
             // Central file icon (pulsing)
-            val cs = 1f + 0.08f * (0.5f + 0.5f * sin(corePhase * 2f * PI.toFloat()))
+            val cs = 1f + 0.10f * (0.5f + 0.5f * sin(corePhase * 2f * PI.toFloat()))
             scale(cs, cs, pivot = Offset(100f, 100f)) {
-                drawCircle(palette.primaryContainer, 34f, Offset(100f, 100f))
-                drawCircle(palette.primary, 34f, Offset(100f, 100f), style = Stroke(width = 2f))
+                drawCircle(palette.primaryContainer, 36f, Offset(100f, 100f))
+                drawCircle(palette.primary, 36f, Offset(100f, 100f), style = Stroke(width = 2.5f))
                 // File icon path
                 val file = Path().apply {
-                    moveTo(88f, 84f)
-                    lineTo(88f, 116f)
-                    quadraticBezierTo(88f, 119f, 91f, 119f)
-                    lineTo(109f, 119f)
-                    quadraticBezierTo(112f, 119f, 112f, 116f)
-                    lineTo(112f, 90f)
-                    lineTo(106f, 84f)
+                    moveTo(86f, 82f)
+                    lineTo(86f, 118f)
+                    quadraticBezierTo(86f, 121f, 89f, 121f)
+                    lineTo(111f, 121f)
+                    quadraticBezierTo(114f, 121f, 114f, 118f)
+                    lineTo(114f, 90f)
+                    lineTo(106f, 82f)
                     close()
                 }
-                drawPath(file, color = palette.primary.copy(alpha = 0.9f))
-                drawRoundRect(palette.onPrimary.copy(alpha = 0.5f), Offset(93f, 96f), Size(14f, 2f), CornerRadius(1f, 1f))
-                drawRoundRect(palette.onPrimary.copy(alpha = 0.4f), Offset(93f, 102f), Size(10f, 2f), CornerRadius(1f, 1f))
-                drawRoundRect(palette.onPrimary.copy(alpha = 0.4f), Offset(93f, 108f), Size(12f, 2f), CornerRadius(1f, 1f))
+                drawPath(file, color = palette.primary.copy(alpha = 0.95f))
+                drawPath(file, color = palette.onPrimary, style = Stroke(width = 1.5f, join = StrokeJoin.Round))
+                drawRoundRect(palette.onPrimary.copy(alpha = 0.6f), Offset(91f, 96f), Size(16f, 2.5f), CornerRadius(1f, 1f))
+                drawRoundRect(palette.onPrimary.copy(alpha = 0.5f), Offset(91f, 103f), Size(12f, 2.5f), CornerRadius(1f, 1f))
+                drawRoundRect(palette.onPrimary.copy(alpha = 0.5f), Offset(91f, 110f), Size(14f, 2.5f), CornerRadius(1f, 1f))
             }
         }
     }
 }
 
-/** Success badge + expanding rings for the Restore-Successful screen. */
+/** Success badge + expanding rings + sparkles + confetti for Restore-Successful. */
 @Composable
 private fun RestoreSuccessVisual() {
     val palette = LocalWizardPalette.current
@@ -1626,7 +2397,7 @@ private fun RestoreSuccessVisual() {
         0f, 1f, infiniteRepeatable(tween(2000, easing = LinearEasing)), "glow",
     )
     val ringPhase by infinite.animateFloat(
-        0f, 1f, infiniteRepeatable(tween(2500, easing = LinearEasing)), "ring",
+        0f, 1f, infiniteRepeatable(tween(2200, easing = LinearEasing)), "ring",
     )
     val corePhase by infinite.animateFloat(
         0f, 1f, infiniteRepeatable(tween(2000, easing = LinearEasing)), "core",
@@ -1636,6 +2407,9 @@ private fun RestoreSuccessVisual() {
     )
     val sparkPhase by infinite.animateFloat(
         0f, 1f, infiniteRepeatable(tween(2000, easing = LinearEasing)), "spark",
+    )
+    val confettiPhase by infinite.animateFloat(
+        0f, 1f, infiniteRepeatable(tween(2500, easing = LinearEasing)), "confetti",
     )
 
     val checkPath = remember {
@@ -1655,13 +2429,13 @@ private fun RestoreSuccessVisual() {
             // Glow
             val ga = 0.25f + 0.25f * (0.5f + 0.5f * sin(glowPhase * 2f * PI.toFloat()))
             drawCircle(
-                brush = androidx.compose.ui.graphics.Brush.radialGradient(
+                brush = Brush.radialGradient(
                     colors = listOf(palette.primary.copy(alpha = ga), palette.primary.copy(alpha = 0f)),
                     center = Offset(100f, 100f),
-                    radius = 60f,
+                    radius = 64f,
                 ),
                 center = Offset(100f, 100f),
-                radius = 60f,
+                radius = 64f,
             )
 
             // 3 expanding rings
@@ -1672,19 +2446,26 @@ private fun RestoreSuccessVisual() {
                 val alpha = (1f - ph).coerceAtLeast(0f)
                 drawCircle(
                     color = c.copy(alpha = alpha),
-                    radius = 36f * scaleR,
+                    radius = 38f * scaleR,
                     center = Offset(100f, 100f),
-                    style = Stroke(width = 3f - i * 0.5f),
+                    style = Stroke(width = 3.5f - i * 0.6f),
                 )
             }
 
             // Central badge (pulsing)
-            val cs = 1f + 0.06f * (0.5f + 0.5f * sin(corePhase * 2f * PI.toFloat()))
+            val cs = 1f + 0.07f * (0.5f + 0.5f * sin(corePhase * 2f * PI.toFloat()))
             scale(cs, cs, pivot = Offset(100f, 100f)) {
-                drawCircle(palette.primary, 38f, Offset(100f, 100f))
-                drawCircle(palette.background, 38f, Offset(100f, 100f), style = Stroke(width = 2f))
+                // Outer glow ring
+                drawCircle(palette.primary.copy(alpha = 0.25f), 42f, Offset(100f, 100f))
+                drawCircle(palette.primary, 40f, Offset(100f, 100f))
+                drawCircle(palette.background, 40f, Offset(100f, 100f), style = Stroke(width = 2.5f))
+                // Inner top highlight
+                drawOval(
+                    color = palette.background.copy(alpha = 0.15f),
+                    topLeft = Offset(78f, 68f), size = Size(44f, 44f),
+                )
 
-                // Animated checkmark draw
+                // Animated checkmark draw — more dramatic (thicker stroke)
                 val progress = when {
                     checkPhase < 0.15f -> 0f
                     checkPhase < 0.50f -> (checkPhase - 0.15f) / 0.35f
@@ -1697,25 +2478,60 @@ private fun RestoreSuccessVisual() {
                     checkMeasure.getSegment(0f, totalLen * progress, subPath, true)
                     drawPath(
                         subPath, color = palette.onPrimary,
-                        style = Stroke(width = 6f, cap = StrokeCap.Round, join = StrokeJoin.Round),
+                        style = Stroke(width = 7f, cap = StrokeCap.Round, join = StrokeJoin.Round),
                     )
                 }
             }
 
             // Sparkles
             val sparks = listOf(
-                Sparkle(40f, 70f, 3f, palette.primary),
-                Sparkle(160f, 60f, 2.5f, TertiaryPink),
-                Sparkle(170f, 130f, 3f, WarnAmber),
-                Sparkle(30f, 140f, 2.5f, palette.primary),
+                InlineSparkle(40f, 70f, 3f, palette.primary),
+                InlineSparkle(160f, 60f, 2.5f, TertiaryPink),
+                InlineSparkle(170f, 130f, 3f, WarnAmber),
+                InlineSparkle(30f, 140f, 2.5f, palette.primary),
             )
             sparks.forEachIndexed { i, sp ->
                 val pf = 0.2f + 0.8f * (0.5f + 0.5f * sin((sparkPhase + i * 0.25f) * 2f * PI.toFloat()))
                 drawCircle(sp.color.copy(alpha = pf), sp.r, Offset(sp.x, sp.y))
             }
+
+            // Confetti pieces (6)
+            val confetti = listOf(
+                InlineConfetti(48f, 20f, 6f, 6f, 20f, palette.primary),
+                InlineConfetti(100f, 10f, 6f, 6f, -15f, TertiaryPink),
+                InlineConfetti(152f, 18f, 6f, 6f, 45f, WarnAmber),
+                InlineConfetti(70f, 5f, 5f, 5f, -30f, SecondaryLavender),
+                InlineConfetti(130f, 8f, 5f, 5f, 60f, palette.primary),
+                InlineConfetti(30f, 15f, 5f, 5f, -45f, TertiaryPink),
+            )
+            confetti.forEachIndexed { i, c ->
+                val ph = (confettiPhase + i * 0.16f) % 1f
+                val dy = -20f + 60f * ph
+                val rot = 180f * ph
+                val alpha = when {
+                    ph < 0.15f -> ph / 0.15f
+                    ph < 0.85f -> 1f
+                    else -> (1f - ph) / 0.15f
+                }
+                rotate(c.initialRot + rot, pivot = Offset(c.x + c.w / 2f, c.y + c.h / 2f)) {
+                    translate(0f, dy) {
+                        drawRoundRect(
+                            color = c.color.copy(alpha = alpha),
+                            topLeft = Offset(c.x, c.y),
+                            size = Size(c.w, c.h),
+                            cornerRadius = CornerRadius(1.5f, 1.5f),
+                        )
+                    }
+                }
+            }
         }
     }
 }
+
+private data class InlineConfetti(
+    val x: Float, val y: Float, val w: Float, val h: Float,
+    val initialRot: Float, val color: Color,
+)
 
 // =====================================================================================
 // End of file

@@ -1,20 +1,20 @@
-# .github/workflows/build-apk.yml
-# Builds the Anime App APK and uploads it as a GitHub Actions artifact.
+# .github/workflows/build-setup-wizard-apk.yml
+# Builds the Setup Wizard APK and uploads it as a GitHub Actions artifact.
 # The APK is debug-signed (auto-signed with the debug keystore).
 #
 # To download the APK:
 # 1. Go to the Actions tab on GitHub
-# 2. Click the latest "Build Android APK" run
-# 3. Scroll down to "Artifacts" → download "anime-app-apk"
+# 2. Click the latest "Build Setup Wizard APK" run
+# 3. Scroll down to "Artifacts" → download "setup-wizard-apk"
 
-name: Build Android APK
+name: Build Setup Wizard APK
 
 on:
   push:
     branches: [main]
     paths:
-      - 'Android_app/Anime_App/**'
-      - '.github/workflows/build-apk.yml'
+      - 'Android_app/SetupWizard/**'
+      - '.github/workflows/build-setup-wizard-apk.yml'
   workflow_dispatch:
 
 jobs:
@@ -39,12 +39,12 @@ jobs:
         uses: gradle/actions/setup-gradle@v3
 
       - name: Build debug APK
-        working-directory: Android_app/Anime_App
+        working-directory: Android_app/SetupWizard
         run: ./gradlew assembleDebug --no-daemon --stacktrace
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: anime-app-apk
-          path: Android_app/Anime_App/app/build/outputs/apk/debug/*.apk
+          name: setup-wizard-apk
+          path: Android_app/SetupWizard/app/build/outputs/apk/debug/*.apk
           retention-days: 30
