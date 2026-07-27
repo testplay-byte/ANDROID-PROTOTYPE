@@ -46,8 +46,12 @@ jobs:
           ./gradlew assembleDebug --no-daemon --stacktrace > build-output.log 2>&1
           BUILD_EXIT_CODE=$?
           echo "Build exit code: $BUILD_EXIT_CODE"
-          # Show last 100 lines of the log
-          tail -100 build-output.log
+          echo "=== LAST 150 LINES OF BUILD LOG ==="
+          tail -150 build-output.log
+          echo "=== ERROR LINES ==="
+          grep -E "^e: |error:|Error:|FAILED|Compilation error" build-output.log | while read -r line; do
+            echo "::error::$line"
+          done
           exit $BUILD_EXIT_CODE
 
       - name: Upload APK
