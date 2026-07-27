@@ -6,6 +6,7 @@
 # 1. Go to the Actions tab on GitHub
 # 2. Click the latest "Build Setup Wizard APK" run
 # 3. Scroll down to "Artifacts" → download "setup-wizard-apk"
+#    (or "build-log" if the build failed, to see compilation errors)
 
 name: Build Setup Wizard APK
 
@@ -40,11 +41,27 @@ jobs:
 
       - name: Build debug APK
         working-directory: Android_app/SetupWizard
-        run: ./gradlew assembleDebug --no-daemon --stacktrace
+        run: |
+          set +e
+          ./gradlew assembleDebug --no-daemon --stacktrace > build-output.log 2>&1
+          BUILD_EXIT_CODE=$?
+          echo "Build exit code: $BUILD_EXIT_CODE"
+          # Show last 100 lines of the log
+          tail -100 build-output.log
+          exit $BUILD_EXIT_CODE
 
       - name: Upload APK
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: setup-wizard-apk
           path: Android_app/SetupWizard/app/build/outputs/apk/debug/*.apk
           retention-days: 30
+
+      - name: Upload build log on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-log
+          path: Android_app/SetupWizard/build-output.log
+          retention-days: 7
