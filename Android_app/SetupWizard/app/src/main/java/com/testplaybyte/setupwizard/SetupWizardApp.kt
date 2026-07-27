@@ -376,7 +376,7 @@ private fun CountUpText(
 ) {
     val animatedValue = remember(target) { Animatable(0f) }
     LaunchedEffect(target) {
-        delay(delayMs)
+        delay(delayMs.toLong())
         animatedValue.animateTo(
             target.toFloat(),
             tween(durationMs, easing = FastOutSlowInEasing),
