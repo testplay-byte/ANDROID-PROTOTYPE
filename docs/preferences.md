@@ -37,6 +37,11 @@
   - **Detailed** (default): the rich 3-column cards described above.
   - **Grid**: simplified symmetric grid — **mini phone image + prototype name only**, no
     descriptions, tags, or charts. Responsive `auto-fill` columns.
+- **Grid view is GROUPED by design language** (2026-09-26): each style renders as its own
+  rounded section with a **distinct soft background tint** derived from the style's signature
+  hue (`.stylegroup[data-style=…]` in dashboard.css — 5-9% color-mix so the warm-cream page
+  stays calm), plus a header row (hue dot + style name + count). Similar prototypes read as
+  one family; styles never mix inside a section.
 - The chosen mode **persists in localStorage** (`gallery-view`) and is deep-linkable via the
   page hash (`#grid` / `#detailed`).
 - **Mini phone thumbnails must mirror the real home screen** of each prototype (custom CSS

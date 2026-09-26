@@ -160,17 +160,42 @@
 }
 
 /* =========================================================================
-   glass — floating pill with translucent blur (uses --glass-* tokens). */
+   glass — floating pill with translucent blur (uses --glass-* tokens).
+   Airy glass treatment: 6px gaps so icons never touch the expanding
+   active pill, generous 16px horizontal padding on the active pill so
+   the label never sits near the edge, brighter tint fill + inner
+   highlight + soft glow for a clear active/inactive contrast. */
 .vGlass {
+  gap: 6px;
+  padding: 0 10px;
   background: color-mix(in srgb, var(--color-surface-2) 55%, transparent);
   -webkit-backdrop-filter: blur(var(--glass-blur, 16px)) saturate(1.35);
   backdrop-filter: blur(var(--glass-blur, 16px)) saturate(1.35);
-  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.18));
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.22));
   box-shadow: var(--shadow-2), var(--shadow-inset);
 }
+.vGlass .item {
+  padding: 0 12px;
+  transition:
+    color var(--dur-2) var(--ease-standard),
+    background var(--dur-3) var(--ease-emphasized),
+    flex var(--dur-3) var(--ease-emphasized),
+    padding var(--dur-3) var(--ease-emphasized),
+    box-shadow var(--dur-3) var(--ease-emphasized);
+}
 .vGlass .itemIsActive {
-  background: color-mix(in srgb, var(--color-primary) 26%, transparent);
-  color: var(--color-text);
+  /* Never shrink — guarantees the full label is always visible. */
+  flex: 0 0 auto;
+  padding: 0 16px;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--color-primary) 38%, transparent),
+    color-mix(in srgb, var(--color-primary) 24%, transparent)
+  );
+  color: var(--color-on-primary-container);
+  box-shadow:
+    inset 0 1px 0 var(--glass-highlight, rgba(255, 255, 255, 0.3)),
+    0 4px 14px color-mix(in srgb, var(--color-primary) 30%, transparent);
 }
 
 /* =========================================================================

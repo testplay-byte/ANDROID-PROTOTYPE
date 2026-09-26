@@ -2,14 +2,17 @@
 
 /**
  * fitness-tracker / screens / settings-screen — iOS inset grouped style:
- * appearance (Light/Dark segmented → useDeviceTheme), units (km/mi),
- * weekly goal stepper, About row.
+ * appearance (Light/Dark segmented → useDeviceTheme), notification switches
+ * (native iOS green switches), units (km/mi), weekly goal stepper
+ * (iOS "- | +" rounded-rect style), About group with a 13px section footer.
  */
 
 import { useState } from "react";
-import { TopBar, useDeviceTheme } from "../../../proto-kit";
-import { Group, Row, SectionLabel } from "../components/grouped-list";
+import { useDeviceTheme } from "../../../proto-kit";
+import { Group, Row, SectionLabel, GroupFooter } from "../components/grouped-list";
 import { Segmented } from "../components/segmented";
+import { IosSwitch } from "../components/ios-switch";
+import { IosNavBar, useIosCollapse } from "../components/ios-nav-bar";
 import styles from "./settings-screen.module.css";
 
 type Units = "km" | "mi";
@@ -18,12 +21,15 @@ export function SettingsScreen() {
   const { theme, setTheme } = useDeviceTheme();
   const [units, setUnits] = useState<Units>("km");
   const [weeklyGoal, setWeeklyGoal] = useState(5);
+  const [weeklySummary, setWeeklySummary] = useState(true);
+  const [reminders, setReminders] = useState(false);
+  const { ref, collapsed } = useIosCollapse();
 
   return (
     <div className={styles.root}>
-      <TopBar variant="center" title="Settings" />
+      <IosNavBar title="Settings" collapsed={collapsed} />
 
-      <div className={styles.content}>
+      <div className={styles.content} ref={ref}>
         {/* Appearance */}
         <SectionLabel>Appearance</SectionLabel>
         <Group>
@@ -31,10 +37,9 @@ export function SettingsScreen() {
             icon={<MoonIcon />}
             iconClassName={styles.tintIndigo}
             title="Theme"
-            subtitle={theme === "light" ? "Light" : "Dark"}
-            last
+            value={theme === "light" ? "Light" : "Dark"}
           />
-          <div className={styles.segmentRow}>
+          <div className={styles.segmentWrap}>
             <Segmented
               label="Theme"
               value={theme}
@@ -47,11 +52,25 @@ export function SettingsScreen() {
           </div>
         </Group>
 
+        {/* Notifications — native iOS switches */}
+        <SectionLabel>Notifications</SectionLabel>
+        <Group>
+          <Row
+            title="Weekly summary"
+            value={<IosSwitch checked={weeklySummary} onChange={setWeeklySummary} label="Weekly summary" />}
+          />
+          <Row
+            title="Workout reminders"
+            value={<IosSwitch checked={reminders} onChange={setReminders} label="Workout reminders" />}
+            last
+          />
+        </Group>
+
         {/* Units */}
         <SectionLabel>Units</SectionLabel>
         <Group>
-          <div className={styles.segmentRow}>
-            <span className={styles.segmentRowLabel}>Distance</span>
+          <div className={styles.rowInline}>
+            <span className={styles.rowLabel}>Distance</span>
             <div className={styles.segmentInline}>
               <Segmented
                 label="Distance units"
@@ -66,11 +85,12 @@ export function SettingsScreen() {
           </div>
         </Group>
 
-        {/* Weekly goal */}
+        {/* Weekly goal — value + iOS "- | +" stepper */}
         <SectionLabel>Goals</SectionLabel>
         <Group>
-          <div className={styles.segmentRow}>
-            <span className={styles.segmentRowLabel}>Weekly workouts</span>
+          <div className={styles.rowInline}>
+            <span className={styles.rowLabel}>Weekly workouts</span>
+            <span className={styles.rowValue}>{weeklyGoal}</span>
             <div className={styles.stepper} role="group" aria-label="Weekly workout goal">
               <button
                 type="button"
@@ -79,11 +99,11 @@ export function SettingsScreen() {
                 disabled={weeklyGoal <= 1}
                 onClick={() => setWeeklyGoal((g) => Math.max(1, g - 1))}
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                   <line x1="5" y1="12" x2="19" y2="12" />
                 </svg>
               </button>
-              <span className={styles.stepperValue}>{weeklyGoal}</span>
+              <span className={styles.stepperDivider} aria-hidden="true" />
               <button
                 type="button"
                 className={styles.stepperBtn}
@@ -91,7 +111,7 @@ export function SettingsScreen() {
                 disabled={weeklyGoal >= 7}
                 onClick={() => setWeeklyGoal((g) => Math.min(7, g + 1))}
               >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round">
                   <line x1="12" y1="5" x2="12" y2="19" />
                   <line x1="5" y1="12" x2="19" y2="12" />
                 </svg>
@@ -118,8 +138,10 @@ export function SettingsScreen() {
             onClick={() => undefined}
           />
         </Group>
-
-        <p className={styles.footer}>Fitness Tracker · Prototype</p>
+        <GroupFooter>
+          Fitness Tracker 1.0.0 · Prototype. Workouts, stats and achievements
+          are sample data.
+        </GroupFooter>
       </div>
     </div>
   );

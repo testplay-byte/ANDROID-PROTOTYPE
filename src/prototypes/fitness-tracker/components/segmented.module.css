@@ -1,27 +1,29 @@
-/* Segmented — iOS segmented control. */
+/* Segmented — iOS segmented control: 32px tall, 9px track radius,
+   selected segment = raised white slab with a soft shadow. */
 
 .track {
   display: flex;
   gap: 2px;
   background: var(--color-surface-3);
-  border-radius: var(--r-xs);
+  border-radius: 9px;
   padding: 2px;
 }
 
 .segment {
   flex: 1;
-  min-height: 44px;
+  height: 28px;
+  min-height: 28px;
   border: none;
-  border-radius: calc(var(--r-xs) - 2px);
+  border-radius: 7px;
   background: transparent;
   color: var(--color-text);
-  font-size: var(--fs-label);
+  font-size: var(--ios-footnote); /* 13px */
   font-weight: 500;
   cursor: pointer;
-  padding: 4px 12px;
-  transition: background var(--dur-1) var(--ease-standard),
-    box-shadow var(--dur-1) var(--ease-standard),
-    color var(--dur-1) var(--ease-standard);
+  padding: 0 12px;
+  transition: background var(--ios-dur-fast) var(--ios-ease),
+    box-shadow var(--ios-dur-fast) var(--ios-ease),
+    color var(--ios-dur-fast) var(--ios-ease);
 }
 
 .segmentActive {

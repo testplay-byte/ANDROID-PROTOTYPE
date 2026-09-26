@@ -28,6 +28,28 @@ button {
 
 /* ---- Prototype-scoped tokens ---- */
 .device {
+  /* ---- iOS type scale (SF Pro sizes) ----
+     Runs LARGER than the M3 scale — screens must feel airy, not cramped. */
+  --ios-large-title: 34px; /* Large Title  · 700 */
+  --ios-title1: 28px;      /* Title 1      · 700 */
+  --ios-title2: 22px;      /* Title 2      · 700 */
+  --ios-title3: 20px;      /* Title 3      · 600 */
+  --ios-headline: 17px;    /* Headline     · 600 */
+  --ios-body: 17px;        /* Body         · 400 */
+  --ios-callout: 16px;     /* Callout      · 400 */
+  --ios-subhead: 15px;     /* Subhead      · 400 */
+  --ios-footnote: 13px;    /* Footnote     · 400 */
+  --ios-caption: 12px;     /* Caption      · 400 */
+
+  /* ---- iOS motion (250–350ms, no bounce) ---- */
+  --ios-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ios-dur-fast: 250ms;
+  --ios-dur: 320ms;
+
+  /* iOS system colors that have no token equivalent */
+  --ios-indigo: #5856d6;
+  --ios-teal: #32ade6;
+
   /* iOS ring track color (gray-4 style fill) */
   --ring-track: rgba(120, 120, 128, 0.2);
   /* Icon disc tints (iOS system fills) */
@@ -35,8 +57,13 @@ button {
   --tint-green-bg: rgba(52, 199, 89, 0.15);
   --tint-blue-bg: rgba(0, 122, 255, 0.15);
   --tint-orange-bg: rgba(255, 149, 0, 0.15);
-  --tint-purple-bg: rgba(175, 82, 222, 0.15);
+  --tint-indigo-bg: rgba(88, 86, 214, 0.15);
   --tint-teal-bg: rgba(50, 173, 230, 0.15);
+}
+
+.device[data-theme="dark"] {
+  --ios-indigo: #5e5ce6;
+  --ios-teal: #64d2ff;
 }
 
 /* ---- Side-panel content (right panel mini-bars + kvlist + tags) ---- */

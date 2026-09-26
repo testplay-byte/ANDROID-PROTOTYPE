@@ -1,13 +1,14 @@
 /* GroupedList — iOS inset-grouped primitives.
-   White cards on --color-bg, 16px continuous radii, hairline separators
-   (--color-outline-variant). No heavy shadows — subtle --shadow-1 max. */
+   White cards inset 16px from the screen edges (content padding), 10px
+   vertical gaps between groups, 10px card radius, rows 44px+ with hairline
+   separators that start at the text (16px plain / 57px with icon disc).
+   No shadows — iOS grouped cards sit flat on the canvas. */
 
 .group {
   background: var(--color-surface-1);
-  border-radius: var(--r-md); /* 16px continuous-radius look */
-  box-shadow: var(--shadow-1);
+  border-radius: 10px; /* iOS inset-grouped corner radius */
   overflow: hidden;
-  margin-bottom: var(--sp-4);
+  margin-bottom: 10px;
 }
 
 .row {
@@ -15,30 +16,33 @@
   display: flex;
   align-items: center;
   gap: var(--sp-3);
-  min-height: 52px;
-  padding: var(--sp-2) var(--sp-4);
+  min-height: 44px;
+  padding: 9px var(--sp-4);
 }
 
 .rowTap {
   cursor: pointer;
-  transition: background var(--dur-1) var(--ease-standard);
+  transition: background var(--ios-dur-fast) var(--ios-ease);
 }
 
 .rowTap:active {
   background: var(--color-surface-3);
 }
 
+/* iOS Settings icon disc: 29pt rounded square */
 .icon {
-  width: 32px;
-  height: 32px;
-  border-radius: var(--r-pill);
+  width: 29px;
+  height: 29px;
+  border-radius: 7px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
   color: var(--color-primary);
   background: var(--tint-blue-bg);
-}.main {
+}
+
+.main {
   flex: 1;
   min-width: 0;
   display: flex;
@@ -47,8 +51,8 @@
 }
 
 .title {
-  font-size: var(--fs-body);
-  font-weight: 500;
+  font-size: var(--ios-body); /* 17px */
+  font-weight: 400;
   color: var(--color-text);
   white-space: nowrap;
   overflow: hidden;
@@ -56,24 +60,25 @@
 }
 
 .subtitle {
-  font-size: var(--fs-label-s);
+  font-size: var(--ios-footnote); /* 13px */
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
 }
 
 .value {
-  font-size: var(--fs-body);
+  font-size: var(--ios-body); /* 17px */
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
   flex-shrink: 0;
 }
 
 .chevron {
-  color: var(--color-text-subtle);
+  color: var(--color-text-subtle); /* tertiary gray chevron */
   flex-shrink: 0;
 }
 
-/* Inset hairline separator — starts after the icon like iOS */
+/* Inset hairline separator — starts at the TEXT, never full-width.
+   Plain rows: 16px in. Rows with an icon disc: past the disc (16+29+12=57). */
 .separator {
   position: absolute;
   left: var(--sp-4);
@@ -83,17 +88,30 @@
   background: var(--color-outline-variant);
   transform: scaleY(0.5);
   transform-origin: bottom;
+  pointer-events: none;
 }
 
-.rowTap + .row .separator,
-.separator {
-  pointer-events: none;
-}.sectionLabel {
+.row:has(.icon) .separator {
+  left: 57px;
+}
+
+/* Section header — 13px uppercase gray, above each group */
+.sectionLabel {
   display: block;
-  padding: 0 var(--sp-4) var(--sp-2);
-  font-size: var(--fs-label-s);
-  font-weight: 600;
+  padding: var(--sp-4) var(--sp-4) var(--sp-2);
+  font-size: var(--ios-footnote); /* 13px */
+  font-weight: 400;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+}
+
+/* Section footer — 13px gray caption under a group (like iOS Settings) */
+.groupFooter {
+  display: block;
+  padding: 7px var(--sp-4) var(--sp-2);
+  margin-bottom: 8px;
+  font-size: var(--ios-footnote); /* 13px */
+  line-height: 1.35;
   color: var(--color-text-muted);
 }

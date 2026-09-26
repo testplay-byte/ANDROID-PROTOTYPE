@@ -43,27 +43,35 @@ Dark (default):
 | `--color-outline` | `#564e69` | |
 | `--color-outline-variant` | `#433d52` | |
 
-Light:
+Light (re-derived for contrast — dark ink on the puffy pastels, deepened accents so white fg passes AA):
 
 | Token | Value | Notes |
 |---|---|---|
-| `--color-bg` | `#ece9f7` | Lavender felt |
-| `--color-surface-1` | `#f3f0fb` | |
-| `--color-surface-2` | `#f7f4fe` | |
+| `--color-bg` | `#e0dbf2` | Deep lavender felt (deeper than before so tiles pop) |
+| `--color-surface-1` | `#efebf9` | |
+| `--color-surface-2` | `#f4f1fc` | |
 | `--color-surface-3` | `#faf8ff` | |
 | `--color-surface-4` | `#ffffff` | |
 | `--color-surface-5` | `#ffffff` | |
-| `--color-text` | `#3a3550` | |
-| `--color-text-muted` | `#6f6a8a` | |
-| `--color-primary` | `#8b5cf6` | Violet |
+| `--color-text` | `#262038` | Ink violet — 11.6:1 on bg |
+| `--color-text-muted` | `#5b547a` | 5.2:1 on bg, 6.0:1 on surface-1, 6.3:1 on surface-2 |
+| `--color-text-subtle` | `#7d75a0` | Decorative only — ~3.2:1, never for body text |
+| `--color-primary` | `#6d3fe0` | Violet — white fg on it is 6.1:1 |
 | `--color-primary-fg` | `#ffffff` | |
-| `--color-primary-container` | `#e6dcfe` | |
-| `--color-tertiary` | `#3fb5a9` | |
-| `--color-error` | `#e35d6a` | |
-| `--color-outline` | `#c9c3dd` | |
-| `--color-outline-variant` | `#ddd8ec` | |
+| `--color-primary-container` | `#ddd0fb` | |
+| `--color-on-primary-container` | `#371d73` | 9.1:1 on primary-container |
+| `--color-secondary` | `#c94f8c` | Pink — white fg 4.2:1 |
+| `--color-secondary-container` | `#fadcec` | |
+| `--color-tertiary` | `#0e8a7d` | Mint/teal — white fg 4.2:1 |
+| `--color-tertiary-container` | `#cdf0ec` | |
+| `--color-error` | `#d6303f` | White fg 4.8:1 |
+| `--color-error-container` | `#fadade` | |
+| `--color-success` | `#0e7c40` | 3.9:1 on bg (praise text, large/bold) |
+| `--color-warn` | `#c2620a` | Amber — white fg 4.2:1, 3.6:1 on surface-1 |
+| `--color-outline` | `#a89fc6` | Stronger so hairline edges survive on light bg |
+| `--color-outline-variant` | `#c3bcdc` | |
 
-Secondary is pink (`#f0a6ca` dark / `#ec7fae` light) — use it sparingly for playful highlights.
+Secondary is pink (`#f0a6ca` dark / `#c94f8c` light) — use it sparingly for playful highlights. The light accents are deliberately deeper than the dark ones: dark mode puts dark ink on pale pastels, light mode puts white ink on saturated accents, so the light block needs the extra depth to keep the same pair contrast.
 
 ## Shape, shadow & border signature
 
@@ -72,7 +80,7 @@ Secondary is pink (`#f0a6ca` dark / `#ec7fae` light) — use it sparingly for pl
 - `--shadow-1` (dark): `8px 8px 18px rgba(0, 0, 0, 0.45), inset -4px -4px 10px rgba(0, 0, 0, 0.35), inset 4px 4px 10px rgba(255, 255, 255, 0.08)` — the triple "inflated" shadow.
 - `--shadow-2` (dark): `12px 12px 28px rgba(0, 0, 0, 0.5), inset -6px -6px 14px rgba(0, 0, 0, 0.35), inset 5px 5px 14px rgba(255, 255, 255, 0.09)`.
 - `--shadow-inset` (dark): `inset 5px 5px 12px rgba(0, 0, 0, 0.5), inset -4px -4px 10px rgba(255, 255, 255, 0.07)` — the "pressed dough" pressed state.
-- Light theme swaps the outer dark for a violet-tinted lift (`rgba(83, 73, 113, …)`) and strong white inner highlights (`rgba(255, 255, 255, 0.9)`+).
+- Light theme swaps the outer dark for a violet-tinted lift and deepened inner shading (`--shadow-1` light: `8px 8px 18px rgba(60, 50, 100, 0.28), inset -5px -5px 12px rgba(120, 108, 160, 0.2), inset 5px 5px 12px rgba(255, 255, 255, 0.95)`; `--shadow-2` light: `12px 12px 28px rgba(60, 50, 100, 0.34), inset -6px -6px 14px rgba(120, 108, 160, 0.22), inset 6px 6px 14px rgba(255, 255, 255, 1)`; `--shadow-inset` light: `inset 5px 5px 12px rgba(105, 94, 145, 0.42), inset -4px -4px 10px rgba(255, 255, 255, 0.9)`). The outer lift must stay ≥ ~0.28 alpha on light backgrounds or the puff reads as blur, not clay.
 - Physically recognizable by: the triple puffy shadow on every raised surface, oversized radii, and zero borders. A flat, sharp-cornered surface instantly breaks the illusion.
 
 ## Must-use tokens
@@ -92,6 +100,7 @@ Secondary is pink (`#f0a6ca` dark / `#ec7fae` light) — use it sparingly for pl
 
 ## Common mistakes
 
+- **Pale-on-pale text — the classic claymorphism failure.** Muted text on puffy pastel surfaces must still pass 4.5:1 (use `--color-text-muted` #5b547a in light, and never `--color-text-subtle` for real labels — it is decorative-only at ~3.2:1). White text on unsaturated pastel accents (mint/amber/pink) is the same trap: in light mode the accents are pre-darkened (`#6d3fe0`/`#c94f8c`/`#0e8a7d`/`#c2620a`) so `--color-primary-fg` white passes; don't swap them for lighter pastels.
 - Building flat cards with no shadow — the style reads as broken M3 instead of clay.
 - Using the base (M3) radius scale instead of clay's puffy overrides — corners look too tight.
 - Adding borders/outlines — clay has none; depth is shadow-only.

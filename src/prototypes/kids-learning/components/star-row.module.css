@@ -20,3 +20,10 @@
   color: var(--color-surface-4);
   fill: currentColor;
 }
+
+/* Light theme only: surface-4 is white there, so empty stars vanish on the
+   pale surfaces they sit on. Outline is a visible lavender-gray. Dark theme
+   keeps the original surface-4 fill (pixel-identical). */
+:global(.device[data-theme="light"]) .starEmpty {
+  color: var(--color-outline);
+}

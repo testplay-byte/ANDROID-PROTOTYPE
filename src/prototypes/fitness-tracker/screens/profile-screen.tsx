@@ -6,17 +6,19 @@
  * (streak / total workouts / minutes), achievement badges row.
  */
 
-import { TopBar } from "../../../proto-kit";
 import { PROFILE_STATS, ACHIEVEMENTS } from "../lib/data";
 import { Group, Row, SectionLabel } from "../components/grouped-list";
+import { IosNavBar, useIosCollapse } from "../components/ios-nav-bar";
 import styles from "./profile-screen.module.css";
 
 export function ProfileScreen() {
+  const { ref, collapsed } = useIosCollapse();
+
   return (
     <div className={styles.root}>
-      <TopBar variant="center" title="Profile" />
+      <IosNavBar title="Profile" collapsed={collapsed} />
 
-      <div className={styles.content}>
+      <div className={styles.content} ref={ref}>
         {/* Profile header */}
         <div className={styles.header}>
           <span className={styles.avatar} aria-hidden="true">AK</span>

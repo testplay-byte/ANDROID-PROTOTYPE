@@ -3,7 +3,9 @@
 /**
  * ActivityRings — three concentric SVG rings (move / exercise / stand)
  * drawn with stroke-dasharray. Move uses --color-primary (iOS blue),
- * exercise --color-success, stand --color-warn.
+ * exercise --color-success, stand --color-warn. Rounded caps, and each
+ * ring gets its own subtle track (its color at ~20% over the canvas)
+ * the way Apple Fitness renders unfilled ring segments.
  */
 
 export interface RingValues {
@@ -16,9 +18,9 @@ export interface RingValues {
 }
 
 const RINGS = [
-  { key: "move", color: "var(--color-primary)", width: 12 },
-  { key: "exercise", color: "var(--color-success)", width: 12 },
-  { key: "stand", color: "var(--color-warn)", width: 12 },
+  { key: "move", color: "var(--color-primary)", width: 11 },
+  { key: "exercise", color: "var(--color-success)", width: 11 },
+  { key: "stand", color: "var(--color-warn)", width: 11 },
 ] as const;
 
 function pct(value: number, goal: number): number {
@@ -39,7 +41,7 @@ export function ActivityRings({
     pct(values.stand, values.standGoal),
   ];
 
-  const radii = [78, 60, 42];
+  const radii = [78, 61, 44];
   const center = 90;
 
   return (
@@ -56,12 +58,13 @@ export function ActivityRings({
         const p = pcts[i];
         return (
           <g key={ring.key}>
+            {/* Subtle per-ring track (the ring's own color, ~20%) */}
             <circle
               cx={center}
               cy={center}
               r={r}
               fill="none"
-              stroke="var(--ring-track)"
+              stroke={`color-mix(in srgb, ${ring.color} 22%, transparent)`}
               strokeWidth={ring.width}
             />
             <circle
@@ -75,7 +78,7 @@ export function ActivityRings({
               strokeDasharray={c}
               strokeDashoffset={c * (1 - p)}
               transform={`rotate(-90 ${center} ${center})`}
-              style={{ transition: "stroke-dashoffset var(--dur-4) var(--ease-emphasized-decel)" }}
+              style={{ transition: "stroke-dashoffset 600ms var(--ios-ease)" }}
             />
           </g>
         );

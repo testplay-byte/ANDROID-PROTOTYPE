@@ -1,4 +1,5 @@
-/* SettingsScreen — iOS inset grouped style. */
+/* SettingsScreen — iOS inset grouped style.
+   Rows 44px+, switches green when on, iOS "- | +" stepper, 13px footers. */
 
 .root {
   position: absolute;
@@ -12,7 +13,7 @@
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  padding: 0 var(--sp-4) 96px;
+  padding: var(--sp-1) var(--sp-4) 96px;
   scrollbar-width: none;
 }
 
@@ -20,19 +21,33 @@
   display: none;
 }
 
-/* Segmented rows live inside groups, full-bleed with padding */
-.segmentRow {
-  padding: var(--sp-2) var(--sp-4) var(--sp-3);
+/* Segmented control inside a group, below its row */
+.segmentWrap {
+  padding: 2px var(--sp-4) var(--sp-3);
 }
 
-.segmentRowLabel {
+/* Row with a label + inline control (units, stepper) */
+.rowInline {
   display: flex;
   align-items: center;
-  min-height: 52px;
-  padding: var(--sp-2) var(--sp-4) 0;
-  font-size: var(--fs-body);
-  font-weight: 500;
+  min-height: 48px;
+  padding: var(--sp-1) var(--sp-4);
+  gap: var(--sp-3);
+}
+
+.rowLabel {
+  flex: 1;
+  font-size: var(--ios-body); /* 17px */
   color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rowValue {
+  font-size: var(--ios-body);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .segmentInline {
@@ -40,45 +55,40 @@
   flex-shrink: 0;
 }
 
-/* Row with a label + inline control */
-.segmentRow:has(.segmentInline) {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--sp-2) var(--sp-4);
-}
-
-.segmentRow:has(.segmentInline) .segmentRowLabel {
-  min-height: 44px;
-  padding: 0;
-}
-
-/* ---- Stepper (iOS style: segmented +/- with value between) ---- */
+/* ---- Stepper — iOS rounded-rect "- | +" ---- */
 .stepper {
   display: flex;
-  align-items: center;
+  align-items: stretch;
   background: var(--color-surface-3);
-  border-radius: var(--r-xs);
+  border-radius: 8px;
   overflow: hidden;
   flex-shrink: 0;
 }
 
 .stepperBtn {
-  width: 44px;
-  height: 44px;
+  width: 34px;
+  height: 30px;
   border: none;
-  background: var(--color-surface-1);
-  color: var(--color-primary);
+  background: transparent;
+  color: var(--color-text);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background var(--dur-1) var(--ease-standard),
-    opacity var(--dur-1) var(--ease-standard);
+  transition: background var(--ios-dur-fast) var(--ios-ease),
+    opacity var(--ios-dur-fast) var(--ios-ease);
+}
+
+.stepperBtn:first-child {
+  border-radius: 7px 0 0 7px;
+}
+
+.stepperBtn:last-child {
+  border-radius: 0 7px 7px 0;
 }
 
 .stepperBtn:active {
-  background: var(--color-surface-3);
+  background: var(--color-surface-4);
 }
 
 .stepperBtn:disabled {
@@ -86,13 +96,10 @@
   cursor: default;
 }
 
-.stepperValue {
-  min-width: 40px;
-  text-align: center;
-  font-size: var(--fs-body);
-  font-weight: 600;
-  font-variant-numeric: tabular-nums;
-  color: var(--color-text);
+.stepperDivider {
+  width: 1px;
+  background: var(--color-outline-variant);
+  transform: scaleX(0.5);
 }
 
 /* ---- Icon disc tints ---- */
@@ -102,19 +109,11 @@
 }
 
 .tintIndigo {
-  color: var(--color-tertiary);
-  background: var(--tint-purple-bg);
+  color: var(--ios-indigo);
+  background: var(--tint-indigo-bg);
 }
 
 .tintOrange {
   color: var(--color-warn);
   background: var(--tint-orange-bg);
-}
-
-.footer {
-  margin: 0;
-  padding: var(--sp-2) 0 0;
-  text-align: center;
-  font-size: var(--fs-label-s);
-  color: var(--color-text-subtle);
 }

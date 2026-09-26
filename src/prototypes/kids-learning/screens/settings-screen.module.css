@@ -49,7 +49,8 @@
 .profileDesc {
   font-size: var(--fs-label);
   font-weight: 700;
-  color: var(--color-text-subtle);
+  /* muted, not subtle — real label on surface-1 (subtle is decorative-only). */
+  color: var(--color-text-muted);
 }
 
 /* ---- Groups ---- */
@@ -61,7 +62,8 @@
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: var(--color-text-subtle);
+  /* muted, not subtle — section headers are real text, not decoration. */
+  color: var(--color-text-muted);
   margin: 0 0 var(--sp-2) var(--sp-2);
 }
 .card {
@@ -94,7 +96,8 @@
 .rowDesc {
   font-size: var(--fs-label);
   font-weight: 600;
-  color: var(--color-text-subtle);
+  /* muted, not subtle — real label on surface-1 (subtle is decorative-only). */
+  color: var(--color-text-muted);
 }
 
 /* ---- Reset button (two-tap confirm) ---- */

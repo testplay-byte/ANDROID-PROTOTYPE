@@ -1,0 +1,92 @@
+/* IosNavBar — iOS navigation bar with collapse-to-inline large title. */
+
+.navbar {
+  flex: 0 0 auto;
+  position: relative;
+  z-index: 5;
+  background: transparent;
+  border-bottom: 1px solid transparent;
+  transition: background var(--ios-dur) var(--ios-ease),
+    border-color var(--ios-dur) var(--ios-ease);
+}
+
+/* Collapsed / inline: translucent blurred bar + hairline (iOS nav material) */
+.collapsed {
+  background: color-mix(in srgb, var(--color-surface-1) 80%, transparent);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  backdrop-filter: blur(20px) saturate(1.8);
+  border-bottom-color: var(--color-outline-variant);
+}
+
+/* ---- Inline row: 44px, leading/trailing slots, centered inline title ---- */
+.inlineRow {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 44px;
+  padding: 0 8px;
+}
+
+.side,
+.sideRight {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  min-width: 0;
+}
+
+.inlineTitle {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: var(--ios-headline);
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 55%;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--ios-dur-fast) var(--ios-ease);
+}
+
+.collapsed .inlineTitle,
+.inlineOnly .inlineTitle {
+  opacity: 1;
+}
+
+/* ---- Large title row: 34px/700, collapses away on scroll ---- */
+.largeRow {
+  max-height: 56px;
+  padding: 0 var(--sp-4) 6px;
+  overflow: hidden;
+  opacity: 1;
+  transition: max-height var(--ios-dur) var(--ios-ease),
+    opacity var(--ios-dur-fast) var(--ios-ease),
+    padding var(--ios-dur) var(--ios-ease);
+}
+
+.largeTitle {
+  margin: 0;
+  font-size: var(--ios-large-title);
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1.15;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.collapsed .largeRow {
+  max-height: 0;
+  opacity: 0;
+  padding-bottom: 0;
+}
+
+/* Pushed detail screens: never render the large title space */
+.inlineOnly .largeRow {
+  display: none;
+}

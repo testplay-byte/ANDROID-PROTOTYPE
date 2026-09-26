@@ -45,9 +45,12 @@ button {
 }
 
 /* ---- Ambient colorful background (inside the screen, behind everything) --
-   Three large blurred radial-gradient blobs: violet / cyan / amber at low
-   opacity. The glass panels' backdrop-filter blurs these. Uses style tokens
-   only (--color-primary violet, --color-tertiary cyan, --color-warn amber). */
+   Three large, soft blurred radial-gradient blobs: violet / cyan / amber.
+   They are oversized and heavily blurred so the glass panels'
+   backdrop-filter has a luminous, even field to refract — and they stay
+   BEHIND all tabs (z-index 0) without ever darkening text contrast.
+   Uses style tokens only (--color-primary violet, --color-tertiary cyan,
+   --color-warn amber). */
 .ambient {
   position: absolute;
   inset: 0;
@@ -59,42 +62,42 @@ button {
 .ambient__blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(64px);
+  filter: blur(80px);
 }
 
 .ambient__blob--violet {
-  width: 340px;
-  height: 340px;
-  top: -90px;
-  left: -110px;
+  width: 430px;
+  height: 430px;
+  top: -120px;
+  left: -130px;
   background: radial-gradient(
     circle,
-    color-mix(in srgb, var(--color-primary) 55%, transparent) 0%,
-    transparent 70%
+    color-mix(in srgb, var(--color-primary) 62%, transparent) 0%,
+    transparent 75%
   );
 }
 
 .ambient__blob--cyan {
-  width: 380px;
-  height: 380px;
-  top: 240px;
-  right: -150px;
+  width: 470px;
+  height: 470px;
+  top: 220px;
+  right: -170px;
   background: radial-gradient(
     circle,
-    color-mix(in srgb, var(--color-tertiary) 45%, transparent) 0%,
-    transparent 70%
+    color-mix(in srgb, var(--color-tertiary) 52%, transparent) 0%,
+    transparent 75%
   );
 }
 
 .ambient__blob--amber {
-  width: 320px;
-  height: 320px;
-  bottom: -60px;
-  left: -40px;
+  width: 410px;
+  height: 410px;
+  bottom: -90px;
+  left: -60px;
   background: radial-gradient(
     circle,
-    color-mix(in srgb, var(--color-warn) 35%, transparent) 0%,
-    transparent 70%
+    color-mix(in srgb, var(--color-warn) 42%, transparent) 0%,
+    transparent 75%
   );
 }
 

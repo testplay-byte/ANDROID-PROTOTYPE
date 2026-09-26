@@ -7,6 +7,45 @@
 
 ## [Unreleased]
 
+### 2026-09-26 — Style-quality round 2: grouped grid view, HIG overhaul, glass refinement, clay light-mode fix
+
+**Dashboard (grid view grouping — user-requested):**
+- Grid view now renders **one tinted section per design language** (`.stylegroup[data-style=…]`
+  in dashboard.css): rounded card with a soft background tint derived from the style's
+  signature hue (5-9% color-mix), matching border, and a header row (hue dot + style name +
+  prototype count). Similar prototypes read as one family; styles never mix in a section.
+- Weather palette entry + kids-learning thumb colors updated to the new token values.
+
+**fitness-tracker (Apple HIG) — full quality overhaul:**
+- Real iOS type scale (34 Large Title / 22 Title2 / 17 Body / 13 Footnote, as `--ios-*` tokens).
+- New `IosNavBar` with large-title → inline-bar collapse on scroll (40px threshold, 320ms).
+- True iOS Settings anatomy: inset grouped lists (16px insets, hairline separators inset past
+  icon discs, section footers), native 51×31 green switches, "- | +" rounded-rect steppers,
+  32px segmented control, outline→filled tab icons, per-ring subtle ring tracks.
+- hig.css light `--color-tertiary` corrected to iOS orange #ff9500. Doc: hig.md gained
+  typography table, grouped-list geometry, large-title + motion sections.
+
+**weather-app (Glassmorphism) — quality + palette refinement:**
+- `.vGlass` nav variant fixed: active pill has ≥16px side padding and never clips labels,
+  6px gaps between items, gradient active treatment with inner highlight + glow.
+- glass.css re-tuned BOTH themes to the "airy/luminous, never dark-muddy" rule: dark bg
+  #131a2e with a brighter surface-alpha ladder (0.09→0.24) and luminous accents; light theme
+  brighter frost + darker text. Contrast verified ≥4.5:1 for body/muted text in both themes.
+- Screens: larger/softer ambient blobs, even hourly cards, aligned detail tiles, airier
+  forecast rows. Doc: glass.md palette + guidance updated.
+
+**kids-learning (Claymorphism) — light-mode legibility fix (dark untouched):**
+- clay.css light palette re-derived for contrast: text #262038 (11.6:1 on bg), muted #5b547a
+  (≥5.2:1), deeper accents (#6d3fe0 primary etc.), stronger outline + puffy shadows (≥0.28
+  alpha or puff reads as blur). Screen fixes: answer labels were white-on-pale (invisible),
+  invisible empty stars, subtle-text misuse — all resolved. Doc: clay.md updated with
+  contrast notes + the pale-on-pale mistake rule.
+
+**Docs:** hig.md / glass.md / clay.md all reflect the new values; preferences.md §1 records
+the grouped grid view. `npm run build` clean; all changed pages screenshot-verified.
+
+---
+
 ### 2026-09-26 — Dashboard gallery UX pass: view modes, real mini-thumbnails, symmetric filters, docs consistency
 
 **Fixes & features (user feedback round 2):**

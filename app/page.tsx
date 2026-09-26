@@ -96,7 +96,7 @@ const PROTOTYPES: GalleryItem[] = [
     desc: "Glassmorphism weather app — frosted translucent panels over colorful ambient blobs, hourly strip, 7-day forecast, multi-city switching and °C/°F toggle.",
     style: "glass",
     tags: ["Glass", "Weather"],
-    palette: { bg: "#101522", surface: "#232c44", surfaceAlt: "#2b3552", accent: "#c084fc", text: "#f4f6fb" },
+    palette: { bg: "#131a2e", surface: "#2f3547", surfaceAlt: "#3c4254", accent: "#c99cff", text: "#f4f6fb" },
     screens: [
       { name: "Today", interactions: 90 },
       { name: "Forecast", interactions: 60 },
@@ -171,7 +171,7 @@ const PROTOTYPES: GalleryItem[] = [
     desc: "Claymorphism learning game for kids — puffy pastel tiles, a tap-to-answer quiz with star rewards, a badge shelf and satisfying squish feedback.",
     style: "clay",
     tags: ["Game", "Kids"],
-    palette: { bg: "#ece9f7", surface: "#faf8ff", surfaceAlt: "#d9d3ee", accent: "#8b5cf6", text: "#3a3550" },
+    palette: { bg: "#e0dbf2", surface: "#faf8ff", surfaceAlt: "#c3bcdc", accent: "#6d3fe0", text: "#262038" },
     screens: [
       { name: "Home", interactions: 70 },
       { name: "Play", interactions: 95 },

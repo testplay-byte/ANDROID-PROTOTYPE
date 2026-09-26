@@ -94,5 +94,6 @@
 .tileTagline {
   font-size: var(--fs-label);
   font-weight: 700;
-  color: var(--color-text-subtle);
+  /* muted, not subtle — real label text on a surface-1 tile must pass 4.5:1. */
+  color: var(--color-text-muted);
 }

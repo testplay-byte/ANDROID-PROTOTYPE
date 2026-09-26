@@ -3,10 +3,13 @@
 /**
  * GroupedList — iOS inset-grouped list primitives.
  *
- * <Group>  = white rounded card on the grouped background.
- * <Row>    = full-bleed row inside a group with hairline separators,
- *            optional icon disc, value slot and chevron.
- * <SectionLabel> = 13px uppercase section header.
+ * <Group>  = white rounded card on the grouped background (10px radius,
+ *            10px gap to the next group).
+ * <Row>    = full-bleed 44px+ row inside a group with hairline separators
+ *            that start at the text, optional 29px icon disc, value slot
+ *            and tertiary-gray chevron.
+ * <SectionLabel> = 13px uppercase section header above a group.
+ * <GroupFooter>  = 13px gray caption under a group (iOS Settings footer).
  */
 import type { ReactNode } from "react";
 import styles from "./grouped-list.module.css";
@@ -76,4 +79,9 @@ export function Row({
 
 export function SectionLabel({ children }: { children: ReactNode }) {
   return <span className={styles.sectionLabel}>{children}</span>;
+}
+
+/** 13px gray caption under a group — the iOS Settings section footer. */
+export function GroupFooter({ children }: { children: ReactNode }) {
+  return <span className={styles.groupFooter}>{children}</span>;
 }

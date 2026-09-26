@@ -208,9 +208,9 @@ const THUMBS: Record<string, (p: Palette) => ReactNode> = {
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
         {[
           { bg: p.accent, g: "A" },
-          { bg: "#3fb5a9", g: "7" },
-          { bg: "#ec7fae", g: "●●" },
-          { bg: "#eab308", g: "▲" },
+          { bg: "#0e8a7d", g: "7" },
+          { bg: "#c94f8c", g: "●●" },
+          { bg: "#c2620a", g: "▲" },
         ].map((t, i) => (
           <div key={i} style={{ background: p.surface, borderRadius: 12, padding: 8, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, boxShadow: `4px 4px 8px rgba(83,73,113,.2), inset -3px -3px 6px rgba(140,130,175,.15), inset 3px 3px 6px rgba(255,255,255,.9)` }}>
             <span style={{ width: 22, height: 22, borderRadius: 8, background: t.bg, color: "#fff", fontSize: 9, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>{t.g}</span>

@@ -226,17 +226,36 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
       </div>
 
       {mode === "grid" ? (
-        /* ---- Grid view: mini image + name only ---- */
-        <div className="gridview">
-          {visible.map((item) => (
-            <a className="gcell" key={item.name} href={item.url} aria-label={`Open ${item.name} prototype`}>
-              <span className="gcell__shot">
-                <Silhouette item={item} mini />
-              </span>
-              <span className="gcell__name">{item.name}</span>
-            </a>
-          ))}
-        </div>
+        /* ---- Grid view: grouped by design language, tinted per style ---- */
+        <>
+          {presentStyles
+            .filter((s) => filter === "all" || filter === s)
+            .map((s) => {
+              const group = visible.filter((it) => it.style === s);
+              if (group.length === 0) return null;
+              return (
+                <section className="stylegroup" data-style={s} key={s}>
+                  <header className="stylegroup__head">
+                    <span className="stylegroup__dot" aria-hidden="true" />
+                    <h3 className="stylegroup__title">{STYLE_LABELS[s]}</h3>
+                    <span className="stylegroup__count">
+                      {group.length} {group.length === 1 ? "prototype" : "prototypes"}
+                    </span>
+                  </header>
+                  <div className="gridview">
+                    {group.map((item) => (
+                      <a className="gcell" key={item.name} href={item.url} aria-label={`Open ${item.name} prototype`}>
+                        <span className="gcell__shot">
+                          <Silhouette item={item} mini />
+                        </span>
+                        <span className="gcell__name">{item.name}</span>
+                      </a>
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
+        </>
       ) : (
         /* ---- Detailed view: rich cards ---- */
         <div className="showcase">

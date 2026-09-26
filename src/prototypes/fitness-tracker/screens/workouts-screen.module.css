@@ -1,4 +1,5 @@
-/* WorkoutsScreen — iOS workout list + inline session with ring timer. */
+/* WorkoutsScreen — iOS workout list + inline session with ring timer.
+   Type scale: timer 44px tabular, stat values 22px (Title 2), hints 13px. */
 
 .root {
   position: absolute;
@@ -12,7 +13,7 @@
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  padding: 0 var(--sp-4) 96px;
+  padding: var(--sp-1) var(--sp-4) 96px;
   scrollbar-width: none;
 }
 
@@ -22,13 +23,13 @@
 
 .hint {
   margin: 0;
-  padding: 0 var(--sp-2);
-  font-size: var(--fs-label-s);
+  padding: var(--sp-2) var(--sp-2) 0;
+  font-size: var(--ios-footnote); /* 13px */
   color: var(--color-text-muted);
   text-align: center;
 }
 
-/* ---- Back button (TopBar leading) ---- */
+/* ---- Back button (nav bar leading) ---- */
 .backBtn {
   width: 44px;
   height: 44px;
@@ -40,8 +41,8 @@
   justify-content: center;
   cursor: pointer;
   border-radius: var(--r-pill);
-  transition: background var(--dur-1) var(--ease-standard),
-    transform var(--dur-1) var(--ease-standard);
+  transition: background var(--ios-dur-fast) var(--ios-ease),
+    transform var(--ios-dur-fast) var(--ios-ease);
 }
 
 .backBtn:active {
@@ -49,7 +50,7 @@
   transform: scale(0.92);
 }
 
-/* ---- Icon disc tints ---- */
+/* ---- Icon disc tints (iOS system colors) ---- */
 .blue {
   color: var(--color-primary);
   background: var(--tint-blue-bg);
@@ -61,13 +62,13 @@
 }
 
 .teal {
-  color: var(--color-secondary);
+  color: var(--ios-teal);
   background: var(--tint-teal-bg);
 }
 
-.purple {
-  color: var(--color-tertiary);
-  background: var(--tint-purple-bg);
+.indigo {
+  color: var(--ios-indigo);
+  background: var(--tint-indigo-bg);
 }
 
 .orange {
@@ -75,11 +76,11 @@
   background: var(--tint-orange-bg);
 }
 
-/* ---- Session view ---- */
+/* ---- Session view: clean big ring + SF-style controls ---- */
 .timerWrap {
   position: relative;
   width: 200px;
-  margin: var(--sp-4) auto;
+  margin: var(--sp-6) auto var(--sp-5);
 }
 
 .timerCenter {
@@ -89,22 +90,21 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 4px;
 }
 
 .timerTime {
-  font-size: var(--fs-display);
+  font-size: 44px;
   font-weight: 700;
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
   color: var(--color-text);
   line-height: 1;
 }
 
 .timerLabel {
-  font-size: var(--fs-label-s);
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-size: var(--ios-footnote); /* 13px */
+  font-weight: 400;
   color: var(--color-text-muted);
 }
 
@@ -112,7 +112,7 @@
   display: flex;
   justify-content: center;
   gap: var(--sp-8);
-  margin-bottom: var(--sp-5);
+  margin-bottom: var(--sp-6);
 }
 
 .sessionStat {
@@ -123,24 +123,24 @@
 }
 
 .sessionStatValue {
-  font-size: var(--fs-h2);
+  font-size: var(--ios-title2); /* 22px */
   font-weight: 700;
   font-variant-numeric: tabular-nums;
   color: var(--color-text);
 }
 
 .sessionStatLabel {
-  font-size: var(--fs-label-s);
+  font-size: var(--ios-caption); /* 12px */
   color: var(--color-text-muted);
 }
 
-/* ---- Controls ---- */
+/* ---- Controls: gray side pads + large primary ring button ---- */
 .controls {
   display: flex;
   justify-content: center;
   align-items: center;
-  gap: var(--sp-5);
-  margin-bottom: var(--sp-4);
+  gap: var(--sp-6);
+  margin-bottom: var(--sp-5);
 }
 
 .controlBtn {
@@ -154,8 +154,8 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform var(--dur-1) var(--ease-standard),
-    background var(--dur-1) var(--ease-standard), opacity var(--dur-1) var(--ease-standard);
+  transition: transform var(--ios-dur-fast) var(--ios-ease),
+    background var(--ios-dur-fast) var(--ios-ease), opacity var(--ios-dur-fast) var(--ios-ease);
 }
 
 .controlBtn:active {

@@ -362,7 +362,46 @@
       color: var(--chart-3); border-color: transparent;
     }
 
-    /* ---- Grid view (simplified): mini image + name only ---------------- */
+    /* ---- Grid view (simplified): grouped by design language ------------
+       Each style gets its own softly tinted section so similar prototypes
+       read as one family. Tints derive from each style's signature hue. */
+    .stylegroup {
+      border: 1px solid var(--border); border-radius: 20px;
+      padding: 18px; margin-bottom: 20px;
+      background: var(--card);
+    }
+    /* Distinct hue per design language (7% mix keeps the warm-cream page calm). */
+    .stylegroup[data-style="m3"]        { background: color-mix(in srgb, #d0bcff 7%, var(--card)); border-color: color-mix(in srgb, #d0bcff 22%, var(--border)); }
+    .stylegroup[data-style="hig"]       { background: color-mix(in srgb, #0a84ff 7%, var(--card)); border-color: color-mix(in srgb, #0a84ff 22%, var(--border)); }
+    .stylegroup[data-style="carbon"]    { background: color-mix(in srgb, #8d8d8d 8%, var(--card)); border-color: color-mix(in srgb, #8d8d8d 24%, var(--border)); }
+    .stylegroup[data-style="neumorph"]  { background: color-mix(in srgb, #e0a458 8%, var(--card)); border-color: color-mix(in srgb, #e0a458 24%, var(--border)); }
+    .stylegroup[data-style="glass"]     { background: color-mix(in srgb, #67e8f9 8%, var(--card)); border-color: color-mix(in srgb, #67e8f9 24%, var(--border)); }
+    .stylegroup[data-style="brutalism"] { background: color-mix(in srgb, #ffd23f 9%, var(--card)); border-color: color-mix(in srgb, #ffd23f 26%, var(--border)); }
+    .stylegroup[data-style="clay"]      { background: color-mix(in srgb, #ec7fae 8%, var(--card)); border-color: color-mix(in srgb, #ec7fae 24%, var(--border)); }
+    .stylegroup[data-style="bauhaus"]   { background: color-mix(in srgb, #d5321f 7%, var(--card)); border-color: color-mix(in srgb, #d5321f 22%, var(--border)); }
+    .stylegroup[data-style="minimal"]   { background: color-mix(in srgb, #111111 5%, var(--card)); border-color: color-mix(in srgb, #111111 16%, var(--border)); }
+    .stylegroup[data-style="bento"]     { background: color-mix(in srgb, #ff5c33 8%, var(--card)); border-color: color-mix(in srgb, #ff5c33 24%, var(--border)); }
+    .stylegroup[data-style="flat"]      { background: color-mix(in srgb, #00897b 8%, var(--card)); border-color: color-mix(in srgb, #00897b 24%, var(--border)); }
+    .stylegroup__head {
+      display: flex; align-items: center; gap: 8px; margin: 0 0 14px;
+    }
+    .stylegroup__dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted-foreground); flex: 0 0 auto; }
+    .stylegroup[data-style="m3"] .stylegroup__dot        { background: #d0bcff; }
+    .stylegroup[data-style="hig"] .stylegroup__dot       { background: #0a84ff; }
+    .stylegroup[data-style="carbon"] .stylegroup__dot    { background: #8d8d8d; }
+    .stylegroup[data-style="neumorph"] .stylegroup__dot  { background: #e0a458; }
+    .stylegroup[data-style="glass"] .stylegroup__dot     { background: #67e8f9; }
+    .stylegroup[data-style="brutalism"] .stylegroup__dot { background: #ffd23f; }
+    .stylegroup[data-style="clay"] .stylegroup__dot      { background: #ec7fae; }
+    .stylegroup[data-style="bauhaus"] .stylegroup__dot   { background: #d5321f; }
+    .stylegroup[data-style="minimal"] .stylegroup__dot   { background: #111111; }
+    .stylegroup[data-style="bento"] .stylegroup__dot     { background: #ff5c33; }
+    .stylegroup[data-style="flat"] .stylegroup__dot     { background: #00897b; }
+    .stylegroup__title {
+      margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .02em;
+    }
+    .stylegroup__count { font-size: 12px; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+
     .gridview {
       display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
       gap: 16px;

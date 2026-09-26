@@ -7,21 +7,22 @@
  */
 
 import { useState } from "react";
-import { TopBar } from "../../../proto-kit";
 import { WEEK_ACTIVITY } from "../lib/data";
 import { ActivityRings } from "../components/activity-rings";
 import { Group, Row, SectionLabel } from "../components/grouped-list";
+import { IosNavBar, useIosCollapse } from "../components/ios-nav-bar";
 import styles from "./activity-screen.module.css";
 
 export function ActivityScreen() {
   const [dayIndex, setDayIndex] = useState(6);
   const day = WEEK_ACTIVITY[dayIndex];
+  const { ref, collapsed } = useIosCollapse();
 
   return (
     <div className={styles.root}>
-      <TopBar
-        variant="center"
+      <IosNavBar
         title="Activity"
+        collapsed={collapsed}
         trailing={
           <button type="button" className={styles.shareBtn} aria-label="Share activity">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -33,7 +34,7 @@ export function ActivityScreen() {
         }
       />
 
-      <div className={styles.content}>
+      <div className={styles.content} ref={ref}>
         {/* Rings + summary */}
         <section className={styles.ringsCard}>
           <div className={styles.ringsWrap}>

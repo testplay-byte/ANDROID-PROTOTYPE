@@ -23,14 +23,15 @@
   flex-direction: column;
   align-items: center;
   gap: var(--sp-1);
-  padding: var(--sp-4) 0 var(--sp-2);
+  padding: var(--sp-6) 0 var(--sp-2);
   color: var(--color-text);
+  text-align: center;
 }
 
 .heroIcon {
   color: var(--color-warn);
-  margin-bottom: var(--sp-1);
-  filter: drop-shadow(0 4px 16px color-mix(in srgb, var(--color-warn) 35%, transparent));
+  margin-bottom: var(--sp-2);
+  filter: drop-shadow(0 6px 20px color-mix(in srgb, var(--color-warn) 40%, transparent));
 }
 
 .heroTemp {
@@ -39,7 +40,7 @@
   line-height: 1;
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
-  text-shadow: 0 2px 24px rgba(0, 0, 0, 0.25);
+  text-shadow: 0 2px 18px rgba(9, 14, 30, 0.18);
 }
 
 .heroDesc {
@@ -53,7 +54,7 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin-top: var(--sp-2);
+  margin-top: var(--sp-3);
   padding: 8px 14px;
   border-radius: var(--r-pill);
   font-size: var(--fs-label);
@@ -70,8 +71,9 @@
   font-size: var(--fs-label);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
-  color: var(--color-text-subtle);
+  color: var(--color-text-muted);
   margin-top: var(--sp-1);
+  letter-spacing: 0.02em;
 }
 
 /* ---- Sections ---- */
@@ -91,21 +93,21 @@
   padding-left: var(--sp-1);
 }
 
-/* ---- Hourly strip ---- */
+/* ---- Hourly strip ----
+   Even card sizing: every card is the same fixed width/height with the
+   same padding so the rhythm stays perfectly regular while scrolling. */
 .hourlyStrip {
   display: flex;
   gap: var(--sp-2);
   overflow-x: auto;
-  padding: 2px 2px var(--sp-1);
   margin: 0 calc(-1 * var(--sp-1));
-  padding-left: var(--sp-1);
-  padding-right: var(--sp-1);
+  padding: var(--sp-1);
 }
 
 .hourCard {
-  flex: 0 0 auto;
-  min-width: 64px;
-  min-height: 96px;
+  flex: 0 0 68px;
+  width: 68px;
+  height: 100px;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -139,7 +141,8 @@
   color: var(--color-text);
 }
 
-/* ---- Details grid ---- */
+/* ---- Details grid ----
+   Tiles align: same min-height, same icon block so labels/values line up. */
 .detailsGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -150,6 +153,7 @@
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-height: 96px;
   padding: var(--sp-3) var(--sp-4);
   border-radius: var(--r-lg);
   background: var(--color-surface-1);

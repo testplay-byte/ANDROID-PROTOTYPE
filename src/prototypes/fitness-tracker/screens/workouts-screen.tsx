@@ -8,7 +8,6 @@
  */
 
 import { useEffect, useRef, useState } from "react";
-import { TopBar } from "../../../proto-kit";
 import {
   WORKOUT_TYPES,
   SESSION_GOAL_SEC,
@@ -16,6 +15,7 @@ import {
   type WorkoutType,
 } from "../lib/data";
 import { Group, Row, SectionLabel } from "../components/grouped-list";
+import { IosNavBar, useIosCollapse } from "../components/ios-nav-bar";
 import styles from "./workouts-screen.module.css";
 
 type SessionState = "idle" | "running" | "paused";
@@ -73,11 +73,19 @@ export function WorkoutsScreen() {
     );
   }
 
+  return <WorkoutsList onStart={startSession} />;
+}
+
+/* ---- List view (large title + collapse) ---- */
+
+function WorkoutsList({ onStart }: { onStart: (w: WorkoutType) => void }) {
+  const { ref, collapsed } = useIosCollapse();
+
   return (
     <div className={styles.root}>
-      <TopBar variant="center" title="Workouts" />
+      <IosNavBar title="Workouts" collapsed={collapsed} />
 
-      <div className={styles.content}>
+      <div className={styles.content} ref={ref}>
         <SectionLabel>Start a workout</SectionLabel>
         <Group>
           {WORKOUT_TYPES.map((w, i) => (
@@ -89,7 +97,7 @@ export function WorkoutsScreen() {
               subtitle={`~${Math.round(w.kcalPerMin)} kcal/min`}
               chevron
               last={i === WORKOUT_TYPES.length - 1}
-              onClick={() => startSession(w)}
+              onClick={() => onStart(w)}
             />
           ))}
         </Group>
@@ -128,9 +136,9 @@ function SessionView({
 
   return (
     <div className={styles.root}>
-      <TopBar
-        variant="center"
+      <IosNavBar
         title={workout.name}
+        inlineOnly
         leading={
           <button type="button" className={styles.backBtn} aria-label="End session" onClick={onEnd}>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">

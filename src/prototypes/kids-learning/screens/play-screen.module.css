@@ -178,7 +178,9 @@
 .answerLabel {
   font-size: var(--fs-display);
   font-weight: 900;
-  color: var(--color-primary-fg);
+  /* --color-text, NOT --color-primary-fg: the idle answer button sits on
+     surface-2, where primary-fg (white) is invisible in light mode. */
+  color: var(--color-text);
   line-height: 1;
 }
 .answerCorrect .answerLabel {

@@ -42,14 +42,14 @@ export interface WorkoutType {
   /** kcal per minute, used by the session summary. */
   kcalPerMin: number;
   /** Tint class key for the icon disc. */
-  tint: "blue" | "green" | "teal" | "purple" | "orange";
+  tint: "blue" | "green" | "teal" | "indigo" | "orange";
 }
 
 export const WORKOUT_TYPES: WorkoutType[] = [
   { id: "run", name: "Run", kcalPerMin: 11.4, tint: "blue" },
   { id: "cycle", name: "Cycle", kcalPerMin: 9.2, tint: "green" },
   { id: "swim", name: "Swim", kcalPerMin: 10.1, tint: "teal" },
-  { id: "yoga", name: "Yoga", kcalPerMin: 4.3, tint: "purple" },
+  { id: "yoga", name: "Yoga", kcalPerMin: 4.3, tint: "indigo" },
   { id: "hiit", name: "HIIT", kcalPerMin: 13.6, tint: "orange" },
 ];
 
@@ -71,14 +71,14 @@ export const PROFILE_STATS: ProfileStats = {
 export interface Achievement {
   id: string;
   name: string;
-  tint: "blue" | "green" | "teal" | "purple" | "orange";
+  tint: "blue" | "green" | "teal" | "indigo" | "orange";
 }
 
 export const ACHIEVEMENTS: Achievement[] = [
   { id: "first-5k", name: "First 5K", tint: "blue" },
   { id: "week-streak", name: "7-Day Streak", tint: "green" },
   { id: "early-bird", name: "Early Bird", tint: "orange" },
-  { id: "century", name: "100 Workouts", tint: "purple" },
+  { id: "century", name: "100 Workouts", tint: "indigo" },
   { id: "night-owl", name: "Night Owl", tint: "teal" },
 ];
 
