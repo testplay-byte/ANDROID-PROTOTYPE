@@ -7,6 +7,18 @@
 
 ## [Unreleased]
 
+### 2026-09-26 — Dashboard grid view: per-style sections restored (user feedback)
+
+**User feedback:** the packed inline-flow grid (style label on the left, prototypes flowing to the right) was rejected. The preferred layout is the earlier one: the style name as a full header line at the TOP of its section with all of its prototypes in a grid directly BELOW it, and column count adapting to display size instead of a fixed number of items per line.
+
+**Changes (`src/dashboard/gallery.tsx`, `src/dashboard/dashboard.css`):**
+- Grid view restructured into vertical per-style sections: `.stylesec` with a header row (hue dot + style name + count) on top and a `.stylesec__grid` of cards below.
+- Grid is `repeat(auto-fill, minmax(150px, 1fr))` — columns adapt to any display width; no fixed items-per-line.
+- Cells restored to the previous card aesthetic: bordered card, 16px radius, mini phone silhouette + name, hover lift + ring + shadow.
+- Removed the tinted-cell inline packed-flow styles (`.stylegroup*`).
+
+**Verification:** `npm run build` passes; previewed at the basePath copy — sections, headers, and adaptive columns confirmed by screenshot at 1440px and 800px.
+
 ### 2026-09-26 — Style-quality round 2: grouped grid view, HIG overhaul, glass refinement, clay light-mode fix
 
 **Dashboard (grid view grouping — user-requested):**

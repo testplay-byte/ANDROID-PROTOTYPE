@@ -80,8 +80,10 @@ function StyleChip({
 }
 
 /** Phone silhouette — decorative mini mockup. The screen content is the
- *  prototype's custom thumb (real home-screen preview) or a generic fallback. */
-function Silhouette({ item, mini = false }: { item: GalleryItem; mini?: boolean }) {
+ *  prototype's custom thumb (real home-screen preview) or a generic fallback.
+ *  With link=false the phone renders as a <span> (the wrapping cell owns the
+ *  link) — required inside the grid view's nowrap lead. */
+function Silhouette({ item, mini = false, link = true }: { item: GalleryItem; mini?: boolean; link?: boolean }) {
   const p = item.palette;
   const bar = (w?: string): React.CSSProperties => ({
     height: 7,
@@ -90,40 +92,43 @@ function Silhouette({ item, mini = false }: { item: GalleryItem; mini?: boolean 
     width: w,
   });
   const thumb = getThumb(item.name, p);
-  return (
-    <a
-      className={`phone${mini ? " phone--mini" : ""}`}
-      href={item.url}
-      aria-label={`Open ${item.name} prototype`}
-      style={{ borderColor: p.text, background: p.surface }}
-    >
-      <span className="phone__screen" style={{ background: p.bg }}>
-        <span className="phone__statusbar" style={{ color: p.text }}>
-          <span>9:41</span>
-          <span className="phone__punchhole" style={{ background: p.text }} />
-          <span>87%</span>
-        </span>
-        <span className="phone__thumb" style={{ color: p.text }}>
-          {thumb ?? (
-            <>
-              <span style={{ height: 12, borderRadius: 4, background: p.accent, opacity: 0.9 }} />
-              <span style={bar("70%")} />
-              <span style={bar()} />
-              <span className="phone__card" style={{ background: p.surface }}>
-                <span className="phone__pill" style={{ background: p.accent }} />
-                <span style={bar("70%")} />
-                <span style={bar("50%")} />
-              </span>
-            </>
-          )}
-        </span>
-        <span className="phone__nav" style={{ borderTopColor: p.surfaceAlt }}>
-          <span style={{ background: p.accent }} />
-          <span style={{ background: p.surfaceAlt }} />
-          <span style={{ background: p.surfaceAlt }} />
-          <span style={{ background: p.surfaceAlt }} />
-        </span>
+  const phoneClass = `phone${mini ? " phone--mini" : ""}`;
+  const screen = (
+    <span className="phone__screen" style={{ background: p.bg }}>
+      <span className="phone__statusbar" style={{ color: p.text }}>
+        <span>9:41</span>
+        <span className="phone__punchhole" style={{ background: p.text }} />
+        <span>87%</span>
       </span>
+      <span className="phone__thumb" style={{ color: p.text }}>
+        {thumb ?? (
+          <>
+            <span style={{ height: 12, borderRadius: 4, background: p.accent, opacity: 0.9 }} />
+            <span style={bar("70%")} />
+            <span style={bar()} />
+            <span className="phone__card" style={{ background: p.surface }}>
+              <span className="phone__pill" style={{ background: p.accent }} />
+              <span style={bar("70%")} />
+              <span style={bar("50%")} />
+            </span>
+          </>
+        )}
+      </span>
+      <span className="phone__nav" style={{ borderTopColor: p.surfaceAlt }}>
+        <span style={{ background: p.accent }} />
+        <span style={{ background: p.surfaceAlt }} />
+        <span style={{ background: p.surfaceAlt }} />
+        <span style={{ background: p.surfaceAlt }} />
+      </span>
+    </span>
+  );
+  if (!link) {
+    return <span className={phoneClass} style={{ borderColor: p.text, background: p.surface }}>{screen}</span>;
+  }
+  return (
+    <a className={phoneClass} href={item.url} aria-label={`Open ${item.name} prototype`}
+       style={{ borderColor: p.text, background: p.surface }}>
+      {screen}
     </a>
   );
 }
@@ -226,27 +231,30 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
       </div>
 
       {mode === "grid" ? (
-        /* ---- Grid view: grouped by design language, tinted per style ---- */
-        <>
+        /* ---- Grid view: per-style sections --------------------------------
+           Each design language is its own section: the style name is a full
+           header line at the TOP, and all of its prototypes sit in a card
+           grid directly BELOW it. Sections stack vertically. Column count
+           adapts to the display width (auto-fill) — never a fixed number of
+           items per line. */
+        <div className="gridview">
           {presentStyles
             .filter((s) => filter === "all" || filter === s)
             .map((s) => {
               const group = visible.filter((it) => it.style === s);
               if (group.length === 0) return null;
               return (
-                <section className="stylegroup" data-style={s} key={s}>
-                  <header className="stylegroup__head">
-                    <span className="stylegroup__dot" aria-hidden="true" />
-                    <h3 className="stylegroup__title">{STYLE_LABELS[s]}</h3>
-                    <span className="stylegroup__count">
-                      {group.length} {group.length === 1 ? "prototype" : "prototypes"}
-                    </span>
+                <section className="stylesec" data-style={s} key={s}>
+                  <header className="stylesec__head">
+                    <span className="stylesec__dot" aria-hidden="true" />
+                    <h3 className="stylesec__title">{STYLE_LABELS[s]}</h3>
+                    <span className="stylesec__count">{group.length}</span>
                   </header>
-                  <div className="gridview">
+                  <div className="stylesec__grid">
                     {group.map((item) => (
                       <a className="gcell" key={item.name} href={item.url} aria-label={`Open ${item.name} prototype`}>
                         <span className="gcell__shot">
-                          <Silhouette item={item} mini />
+                          <Silhouette item={item} mini link={false} />
                         </span>
                         <span className="gcell__name">{item.name}</span>
                       </a>
@@ -255,7 +263,7 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
                 </section>
               );
             })}
-        </>
+        </div>
       ) : (
         /* ---- Detailed view: rich cards ---- */
         <div className="showcase">

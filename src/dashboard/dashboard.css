@@ -282,7 +282,9 @@
     .phone:hover { transform: translateY(-3px); }
     /* mini variant used by the grid view — scales with the cell */
     .phone--mini {
+      display: block;            /* inline flow context: <a> must be blockified */
       width: 100%; max-width: 120px; height: auto; aspect-ratio: 1 / 2;
+      margin: 0 auto;
       border-width: 5px; border-radius: 18px; box-shadow: var(--shadow-sm);
     }
     .phone__screen { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 10px 8px; gap: 6px; }
@@ -362,61 +364,104 @@
       color: var(--chart-3); border-color: transparent;
     }
 
-    /* ---- Grid view (simplified): grouped by design language ------------
-       Each style gets its own softly tinted section so similar prototypes
-       read as one family. Tints derive from each style's signature hue. */
-    .stylegroup {
-      border: 1px solid var(--border); border-radius: 20px;
-      padding: 18px; margin-bottom: 20px;
-      background: var(--card);
-    }
-    /* Distinct hue per design language (7% mix keeps the warm-cream page calm). */
-    .stylegroup[data-style="m3"]        { background: color-mix(in srgb, #d0bcff 7%, var(--card)); border-color: color-mix(in srgb, #d0bcff 22%, var(--border)); }
-    .stylegroup[data-style="hig"]       { background: color-mix(in srgb, #0a84ff 7%, var(--card)); border-color: color-mix(in srgb, #0a84ff 22%, var(--border)); }
-    .stylegroup[data-style="carbon"]    { background: color-mix(in srgb, #8d8d8d 8%, var(--card)); border-color: color-mix(in srgb, #8d8d8d 24%, var(--border)); }
-    .stylegroup[data-style="neumorph"]  { background: color-mix(in srgb, #e0a458 8%, var(--card)); border-color: color-mix(in srgb, #e0a458 24%, var(--border)); }
-    .stylegroup[data-style="glass"]     { background: color-mix(in srgb, #67e8f9 8%, var(--card)); border-color: color-mix(in srgb, #67e8f9 24%, var(--border)); }
-    .stylegroup[data-style="brutalism"] { background: color-mix(in srgb, #ffd23f 9%, var(--card)); border-color: color-mix(in srgb, #ffd23f 26%, var(--border)); }
-    .stylegroup[data-style="clay"]      { background: color-mix(in srgb, #ec7fae 8%, var(--card)); border-color: color-mix(in srgb, #ec7fae 24%, var(--border)); }
-    .stylegroup[data-style="bauhaus"]   { background: color-mix(in srgb, #d5321f 7%, var(--card)); border-color: color-mix(in srgb, #d5321f 22%, var(--border)); }
-    .stylegroup[data-style="minimal"]   { background: color-mix(in srgb, #111111 5%, var(--card)); border-color: color-mix(in srgb, #111111 16%, var(--border)); }
-    .stylegroup[data-style="bento"]     { background: color-mix(in srgb, #ff5c33 8%, var(--card)); border-color: color-mix(in srgb, #ff5c33 24%, var(--border)); }
-    .stylegroup[data-style="flat"]      { background: color-mix(in srgb, #00897b 8%, var(--card)); border-color: color-mix(in srgb, #00897b 24%, var(--border)); }
-    .stylegroup__head {
-      display: flex; align-items: center; gap: 8px; margin: 0 0 14px;
-    }
-    .stylegroup__dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted-foreground); flex: 0 0 auto; }
-    .stylegroup[data-style="m3"] .stylegroup__dot        { background: #d0bcff; }
-    .stylegroup[data-style="hig"] .stylegroup__dot       { background: #0a84ff; }
-    .stylegroup[data-style="carbon"] .stylegroup__dot    { background: #8d8d8d; }
-    .stylegroup[data-style="neumorph"] .stylegroup__dot  { background: #e0a458; }
-    .stylegroup[data-style="glass"] .stylegroup__dot     { background: #67e8f9; }
-    .stylegroup[data-style="brutalism"] .stylegroup__dot { background: #ffd23f; }
-    .stylegroup[data-style="clay"] .stylegroup__dot      { background: #ec7fae; }
-    .stylegroup[data-style="bauhaus"] .stylegroup__dot   { background: #d5321f; }
-    .stylegroup[data-style="minimal"] .stylegroup__dot   { background: #111111; }
-    .stylegroup[data-style="bento"] .stylegroup__dot     { background: #ff5c33; }
-    .stylegroup[data-style="flat"] .stylegroup__dot     { background: #00897b; }
-    .stylegroup__title {
-      margin: 0; font-size: 13px; font-weight: 700; letter-spacing: .02em;
-    }
-    .stylegroup__count { font-size: 12px; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
-
+    /* ---- Grid view: per-style sections ---------------------------------
+       Each design language is a full-width section: the style name is a
+       header line at the TOP of its section, and all of its prototypes sit
+       in a card grid directly BELOW it. Sections stack vertically. The grid
+       is auto-fill, so the number of items per row adapts to the display
+       width — never a fixed count. Cells are clean cards (previous gallery
+       aesthetic): bordered, 16px radius, mini phone silhouette + name. */
     .gridview {
-      display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      margin-bottom: 8px;
+    }
+    .stylesec {
+      margin: 0 0 28px;
+    }
+    .stylesec:last-child {
+      margin-bottom: 8px;
+    }
+    .stylesec__head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0 0 12px;
+    }
+    .stylesec__dot {
+      flex: none;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--muted-foreground);
+    }
+    .stylesec[data-style="m3"] .stylesec__dot        { background: #a885e8; }
+    .stylesec[data-style="hig"] .stylesec__dot       { background: #0a84ff; }
+    .stylesec[data-style="carbon"] .stylesec__dot    { background: #8d8d8d; }
+    .stylesec[data-style="neumorph"] .stylesec__dot  { background: #e0a458; }
+    .stylesec[data-style="glass"] .stylesec__dot     { background: #22b8cf; }
+    .stylesec[data-style="brutalism"] .stylesec__dot { background: #e6b400; }
+    .stylesec[data-style="clay"] .stylesec__dot      { background: #ec7fae; }
+    .stylesec[data-style="bauhaus"] .stylesec__dot   { background: #d5321f; }
+    .stylesec[data-style="minimal"] .stylesec__dot   { background: #111111; }
+    .stylesec[data-style="bento"] .stylesec__dot     { background: #ff5c33; }
+    .stylesec[data-style="flat"] .stylesec__dot      { background: #00897b; }
+    .stylesec__title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: -.01em;
+      line-height: 1.3;
+    }
+    .stylesec__count {
+      font-size: 12px;
+      color: var(--muted-foreground);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Card grid — auto-fill so columns adapt to any display size. */
+    .stylesec__grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
       gap: 16px;
     }
     .gcell {
-      display: flex; flex-direction: column; align-items: center; gap: 10px;
-      border: 1px solid var(--border); background: var(--card);
-      border-radius: 16px; padding: 16px 12px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      border-radius: 16px;
+      padding: 16px 12px 14px;
+      color: var(--foreground);
       transition: border-color .2s ease, box-shadow .2s ease, transform .15s ease;
     }
-    .gcell:hover { border-color: var(--ring); box-shadow: var(--shadow-md); transform: translateY(-2px); }
-    .gcell__shot { display: flex; justify-content: center; width: 100%; }
+    .gcell:hover {
+      border-color: var(--ring);
+      box-shadow: var(--shadow-md);
+      transform: translateY(-2px);
+    }
+    .gcell:hover .gcell__name { color: var(--chart-1); }
+    .gcell__shot {
+      display: flex;
+      justify-content: center;
+      width: 100%;
+    }
     .gcell__name {
-      font-size: 13px; font-weight: 600; letter-spacing: -.01em; text-align: center;
-      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -.01em;
+      text-align: center;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
+      transition: color .15s ease;
+    }
+
+    /* Style badge on prototype cards (distinct from the orange status tag) */
+    .tag--style {
+      background: color-mix(in srgb, var(--chart-3) 16%, transparent);
+      color: var(--chart-3); border-color: transparent;
     }
 
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
