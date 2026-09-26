@@ -95,6 +95,7 @@ ANDROID-PROTOTYPE/
 │   ├── theme-architecture.md   ← CRITICAL: how app theme is scoped to .device.
 │   ├── style-selection-guide.md← How to PICK a design language for a brief.
 │   ├── design-languages/       ← Style specs for the 11 design languages.
+│   │   └── glass-research.md   ← Deep glassmorphism research (failure modes, recipes).
 │   ├── preferences.md          ← MANDATORY MEMORY: all user design preferences.
 │   ├── notification-protocol.md← MANDATORY: how to notify via ntfy.sh.
 │   ├── github-pages.md         ← Deployment guide + troubleshooting.

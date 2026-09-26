@@ -37,11 +37,20 @@
   - **Detailed** (default): the rich 3-column cards described above.
   - **Grid**: simplified symmetric grid — **mini phone image + prototype name only**, no
     descriptions, tags, or charts. Responsive `auto-fill` columns.
-- **Grid view is GROUPED by design language** (2026-09-26): each style renders as its own
-  rounded section with a **distinct soft background tint** derived from the style's signature
-  hue (`.stylegroup[data-style=…]` in dashboard.css — 5-9% color-mix so the warm-cream page
-  stays calm), plus a header row (hue dot + style name + count). Similar prototypes read as
-  one family; styles never mix inside a section.
+- **Grid view is one continuous PACKED FLOW, grouped by design language** (2026-09-26, refined
+  after user feedback — this replaces full-width section blocks):
+  - Groups are **inline boxes on a single flow sheet**: a family starts EXACTLY where the
+    previous family ended — same line when space allows, next line otherwise. There is never
+    an empty column gap between families (the first implementation wasted the right half of
+    every row; the user rejected that).
+  - The tint is painted **on the cells, not on a group container** (an inline box's own
+    background can't cover tall inline-block children). Same-tint cells sit ~2px apart so a
+    family reads as one continuous sheet that wraps with its items and re-links on the next
+    line. Cells carry **no card chrome** — they sit directly on the family tint.
+  - Each family keeps its **distinct hue** (`.stylegroup[data-style=…] .gcell` rules in
+    dashboard.css, 15-24% color-mix) + a header tile (hue dot + name + count) bound to the
+    first cell via a nowrap lead, so a line break can never strand a header.
+  - Cell width is `clamp()`-responsive — packing adapts to any display size automatically.
 - The chosen mode **persists in localStorage** (`gallery-view`) and is deep-linkable via the
   page hash (`#grid` / `#detailed`).
 - **Mini phone thumbnails must mirror the real home screen** of each prototype (custom CSS

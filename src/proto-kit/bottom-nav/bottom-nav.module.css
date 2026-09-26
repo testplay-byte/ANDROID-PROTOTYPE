@@ -160,20 +160,47 @@
 }
 
 /* =========================================================================
-   glass — floating pill with translucent blur (uses --glass-* tokens).
-   Airy glass treatment: 6px gaps so icons never touch the expanding
-   active pill, generous 16px horizontal padding on the active pill so
-   the label never sits near the edge, brighter tint fill + inner
-   highlight + soft glow for a clear active/inactive contrast. */
+   glass — floating pill, the STRONGEST glass on screen (nav layer).
+   Recipe 6.2 + research §4/§7 P1 #7: navigation layer gets the highest
+   tier fill (surface-4), heavier blur than content cards (24px vs 20px),
+   the full edge stack (inset highlight + bottom shade + --shadow-2 float)
+   and a specular rim. Content cards stay on lighter glass so the two
+   layers never read as glass-on-glass sameness.
+   Airy item rhythm: 6px gaps so icons never touch the expanding active
+   pill; active pill = primary-container tint (contrast-safe with
+   --color-on-primary-container) + inset light-catch + soft glow. */
 .vGlass {
   gap: 6px;
   padding: 0 10px;
-  background: color-mix(in srgb, var(--color-surface-2) 55%, transparent);
-  -webkit-backdrop-filter: blur(var(--glass-blur, 16px)) saturate(1.35);
-  backdrop-filter: blur(var(--glass-blur, 16px)) saturate(1.35);
-  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.22));
+  background: var(--color-surface-4);
+  -webkit-backdrop-filter: blur(24px) saturate(var(--glass-saturate, 1.6));
+  backdrop-filter: blur(24px) saturate(var(--glass-saturate, 1.6));
+  border: var(--border-w, 1px) solid
+    var(--glass-border, rgba(255, 255, 255, 0.28));
   box-shadow: var(--shadow-2), var(--shadow-inset);
 }
+
+/* Specular rim — 1px masked gradient ring, bright top-left. */
+.vGlass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    var(--glass-highlight, rgba(255, 255, 255, 0.45)),
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0) 60%,
+    rgba(255, 255, 255, 0.25)
+  );
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  pointer-events: none;
+}
+
 .vGlass .item {
   padding: 0 12px;
   transition:
@@ -183,19 +210,36 @@
     padding var(--dur-3) var(--ease-emphasized),
     box-shadow var(--dur-3) var(--ease-emphasized);
 }
+
 .vGlass .itemIsActive {
   /* Never shrink — guarantees the full label is always visible. */
   flex: 0 0 auto;
   padding: 0 16px;
   background: linear-gradient(
     135deg,
-    color-mix(in srgb, var(--color-primary) 38%, transparent),
-    color-mix(in srgb, var(--color-primary) 24%, transparent)
+    color-mix(in srgb, var(--color-primary) 30%, transparent),
+    color-mix(in srgb, var(--color-primary) 20%, transparent)
   );
   color: var(--color-on-primary-container);
   box-shadow:
-    inset 0 1px 0 var(--glass-highlight, rgba(255, 255, 255, 0.3)),
+    inset 0 1px 0 var(--glass-highlight, rgba(255, 255, 255, 0.45)),
     0 4px 14px color-mix(in srgb, var(--color-primary) 30%, transparent);
+}
+
+/* Fallbacks (research §3.2): reduced transparency / high contrast / no
+   backdrop-filter support → opaque surface twin, no blur. */
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .vGlass {
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+    background: var(--color-surface-solid, var(--color-surface-4));
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .vGlass {
+    background: var(--color-surface-solid, var(--color-surface-4));
+  }
 }
 
 /* =========================================================================

@@ -2,13 +2,15 @@
    weather-app.css — prototype-wide styles (glassmorphism).
    Imported once by app/prototypes/weather-app/layout.tsx.
    Tokens come from proto-kit/tokens/tokens.css + styles/glass.css.
+   Recipes: docs/design-languages/glass-research.md §6.
 
-   Glass surfaces MUST use:
-     background: var(--color-surface-*);
-     backdrop-filter: blur(var(--glass-blur)) saturate(1.3);
+   Glass surfaces MUST use the full edge stack:
+     background: var(--color-surface-2)+        (never the faintest tier under text)
+     backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate, 1.6));
      border: var(--border-w) solid var(--glass-border);
-     box-shadow: var(--shadow-inset);  (top inner highlight)
-   ...over the colorful ambient blobs below.
+     box-shadow: var(--shadow-inset), var(--shadow-1 | --shadow-2);
+   Content cards use lighter glass; the strongest glass belongs on the
+   floating nav layer. Never stack translucent glass on translucent glass.
    ========================================================================= */
 
 body {
@@ -44,11 +46,15 @@ button {
   color: inherit;
 }
 
-/* ---- Ambient colorful background (inside the screen, behind everything) --
-   Three large, soft blurred radial-gradient blobs: violet / cyan / amber.
-   They are oversized and heavily blurred so the glass panels'
-   backdrop-filter has a luminous, even field to refract — and they stay
-   BEHIND all tabs (z-index 0) without ever darkening text contrast.
+/* ---- Ambient scene (inside the screen, behind everything) ----------------
+   Recipe 6.4 (research doc): the SCENE is painted as three full-bleed
+   radial gradients on the base — even color fields for the glass panels'
+   backdrop-filter to sample, no hard blob edges, no hotspots in the text
+   column (fixes the 2.91:1 amber-hotspot contrast failure). Hue mix caps:
+   violet 34% / cyan 30% / amber 22% (hot cores de-emphasized per §3.1).
+   Three oversized, low-mix light fields drift over the scene
+   (transform-only, retimed to 24–36s so motion reads as ambient), and an
+   feTurbulence grain overlay kills gradient banding on the dark theme.
    Uses style tokens only (--color-primary violet, --color-tertiary cyan,
    --color-warn amber). */
 .ambient {
@@ -57,58 +63,128 @@ button {
   overflow: hidden;
   pointer-events: none;
   z-index: 0;
+  background:
+    radial-gradient(
+      120% 90% at 20% 0%,
+      color-mix(in srgb, var(--color-primary) 34%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      110% 80% at 95% 35%,
+      color-mix(in srgb, var(--color-tertiary) 30%, transparent),
+      transparent 70%
+    ),
+    radial-gradient(
+      130% 90% at 15% 100%,
+      color-mix(in srgb, var(--color-warn) 22%, transparent),
+      transparent 72%
+    ),
+    var(--color-bg);
 }
 
+/* Grain overlay — banding killer (research §2.4). Opacity ≤ 0.06 or it
+   reads as dirt. Sits above the scene, below all panels. */
+.ambient::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--glass-grain);
+  opacity: var(--glass-grain-opacity, 0.04);
+  mix-blend-mode: overlay;
+}
+
+/* Drifting light fields — oversized so their soft edges never enter the
+   frame even at max drift; mixes capped well below hotspot level. */
 .ambient__blob {
   position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
+  inset: -20%;
+  filter: none;
+  border-radius: 0;
 }
 
 .ambient__blob--violet {
-  width: 430px;
-  height: 430px;
-  top: -120px;
-  left: -130px;
   background: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--color-primary) 62%, transparent) 0%,
-    transparent 75%
+    38% 34% at 32% 14%,
+    color-mix(in srgb, var(--color-primary) 22%, transparent),
+    transparent 70%
   );
 }
 
 .ambient__blob--cyan {
-  width: 470px;
-  height: 470px;
-  top: 220px;
-  right: -170px;
   background: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--color-tertiary) 52%, transparent) 0%,
-    transparent 75%
+    34% 30% at 78% 42%,
+    color-mix(in srgb, var(--color-tertiary) 18%, transparent),
+    transparent 70%
   );
 }
 
 .ambient__blob--amber {
-  width: 410px;
-  height: 410px;
-  bottom: -90px;
-  left: -60px;
   background: radial-gradient(
-    circle,
-    color-mix(in srgb, var(--color-warn) 42%, transparent) 0%,
-    transparent 75%
+    34% 30% at 24% 82%,
+    color-mix(in srgb, var(--color-warn) 12%, transparent),
+    transparent 72%
   );
 }
 
-/* Gentle drift so the glass blur reads as alive. */
-.ambient__blob--violet { animation: blob-drift 18s ease-in-out infinite alternate; }
-.ambient__blob--cyan   { animation: blob-drift 22s ease-in-out infinite alternate-reverse; }
-.ambient__blob--amber  { animation: blob-drift 26s ease-in-out infinite alternate; }
+/* Gentle drift so the glass blur reads as alive (ambient, not busy). */
+.ambient__blob--violet { animation: blob-drift 28s ease-in-out infinite alternate; }
+.ambient__blob--cyan   { animation: blob-drift 32s ease-in-out infinite alternate-reverse; }
+.ambient__blob--amber  { animation: blob-drift 36s ease-in-out infinite alternate; }
 
 @keyframes blob-drift {
   from { transform: translate(0, 0) scale(1); }
-  to   { transform: translate(30px, 24px) scale(1.12); }
+  to   { transform: translate(2.5%, 2%) scale(1.06); }
+}
+
+/* ---- .glass--rim — specular ring utility (research §6.1 / §7 P1 #8) ----
+   1px masked gradient ring, bright top-left falling to bottom-right.
+   Apply to the hero card and active/floating elements ONLY — never
+   app-wide. (TodayScreen's hero implements the identical ring in
+   today-screen.module.css; this utility is the shared recipe for any
+   element outside a module that needs the same rim.) */
+.glass--rim {
+  position: relative;
+}
+
+.glass--rim::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(
+    135deg,
+    var(--glass-highlight, rgba(255, 255, 255, 0.45)),
+    rgba(255, 255, 255, 0) 40%,
+    rgba(255, 255, 255, 0) 60%,
+    rgba(255, 255, 255, 0.25)
+  );
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  -webkit-mask-composite: xor;
+  pointer-events: none;
+}
+
+/* ---- Global fallbacks (research §3.2 accessibility path) ----
+   Reduced transparency / high contrast / no backdrop-filter support →
+   every glass surface goes opaque (--color-surface-solid twin), no blur.
+   The screens carry per-module fallbacks for their hashed class names
+   (hero/hourCard/tile/row/addRow/card); this global block catches
+   everything else riding the glass convention — the .glass--rim
+   utility, proto-kit's .vGlass nav, any future [class*="glass"]. */
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  .device[data-style="glass"] [class*="glass" i] {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    background: var(--color-surface-solid, #232a3a) !important;
+  }
+}
+
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .device[data-style="glass"] [class*="glass" i] {
+    background: var(--color-surface-solid, #232a3a);
+  }
 }
 
 /* ---- Side-panel helpers (Stage right/left panel content) ---- */

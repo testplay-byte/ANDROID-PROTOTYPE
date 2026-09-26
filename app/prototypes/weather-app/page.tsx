@@ -238,11 +238,11 @@ export default function Page() {
               </div>
               <div className="kvlist__row">
                 <span>Blur</span>
-                <b>backdrop 18px</b>
+                <b>backdrop 20px · sat 160%</b>
               </div>
               <div className="kvlist__row">
                 <span>Ambient</span>
-                <b>3 blobs</b>
+                <b>3 light fields</b>
               </div>
             </div>
           </>
