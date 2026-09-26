@@ -28,6 +28,26 @@
 ### Prototype cards
 - Phone silhouette in the center with info panels on **left and right** (3-column grid).
 - Right panel should have **mini-charts**: a donut chart + bar chart + stats, not just text.
+- **Data-driven gallery (2026-09-26):** cards render from the `PROTOTYPES` array in
+  `app/page.tsx` via `src/dashboard/gallery.tsx`. To add a prototype, append one entry —
+  never hand-write a new card block.
+
+### Prototype gallery — view modes (2026-09-26, user-requested)
+- **Two view modes** with a segmented toggle (top-right of the section, next to a result count):
+  - **Detailed** (default): the rich 3-column cards described above.
+  - **Grid**: simplified symmetric grid — **mini phone image + prototype name only**, no
+    descriptions, tags, or charts. Responsive `auto-fill` columns.
+- The chosen mode **persists in localStorage** (`gallery-view`) and is deep-linkable via the
+  page hash (`#grid` / `#detailed`).
+- **Mini phone thumbnails must mirror the real home screen** of each prototype (custom CSS
+  compositions in `src/dashboard/thumbs.tsx`) — not generic placeholder lines. Add a thumb
+  entry whenever a prototype is added.
+
+### Style filter chips (2026-09-26, user-requested)
+- **Symmetric grid layout, NOT a loose flex-wrap row**: equal-width chips, 4 per row on
+  desktop (the style list wraps to exactly 3 rows), 2 per row on mobile.
+- Each chip: centered label + count pill. Active chip = dark primary fill.
+- Filter applies to BOTH view modes; an empty style shows the standard empty state.
 
 ---
 

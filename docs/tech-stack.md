@@ -20,6 +20,7 @@
 | State          | React `useState`/`useReducer` + `localStorage`      | Per-component state, persisted per-prototype via `storageKey`.                       |
 | Routing        | Hash routing (`#home`, `#search`)                   | Preserves the in-app feel; works with no server; survives reloads; back/forward works. |
 | Theme          | `<DeviceThemeProvider storageKey="...">`            | Client component that sets `data-theme` on the `.device` element (scoped, not on `<html>`). |
+| Design language | `<DeviceFrame style="...">` + variant props        | `data-style` switches one of 11 token layers (`src/proto-kit/styles/`); `<BottomNav variant>` / `<TopBar variant>` are style-agnostic. See `docs/style-selection-guide.md`. |
 
 ---
 

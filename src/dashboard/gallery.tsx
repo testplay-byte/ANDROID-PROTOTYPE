@@ -2,19 +2,27 @@
 
 /**
  * Dashboard gallery — data-driven prototype showcase with design-language
- * filtering. Replaces the old hand-written per-prototype <article> cards.
+ * filtering and TWO view modes.
  *
- * To add a prototype: append one entry to PROTOTYPES in app/page.tsx
- * (name, style, tagline, screens, silhouette palette). Nothing else.
+ * - "Detailed" (default): the rich 3-column cards (left info / phone
+ *   silhouette with a mini home-screen thumb / right mini-bars).
+ * - "Grid": clean symmetric grid — mini image + name only.
+ * - Filter chips: symmetric grid layout (4 per row on desktop = the style
+ *   list wraps to 3 rows), equal widths, keyboard accessible.
+ * - The chosen view persists in localStorage ("gallery-view").
+ *
+ * To add a prototype: append one entry to PROTOTYPES in app/page.tsx and
+ * (optionally) a matching mini thumb in src/dashboard/thumbs.tsx. Nothing else.
  *
  * Uses the approved warm-cream dashboard classes from dashboard.css
- * (.showcase, .show, .phone, .tag, .mini-bar-*). Do not restyle to
+ * (.showcase, .show, .phone, .tag, .chiprow, .gridview). Do not restyle to
  * indigo/blue — see docs/preferences.md.
  */
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { DeviceStyle } from "@/proto-kit/styles/types";
 import { STYLE_LABELS } from "@/proto-kit/styles/types";
+import { getThumb } from "./thumbs";
 
 export interface GalleryScreen {
   name: string;
@@ -40,9 +48,13 @@ export interface GalleryItem {
   screens: GalleryScreen[];
 }
 
+type ViewMode = "detailed" | "grid";
+
 const STYLE_ORDER: DeviceStyle[] = [
   "m3", "hig", "carbon", "neumorph", "glass", "brutalism", "clay", "bauhaus", "minimal", "bento", "flat",
 ];
+
+const VIEW_KEY = "gallery-view";
 
 function StyleChip({
   style,
@@ -61,13 +73,15 @@ function StyleChip({
       onClick={onClick}
       aria-pressed={active}
     >
-      {STYLE_LABELS[style]}
+      <span className="chip__label">{STYLE_LABELS[style]}</span>
       <span className="chip__count">{count}</span>
     </button>
   );
 }
 
-function Silhouette({ item }: { item: GalleryItem }) {
+/** Phone silhouette — decorative mini mockup. The screen content is the
+ *  prototype's custom thumb (real home-screen preview) or a generic fallback. */
+function Silhouette({ item, mini = false }: { item: GalleryItem; mini?: boolean }) {
   const p = item.palette;
   const bar = (w?: string): React.CSSProperties => ({
     height: 7,
@@ -75,23 +89,33 @@ function Silhouette({ item }: { item: GalleryItem }) {
     background: p.surfaceAlt,
     width: w,
   });
+  const thumb = getThumb(item.name, p);
   return (
-    <a className="phone" href={item.url} aria-label={`Open ${item.name} prototype`}
-       style={{ borderColor: p.text, background: p.surface }}>
+    <a
+      className={`phone${mini ? " phone--mini" : ""}`}
+      href={item.url}
+      aria-label={`Open ${item.name} prototype`}
+      style={{ borderColor: p.text, background: p.surface }}
+    >
       <span className="phone__screen" style={{ background: p.bg }}>
         <span className="phone__statusbar" style={{ color: p.text }}>
           <span>9:41</span>
           <span className="phone__punchhole" style={{ background: p.text }} />
           <span>87%</span>
         </span>
-        <span style={{ height: 12, borderRadius: 4, background: p.accent, opacity: 0.9 }} />
-        <span style={bar("70%")} />
-        <span style={bar()} />
-        <span style={{ ...bar("50%"), opacity: 0.7 }} />
-        <span className="phone__card" style={{ background: p.surface }}>
-          <span className="phone__pill" style={{ background: p.accent }} />
-          <span style={bar("70%")} />
-          <span style={bar("50%")} />
+        <span className="phone__thumb" style={{ color: p.text }}>
+          {thumb ?? (
+            <>
+              <span style={{ height: 12, borderRadius: 4, background: p.accent, opacity: 0.9 }} />
+              <span style={bar("70%")} />
+              <span style={bar()} />
+              <span className="phone__card" style={{ background: p.surface }}>
+                <span className="phone__pill" style={{ background: p.accent }} />
+                <span style={bar("70%")} />
+                <span style={bar("50%")} />
+              </span>
+            </>
+          )}
         </span>
         <span className="phone__nav" style={{ borderTopColor: p.surfaceAlt }}>
           <span style={{ background: p.accent }} />
@@ -104,8 +128,61 @@ function Silhouette({ item }: { item: GalleryItem }) {
   );
 }
 
+function ViewToggle({ mode, onChange }: { mode: ViewMode; onChange: (m: ViewMode) => void }) {
+  return (
+    <div className="viewtoggle" role="group" aria-label="Gallery view mode">
+      <button
+        className={`viewtoggle__btn${mode === "grid" ? " viewtoggle__btn--active" : ""}`}
+        onClick={() => onChange("grid")}
+        aria-pressed={mode === "grid"}
+        title="Grid view — name + mini image"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="3" y="3" width="7" height="7" rx="1" />
+          <rect x="14" y="3" width="7" height="7" rx="1" />
+          <rect x="3" y="14" width="7" height="7" rx="1" />
+          <rect x="14" y="14" width="7" height="7" rx="1" />
+        </svg>
+        <span className="viewtoggle__lbl">Grid</span>
+      </button>
+      <button
+        className={`viewtoggle__btn${mode === "detailed" ? " viewtoggle__btn--active" : ""}`}
+        onClick={() => onChange("detailed")}
+        aria-pressed={mode === "detailed"}
+        title="Detailed view — full cards"
+      >
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <rect x="3" y="4" width="18" height="6" rx="1" />
+          <rect x="3" y="14" width="18" height="6" rx="1" />
+        </svg>
+        <span className="viewtoggle__lbl">Detailed</span>
+      </button>
+    </div>
+  );
+}
+
 export function Gallery({ items }: { items: GalleryItem[] }) {
   const [filter, setFilter] = useState<DeviceStyle | "all">("all");
+  const [mode, setMode] = useState<ViewMode>("detailed");
+
+  // Restore the persisted view preference (client only). A #grid / #detailed
+  // hash on the page URL overrides it (deep-linkable view state).
+  useEffect(() => {
+    try {
+      const hash = window.location.hash.replace(/^#/, "");
+      if (hash === "grid" || hash === "detailed") {
+        setMode(hash);
+        return;
+      }
+      const saved = window.localStorage.getItem(VIEW_KEY);
+      if (saved === "grid" || saved === "detailed") setMode(saved);
+    } catch {}
+  }, []);
+  useEffect(() => {
+    try {
+      window.localStorage.setItem(VIEW_KEY, mode);
+    } catch {}
+  }, [mode]);
 
   const counts = useMemo(() => {
     const map = new Map<DeviceStyle, number>();
@@ -118,14 +195,24 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
 
   return (
     <>
-      {/* Design-language filter row */}
+      {/* Toolbar: result count + view mode toggle */}
+      <div className="gallerybar">
+        <span className="gallerybar__count">
+          {visible.length} {visible.length === 1 ? "prototype" : "prototypes"}
+          {filter !== "all" ? ` · ${STYLE_LABELS[filter as DeviceStyle]}` : ""}
+        </span>
+        <ViewToggle mode={mode} onChange={setMode} />
+      </div>
+
+      {/* Design-language filter chips — symmetric grid */}
       <div className="chiprow" role="group" aria-label="Filter prototypes by design language">
         <button
           className={`chip${filter === "all" ? " chip--active" : ""}`}
           onClick={() => setFilter("all")}
           aria-pressed={filter === "all"}
         >
-          All styles<span className="chip__count">{items.length}</span>
+          <span className="chip__label">All styles</span>
+          <span className="chip__count">{items.length}</span>
         </button>
         {presentStyles.map((s) => (
           <StyleChip
@@ -138,56 +225,71 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
         ))}
       </div>
 
-      <div className="showcase">
-        {visible.map((item) => (
-          <article className="show" key={item.name} data-style={item.style}>
-            <div className="show__info show__info--left">
-              <span className="tag tag--status">{item.status}</span>
-              <h3 className="show__name">{item.name}</h3>
-              <p className="show__desc">{item.desc}</p>
-              <div className="tags">
-                <span className="tag tag--style">{STYLE_LABELS[item.style]}</span>
-                {item.tags.map((t) => (
-                  <span className="tag" key={t}>{t}</span>
-                ))}
+      {mode === "grid" ? (
+        /* ---- Grid view: mini image + name only ---- */
+        <div className="gridview">
+          {visible.map((item) => (
+            <a className="gcell" key={item.name} href={item.url} aria-label={`Open ${item.name} prototype`}>
+              <span className="gcell__shot">
+                <Silhouette item={item} mini />
+              </span>
+              <span className="gcell__name">{item.name}</span>
+            </a>
+          ))}
+        </div>
+      ) : (
+        /* ---- Detailed view: rich cards ---- */
+        <div className="showcase">
+          {visible.map((item) => (
+            <article className="show" key={item.name} data-style={item.style}>
+              <div className="show__info show__info--left">
+                <span className="tag tag--status">{item.status}</span>
+                <h3 className="show__name">{item.name}</h3>
+                <p className="show__desc">{item.desc}</p>
+                <div className="tags">
+                  <span className="tag tag--style">{STYLE_LABELS[item.style]}</span>
+                  {item.tags.map((t) => (
+                    <span className="tag" key={t}>{t}</span>
+                  ))}
+                </div>
               </div>
-            </div>
 
-            <Silhouette item={item} />
+              <Silhouette item={item} />
 
-            <div className="show__info show__info--right">
-              <div className="mini-bars">
-                {item.screens.map((s) => (
-                  <div className="mini-bar-row" key={s.name}>
-                    <span className="mini-bar-label">{s.name}</span>
-                    <div className="mini-bar-track">
-                      <div
-                        className="mini-bar-fill"
-                        style={{ width: `${Math.max(12, Math.min(100, s.interactions))}%`, background: "var(--chart-1)" }}
-                      />
+              <div className="show__info show__info--right">
+                <div className="mini-bars">
+                  {item.screens.map((s) => (
+                    <div className="mini-bar-row" key={s.name}>
+                      <span className="mini-bar-label">{s.name}</span>
+                      <div className="mini-bar-track">
+                        <div
+                          className="mini-bar-fill"
+                          style={{ width: `${Math.max(12, Math.min(100, s.interactions))}%`, background: "var(--chart-1)" }}
+                        />
+                      </div>
                     </div>
+                  ))}
+                </div>
+                <div className="kv">
+                  <div className="kv__row">
+                    <b>{item.screens.length}</b>&nbsp;{item.screens.length === 1 ? "screen" : "screens"}
                   </div>
-                ))}
-              </div>
-              <div className="kv">
-                <div className="kv__row">
-                  <b>{item.screens.length}</b>&nbsp;{item.screens.length === 1 ? "screen" : "screens"}
+                  <div className="kv__row">
+                    <b>{STYLE_LABELS[item.style]}</b>&nbsp;style
+                  </div>
                 </div>
-                <div className="kv__row">
-                  <b>{STYLE_LABELS[item.style]}</b>&nbsp;style
-                </div>
+                <a className="openlink" href={item.url}>
+                  Open prototype
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                    <path d="M5 12h14" />
+                    <path d="m12 5 7 7-7 7" />
+                  </svg>
+                </a>
               </div>
-              <a className="openlink" href={item.url}>
-                Open prototype
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                  <path d="M5 12h14" />
-                  <path d="m12 5 7 7-7 7" />
-                </svg>
-              </a>
-            </div>
-          </article>
-        ))}
-      </div>
+            </article>
+          ))}
+        </div>
+      )}
 
       {visible.length === 0 ? (
         <div className="empty">No prototypes in this style yet — send a brief.</div>

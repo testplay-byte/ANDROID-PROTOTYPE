@@ -40,7 +40,7 @@ ANDROID-PROTOTYPE/
 │   ├── globals.css         ← Minimal global reset.
 │   └── prototypes/         ← Next.js prototypes (one route folder each).
 ├── src/
-│   ├── dashboard/          ← Dashboard styles + theme toggle client component.
+│   ├── dashboard/          ← Dashboard styles + theme toggle + filterable gallery (gallery.tsx, thumbs.tsx).
 │   └── proto-kit/           ← SHARED design system (fix once, inherit everywhere).
 │       ├── tokens/tokens.css  ← SINGLE source of truth for all design tokens.
 │       ├── device-frame/      ← Phone mockup (bezel, status bar, screen slot).
@@ -130,7 +130,7 @@ See `docs/tech-stack.md` for the full rationale.
 5. **Add prototype-specific components/hooks** under `src/prototypes/<name>/components/` and `hooks/`.
 6. **Fill in** the prototype's own `navigation.md` and `README.md`.
 7. **Register** the new prototype in the prototypes index.
-8. **Add a card** to the dashboard gallery (`app/page.tsx`).
+8. **Register** the prototype in the dashboard gallery: append one `PROTOTYPES` entry in `app/page.tsx` (name, style, tagline, palette, screens) and, ideally, a matching mini thumb in `src/dashboard/thumbs.tsx`. The detailed card + grid view render automatically.
 9. **Build & verify** locally: `npm run build` + preview at `/ANDROID-PROTOTYPE/prototypes/<name>/`.
 10. **Commit & push** to `main`. GitHub Actions builds + deploys to Pages.
 11. **Verify** the live URL (see [`docs/github-pages.md`](./docs/github-pages.md)).
@@ -280,6 +280,8 @@ Reply with A or B to continue.
 | Read the prototype template rules      | `docs/template-rules.md`               |
 | Understand the theme architecture      | `docs/theme-architecture.md`           |
 | **Read user design preferences**       | `docs/preferences.md`                  |
+| **Choose a design language**           | `docs/style-selection-guide.md`        |
+| **Read a style spec (11 languages)**   | `docs/design-languages/navigation.md`  |
 | Understand deployment                  | `docs/github-pages.md`                 |
 | See the notification protocol (memory) | `docs/notification-protocol.md`        |
 | **Design system guide (master)**       | `docs/design-systems/design-system-guide.md` |

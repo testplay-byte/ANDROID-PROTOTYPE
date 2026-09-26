@@ -95,6 +95,7 @@ The `basePath: '/ANDROID-PROTOTYPE'` in `next.config.ts` keeps URLs identical to
 
 - [ ] `npm run build` succeeds locally and `./out/` contains the prototype
 - [ ] Previewed at `/tmp/preview/ANDROID-PROTOTYPE/prototypes/<name>/` — all screens + interactions work
+- [ ] Registered: `PROTOTYPES` entry in `app/page.tsx` (+ mini thumb in `src/dashboard/thumbs.tsx`) and a row in `public/prototypes/navigation.md`
 - [ ] Navigation files updated (if structure changed)
 - [ ] `CHANGELOG.md` has a new entry
 - [ ] No secrets / absolute paths / backend calls

@@ -177,7 +177,8 @@
     }
     .bar__label { width: 112px; flex: 0 0 auto; font-size: 13px; font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .bar__track { flex: 1 1 auto; height: 8px; border-radius: 999px; background: var(--muted); overflow: hidden; }
-    .bar__fill { height: 100%; border-radius: 999px; transition: width .6s cubic-bezier(.2,.7,.2,1); }
+    /* display:block is REQUIRED — the fill is a <span>; inline elements ignore height. */
+    .bar__fill { display: block; height: 100%; border-radius: 999px; transition: width .6s cubic-bezier(.2,.7,.2,1); }
     .bar__count { width: 24px; flex: 0 0 auto; text-align: right; font-size: 13px; font-variant-numeric: tabular-nums; color: var(--muted-foreground); }
 
     /* donut */
@@ -279,7 +280,14 @@
       transition: transform .2s ease;
     }
     .phone:hover { transform: translateY(-3px); }
+    /* mini variant used by the grid view — scales with the cell */
+    .phone--mini {
+      width: 100%; max-width: 120px; height: auto; aspect-ratio: 1 / 2;
+      border-width: 5px; border-radius: 18px; box-shadow: var(--shadow-sm);
+    }
     .phone__screen { position: absolute; inset: 0; display: flex; flex-direction: column; padding: 10px 8px; gap: 6px; }
+    /* thumb slot: the prototype's mini home-screen preview (fills the middle) */
+    .phone__thumb { display: flex; flex-direction: column; gap: 5px; flex: 1 1 auto; min-height: 0; overflow: hidden; }
     .phone__statusbar { display: flex; justify-content: space-between; align-items: center; height: 14px; padding: 0 4px; font-size: 7px; font-weight: 700; color: var(--foreground); }
     .phone__punchhole { width: 5px; height: 5px; border-radius: 50%; background: var(--primary); }
     .phone__appbar { height: 14px; border-radius: 3px; background: color-mix(in srgb, var(--foreground) 10%, transparent); }
@@ -299,32 +307,77 @@
     }
 
     /* ---- Style filter chips (gallery) ---------------------------------- */
+    /* Symmetric grid: equal-width chips, 4 per row on desktop (the style
+       list wraps to 3 tidy rows), 2 per row on mobile. */
     .chiprow {
-      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;
+      display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px;
+      margin-bottom: 24px;
     }
+    @media (max-width: 760px) { .chiprow { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
     .chip {
-      display: inline-flex; align-items: center; gap: 7px;
-      height: 34px; padding: 0 14px; border-radius: 999px;
+      display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+      min-width: 0; height: 36px; padding: 0 10px; border-radius: 999px;
       border: 1px solid var(--border); background: var(--card);
       font-size: 13px; font-weight: 500; color: var(--muted-foreground);
-      transition: background .15s ease, color .15s ease, border-color .15s ease;
+      transition: background .15s ease, color .15s ease, border-color .15s ease, transform .12s ease;
     }
+    .chip__label { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .chip:hover { background: var(--accent); color: var(--accent-foreground); }
+    .chip:active { transform: scale(.97); }
     .chip--active {
       background: var(--primary); color: var(--primary-foreground);
       border-color: var(--primary);
     }
     .chip__count {
       font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums;
-      padding: 1px 7px; border-radius: 999px;
+      padding: 1px 7px; border-radius: 999px; flex: 0 0 auto;
       background: color-mix(in srgb, var(--foreground) 10%, transparent);
     }
     .chip--active .chip__count { background: color-mix(in srgb, var(--primary-foreground) 20%, transparent); }
+
+    /* ---- Gallery toolbar (count + view toggle) ------------------------- */
+    .gallerybar {
+      display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      margin-bottom: 14px;
+    }
+    .gallerybar__count { font-size: 13px; color: var(--muted-foreground); font-variant-numeric: tabular-nums; }
+    .viewtoggle {
+      display: inline-flex; gap: 2px; padding: 3px; border-radius: 999px;
+      border: 1px solid var(--border); background: var(--card);
+    }
+    .viewtoggle__btn {
+      display: inline-flex; align-items: center; gap: 6px; height: 30px;
+      padding: 0 12px; border-radius: 999px; font-size: 12px; font-weight: 600;
+      color: var(--muted-foreground);
+      transition: background .15s ease, color .15s ease;
+    }
+    .viewtoggle__btn:hover { background: var(--accent); color: var(--accent-foreground); }
+    .viewtoggle__btn--active { background: var(--primary); color: var(--primary-foreground); }
+    .viewtoggle__lbl { display: none; }
+    @media (min-width: 640px) { .viewtoggle__lbl { display: inline; } }
 
     /* Style badge on prototype cards (distinct from the orange status tag) */
     .tag--style {
       background: color-mix(in srgb, var(--chart-3) 16%, transparent);
       color: var(--chart-3); border-color: transparent;
+    }
+
+    /* ---- Grid view (simplified): mini image + name only ---------------- */
+    .gridview {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+    }
+    .gcell {
+      display: flex; flex-direction: column; align-items: center; gap: 10px;
+      border: 1px solid var(--border); background: var(--card);
+      border-radius: 16px; padding: 16px 12px 14px;
+      transition: border-color .2s ease, box-shadow .2s ease, transform .15s ease;
+    }
+    .gcell:hover { border-color: var(--ring); box-shadow: var(--shadow-md); transform: translateY(-2px); }
+    .gcell__shot { display: flex; justify-content: center; width: 100%; }
+    .gcell__name {
+      font-size: 13px; font-weight: 600; letter-spacing: -.01em; text-align: center;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%;
     }
 
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

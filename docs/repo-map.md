@@ -34,20 +34,24 @@ ANDROID-PROTOTYPE/
 │           └── page.tsx
 │
 ├── src/
-│   ├── dashboard/              ← Dashboard styles + theme toggle client component.
-│   │   ├── dashboard.css
-│   │   └── theme-toggle.tsx
+│   ├── dashboard/              ← Dashboard styles, theme toggle, data-driven gallery.
+│   │   ├── dashboard.css       ← Warm-cream theme (approved palette — do not re-theme).
+│   │   ├── theme-toggle.tsx    ← Page-level light/dark toggle.
+│   │   ├── gallery.tsx         ← Filterable prototype gallery (detailed + grid views).
+│   │   └── thumbs.tsx          ← Mini home-screen thumbnails per prototype.
 │   ├── proto-kit/              ← SHARED DESIGN SYSTEM (fix once, inherit everywhere).
 │   │   ├── index.ts            ← Barrel export.
 │   │   ├── tokens/
 │   │   │   └── tokens.css      ← SINGLE source of truth for all design tokens.
+│   │   ├── styles/             ← 10 design-language token layers (data-style) + types.ts.
 │   │   ├── device-frame/       ← Phone mockup (bezel, status bar, screen slot).
 │   │   │   ├── device-frame.tsx
 │   │   │   ├── device-frame.module.css
 │   │   │   └── status-bar.tsx
-│   │   ├── bottom-nav/         ← Floating nav, content-sized active pill.
+│   │   ├── bottom-nav/         ← Multi-variant nav (floating/tabbar/labeled/glass/soft/hard).
 │   │   │   ├── bottom-nav.tsx
 │   │   │   └── bottom-nav.module.css
+│   │   ├── top-bar/            ← Multi-variant top app bar (large/center/inline/hero).
 │   │   ├── stage/              ← Side panels + stage layout (desktop only).
 │   │   │   ├── stage.tsx
 │   │   │   └── stage.module.css

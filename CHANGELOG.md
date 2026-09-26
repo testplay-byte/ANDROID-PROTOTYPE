@@ -7,6 +7,36 @@
 
 ## [Unreleased]
 
+### 2026-09-26 — Dashboard gallery UX pass: view modes, real mini-thumbnails, symmetric filters, docs consistency
+
+**Fixes & features (user feedback round 2):**
+- **Fixed invisible chart bars** — `.bar__fill` is a `<span>` and inline elements ignore
+  `height: 100%`, so the "Prototypes by design language" bars rendered empty. Now
+  `display: block` (same bug class to watch for in any inline-element fill).
+- **Gallery view modes** (`src/dashboard/gallery.tsx`): segmented Grid/Detailed toggle in a
+  toolbar with a result count. **Grid view** = simplified symmetric grid, mini phone image +
+  name only. Mode persists in localStorage (`gallery-view`) and is deep-linkable via
+  `#grid` / `#detailed`.
+- **Real mini-thumbnails** (`src/dashboard/thumbs.tsx`): each card/grid silhouette now shows
+  a tiny CSS composition of the prototype's ACTUAL home screen (album dial, temp + glass
+  chips, brutalist product blocks, bento tiles, activity rings, geometric posters, ...) —
+  no more generic placeholder lines. Add a thumb when adding a prototype.
+- **Filter chips → symmetric grid**: equal-width chips, 4 per row on desktop (3 tidy rows
+  for 12 chips), 2 per row on mobile, centered content, press feedback.
+- Screen counts corrected on the dashboard (anime-app 6, setup-wizard 8; totals now 60).
+
+**Documentation consistency pass:**
+- README.md: multi-style intro, full prototype catalog, updated structure tree + tech table.
+- STARTUP.md: dashboard/ tree entry, registration step now points at `PROTOTYPES` +
+  `thumbs.tsx`, §9 lookup rows for the style guides.
+- docs/preferences.md §1: codified the new approved dashboard design (view modes, thumbnails
+  mirror real home screens, symmetric chips, data-driven gallery rule).
+- docs/repo-map.md: src tree now includes gallery.tsx/thumbs.tsx, styles/, top-bar/.
+- docs/tech-stack.md + docs/agent-quickstart.md: style-layer row + registration checklist item.
+- Not pushed yet, per user decision — will deploy after the next improvement round.
+
+---
+
 ### 2026-09-26 — Multi-design-language system: 11 styles, nav/top-bar variants, 10 new prototypes, dashboard rework
 
 **The system is no longer M3-only.** Any agent can now build a prototype in any of 11 design

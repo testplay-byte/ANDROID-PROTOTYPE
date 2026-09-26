@@ -10,6 +10,8 @@ This repository holds **web-based mobile UI prototypes** — real, clickable int
 
 Each prototype is a **self-contained folder of React components** (one file per screen) sharing a common design system (`src/proto-kit/`). The project is a **Next.js 16 static export** — `next build` produces pure static HTML/CSS/JS that GitHub Pages serves directly. No server, no backend.
 
+Prototypes can be built in **11 design languages**: Material 3 (default), Apple HIG, IBM Carbon, Neumorphism, Glassmorphism, Brutalism, Claymorphism, Bauhaus, Minimalism, Bento Grid, and Flat Design — see [`docs/style-selection-guide.md`](./docs/style-selection-guide.md).
+
 ---
 
 ## Start here
@@ -26,8 +28,11 @@ Each prototype is a **self-contained folder of React components** (one file per 
 Prototypes are deployed to GitHub Pages automatically on every push to `main`.
 
 - **Dashboard (homepage gallery):** [https://testplay-byte.github.io/ANDROID-PROTOTYPE/](https://testplay-byte.github.io/ANDROID-PROTOTYPE/)
-- **Search page prototype:** [https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/search-page/](https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/search-page/)
-- **Anime app prototype:** [https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/anime-app/](https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/anime-app/)
+- **A prototype:** `https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/<name>/`
+
+Current catalog (filterable on the dashboard by design language, in detailed or grid view):
+search-page, anime-app, setup-wizard, music-player, weather-app, streetwear-store,
+finance-hub, smart-home, fitness-tracker, kids-learning, chat-app, habit-tracker, gallery-app.
 
 A prototype at `app/prototypes/my-app/` is reachable at `https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/my-app/`.
 
@@ -38,15 +43,16 @@ A prototype at `app/prototypes/my-app/` is reachable at `https://testplay-byte.g
 ```
 .
 ├── app/                    # Next.js App Router (routes = thin)
-│   ├── page.tsx            # Dashboard / prototypes gallery
+│   ├── page.tsx            # Dashboard / prototypes gallery (data-driven)
 │   └── prototypes/         # One route folder per prototype
 ├── src/
-│   ├── proto-kit/          # Shared design system (DeviceFrame, BottomNav, tokens)
+│   ├── proto-kit/          # Shared design system (DeviceFrame, BottomNav, TopBar, Stage, tokens)
+│   │   └── styles/         # 10 design-language token layers (data-style)
 │   ├── prototypes/         # Prototype screens/components/hooks/lib (one file per screen)
-│   └── dashboard/          # Dashboard styles + theme toggle
+│   └── dashboard/          # Dashboard styles, theme toggle, filterable gallery + thumbs
 ├── public/                 # Static assets served verbatim
 ├── archive/                # Backup of the pre-Next.js static site
-├── docs/                   # All documentation (17 files)
+├── docs/                   # All documentation (see docs/navigation.md)
 ├── templates/              # Reusable UI fragments (agent reference)
 ├── next.config.ts          # output:'export', basePath:'/ANDROID-PROTOTYPE'
 └── package.json            # Next.js 16 + React 19 + TypeScript 5
@@ -66,6 +72,7 @@ Every directory has its own `navigation.md` explaining its contents. See [`docs/
 | Interactivity | React 19 (client components)                        |
 | Icons         | Inline SVG                                           |
 | Frame         | `proto-kit` `<DeviceFrame>` (bezel + status bar)    |
+| Style         | `data-style` design-language layer + `variant` props (BottomNav/TopBar) |
 | State         | React state + localStorage                          |
 | Routing       | Hash routing (`#home`, `#search`)                   |
 
