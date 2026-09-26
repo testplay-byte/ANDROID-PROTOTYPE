@@ -7,6 +7,18 @@
 
 ## [Unreleased]
 
+### 2026-09-26 — Grid view: shared family sheets with dense horizontal packing (user feedback)
+
+**User feedback on the sectioned grid:** the style header on top and the single row of items below were right, but (a) each prototype had its own individual card background instead of one shared surface, (b) the section grid stretched full-width with dead space at the end of the row, and (c) a wrapped item should fill the end of the previous line (closest to its sibling), not start the next line.
+
+**Changes (`src/dashboard/gallery.tsx`, `src/dashboard/dashboard.css`):**
+- Each design language is now a **family sheet**: header (hue dot + name + count) at the top, prototypes directly on ONE shared tinted background — individual card backgrounds removed (cells are transparent, hover highlights).
+- Sheets are **content-hugging** (`width: fit-content`, `--cols` per family = min(count, 4) set inline) — the sheet ends at its last item, never stretches.
+- Sheets **pack horizontally** on a flex row: the next family starts right after the previous family's last item on the same line; a family that doesn't fit wraps as a unit (its items stay together, closest to the previous line's end).
+- Small screens (≤640px): families go full-width with auto-fill columns.
+
+**Verification:** `npm run build` + preview screenshots at 1440px (M3 + HIG share the first line) and 800px (families wrap as units, still packed).
+
 ### 2026-09-26 — Dashboard grid view: per-style sections restored (user feedback)
 
 **User feedback:** the packed inline-flow grid (style label on the left, prototypes flowing to the right) was rejected. The preferred layout is the earlier one: the style name as a full header line at the TOP of its section with all of its prototypes in a grid directly BELOW it, and column count adapting to display size instead of a fixed number of items per line.

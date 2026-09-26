@@ -250,7 +250,10 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
                     <h3 className="stylesec__title">{STYLE_LABELS[s]}</h3>
                     <span className="stylesec__count">{group.length}</span>
                   </header>
-                  <div className="stylesec__grid">
+                  <div
+                    className="stylesec__grid"
+                    style={{ "--cols": Math.min(group.length, 4) } as React.CSSProperties}
+                  >
                     {group.map((item) => (
                       <a className="gcell" key={item.name} href={item.url} aria-label={`Open ${item.name} prototype`}>
                         <span className="gcell__shot">

@@ -364,27 +364,51 @@
       color: var(--chart-3); border-color: transparent;
     }
 
-    /* ---- Grid view: per-style sections ---------------------------------
-       Each design language is a full-width section: the style name is a
-       header line at the TOP of its section, and all of its prototypes sit
-       in a card grid directly BELOW it. Sections stack vertically. The grid
-       is auto-fill, so the number of items per row adapts to the display
-       width — never a fixed count. Cells are clean cards (previous gallery
-       aesthetic): bordered, 16px radius, mini phone silhouette + name. */
+    /* ---- Grid view: per-style family sheets, packed ---------------------
+       Each design language is a "family sheet": the style name is a header
+       at the TOP of its block, and its prototypes sit directly on ONE shared
+       tinted background — no individual card backgrounds. Family blocks are
+       sized to their content (never stretched full-width), and they pack
+       horizontally on a flex row: the next family continues right after the
+       previous family's last item, so there is no dead space at the end of a
+       row. --cols (set inline per family, capped at 4) keeps the sheet
+       exactly as wide as its items; on small screens families go full-width
+       with auto-fill columns. */
     .gridview {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      gap: 12px;
       margin-bottom: 8px;
     }
     .stylesec {
-      margin: 0 0 28px;
+      display: inline-flex;
+      flex-direction: column;
+      width: fit-content;
+      max-width: 100%;
+      padding: 12px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--card);
     }
-    .stylesec:last-child {
-      margin-bottom: 8px;
-    }
+    /* Distinct family tint per design language (background + matching edge). */
+    .stylesec[data-style="m3"]        { background: color-mix(in srgb, #d0bcff 12%, var(--card)); border-color: color-mix(in srgb, #d0bcff 30%, var(--border)); }
+    .stylesec[data-style="hig"]       { background: color-mix(in srgb, #0a84ff 10%, var(--card)); border-color: color-mix(in srgb, #0a84ff 28%, var(--border)); }
+    .stylesec[data-style="carbon"]    { background: color-mix(in srgb, #8d8d8d 12%, var(--card)); border-color: color-mix(in srgb, #8d8d8d 30%, var(--border)); }
+    .stylesec[data-style="neumorph"]  { background: color-mix(in srgb, #e0a458 13%, var(--card)); border-color: color-mix(in srgb, #e0a458 30%, var(--border)); }
+    .stylesec[data-style="glass"]     { background: color-mix(in srgb, #67e8f9 12%, var(--card)); border-color: color-mix(in srgb, #67e8f9 30%, var(--border)); }
+    .stylesec[data-style="brutalism"] { background: color-mix(in srgb, #ffd23f 15%, var(--card)); border-color: color-mix(in srgb, #ffd23f 34%, var(--border)); }
+    .stylesec[data-style="clay"]      { background: color-mix(in srgb, #ec7fae 12%, var(--card)); border-color: color-mix(in srgb, #ec7fae 30%, var(--border)); }
+    .stylesec[data-style="bauhaus"]   { background: color-mix(in srgb, #d5321f 11%, var(--card)); border-color: color-mix(in srgb, #d5321f 28%, var(--border)); }
+    .stylesec[data-style="minimal"]   { background: color-mix(in srgb, #111111 7%, var(--card));  border-color: color-mix(in srgb, #111111 20%, var(--border)); }
+    .stylesec[data-style="bento"]     { background: color-mix(in srgb, #ff5c33 12%, var(--card)); border-color: color-mix(in srgb, #ff5c33 30%, var(--border)); }
+    .stylesec[data-style="flat"]      { background: color-mix(in srgb, #00897b 12%, var(--card)); border-color: color-mix(in srgb, #00897b 30%, var(--border)); }
+
     .stylesec__head {
       display: flex;
       align-items: center;
       gap: 8px;
-      margin: 0 0 12px;
+      margin: 0 0 10px;
     }
     .stylesec__dot {
       flex: none;
@@ -417,27 +441,25 @@
       font-variant-numeric: tabular-nums;
     }
 
-    /* Card grid — auto-fill so columns adapt to any display size. */
+    /* Items share the family background — exactly --cols tracks so the
+       sheet hugs its content. */
     .stylesec__grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 16px;
+      grid-template-columns: repeat(var(--cols, 1), minmax(146px, 1fr));
+      gap: 10px;
     }
     .gcell {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      border-radius: 16px;
-      padding: 16px 12px 14px;
+      gap: 8px;
+      padding: 8px 6px 6px;
+      border-radius: 12px;
       color: var(--foreground);
-      transition: border-color .2s ease, box-shadow .2s ease, transform .15s ease;
+      transition: background .15s ease, transform .15s ease;
     }
     .gcell:hover {
-      border-color: var(--ring);
-      box-shadow: var(--shadow-md);
+      background: color-mix(in srgb, var(--foreground) 6%, transparent);
       transform: translateY(-2px);
     }
     .gcell:hover .gcell__name { color: var(--chart-1); }
@@ -447,7 +469,7 @@
       width: 100%;
     }
     .gcell__name {
-      font-size: 13px;
+      font-size: 12.5px;
       font-weight: 600;
       letter-spacing: -.01em;
       text-align: center;
@@ -456,6 +478,12 @@
       white-space: nowrap;
       max-width: 100%;
       transition: color .15s ease;
+    }
+
+    /* Small screens: families go full-width, columns adapt via auto-fill. */
+    @media (max-width: 640px) {
+      .stylesec { width: 100%; }
+      .stylesec__grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
     }
 
     /* Style badge on prototype cards (distinct from the orange status tag) */
