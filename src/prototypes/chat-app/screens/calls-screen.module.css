@@ -1,0 +1,173 @@
+/* chat-app / screens / calls-screen — flat rows, zero shadows. */
+
+.content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: var(--sp-3) var(--sp-4) 110px;
+  scrollbar-width: none;
+}
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border-radius: var(--r-md);
+  transition: background var(--dur-1) var(--ease-standard);
+}
+.row:active {
+  background: var(--color-surface-2);
+}
+
+/* Direction icon in a flat colored circle */
+.directionCircle {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  margin-left: calc(var(--sp-2) * -1);
+}
+.dir_incoming {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+.dir_outgoing {
+  background: var(--color-secondary-container);
+  color: var(--color-secondary);
+}
+.dir_missed {
+  background: var(--color-error-container);
+  color: var(--color-error);
+}
+
+.rowMain {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.rowName {
+  font-size: var(--fs-body-l);
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.rowNameMissed {
+  color: var(--color-error);
+}
+.rowWhen {
+  font-size: var(--fs-label);
+  color: var(--color-text-subtle);
+}
+
+.callButton {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: 0 0 auto;
+  transition:
+    background var(--dur-2) var(--ease-standard),
+    transform var(--dur-1) var(--ease-emphasized);
+}
+.callButton:active {
+  background: var(--color-secondary);
+  transform: scale(0.9);
+}
+
+/* ---- Calling overlay ---- */
+.overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--color-bg) 80%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-2) var(--ease-standard);
+}
+.overlayShow {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.overlayCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-8);
+}
+
+.overlayName {
+  margin: var(--sp-2) 0 0;
+  font-size: var(--fs-h2);
+  font-weight: 800;
+  color: var(--color-text);
+}
+.overlayStatus {
+  margin: 0 0 var(--sp-6);
+  font-size: var(--fs-body);
+  color: var(--color-text-muted);
+}
+.ellipsis {
+  animation: ellipsisPulse 1.2s var(--ease-standard) infinite;
+}
+@keyframes ellipsisPulse {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+.endButton {
+  min-height: 48px;
+  min-width: 140px;
+  border: none;
+  border-radius: var(--r-pill);
+  background: var(--color-error);
+  color: var(--color-primary-fg);
+  font-size: var(--fs-body-l);
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  cursor: pointer;
+  transition: transform var(--dur-1) var(--ease-emphasized);
+}
+.endButton:active {
+  transform: scale(0.94);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ellipsis {
+    animation: none !important;
+  }
+}

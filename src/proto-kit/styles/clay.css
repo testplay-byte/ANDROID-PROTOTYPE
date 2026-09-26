@@ -1,0 +1,100 @@
+/* =========================================================================
+   Style: Clay — Claymorphism
+   docs/design-languages/clay.md
+
+   Look: puffy 3D pastel. Surfaces are chunky, very-rounded, and "inflated"
+   via a triple shadow: soft outer dark (lift) + inner light top (bounce)
+   + inner soft bottom (depth). Pastel violet/pink palette.
+   Recommended nav: soft. Recommended top bar: hero.
+   MUST-USE: --shadow-1/--shadow-2 (puffy lift) and --shadow-inset
+   (pressed dough) — plain flat surfaces look broken in this style.
+   ========================================================================= */
+
+.device[data-style="clay"] {
+  --color-bg: #2a2733;
+  --color-surface-1: #322e3d;
+  --color-surface-2: #3a3547;
+  --color-surface-3: #433d52;
+  --color-surface-4: #4c455d;
+  --color-surface-5: #564e69;
+
+  --color-text: #f0edf8;
+  --color-text-muted: #b3aec6;
+  --color-text-subtle: #7f7896;
+
+  --color-primary: #a78bfa;
+  --color-primary-fg: #2a1a4a;
+  --color-primary-container: #4a3d75;
+  --color-on-primary-container: #d8c9ff;
+  --color-secondary: #f0a6ca;
+  --color-secondary-container: #57415c;
+  --color-tertiary: #7fd8ce;
+  --color-tertiary-container: #2e4f4b;
+  --color-error: #f08c8c;
+  --color-error-container: #57303a;
+  --color-success: #8fd8a0;
+  --color-warn: #f0c987;
+  --color-outline: #564e69;
+  --color-outline-variant: #433d52;
+
+  --shadow-1: 8px 8px 18px rgba(0, 0, 0, 0.45), inset -4px -4px 10px rgba(0, 0, 0, 0.35),
+    inset 4px 4px 10px rgba(255, 255, 255, 0.08);
+  --shadow-2: 12px 12px 28px rgba(0, 0, 0, 0.5), inset -6px -6px 14px rgba(0, 0, 0, 0.35),
+    inset 5px 5px 14px rgba(255, 255, 255, 0.09);
+  --shadow-inset: inset 5px 5px 12px rgba(0, 0, 0, 0.5), inset -4px -4px 10px rgba(255, 255, 255, 0.07);
+  --border-w: 0px;
+
+  /* Puffier radii across the board (still ≤ 32 on the device frame). */
+  --r-xs: 10px;
+  --r-sm: 14px;
+  --r-md: 20px;
+  --r-lg: 24px;
+  --r-xl: 28px;
+
+  --device-bezel: #d5cfe8;
+  --device-edge: #a89fc4;
+  --bezel-w: 3.5px;
+  --edge-w: 4px;
+  --frame-shadow: rgba(0, 0, 0, 0.55);
+}
+
+.device[data-style="clay"][data-theme="light"] {
+  --color-bg: #ece9f7;
+  --color-surface-1: #f3f0fb;
+  --color-surface-2: #f7f4fe;
+  --color-surface-3: #faf8ff;
+  --color-surface-4: #ffffff;
+  --color-surface-5: #ffffff;
+
+  --color-text: #3a3550;
+  --color-text-muted: #6f6a8a;
+  --color-text-subtle: #9c96b8;
+
+  --color-primary: #8b5cf6;
+  --color-primary-fg: #ffffff;
+  --color-primary-container: #e6dcfe;
+  --color-on-primary-container: #4c1d95;
+  --color-secondary: #ec7fae;
+  --color-secondary-container: #fbe0ec;
+  --color-tertiary: #3fb5a9;
+  --color-tertiary-container: #d3f2ef;
+  --color-error: #e35d6a;
+  --color-error-container: #fadade;
+  --color-success: #4cc076;
+  --color-warn: #eab308;
+  --color-outline: #c9c3dd;
+  --color-outline-variant: #ddd8ec;
+
+  --shadow-1: 8px 8px 18px rgba(83, 73, 113, 0.18), inset -5px -5px 12px rgba(140, 130, 175, 0.16),
+    inset 5px 5px 12px rgba(255, 255, 255, 0.9);
+  --shadow-2: 12px 12px 28px rgba(83, 73, 113, 0.22), inset -6px -6px 14px rgba(140, 130, 175, 0.16),
+    inset 6px 6px 14px rgba(255, 255, 255, 0.95);
+  --shadow-inset: inset 5px 5px 12px rgba(140, 130, 175, 0.3), inset -4px -4px 10px rgba(255, 255, 255, 0.85);
+  --border-w: 0px;
+
+  --device-bezel: #3a3550;
+  --device-edge: #564e75;
+  --bezel-w: 4px;
+  --edge-w: 4.4px;
+  --frame-shadow: rgba(83, 73, 113, 0.4);
+}

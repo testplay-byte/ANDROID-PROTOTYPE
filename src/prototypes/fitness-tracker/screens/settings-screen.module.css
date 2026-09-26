@@ -1,0 +1,120 @@
+/* SettingsScreen — iOS inset grouped style. */
+
+.root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+.content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 var(--sp-4) 96px;
+  scrollbar-width: none;
+}
+
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+/* Segmented rows live inside groups, full-bleed with padding */
+.segmentRow {
+  padding: var(--sp-2) var(--sp-4) var(--sp-3);
+}
+
+.segmentRowLabel {
+  display: flex;
+  align-items: center;
+  min-height: 52px;
+  padding: var(--sp-2) var(--sp-4) 0;
+  font-size: var(--fs-body);
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.segmentInline {
+  width: 132px;
+  flex-shrink: 0;
+}
+
+/* Row with a label + inline control */
+.segmentRow:has(.segmentInline) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-2) var(--sp-4);
+}
+
+.segmentRow:has(.segmentInline) .segmentRowLabel {
+  min-height: 44px;
+  padding: 0;
+}
+
+/* ---- Stepper (iOS style: segmented +/- with value between) ---- */
+.stepper {
+  display: flex;
+  align-items: center;
+  background: var(--color-surface-3);
+  border-radius: var(--r-xs);
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.stepperBtn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: var(--color-surface-1);
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease-standard),
+    opacity var(--dur-1) var(--ease-standard);
+}
+
+.stepperBtn:active {
+  background: var(--color-surface-3);
+}
+
+.stepperBtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.stepperValue {
+  min-width: 40px;
+  text-align: center;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}
+
+/* ---- Icon disc tints ---- */
+.tintBlue {
+  color: var(--color-primary);
+  background: var(--tint-blue-bg);
+}
+
+.tintIndigo {
+  color: var(--color-tertiary);
+  background: var(--tint-purple-bg);
+}
+
+.tintOrange {
+  color: var(--color-warn);
+  background: var(--tint-orange-bg);
+}
+
+.footer {
+  margin: 0;
+  padding: var(--sp-2) 0 0;
+  text-align: center;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+}

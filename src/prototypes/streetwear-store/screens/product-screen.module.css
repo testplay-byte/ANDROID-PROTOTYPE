@@ -1,0 +1,266 @@
+/* ProductScreen — pushed detail view. Brutalist blocks only. */
+
+.root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+.header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border-bottom: var(--border-w) solid var(--color-outline);
+  background: var(--color-bg);
+}
+
+.back {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  box-shadow: var(--shadow-1);
+  color: var(--color-text);
+  cursor: pointer;
+  border-radius: 0;
+  transition:
+    transform var(--dur-1) var(--ease-standard),
+    box-shadow var(--dur-1) var(--ease-standard);
+}
+
+.back:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.headerTitle {
+  font-size: var(--fs-h3);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+.content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--sp-4) var(--sp-4) 110px;
+  scrollbar-width: none;
+}
+
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---- Big cover with geometric shapes ---- */
+.cover {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border: var(--border-w) solid var(--color-outline);
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+  margin-bottom: var(--sp-5);
+}
+
+.tonePrimary {
+  background: var(--color-primary);
+}
+.toneSecondary {
+  background: var(--color-secondary);
+}
+.toneTertiary {
+  background: var(--color-tertiary);
+}
+.toneSuccess {
+  background: var(--color-success);
+}
+.toneSurface {
+  background: var(--color-surface-4);
+}
+
+.shapeCircleBig {
+  position: absolute;
+  top: -25%;
+  right: -25%;
+  width: 75%;
+  aspect-ratio: 1 / 1;
+  border: var(--border-w) solid var(--color-outline);
+  border-radius: 50%;
+  background: var(--color-bg);
+  opacity: 0.45;
+}
+
+.shapeCircleSmall {
+  position: absolute;
+  bottom: 10%;
+  right: 12%;
+  width: 22%;
+  aspect-ratio: 1 / 1;
+  border: var(--border-w) solid var(--color-outline);
+  border-radius: 50%;
+  background: var(--color-bg);
+  opacity: 0.6;
+}
+
+.shapeStripe {
+  position: absolute;
+  left: -15%;
+  top: 42%;
+  width: 130%;
+  height: 16px;
+  background: var(--color-outline);
+  transform: rotate(-14deg);
+  opacity: 0.85;
+}
+
+.shapeSquare {
+  position: absolute;
+  left: 8%;
+  top: 8%;
+  width: 24px;
+  height: 24px;
+  background: var(--color-bg);
+  border: var(--border-w) solid var(--color-outline);
+}
+
+.tag {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 4px 10px;
+  background: var(--color-bg);
+  border-top: var(--border-w) solid var(--color-outline);
+  border-left: var(--border-w) solid var(--color-outline);
+  font-size: var(--fs-label);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: var(--color-secondary);
+}
+
+/* ---- Title row ---- */
+.titleRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-1);
+}
+
+.name {
+  margin: 0;
+  font-size: var(--fs-h2);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+  color: var(--color-text);
+}
+
+.price {
+  font-size: var(--fs-h2);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+  flex: 0 0 auto;
+}
+
+.sku {
+  margin: 0 0 var(--sp-5);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--color-text-subtle);
+}
+
+/* ---- Sections ---- */
+.sectionLabel {
+  display: block;
+  font-size: var(--fs-label);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--sp-2);
+}
+
+.sizes {
+  display: flex;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-5);
+}
+
+.sizeBtn {
+  flex: 1 1 0;
+  min-height: 48px;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  color: var(--color-text);
+  font-size: var(--fs-body);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  border-radius: 0;
+  transition:
+    background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard),
+    transform var(--dur-1) var(--ease-standard),
+    box-shadow var(--dur-1) var(--ease-standard);
+}
+
+.sizeBtn:hover {
+  background: var(--color-surface-3);
+}
+
+.sizeBtn:active {
+  transform: translate(2px, 2px);
+}
+
+.sizeBtnActive {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  box-shadow: var(--shadow-1);
+}
+
+.qtyRow {
+  margin-bottom: var(--sp-6);
+}
+
+/* ---- ADD TO CART ---- */
+.addToCart {
+  width: 100%;
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  box-shadow: var(--shadow-2);
+  font-size: var(--fs-h3);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 0;
+  transition:
+    transform var(--dur-1) var(--ease-standard),
+    box-shadow var(--dur-1) var(--ease-standard),
+    background var(--dur-1) var(--ease-standard);
+}
+
+.addToCart:active {
+  transform: translate(4px, 4px);
+  box-shadow: none;
+}
+
+.addToCartDone {
+  background: var(--color-success);
+}

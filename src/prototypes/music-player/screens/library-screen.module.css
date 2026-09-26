@@ -1,0 +1,185 @@
+/* LibraryScreen — track list with per-song play state. */
+
+.root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+.content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: var(--sp-2) var(--sp-3) 110px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  width: 100%;
+  min-height: 72px;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--r-lg);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-1);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    box-shadow var(--dur-2) var(--ease-emphasized),
+    transform var(--dur-1) var(--ease-emphasized);
+}
+
+.row:active {
+  transform: scale(0.98);
+  box-shadow: var(--shadow-inset);
+}
+
+.rowCurrent {
+  box-shadow: var(--shadow-inset);
+}
+
+.rowCurrent:active {
+  box-shadow: var(--shadow-inset);
+}
+
+/* ---- Thumb ---- */
+.thumb {
+  position: relative;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r-md);
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-inset);
+  overflow: hidden;
+}
+
+.thumbIcon {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 2px;
+  height: 16px;
+  color: var(--color-primary);
+}
+
+.eqBar {
+  width: 3px;
+  height: 8px;
+  border-radius: 2px;
+  background: var(--color-primary);
+  animation: eq 900ms var(--ease-standard) infinite;
+}
+
+.eqBar2 {
+  animation-delay: 200ms;
+  height: 14px;
+}
+
+.eqBar3 {
+  animation-delay: 400ms;
+  height: 10px;
+}
+
+@keyframes eq {
+  0%, 100% { transform: scaleY(0.5); }
+  50% { transform: scaleY(1.15); }
+}
+
+.thumb0 {
+  background: radial-gradient(circle at 30% 25%, var(--color-primary) 0%, var(--color-primary-container) 55%, var(--color-surface-3) 100%);
+}
+.thumb1 {
+  background: radial-gradient(circle at 65% 30%, var(--color-warn) 0%, var(--color-primary) 60%, var(--color-surface-4) 100%);
+}
+.thumb2 {
+  background: radial-gradient(circle at 30% 70%, var(--color-tertiary) 0%, var(--color-tertiary-container) 55%, var(--color-surface-3) 100%);
+}
+.thumb3 {
+  background: radial-gradient(circle at 60% 60%, var(--color-secondary) 0%, var(--color-surface-4) 60%, var(--color-surface-2) 100%);
+}
+.thumb4 {
+  background: radial-gradient(circle at 40% 40%, var(--color-error) 0%, var(--color-primary) 65%, var(--color-surface-4) 100%);
+}
+.thumb5 {
+  background: radial-gradient(circle at 55% 35%, var(--color-on-primary-container) 0%, var(--color-primary-container) 55%, var(--color-surface-3) 100%);
+}
+
+/* ---- Row text ---- */
+.rowText {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.rowTitle {
+  font-size: var(--fs-body-l);
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rowTitleCurrent {
+  color: var(--color-primary);
+}
+
+.rowArtist {
+  font-size: var(--fs-label);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---- Like + duration ---- */
+.like {
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--color-text-subtle);
+  flex: 0 0 auto;
+  cursor: pointer;
+  transition:
+    color var(--dur-2) var(--ease-emphasized),
+    transform var(--dur-1) var(--ease-emphasized);
+}
+
+.like:active {
+  transform: scale(0.85);
+  color: var(--color-error);
+}
+
+.duration {
+  min-width: 40px;
+  text-align: right;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .eqBar {
+    animation: none !important;
+  }
+  .row {
+    transition: none !important;
+  }
+}

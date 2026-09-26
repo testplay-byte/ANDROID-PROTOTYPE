@@ -1,0 +1,94 @@
+/* =========================================================================
+   Style: Bento — Bento grid
+   docs/design-languages/bento.md
+
+   Look: dashboard-of-tiles. iOS-widget energy: rounded white/neutral
+   tiles on a light gray felt background, one vivid orange accent, tile
+   radii larger than usual, content-first (big numbers, mini charts).
+   Recommended nav: floating. Recommended top bar: large.
+   Signature: the bento GRID itself — 2-col tiles of mixed heights.
+   ========================================================================= */
+
+.device[data-style="bento"] {
+  --color-bg: #111114;
+  --color-surface-1: #1c1c21;
+  --color-surface-2: #232329;
+  --color-surface-3: #2b2b32;
+  --color-surface-4: #34343c;
+  --color-surface-5: #3e3e47;
+
+  --color-text: #f5f5f7;
+  --color-text-muted: #a1a1aa;
+  --color-text-subtle: #71717a;
+
+  --color-primary: #ff7a45;
+  --color-primary-fg: #2a1105;
+  --color-primary-container: #4a2c1c;
+  --color-on-primary-container: #ffccb8;
+  --color-secondary: #38bdf8;
+  --color-secondary-container: #173a4a;
+  --color-tertiary: #a3e635;
+  --color-tertiary-container: #2c4210;
+  --color-error: #f87171;
+  --color-error-container: #451a1a;
+  --color-success: #4ade80;
+  --color-warn: #facc15;
+  --color-outline: #3e3e47;
+  --color-outline-variant: #2b2b32;
+
+  --shadow-1: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 8px 24px rgba(0, 0, 0, 0.45);
+  --shadow-inset: inset 0 0 0 100px rgba(0, 0, 0, 0);
+  --border-w: 0px;
+
+  --r-xs: 10px;
+  --r-sm: 14px;
+  --r-md: 18px;
+  --r-lg: 22px;
+  --r-xl: 26px;
+
+  --device-bezel: #cfcfcf;
+  --device-edge: #a8a8a8;
+  --bezel-w: 3.5px;
+  --edge-w: 4px;
+  --frame-shadow: rgba(0, 0, 0, 0.55);
+}
+
+.device[data-style="bento"][data-theme="light"] {
+  --color-bg: #f2f2f7;
+  --color-surface-1: #ffffff;
+  --color-surface-2: #ffffff;
+  --color-surface-3: #f7f7fa;
+  --color-surface-4: #e5e5ea;
+  --color-surface-5: #d1d1d6;
+
+  --color-text: #111114;
+  --color-text-muted: #6e6e73;
+  --color-text-subtle: #aeaeb2;
+
+  --color-primary: #ff5c33;
+  --color-primary-fg: #ffffff;
+  --color-primary-container: #ffe3d9;
+  --color-on-primary-container: #99290d;
+  --color-secondary: #0284c7;
+  --color-secondary-container: #dff1fb;
+  --color-tertiary: #65a30d;
+  --color-tertiary-container: #e8f5d0;
+  --color-error: #e5484d;
+  --color-error-container: #fdebec;
+  --color-success: #30a46c;
+  --color-warn: #eab308;
+  --color-outline: #d1d1d6;
+  --color-outline-variant: #e5e5ea;
+
+  --shadow-1: 0 1px 3px rgba(17, 17, 20, 0.06);
+  --shadow-2: 0 8px 24px rgba(17, 17, 20, 0.08);
+  --shadow-inset: inset 0 0 0 100px rgba(0, 0, 0, 0);
+  --border-w: 0px;
+
+  --device-bezel: #0e0a17;
+  --device-edge: #1b1729;
+  --bezel-w: 4px;
+  --edge-w: 4.4px;
+  --frame-shadow: rgba(17, 17, 20, 0.3);
+}

@@ -1,0 +1,144 @@
+/* ActivityScreen — rings, weekly day selector, grouped stat cards. */
+
+.root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+.content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 var(--sp-4) 96px;
+  scrollbar-width: none;
+}
+
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---- Share button (TopBar trailing) ---- */
+.shareBtn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: none;
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: var(--r-pill);
+  transition: background var(--dur-1) var(--ease-standard),
+    transform var(--dur-1) var(--ease-standard);
+}
+
+.shareBtn:active {
+  background: var(--tint-blue-bg);
+  transform: scale(0.92);
+}
+
+/* ---- Rings card ---- */
+.ringsCard {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-4) 0 var(--sp-3);
+}
+
+.ringsWrap {
+  flex-shrink: 0;
+}
+
+.ringStats {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.ringStat {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+}
+
+.ringDot {
+  width: 10px;
+  height: 10px;
+  border-radius: var(--r-pill);
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.ringValue {
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+  line-height: 1.1;
+}
+
+.ringGoal {
+  font-size: var(--fs-label-s);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  margin-left: 2px;
+}
+
+/* ---- Weekly day selector ---- */
+.weekRow {
+  display: flex;
+  gap: var(--sp-2);
+  justify-content: space-between;
+}
+
+.dayPill {
+  flex: 1;
+  height: 44px;
+  border: none;
+  border-radius: var(--r-pill);
+  background: var(--color-surface-1);
+  color: var(--color-text-muted);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: var(--shadow-1);
+  transition: background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard),
+    transform var(--dur-1) var(--ease-standard);
+}
+
+.dayPill:active {
+  transform: scale(0.92);
+}
+
+.dayPillActive {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+.dayName {
+  margin: var(--sp-2) 0 var(--sp-4);
+  font-size: var(--fs-label);
+  color: var(--color-text-muted);
+}
+
+/* ---- Icon disc tints ---- */
+.tintBlue {
+  color: var(--color-primary);
+  background: var(--tint-blue-bg);
+}
+
+.tintRed {
+  color: var(--color-error);
+  background: var(--tint-red-bg);
+}
+
+.tintGreen {
+  color: var(--color-success);
+  background: var(--tint-green-bg);
+}

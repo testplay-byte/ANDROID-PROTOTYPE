@@ -31,6 +31,8 @@
 | `archive/`        | Backup of pre-Next.js static site (zip + legacy prototype files).  | [`archive/STATIC-V1-MANIFEST.md`](./archive/STATIC-V1-MANIFEST.md) |
 | `Android_app/`    | **Native Android apps** (Kotlin + Compose). APKs built via GitHub Actions. | [`Android_app/navigation.md`](./Android_app/navigation.md) |
 | `docs/`           | All documentation: workflow, standards, deployment, protocols.     | [`docs/navigation.md`](./docs/navigation.md) |
+|   ├ `style-selection-guide.md` | **Pick a design language** for a brief (intent → style).    | — |
+|   └ `design-languages/`       | Specs for the 11 design languages (M3 + 10 more).            | [`docs/design-languages/navigation.md`](./docs/design-languages/navigation.md) |
 | `.github/`        | GitHub config: Actions workflows (Next.js build → Pages).          | [`.github/navigation.md`](./.github/navigation.md) |
 
 ---
@@ -50,6 +52,8 @@
 | Read the prototype template rules       | [`docs/template-rules.md`](./docs/template-rules.md)                  |
 | Understand the theme architecture       | [`docs/theme-architecture.md`](./docs/theme-architecture.md)          |
 | **Read user design preferences**        | [`docs/preferences.md`](./docs/preferences.md)                        |
+| **Choose a design language**            | [`docs/style-selection-guide.md`](./docs/style-selection-guide.md)    |
+| **Read a style spec (11 languages)**    | [`docs/design-languages/navigation.md`](./docs/design-languages/navigation.md) |
 | Understand GitHub Pages deployment      | [`docs/github-pages.md`](./docs/github-pages.md)                      |
 | Read the notification protocol          | [`docs/notification-protocol.md`](./docs/notification-protocol.md)    |
 | Reuse the shared design system          | `src/proto-kit/` (DeviceFrame, StatusBar, BottomNav, Stage, tokens)   |

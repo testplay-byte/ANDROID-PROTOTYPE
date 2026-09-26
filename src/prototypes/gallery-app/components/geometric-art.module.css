@@ -1,0 +1,144 @@
+/* GeometricArt — collection thumbnails as pure CSS geometry.
+   Square field, 2px ink border, solid triad blocks, no shadows. */
+
+.field {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  border: var(--border-w) solid var(--color-outline);
+  border-bottom: none;
+  overflow: hidden;
+}
+
+/* ---- Primitives ---- */
+.circle {
+  position: absolute;
+  width: 62%;
+  height: 62%;
+  border-radius: 50%;
+  left: 19%;
+  top: 12%;
+}
+
+.quarter {
+  position: absolute;
+  width: 78%;
+  height: 78%;
+  left: 0;
+  bottom: 0;
+  border-top-right-radius: 100%;
+}
+
+.smallSquare {
+  position: absolute;
+  width: 18%;
+  height: 18%;
+  right: 10%;
+  top: 10%;
+}
+
+/* Triangle via CSS borders (fixed px — percent border widths are invalid). */
+.triangle {
+  position: absolute;
+  width: 0;
+  height: 0;
+  left: 16%;
+  top: 16%;
+  border-left: 44px solid transparent;
+  border-right: 44px solid transparent;
+  border-bottom: 62px solid var(--color-tertiary);
+}
+
+.dot {
+  position: absolute;
+  width: 26%;
+  height: 26%;
+  border-radius: 50%;
+  right: 12%;
+  bottom: 14%;
+}
+
+.bar {
+  position: absolute;
+}
+
+.barDiagonal {
+  width: 130%;
+  height: 10px;
+  left: -15%;
+  top: 62%;
+  transform: rotate(-18deg);
+}
+
+.barV1 {
+  width: 20%;
+  height: 74%;
+  left: 16%;
+  top: 13%;
+}
+
+.barV2 {
+  width: 20%;
+  height: 74%;
+  right: 16%;
+  bottom: 13%;
+}
+
+.barBase {
+  left: 12%;
+  right: 12%;
+  bottom: 22%;
+  height: 8px;
+}
+
+.crossH {
+  width: 72%;
+  height: 12px;
+  left: 14%;
+  top: 44%;
+}
+
+.crossV {
+  width: 12px;
+  height: 72%;
+  left: 44%;
+  top: 14%;
+}
+
+.semicircle {
+  position: absolute;
+  width: 64%;
+  height: 32%;
+  left: 18%;
+  bottom: 26%;
+  border-top-left-radius: 999px;
+  border-top-right-radius: 999px;
+}
+
+.strip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 18%;
+}
+
+.strip1 {
+  top: 12%;
+}
+
+.strip2 {
+  top: 41%;
+}
+
+.strip3 {
+  top: 70%;
+}
+
+.ring {
+  position: absolute;
+  width: 56%;
+  height: 56%;
+  border-radius: 50%;
+  border: 10px solid var(--color-primary);
+  left: 22%;
+  top: 12%;
+}

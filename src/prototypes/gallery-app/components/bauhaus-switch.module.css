@@ -1,0 +1,44 @@
+/* BauhausSwitch — square track, square knob, ink + yellow when on. */
+
+.track {
+  position: relative;
+  width: 56px;
+  height: 30px;
+  min-width: 56px;
+  border: var(--border-w) solid var(--color-outline);
+  border-radius: 0;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background var(--dur-2) var(--ease-standard),
+    border-color var(--dur-2) var(--ease-standard);
+}
+
+.track:active .knob {
+  transform: translateY(-50%) scale(0.92);
+}
+
+.knob {
+  position: absolute;
+  top: 50%;
+  left: 5px;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  border-radius: 0;
+  background: var(--color-outline);
+  transition:
+    left var(--dur-2) var(--ease-standard),
+    background var(--dur-2) var(--ease-standard),
+    transform var(--dur-1) var(--ease-standard);
+}
+
+.trackOn {
+  background: var(--color-outline);
+  border-color: var(--color-outline);
+}
+
+.knobOn {
+  left: 31px;
+  background: var(--color-tertiary);
+}

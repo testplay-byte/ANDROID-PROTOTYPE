@@ -1,0 +1,131 @@
+/* StatsScreen — weekly monochrome heatmap, completion %, best streak. */
+
+.root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+.content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 var(--sp-5) 110px;
+  scrollbar-width: none;
+}
+
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---- Big numbers ---- */
+.bigPct {
+  font-size: var(--fs-display);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--color-text);
+}
+
+.bigPctSign {
+  font-size: var(--fs-h1);
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.bigCaption {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-label);
+  color: var(--color-text-subtle);
+}
+
+.statRow {
+  display: flex;
+  gap: var(--sp-8);
+  margin-top: var(--sp-6);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.statNum {
+  font-size: var(--fs-h1);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: var(--color-text);
+}
+
+.statLabel {
+  font-size: var(--fs-label);
+  color: var(--color-text-subtle);
+}
+
+/* ---- Section scaffolding (huge whitespace between sections) ---- */
+.section {
+  margin-top: var(--sp-8);
+}
+
+.sectionLabel {
+  font-size: var(--fs-label);
+  color: var(--color-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: var(--sp-4);
+}
+
+/* ---- Weekly heatmap ---- */
+.dayHead {
+  display: grid;
+  grid-template-columns: 1fr repeat(7, 26px);
+  gap: var(--sp-2);
+  padding-bottom: var(--sp-2);
+}
+
+.dayHeadCell {
+  font-size: var(--fs-label-s);
+  text-align: center;
+  color: var(--color-text-subtle);
+}
+
+.weekRow {
+  display: grid;
+  grid-template-columns: 1fr repeat(7, 26px);
+  gap: var(--sp-2);
+  align-items: center;
+  padding: var(--sp-3) 0;
+  border-bottom: var(--border-w) solid var(--color-outline-variant);
+}
+
+.weekName {
+  font-size: var(--fs-body);
+  color: var(--color-text);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cell {
+  width: 20px;
+  height: 20px;
+  justify-self: center;
+}
+
+.cellDone {
+  background: var(--color-primary);
+}
+
+.cellMissed {
+  border: var(--border-w) solid var(--color-outline-variant);
+}
+
+.cellFuture {
+  border: var(--border-w) solid var(--color-outline-variant);
+  opacity: 0.35;
+}

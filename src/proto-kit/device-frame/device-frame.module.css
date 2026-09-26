@@ -7,7 +7,7 @@
   width: 390px;
   height: 844px;
   background: var(--color-bg);
-  border-radius: 32px;
+  border-radius: var(--device-radius, 32px);
   box-shadow:
     0 0 0 var(--bezel-w) var(--device-bezel),
     0 0 0 var(--edge-w) var(--device-edge),

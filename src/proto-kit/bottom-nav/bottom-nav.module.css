@@ -1,6 +1,14 @@
-/* proto-kit / bottom-nav — floating pill nav.
-   Active item is content-sized (flex: 0 1 auto) so full labels show.
-   Inactive items are icon-only (flex: 1 1 0). */
+/* proto-kit / bottom-nav — multi-variant bottom navigation.
+   Every variant reads the style tokens, so the active design language
+   (data-style on .device) restyles them automatically.
+
+   Variants:
+   - floating (default): floating pill, content-sized active item.
+   - tabbar:  full-width translucent blur bar (iOS HIG).
+   - labeled: full-width flat bar, icon above label, top indicator.
+   - glass:   floating pill, translucent + backdrop blur.
+   - soft:    floating bar, style-driven extruded/inset shadows.
+   - hard:    full-width slab, thick top border, uppercase labels. */
 
 .bottomnav {
   position: absolute;
@@ -69,4 +77,149 @@
   .item:active {
     transform: scale(0.92);
   }
+}
+
+/* =========================================================================
+   tabbar — iOS style: full-width, translucent blur, hairline top border.
+   Labels always visible. Active = accent color (no pill). */
+.vTabbar {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 60px;
+  padding: 0 4px;
+  border-radius: 0;
+  background: color-mix(in srgb, var(--color-surface-1) 72%, transparent);
+  -webkit-backdrop-filter: blur(var(--glass-blur, 20px)) saturate(1.4);
+  backdrop-filter: blur(var(--glass-blur, 20px)) saturate(1.4);
+  border-top: 1px solid var(--color-outline-variant);
+  box-shadow: none;
+}
+.vTabbar .item {
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 2px;
+  height: 100%;
+  border-radius: 0;
+  padding: 6px 0 0;
+}
+.vTabbar .itemIsActive {
+  background: transparent;
+  color: var(--color-primary);
+  padding: 6px 0 0;
+}
+.vTabbar .label {
+  font-size: 10px;
+  font-weight: 500;
+}
+.vTabbar .itemIsActive .label {
+  font-weight: 600;
+}
+
+/* =========================================================================
+   labeled — classic labeled bar: full-width, icon stacked above label,
+   rounded top indicator on the active item. */
+.vLabeled {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 64px;
+  padding: 0 4px;
+  border-radius: 0;
+  background: var(--color-surface-1);
+  border-top: var(--border-w, 1px) solid var(--color-outline-variant);
+  box-shadow: none;
+}
+.vLabeled .item {
+  flex: 1 1 0;
+  flex-direction: column;
+  gap: 3px;
+  height: 100%;
+  border-radius: var(--r-pill);
+  padding: 7px 0 4px;
+}
+.vLabeled .itemIsActive {
+  background: transparent;
+  color: var(--color-primary);
+  padding: 7px 0 4px;
+}
+.vLabeled .itemIsActive::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--color-primary);
+}
+.vLabeled .label {
+  font-size: 10px;
+  font-weight: 600;
+}
+
+/* =========================================================================
+   glass — floating pill with translucent blur (uses --glass-* tokens). */
+.vGlass {
+  background: color-mix(in srgb, var(--color-surface-2) 55%, transparent);
+  -webkit-backdrop-filter: blur(var(--glass-blur, 16px)) saturate(1.35);
+  backdrop-filter: blur(var(--glass-blur, 16px)) saturate(1.35);
+  border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.18));
+  box-shadow: var(--shadow-2), var(--shadow-inset);
+}
+.vGlass .itemIsActive {
+  background: color-mix(in srgb, var(--color-primary) 26%, transparent);
+  color: var(--color-text);
+}
+
+/* =========================================================================
+   soft — floating bar shaped by the style's own shadows (neumorph/clay).
+   No blur, no border; the extruded shadow does all the work. */
+.vSoft {
+  background: var(--color-bg);
+  box-shadow: var(--shadow-2);
+  border: none;
+}
+.vSoft .item {
+  height: 44px;
+}
+.vSoft .itemIsActive {
+  background: var(--color-bg);
+  color: var(--color-primary);
+  box-shadow: var(--shadow-inset);
+}
+
+/* =========================================================================
+   hard — full-width slab: thick top border, square corners, uppercase
+   labels, active item = solid primary block. */
+.vHard {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 56px;
+  padding: 0;
+  border-radius: 0;
+  background: var(--color-surface-1);
+  border-top: var(--border-w, 2px) solid var(--color-outline);
+  box-shadow: none;
+}
+.vHard .item {
+  flex: 1 1 0;
+  height: 100%;
+  border-radius: 0;
+  padding: 0 4px;
+  font-weight: 800;
+}
+.vHard .label {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.vHard .itemIsActive {
+  flex: 1 1 0;
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  padding: 0 4px;
 }

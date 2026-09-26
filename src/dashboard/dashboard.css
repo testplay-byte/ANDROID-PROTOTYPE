@@ -298,4 +298,33 @@
       text-align: center; color: var(--muted-foreground); font-size: 14px;
     }
 
+    /* ---- Style filter chips (gallery) ---------------------------------- */
+    .chiprow {
+      display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 20px;
+    }
+    .chip {
+      display: inline-flex; align-items: center; gap: 7px;
+      height: 34px; padding: 0 14px; border-radius: 999px;
+      border: 1px solid var(--border); background: var(--card);
+      font-size: 13px; font-weight: 500; color: var(--muted-foreground);
+      transition: background .15s ease, color .15s ease, border-color .15s ease;
+    }
+    .chip:hover { background: var(--accent); color: var(--accent-foreground); }
+    .chip--active {
+      background: var(--primary); color: var(--primary-foreground);
+      border-color: var(--primary);
+    }
+    .chip__count {
+      font-size: 11px; font-weight: 600; font-variant-numeric: tabular-nums;
+      padding: 1px 7px; border-radius: 999px;
+      background: color-mix(in srgb, var(--foreground) 10%, transparent);
+    }
+    .chip--active .chip__count { background: color-mix(in srgb, var(--primary-foreground) 20%, transparent); }
+
+    /* Style badge on prototype cards (distinct from the orange status tag) */
+    .tag--style {
+      background: color-mix(in srgb, var(--chart-3) 16%, transparent);
+      color: var(--chart-3); border-color: transparent;
+    }
+
     @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }

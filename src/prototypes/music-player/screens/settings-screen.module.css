@@ -1,0 +1,127 @@
+/* SettingsScreen — theme segmented toggle + neumorphic playback switches. */
+
+.root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+.content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: var(--sp-2) var(--sp-3) 110px;
+}
+
+.group {
+  margin-bottom: var(--sp-5);
+}
+
+.groupLabel {
+  display: block;
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  margin: 0 0 var(--sp-2) var(--sp-1);
+}
+
+.card {
+  border-radius: var(--r-lg);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-1);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-1);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border-radius: var(--r-md);
+  transition: background var(--dur-1) var(--ease-standard);
+}
+
+.rowInfo {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.rowIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-inset);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  flex: 0 0 auto;
+}
+
+.rowTitle {
+  font-size: var(--fs-body-l);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.rowDesc {
+  font-size: var(--fs-label);
+  color: var(--color-text-muted);
+}
+
+/* ---- Segmented theme toggle (inset container, extruded active) ---- */
+.segmented {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--r-pill);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-inset);
+  flex: 0 0 auto;
+}
+
+.segmentBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-label);
+  font-weight: 700;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  white-space: nowrap;
+  transition:
+    box-shadow var(--dur-2) var(--ease-emphasized),
+    color var(--dur-2) var(--ease-emphasized),
+    background var(--dur-2) var(--ease-emphasized),
+    transform var(--dur-1) var(--ease-emphasized);
+}
+
+.segmentBtn:active {
+  transform: scale(0.95);
+}
+
+.segmentBtnActive {
+  background: var(--color-bg);
+  box-shadow: var(--shadow-1);
+  color: var(--color-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .segmentBtn,
+  .row {
+    transition: none !important;
+  }
+}

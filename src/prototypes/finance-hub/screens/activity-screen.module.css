@@ -1,0 +1,169 @@
+/* ActivityScreen — grouped flat list, expandable inline details. */
+
+.root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+.content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--sp-3) var(--sp-4) 110px;
+  scrollbar-width: none;
+}
+
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---- Filter chips ---- */
+.chips {
+  display: flex;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+}
+
+.chip {
+  min-height: 36px;
+  padding: 0 var(--sp-4);
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  border-radius: 0;
+  transition:
+    background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard),
+    border-color var(--dur-1) var(--ease-standard);
+}
+
+.chip:active {
+  background: var(--color-surface-2);
+}
+
+.chipActive {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+/* ---- Date groups ---- */
+.group {
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-1);
+  margin-bottom: var(--sp-3);
+}
+
+.dateRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-2) var(--sp-4);
+  border-bottom: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-2);
+}
+
+.dateLabel {
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-text-subtle);
+}
+
+.dateSum {
+  font-size: var(--fs-label-s);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+/* ---- Rows ---- */
+.itemWrap {
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+
+.itemWrap:last-child {
+  border-bottom: none;
+}
+
+.rowBtn {
+  display: block;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 0;
+  transition: background var(--dur-1) var(--ease-standard);
+}
+
+.rowBtn:active {
+  background: var(--color-surface-3);
+}
+
+.rowBtnOpen {
+  background: var(--color-surface-2);
+}
+
+/* ---- Inline detail ---- */
+.detail {
+  padding: var(--sp-2) var(--sp-4) var(--sp-3);
+  border-top: 1px solid var(--color-outline-variant);
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+}
+
+.detailRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  min-height: 24px;
+}
+
+.detailLabel {
+  font-size: var(--fs-label-s);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-subtle);
+}
+
+.detailValue {
+  font-size: var(--fs-body-s);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}
+
+/* ---- Status tags (bordered, color-coded) ---- */
+.statusTag {
+  padding: 2px 8px;
+  border: 1px solid var(--color-outline);
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.statusCompleted {
+  border-color: var(--color-success);
+  color: var(--color-success);
+}
+
+.statusPending {
+  border-color: var(--color-warn);
+  color: var(--color-warn);
+}
+
+.statusScheduled {
+  border-color: var(--color-outline);
+  color: var(--color-text-muted);
+}

@@ -1,0 +1,99 @@
+/* GroupedList — iOS inset-grouped primitives.
+   White cards on --color-bg, 16px continuous radii, hairline separators
+   (--color-outline-variant). No heavy shadows — subtle --shadow-1 max. */
+
+.group {
+  background: var(--color-surface-1);
+  border-radius: var(--r-md); /* 16px continuous-radius look */
+  box-shadow: var(--shadow-1);
+  overflow: hidden;
+  margin-bottom: var(--sp-4);
+}
+
+.row {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: 52px;
+  padding: var(--sp-2) var(--sp-4);
+}
+
+.rowTap {
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease-standard);
+}
+
+.rowTap:active {
+  background: var(--color-surface-3);
+}
+
+.icon {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-pill);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: var(--color-primary);
+  background: var(--tint-blue-bg);
+}.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.title {
+  font-size: var(--fs-body);
+  font-weight: 500;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subtitle {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.value {
+  font-size: var(--fs-body);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.chevron {
+  color: var(--color-text-subtle);
+  flex-shrink: 0;
+}
+
+/* Inset hairline separator — starts after the icon like iOS */
+.separator {
+  position: absolute;
+  left: var(--sp-4);
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  background: var(--color-outline-variant);
+  transform: scaleY(0.5);
+  transform-origin: bottom;
+}
+
+.rowTap + .row .separator,
+.separator {
+  pointer-events: none;
+}.sectionLabel {
+  display: block;
+  padding: 0 var(--sp-4) var(--sp-2);
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+}

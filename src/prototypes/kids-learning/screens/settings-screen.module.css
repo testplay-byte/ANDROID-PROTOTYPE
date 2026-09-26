@@ -1,0 +1,166 @@
+/* kids-learning / screens / settings-screen. */
+
+.content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: var(--sp-2) var(--sp-4) 110px;
+  scrollbar-width: none;
+}
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---- Profile ---- */
+.profileCard {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  background: var(--color-surface-1);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-2);
+  padding: var(--sp-4) var(--sp-5);
+  margin-bottom: var(--sp-5);
+}
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--color-secondary);
+  color: var(--color-primary-fg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-h2);
+  font-weight: 900;
+  box-shadow: var(--shadow-inset);
+  flex: 0 0 auto;
+}
+.profileInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.profileName {
+  font-size: var(--fs-h3);
+  font-weight: 900;
+  color: var(--color-text);
+}
+.profileDesc {
+  font-size: var(--fs-label);
+  font-weight: 700;
+  color: var(--color-text-subtle);
+}
+
+/* ---- Groups ---- */
+.group {
+  margin-bottom: var(--sp-5);
+}
+.groupLabel {
+  font-size: var(--fs-label);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-subtle);
+  margin: 0 0 var(--sp-2) var(--sp-2);
+}
+.card {
+  background: var(--color-surface-1);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-2);
+  padding: var(--sp-2) var(--sp-4);
+  display: flex;
+  flex-direction: column;
+}
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-3) 0;
+  min-height: 56px;
+}
+.rowInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.rowTitle {
+  font-size: var(--fs-body-l);
+  font-weight: 800;
+  color: var(--color-text);
+}
+.rowDesc {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  color: var(--color-text-subtle);
+}
+
+/* ---- Reset button (two-tap confirm) ---- */
+.resetButton {
+  min-height: 44px;
+  min-width: 88px;
+  padding: 0 var(--sp-4);
+  border: none;
+  border-radius: var(--r-md);
+  background: var(--color-surface-3);
+  box-shadow: var(--shadow-1);
+  color: var(--color-text);
+  font-size: var(--fs-body-s);
+  font-weight: 900;
+  cursor: pointer;
+  transition:
+    background var(--dur-2) var(--ease-standard),
+    box-shadow var(--dur-2) var(--ease-standard),
+    transform var(--dur-1) var(--ease-emphasized);
+}
+.resetButton:active {
+  box-shadow: var(--shadow-inset);
+  transform: scale(0.95);
+}
+.resetButtonConfirm {
+  background: var(--color-error);
+  color: var(--color-primary-fg);
+  box-shadow: var(--shadow-2);
+}
+
+/* ---- Theme segmented toggle ---- */
+.themeToggle {
+  display: flex;
+  gap: var(--sp-1);
+  padding: var(--sp-1);
+  border-radius: var(--r-pill);
+  background: var(--color-surface-3);
+  box-shadow: var(--shadow-inset);
+  flex: 0 0 auto;
+}
+.themeBtn {
+  width: 40px;
+  height: 34px;
+  border: none;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background var(--dur-2) var(--ease-standard),
+    color var(--dur-2) var(--ease-standard),
+    box-shadow var(--dur-2) var(--ease-standard);
+}
+.themeBtnActive {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  box-shadow: var(--shadow-1);
+}
+
+.version {
+  margin: var(--sp-6) 0 0;
+  text-align: center;
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  color: var(--color-text-subtle);
+}

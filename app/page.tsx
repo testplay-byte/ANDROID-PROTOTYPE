@@ -1,5 +1,270 @@
 import "../src/dashboard/dashboard.css";
 import { ThemeToggle } from "../src/dashboard/theme-toggle";
+import { Gallery, type GalleryItem } from "../src/dashboard/gallery";
+import { STYLE_LABELS } from "../src/proto-kit/styles/types";
+
+/*
+ * Dashboard for the Pages root. Data-driven: to add a prototype, append an
+ * entry to PROTOTYPES below (name, style, desc, tags, silhouette palette,
+ * screens). Keep in sync with public/prototypes/navigation.md.
+ */
+
+const PROTOTYPES: GalleryItem[] = [
+  {
+    name: "Starter Template",
+    url: "prototypes/_template/",
+    status: "reference",
+    desc: "A real, clickable phone frame with four switchable screens, bottom navigation, dark/light theming, and a live status bar with punch-hole camera.",
+    style: "m3",
+    tags: ["HTML", "CSS", "JS"],
+    palette: { bg: "#14111f", surface: "#221e33", surfaceAlt: "#332d4c", accent: "#d0bcff", text: "#ece6f5" },
+    screens: [
+      { name: "Home", interactions: 70 },
+      { name: "Search", interactions: 50 },
+      { name: "Profile", interactions: 60 },
+      { name: "Settings", interactions: 80 },
+    ],
+  },
+  {
+    name: "Search Page",
+    url: "prototypes/search-page/",
+    status: "review",
+    desc: "Material 3 Expressive search with AniList/Extension source toggle, filter chips, expandable filter panel, collapsing header, and a functional settings screen.",
+    style: "m3",
+    tags: ["AniList", "Filters"],
+    palette: { bg: "#14111f", surface: "#221e33", surfaceAlt: "#332d4c", accent: "#d0bcff", text: "#ece6f5" },
+    screens: [
+      { name: "Search", interactions: 95 },
+      { name: "Settings", interactions: 60 },
+    ],
+  },
+  {
+    name: "Anime App",
+    url: "prototypes/anime-app/",
+    status: "review",
+    desc: "6-screen Material 3 Expressive anime app with Home, Library, History, Search, Settings and a detail page. Real AniList data, add-to-library, custom keyboard.",
+    style: "m3",
+    tags: ["AniList", "6 screens"],
+    palette: { bg: "#16112a", surface: "#2c2742", surfaceAlt: "#3a3456", accent: "#a78bfa", text: "#ede7f4" },
+    screens: [
+      { name: "Home", interactions: 85 },
+      { name: "Library", interactions: 90 },
+      { name: "History", interactions: 70 },
+      { name: "Detail", interactions: 80 },
+      { name: "Search", interactions: 75 },
+      { name: "Settings", interactions: 60 },
+    ],
+  },
+  {
+    name: "Setup Wizard",
+    url: "prototypes/setup-wizard/",
+    status: "review",
+    desc: "An animated 8-step setup wizard — theme switching, folder selection, permissions, backup restore, and an animated companion. Lime M3 palette.",
+    style: "m3",
+    tags: ["Animated", "Wizard"],
+    palette: { bg: "#0a120a", surface: "#1a2a1a", surfaceAlt: "#253a25", accent: "#b3f35a", text: "#e8ffd4" },
+    screens: [
+      { name: "Welcome", interactions: 60 },
+      { name: "Theme", interactions: 80 },
+      { name: "Folders", interactions: 70 },
+      { name: "Permissions", interactions: 65 },
+      { name: "Backup", interactions: 75 },
+      { name: "Linking", interactions: 70 },
+      { name: "Processing", interactions: 50 },
+      { name: "Finish", interactions: 60 },
+    ],
+  },
+  {
+    name: "Music Player",
+    url: "prototypes/music-player/",
+    status: "review",
+    desc: "A soft-UI (neumorphism) music player — extruded circular album art, play/pause with pressed-in state, playlist grid and working playback simulation.",
+    style: "neumorph",
+    tags: ["Soft UI", "Player"],
+    palette: { bg: "#e0e5ec", surface: "#eef1f6", surfaceAlt: "#d8dde6", accent: "#e07b39", text: "#3a4150" },
+    screens: [
+      { name: "Player", interactions: 95 },
+      { name: "Library", interactions: 65 },
+      { name: "Playlists", interactions: 55 },
+      { name: "Settings", interactions: 50 },
+    ],
+  },
+  {
+    name: "Weather App",
+    url: "prototypes/weather-app/",
+    status: "review",
+    desc: "Glassmorphism weather app — frosted translucent panels over colorful ambient blobs, hourly strip, 7-day forecast, multi-city switching and °C/°F toggle.",
+    style: "glass",
+    tags: ["Glass", "Weather"],
+    palette: { bg: "#101522", surface: "#232c44", surfaceAlt: "#2b3552", accent: "#c084fc", text: "#f4f6fb" },
+    screens: [
+      { name: "Today", interactions: 90 },
+      { name: "Forecast", interactions: 60 },
+      { name: "Cities", interactions: 70 },
+      { name: "Settings", interactions: 45 },
+    ],
+  },
+  {
+    name: "Streetwear Store",
+    url: "prototypes/streetwear-store/",
+    status: "review",
+    desc: "Neo-brutalist drop shop — thick borders, hard offset shadows, alarm-yellow accents, product detail with size picker and a full cart with quantities.",
+    style: "brutalism",
+    tags: ["Shop", "Cart"],
+    palette: { bg: "#f7f4ec", surface: "#ffffff", surfaceAlt: "#e3ddcd", accent: "#ffd23f", text: "#141210" },
+    screens: [
+      { name: "Shop", interactions: 85 },
+      { name: "Detail", interactions: 80 },
+      { name: "Cart", interactions: 75 },
+      { name: "Settings", interactions: 45 },
+    ],
+  },
+  {
+    name: "Finance Hub",
+    url: "prototypes/finance-hub/",
+    status: "review",
+    desc: "IBM Carbon banking app — flat layer surfaces, 0px radii, spending bar chart, transaction filtering, card freeze toggles and tabular-nums money.",
+    style: "carbon",
+    tags: ["Banking", "Enterprise"],
+    palette: { bg: "#161616", surface: "#262626", surfaceAlt: "#393939", accent: "#0f62fe", text: "#f4f4f4" },
+    screens: [
+      { name: "Overview", interactions: 80 },
+      { name: "Activity", interactions: 85 },
+      { name: "Cards", interactions: 70 },
+      { name: "Settings", interactions: 50 },
+    ],
+  },
+  {
+    name: "Smart Home",
+    url: "prototypes/smart-home/",
+    status: "review",
+    desc: "Bento-grid smart home dashboard — thermostat dial, light sliders, camera and energy tiles in mixed-height rounded cards, with live device toggles.",
+    style: "bento",
+    tags: ["Dashboard", "IoT"],
+    palette: { bg: "#f2f2f7", surface: "#ffffff", surfaceAlt: "#e2e2e9", accent: "#ff5c33", text: "#111114" },
+    screens: [
+      { name: "Home", interactions: 95 },
+      { name: "Rooms", interactions: 70 },
+      { name: "Energy", interactions: 60 },
+      { name: "Settings", interactions: 45 },
+    ],
+  },
+  {
+    name: "Fitness Tracker",
+    url: "prototypes/fitness-tracker/",
+    status: "review",
+    desc: "Apple HIG fitness app — activity rings, iOS grouped lists, translucent tab bar, week selector and a live workout timer.",
+    style: "hig",
+    tags: ["iOS", "Health"],
+    palette: { bg: "#f2f2f7", surface: "#ffffff", surfaceAlt: "#e2e2e7", accent: "#007aff", text: "#000000" },
+    screens: [
+      { name: "Activity", interactions: 85 },
+      { name: "Workouts", interactions: 75 },
+      { name: "Profile", interactions: 55 },
+      { name: "Settings", interactions: 50 },
+    ],
+  },
+  {
+    name: "Kids Learning",
+    url: "prototypes/kids-learning/",
+    status: "review",
+    desc: "Claymorphism learning game for kids — puffy pastel tiles, a tap-to-answer quiz with star rewards, a badge shelf and satisfying squish feedback.",
+    style: "clay",
+    tags: ["Game", "Kids"],
+    palette: { bg: "#ece9f7", surface: "#faf8ff", surfaceAlt: "#d9d3ee", accent: "#8b5cf6", text: "#3a3550" },
+    screens: [
+      { name: "Home", interactions: 70 },
+      { name: "Play", interactions: 95 },
+      { name: "Awards", interactions: 60 },
+      { name: "Settings", interactions: 45 },
+    ],
+  },
+  {
+    name: "Chat App",
+    url: "prototypes/chat-app/",
+    status: "review",
+    desc: "Flat-design messenger — zero shadows, solid teal/coral blocks, chat list with unread badges, working message send with auto-reply and the custom keyboard.",
+    style: "flat",
+    tags: ["Messaging", "Keyboard"],
+    palette: { bg: "#f7f7f7", surface: "#ffffff", surfaceAlt: "#e6e6e6", accent: "#00897b", text: "#212121" },
+    screens: [
+      { name: "Chats", interactions: 75 },
+      { name: "Detail", interactions: 90 },
+      { name: "Calls", interactions: 55 },
+      { name: "Settings", interactions: 45 },
+    ],
+  },
+  {
+    name: "Habit Tracker",
+    url: "prototypes/habit-tracker/",
+    status: "review",
+    desc: "Monochrome minimalism — ink-on-paper habit checklist with streaks, a weekly completion grid, and add/manage habit flows. No color, only hierarchy.",
+    style: "minimal",
+    tags: ["Minimal", "Productivity"],
+    palette: { bg: "#ffffff", surface: "#fafafa", surfaceAlt: "#eeeeee", accent: "#111111", text: "#111111" },
+    screens: [
+      { name: "Today", interactions: 85 },
+      { name: "Stats", interactions: 55 },
+      { name: "Habits", interactions: 75 },
+      { name: "Settings", interactions: 45 },
+    ],
+  },
+  {
+    name: "Gallery App",
+    url: "prototypes/gallery-app/",
+    status: "review",
+    desc: "Bauhaus museum app — geometric poster compositions in the red/blue/yellow triad, exhibition tickets with a working counter, and favorite artworks.",
+    style: "bauhaus",
+    tags: ["Culture", "Geometric"],
+    palette: { bg: "#f4f1ea", surface: "#ffffff", surfaceAlt: "#e0dbcd", accent: "#d5321f", text: "#141414" },
+    screens: [
+      { name: "Exhibitions", interactions: 75 },
+      { name: "Collection", interactions: 80 },
+      { name: "Visit", interactions: 70 },
+      { name: "Settings", interactions: 45 },
+    ],
+  },
+];
+
+const STYLE_BARS = STYLE_ORDER_SAFE();
+
+function STYLE_ORDER_SAFE() {
+  const counts = new Map<string, number>();
+  const screens = new Map<string, number>();
+  for (const p of PROTOTYPES) {
+    counts.set(p.style, (counts.get(p.style) ?? 0) + 1);
+    screens.set(p.style, (screens.get(p.style) ?? 0) + p.screens.length);
+  }
+  return Array.from(counts.entries()).map(([style, count]) => ({
+    style,
+    label: STYLE_LABELS[style as keyof typeof STYLE_LABELS] ?? style,
+    count,
+    screens: screens.get(style) ?? 0,
+  }));
+}
+
+const TOTAL_SCREENS = PROTOTYPES.reduce((n, p) => n + p.screens.length, 0);
+const MAX_STYLE_SCREENS = Math.max(...STYLE_BARS.map((s) => s.screens));
+
+const BAR_COLORS = ["var(--chart-1)", "var(--chart-2)", "var(--chart-3)", "var(--chart-4)", "var(--chart-5)"];
+
+// Donut: screens by style (stroke-dasharray on r=76, circumference 477.5)
+function donutSlices() {
+  const C = 477.5;
+  let offset = 0;
+  return STYLE_BARS.map((s, i) => {
+    const len = (s.screens / TOTAL_SCREENS) * C;
+    const slice = {
+      color: BAR_COLORS[i % BAR_COLORS.length],
+      dash: `${len - 2} ${C - len + 2}`,
+      offset: -offset,
+      label: s.label,
+      value: s.screens,
+    };
+    offset += len;
+    return slice;
+  });
+}
 
 export default function Page() {
   return (
@@ -9,16 +274,7 @@ export default function Page() {
         <div className="topnav__inner">
           <a className="brand" href="./" aria-label="ANDROID-PROTOTYPE home">
             <span className="brand__logo" aria-hidden="true">
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="6" y="2" width="12" height="20" rx="3" />
                 <path d="M11 18h2" />
                 <path d="M9 6h6" />
@@ -37,17 +293,7 @@ export default function Page() {
               rel="noopener noreferrer"
               aria-label="GitHub repository"
             >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
                 <path d="M9 18c-4.51 2-5-2-7-2" />
               </svg>
@@ -64,21 +310,11 @@ export default function Page() {
           <h1 className="hero__title">Interactive mobile UI prototypes</h1>
           <p className="hero__subtitle">live in your browser.</p>
 
-          {/* 4 stat cards */}
           <div className="stats">
             <div className="stat">
               <div className="stat__head">
                 <span className="stat__icon" aria-hidden="true">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="6" y="2" width="12" height="20" rx="3" />
                     <path d="M11 18h2" />
                   </svg>
@@ -86,23 +322,14 @@ export default function Page() {
                 <span className="stat__label">Prototypes</span>
               </div>
               <div className="stat__value">
-                <span className="stat__num">1</span>
+                <span className="stat__num">{PROTOTYPES.length}</span>
                 <span className="stat__hint">and growing</span>
               </div>
             </div>
             <div className="stat">
               <div className="stat__head">
                 <span className="stat__icon" aria-hidden="true">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <rect x="3" y="3" width="18" height="18" rx="2" />
                     <path d="M3 9h18M9 21V9" />
                   </svg>
@@ -110,48 +337,30 @@ export default function Page() {
                 <span className="stat__label">Screens</span>
               </div>
               <div className="stat__value">
-                <span className="stat__num">4</span>
-                <span className="stat__hint">in template</span>
+                <span className="stat__num">{TOTAL_SCREENS}</span>
+                <span className="stat__hint">interactive</span>
               </div>
             </div>
             <div className="stat">
               <div className="stat__head">
                 <span className="stat__icon" aria-hidden="true">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M11 21.73a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73z" />
-                    <path d="M12 22V12" />
-                    <path d="m3.3 7 8.7 5 8.7-5" />
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2 2 7l10 5 10-5-10-5z" />
+                    <path d="m2 17 10 5 10-5" />
+                    <path d="m2 12 10 5 10-5" />
                   </svg>
                 </span>
-                <span className="stat__label">Components</span>
+                <span className="stat__label">Design languages</span>
               </div>
               <div className="stat__value">
-                <span className="stat__num">12</span>
-                <span className="stat__hint">reusable</span>
+                <span className="stat__num">{STYLE_BARS.length}</span>
+                <span className="stat__hint">+ M3 components</span>
               </div>
             </div>
             <div className="stat">
               <div className="stat__head">
                 <span className="stat__icon" aria-hidden="true">
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                     <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
                     <path d="M3 3v5h5" />
                     <path d="M12 7v5l4 2" />
@@ -160,290 +369,77 @@ export default function Page() {
                 <span className="stat__label">Last updated</span>
               </div>
               <div className="stat__value">
-                <span className="stat__num">2025-01-15</span>
+                <span className="stat__num">2026-09-26</span>
               </div>
             </div>
           </div>
 
           {/* two-up: bars + donut */}
           <div className="twoup">
-            {/* Bars: template feature categories */}
             <div className="panel">
               <div className="panel__head">
-                <h2 className="panel__title">Template features by category</h2>
-                <span className="panel__hint">21 total · hover for detail</span>
+                <h2 className="panel__title">Prototypes by design language</h2>
+                <span className="panel__hint">screens · hover for detail</span>
               </div>
               <ul className="bars">
-                <li
-                  className="bar"
-                  title="Status bar: time, punch-hole, signal, Wi-Fi, Bluetooth, battery — 6 features"
-                >
-                  <span className="bar__icon">
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M2 22h2v-6H2zM6 22h2V10H6zM10 22h2V2h-2zM14 22h2v-9h-2zM18 22h2V6h-2z" />
-                    </svg>
-                  </span>
-                  <span className="bar__label">Status bar</span>
-                  <span className="bar__track">
-                    <span
-                      className="bar__fill"
-                      style={{ width: "100%", background: "var(--chart-1)" }}
-                    />
-                  </span>
-                  <span className="bar__count">6</span>
-                </li>
-                <li
-                  className="bar"
-                  title="Frame & layout: device shell, status bar, app bar, content, bottom nav — 5 features"
-                >
-                  <span className="bar__icon">
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <rect x="6" y="2" width="12" height="20" rx="3" />
-                    </svg>
-                  </span>
-                  <span className="bar__label">Frame &amp; layout</span>
-                  <span className="bar__track">
-                    <span
-                      className="bar__fill"
-                      style={{ width: "83%", background: "var(--chart-4)" }}
-                    />
-                  </span>
-                  <span className="bar__count">5</span>
-                </li>
-                <li
-                  className="bar"
-                  title="Components: button, card, list, badge, appbar, bottomnav — 6 features"
-                >
-                  <span className="bar__icon">
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <rect x="3" y="3" width="7" height="7" rx="1" />
-                      <rect x="14" y="3" width="7" height="7" rx="1" />
-                      <rect x="3" y="14" width="7" height="7" rx="1" />
-                      <rect x="14" y="14" width="7" height="7" rx="1" />
-                    </svg>
-                  </span>
-                  <span className="bar__label">Components</span>
-                  <span className="bar__track">
-                    <span
-                      className="bar__fill"
-                      style={{ width: "100%", background: "var(--chart-2)" }}
-                    />
-                  </span>
-                  <span className="bar__count">6</span>
-                </li>
-                <li
-                  className="bar"
-                  title="Theming: light/dark tokens, persisted toggle — 2 features"
-                >
-                  <span className="bar__icon">
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" />
-                    </svg>
-                  </span>
-                  <span className="bar__label">Theming</span>
-                  <span className="bar__track">
-                    <span
-                      className="bar__fill"
-                      style={{ width: "33%", background: "var(--chart-3)" }}
-                    />
-                  </span>
-                  <span className="bar__count">2</span>
-                </li>
-                <li
-                  className="bar"
-                  title="Accessibility: semantic HTML, keyboard nav, reduced-motion, ARIA — 2 features"
-                >
-                  <span className="bar__icon">
-                    <svg
-                      width="14"
-                      height="14"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                    >
-                      <circle cx="12" cy="12" r="9" />
-                      <path d="M12 7v6M12 16h.01" />
-                    </svg>
-                  </span>
-                  <span className="bar__label">Accessibility</span>
-                  <span className="bar__track">
-                    <span
-                      className="bar__fill"
-                      style={{ width: "33%", background: "var(--chart-5)" }}
-                    />
-                  </span>
-                  <span className="bar__count">2</span>
-                </li>
+                {STYLE_BARS.map((s, i) => (
+                  <li
+                    className="bar"
+                    key={s.style}
+                    title={`${s.label}: ${s.count} prototype${s.count === 1 ? "" : "s"}, ${s.screens} screens`}
+                  >
+                    <span className="bar__icon">
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                        <rect x="6" y="2" width="12" height="20" rx="3" />
+                      </svg>
+                    </span>
+                    <span className="bar__label">{s.label}</span>
+                    <span className="bar__track">
+                      <span
+                        className="bar__fill"
+                        style={{ width: `${Math.round((s.screens / MAX_STYLE_SCREENS) * 100)}%`, background: BAR_COLORS[i % BAR_COLORS.length] }}
+                      />
+                    </span>
+                    <span className="bar__count">{s.screens}</span>
+                  </li>
+                ))}
               </ul>
             </div>
 
-            {/* Donut: repo file mix */}
             <div className="panel">
               <div className="panel__head">
-                <h2 className="panel__title">Repository file mix</h2>
-                <span className="panel__hint">share of 19 files · hover a slice</span>
+                <h2 className="panel__title">Screens by design language</h2>
+                <span className="panel__hint">share of {TOTAL_SCREENS} screens · hover a slice</span>
               </div>
               <div className="donut-wrap">
-                <div className="donut" role="img" aria-label="Repository file distribution">
+                <div className="donut" role="img" aria-label="Screen distribution by design language">
                   <svg width="180" height="180" viewBox="0 0 180 180">
-                    <circle
-                      cx="90"
-                      cy="90"
-                      r="76"
-                      fill="none"
-                      stroke="var(--muted)"
-                      strokeWidth="28"
-                    />
-                    {/* Markdown 12/19 = 63.2% */}
-                    <circle
-                      cx="90"
-                      cy="90"
-                      r="76"
-                      fill="none"
-                      stroke="var(--chart-1)"
-                      strokeWidth="28"
-                      strokeDasharray="301.6 477.5"
-                      strokeDashoffset="0"
-                    />
-                    {/* HTML 2/19 = 10.5% */}
-                    <circle
-                      cx="90"
-                      cy="90"
-                      r="76"
-                      fill="none"
-                      stroke="var(--chart-4)"
-                      strokeWidth="28"
-                      strokeDasharray="50.3 477.5"
-                      strokeDashoffset="-301.6"
-                    />
-                    {/* CSS 1/19 = 5.3% */}
-                    <circle
-                      cx="90"
-                      cy="90"
-                      r="76"
-                      fill="none"
-                      stroke="var(--chart-2)"
-                      strokeWidth="28"
-                      strokeDasharray="25.1 477.5"
-                      strokeDashoffset="-351.9"
-                    />
-                    {/* JS 1/19 = 5.3% */}
-                    <circle
-                      cx="90"
-                      cy="90"
-                      r="76"
-                      fill="none"
-                      stroke="var(--chart-3)"
-                      strokeWidth="28"
-                      strokeDasharray="25.1 477.5"
-                      strokeDashoffset="-377.0"
-                    />
-                    {/* YAML 1/19 = 5.3% */}
-                    <circle
-                      cx="90"
-                      cy="90"
-                      r="76"
-                      fill="none"
-                      stroke="var(--chart-5)"
-                      strokeWidth="28"
-                      strokeDasharray="25.1 477.5"
-                      strokeDashoffset="-402.1"
-                    />
-                    {/* Other 2/19 = 10.5% */}
-                    <circle
-                      cx="90"
-                      cy="90"
-                      r="76"
-                      fill="none"
-                      stroke="var(--ring)"
-                      strokeWidth="28"
-                      strokeDasharray="50.3 477.5"
-                      strokeDashoffset="-427.2"
-                    />
+                    <circle cx="90" cy="90" r="76" fill="none" stroke="var(--muted)" strokeWidth="28" />
+                    {donutSlices().map((d) => (
+                      <circle
+                        key={d.label}
+                        cx="90" cy="90" r="76"
+                        fill="none"
+                        stroke={d.color}
+                        strokeWidth="28"
+                        strokeDasharray={d.dash}
+                        strokeDashoffset={d.offset}
+                      />
+                    ))}
                   </svg>
                   <div className="donut__center">
-                    <span className="donut__num">19</span>
-                    <span className="donut__cap">files</span>
+                    <span className="donut__num">{TOTAL_SCREENS}</span>
+                    <span className="donut__cap">screens</span>
                   </div>
                 </div>
                 <ul className="legend">
-                  <li className="legend__row">
-                    <span
-                      className="legend__dot"
-                      style={{ background: "var(--chart-1)" }}
-                    />
-                    <span className="legend__name">Markdown</span>
-                    <span className="legend__val">12</span>
-                  </li>
-                  <li className="legend__row">
-                    <span
-                      className="legend__dot"
-                      style={{ background: "var(--chart-4)" }}
-                    />
-                    <span className="legend__name">HTML</span>
-                    <span className="legend__val">2</span>
-                  </li>
-                  <li className="legend__row">
-                    <span
-                      className="legend__dot"
-                      style={{ background: "var(--chart-2)" }}
-                    />
-                    <span className="legend__name">CSS</span>
-                    <span className="legend__val">1</span>
-                  </li>
-                  <li className="legend__row">
-                    <span
-                      className="legend__dot"
-                      style={{ background: "var(--chart-3)" }}
-                    />
-                    <span className="legend__name">JavaScript</span>
-                    <span className="legend__val">1</span>
-                  </li>
-                  <li className="legend__row">
-                    <span
-                      className="legend__dot"
-                      style={{ background: "var(--chart-5)" }}
-                    />
-                    <span className="legend__name">YAML config</span>
-                    <span className="legend__val">1</span>
-                  </li>
-                  <li className="legend__row">
-                    <span
-                      className="legend__dot"
-                      style={{ background: "var(--ring)" }}
-                    />
-                    <span className="legend__name">Other</span>
-                    <span className="legend__val">2</span>
-                  </li>
+                  {donutSlices().map((d) => (
+                    <li className="legend__row" key={d.label}>
+                      <span className="legend__dot" style={{ background: d.color }} />
+                      <span className="legend__name">{d.label}</span>
+                      <span className="legend__val">{d.value}</span>
+                    </li>
+                  ))}
                 </ul>
               </div>
             </div>
@@ -453,929 +449,25 @@ export default function Page() {
           <div className="cta">
             <a className="cta__btn" href="#prototypes">
               Browse prototypes
-              <svg
-                width="20"
-                height="20"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                 <path d="M5 12h14" />
                 <path d="m12 5 7 7-7 7" />
               </svg>
             </a>
             <p className="cta__note">
-              Open any prototype to see a live, interactive phone-frame UI. The first real prototype lands here as soon as you send a brief.
+              Every prototype is a live, clickable phone-frame UI built in a distinct design language — filter below by style.
             </p>
           </div>
         </section>
 
-        {/* =================== Prototypes gallery =================== */}
+        {/* =================== Prototypes gallery (filterable) =================== */}
         <section className="section" id="prototypes">
           <div className="section__head">
             <h2 className="section__title">Prototypes</h2>
-            <span className="section__hint">live &amp; interactive — click a phone to open</span>
+            <span className="section__hint">live &amp; interactive — filter by design language</span>
           </div>
 
-          <div className="showcase">
-            {/*
-              PROTOTYPE SHOWCASE CARD
-              Layout: [left info] [phone silhouette] [right info]
-              To add a prototype, copy this <article> and update the fields.
-              Keep in sync with prototypes/navigation.md.
-            */}
-            <article className="show">
-              {/* LEFT info */}
-              <div className="show__info show__info--left">
-                <span className="tag tag--status">reference</span>
-                <h3 className="show__name">Starter Template</h3>
-                <p className="show__desc">
-                  A real, clickable phone frame with four switchable screens, bottom navigation, dark/light theming, and a live status bar with punch-hole camera.
-                </p>
-                <div className="tags">
-                  <span className="tag">HTML</span>
-                  <span className="tag">CSS</span>
-                  <span className="tag">JS</span>
-                </div>
-              </div>
-
-              {/* CENTER phone silhouette (links to the prototype) */}
-              <a
-                className="phone"
-                href="prototypes/_template/"
-                aria-label="Open Starter Template prototype"
-              >
-                <span className="phone__screen">
-                  <span className="phone__statusbar">
-                    <span>9:41</span>
-                    <span className="phone__punchhole" />
-                    <span>87%</span>
-                  </span>
-                  <span className="phone__appbar" />
-                  <span className="phone__line phone__line--w70" />
-                  <span className="phone__line" />
-                  <span className="phone__line phone__line--w50" />
-                  <span className="phone__card">
-                    <span className="phone__pill" />
-                    <span className="phone__line phone__line--w70" />
-                    <span className="phone__line phone__line--w50" />
-                  </span>
-                  <span className="phone__nav">
-                    <span />
-                    <span />
-                    <span />
-                    <span />
-                    <span />
-                  </span>
-                </span>
-              </a>
-
-              {/* RIGHT info: mini-charts + stats */}
-              <div className="show__info show__info--right">
-                {/* mini donut: component breakdown */}
-                <div className="mini-donut">
-                  <svg width="56" height="56" viewBox="0 0 56 56">
-                    <circle
-                      cx="28"
-                      cy="28"
-                      r="22"
-                      fill="none"
-                      stroke="var(--muted)"
-                      strokeWidth="6"
-                    />
-                    <circle
-                      cx="28"
-                      cy="28"
-                      r="22"
-                      fill="none"
-                      stroke="var(--chart-1)"
-                      strokeWidth="6"
-                      strokeDasharray="46 138"
-                      transform="rotate(-90 28 28)"
-                    />
-                    <circle
-                      cx="28"
-                      cy="28"
-                      r="22"
-                      fill="none"
-                      stroke="var(--chart-4)"
-                      strokeWidth="6"
-                      strokeDasharray="35 138"
-                      strokeDashoffset="-46"
-                      transform="rotate(-90 28 28)"
-                    />
-                    <circle
-                      cx="28"
-                      cy="28"
-                      r="22"
-                      fill="none"
-                      stroke="var(--chart-2)"
-                      strokeWidth="6"
-                      strokeDasharray="23 138"
-                      strokeDashoffset="-81"
-                      transform="rotate(-90 28 28)"
-                    />
-                  </svg>
-                  <span className="mini-donut__num">12</span>
-                </div>
-                {/* mini bars: interactions per screen */}
-                <div className="mini-bars">
-                  <div className="mini-bar-row">
-                    <span className="mini-bar-label">Home</span>
-                    <div className="mini-bar-track">
-                      <div
-                        className="mini-bar-fill"
-                        style={{ width: "90%", background: "var(--chart-1)" }}
-                      />
-                    </div>
-                  </div>
-                  <div className="mini-bar-row">
-                    <span className="mini-bar-label">Search</span>
-                    <div className="mini-bar-track">
-                      <div
-                        className="mini-bar-fill"
-                        style={{ width: "55%", background: "var(--chart-4)" }}
-                      />
-                    </div>
-                  </div>
-                  <div className="mini-bar-row">
-                    <span className="mini-bar-label">Profile</span>
-                    <div className="mini-bar-track">
-                      <div
-                        className="mini-bar-fill"
-                        style={{ width: "70%", background: "var(--chart-2)" }}
-                      />
-                    </div>
-                  </div>
-                  <div className="mini-bar-row">
-                    <span className="mini-bar-label">Settings</span>
-                    <div className="mini-bar-track">
-                      <div
-                        className="mini-bar-fill"
-                        style={{ width: "80%", background: "var(--chart-3)" }}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="kv">
-                  <div className="kv__row">
-                    <b>4</b>
-                    &nbsp;screens
-                  </div>
-                  <div className="kv__row">
-                    <b>12</b>
-                    &nbsp;components
-                  </div>
-                </div>
-                <a className="openlink" href="prototypes/_template/">
-                  Open prototype
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M5 12h14" />
-                    <path d="m12 5 7 7-7 7" />
-                  </svg>
-                </a>
-              </div>
-            </article>
-
-            {/*
-              New prototypes go here. Example:
-              <article class="show">
-                <div class="show__info show__info--left">
-                  <span class="tag tag--status">review</span>
-                  <h3 class="show__name">Food Delivery Checkout</h3>
-                  <p class="show__desc">Cart → address → payment → confirmation flow.</p>
-                  <div class="tags"><span class="tag">HTML</span><span class="tag">CSS</span><span class="tag">JS</span></div>
-                </div>
-                <a class="phone" href="prototypes/food-delivery-checkout/"> … </a>
-                <div class="show__info show__info--right"> … </div>
-              </article>
-            */}
-
-            {/* ===== Search Page (Material 3 Expressive) ===== */}
-            <article className="show">
-              <div className="show__info show__info--left">
-                <span className="tag tag--status">review</span>
-                <h3 className="show__name">Search Page</h3>
-                <p className="show__desc">
-                  A Material 3 Expressive search screen with AniList/Extension source toggle, filter chips, expandable filter panel, and M3 bottom nav with active-pill indicator. Dark purple theme.
-                </p>
-                <div className="tags">
-                  <span className="tag">Material 3</span>
-                  <span className="tag">HTML</span>
-                  <span className="tag">CSS</span>
-                  <span className="tag">JS</span>
-                  <span className="tag">AniList</span>
-                </div>
-              </div>
-              <a
-                className="phone"
-                href="prototypes/search-page/"
-                aria-label="Open Search Page prototype"
-                style={{
-                  borderColor: "#1a1726",
-                  background: "linear-gradient(160deg,#1d1a2e,#272339)",
-                }}
-              >
-                <span className="phone__screen" style={{ background: "#14101f" }}>
-                  <span
-                    className="phone__statusbar"
-                    style={{ color: "#ede7f4" }}
-                  >
-                    <span>9:41</span>
-                    <span className="phone__punchhole" />
-                    <span>87%</span>
-                  </span>
-                  <span
-                    style={{ display: "flex", gap: "3px", padding: "6px 4px" }}
-                  >
-                    <span
-                      style={{
-                        flex: "1",
-                        height: "14px",
-                        borderRadius: "999px",
-                        background: "#4f378b",
-                      }}
-                    />
-                    <span
-                      style={{
-                        flex: "1",
-                        height: "14px",
-                        borderRadius: "999px",
-                        background: "#272339",
-                      }}
-                    />
-                  </span>
-                  <span
-                    style={{
-                      height: "14px",
-                      borderRadius: "999px",
-                      background: "#272339",
-                      margin: "2px 4px",
-                    }}
-                  />
-                  <span style={{ display: "flex", gap: "3px", padding: "0 4px" }}>
-                    <span
-                      style={{
-                        height: "10px",
-                        width: "30px",
-                        borderRadius: "999px",
-                        background: "#4a4458",
-                      }}
-                    />
-                    <span
-                      style={{
-                        height: "10px",
-                        width: "24px",
-                        borderRadius: "999px",
-                        background: "#322d48",
-                      }}
-                    />
-                    <span
-                      style={{
-                        height: "10px",
-                        width: "28px",
-                        borderRadius: "999px",
-                        background: "#322d48",
-                      }}
-                    />
-                  </span>
-                  <span
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr 1fr 1fr",
-                      gap: "3px",
-                      marginTop: "4px",
-                      padding: "0 4px",
-                    }}
-                  >
-                    <span
-                      style={{
-                        aspectRatio: "2/3",
-                        borderRadius: "4px",
-                        background: "#272339",
-                      }}
-                    />
-                    <span
-                      style={{
-                        aspectRatio: "2/3",
-                        borderRadius: "4px",
-                        background: "#272339",
-                      }}
-                    />
-                    <span
-                      style={{
-                        aspectRatio: "2/3",
-                        borderRadius: "4px",
-                        background: "#272339",
-                      }}
-                    />
-                  </span>
-                  <span
-                    className="phone__nav"
-                    style={{
-                      borderTopColor: "#1d1a2e",
-                      background: "#1d1a2e",
-                    }}
-                  >
-                    <span style={{ background: "#322d48" }} />
-                    <span style={{ background: "#322d48" }} />
-                    <span style={{ background: "#322d48" }} />
-                    <span style={{ background: "#d0bcff" }} />
-                    <span style={{ background: "#322d48" }} />
-                  </span>
-                </span>
-              </a>
-              <div className="show__info show__info--right">
-                <div className="mini-donut">
-                  <svg width="56" height="56" viewBox="0 0 56 56">
-                    <circle
-                      cx="28"
-                      cy="28"
-                      r="22"
-                      fill="none"
-                      stroke="var(--muted)"
-                      strokeWidth="6"
-                    />
-                    <circle
-                      cx="28"
-                      cy="28"
-                      r="22"
-                      fill="none"
-                      stroke="var(--chart-1)"
-                      strokeWidth="6"
-                      strokeDasharray="50 138"
-                      transform="rotate(-90 28 28)"
-                    />
-                    <circle
-                      cx="28"
-                      cy="28"
-                      r="22"
-                      fill="none"
-                      stroke="var(--chart-3)"
-                      strokeWidth="6"
-                      strokeDasharray="40 138"
-                      strokeDashoffset="-50"
-                      transform="rotate(-90 28 28)"
-                    />
-                    <circle
-                      cx="28"
-                      cy="28"
-                      r="22"
-                      fill="none"
-                      stroke="var(--chart-2)"
-                      strokeWidth="6"
-                      strokeDasharray="30 138"
-                      strokeDashoffset="-90"
-                      transform="rotate(-90 28 28)"
-                    />
-                  </svg>
-                  <span className="mini-donut__num">M3</span>
-                </div>
-                <div className="mini-bars">
-                  <div className="mini-bar-row">
-                    <span className="mini-bar-label">Sources</span>
-                    <div className="mini-bar-track">
-                      <div
-                        className="mini-bar-fill"
-                        style={{ width: "40%", background: "var(--chart-1)" }}
-                      />
-                    </div>
-                  </div>
-                  <div className="mini-bar-row">
-                    <span className="mini-bar-label">Filters</span>
-                    <div className="mini-bar-track">
-                      <div
-                        className="mini-bar-fill"
-                        style={{ width: "100%", background: "var(--chart-3)" }}
-                      />
-                    </div>
-                  </div>
-                  <div className="mini-bar-row">
-                    <span className="mini-bar-label">Nav items</span>
-                    <div className="mini-bar-track">
-                      <div
-                        className="mini-bar-fill"
-                        style={{ width: "83%", background: "var(--chart-2)" }}
-                      />
-                    </div>
-                  </div>
-                  <div className="mini-bar-row">
-                    <span className="mini-bar-label">API</span>
-                    <div className="mini-bar-track">
-                      <div
-                        className="mini-bar-fill"
-                        style={{ width: "75%", background: "var(--chart-4)" }}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="kv">
-                  <div className="kv__row">
-                    <b>1</b>
-                    &nbsp;screen
-                  </div>
-                  <div className="kv__row">
-                    <b>Material 3</b>
-                    &nbsp;design
-                  </div>
-                </div>
-                <a className="openlink" href="prototypes/search-page/">
-                  Open prototype
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M5 12h14" />
-                    <path d="m12 5 7 7-7 7" />
-                  </svg>
-                </a>
-              </div>
-            </article>
-
-            {/* ===== Anime App (Material 3 Expressive, 6 screens) ===== */}
-            <article className="show">
-              <div className="show__info show__info--left">
-                <span className="tag tag--status">review</span>
-                <h3 className="show__name">Anime App</h3>
-                <p className="show__desc">
-                  A 6-screen Material 3 Expressive anime app with Home, Library, History, Search, Settings, and Detail pages. Real AniList data. Add to library functionality.
-                </p>
-                <div className="tags">
-                  <span className="tag">Material 3</span>
-                  <span className="tag">AniList</span>
-                  <span className="tag">6 screens</span>
-                </div>
-              </div>
-              <a
-                className="phone"
-                href="prototypes/anime-app/"
-                aria-label="Open Anime App prototype"
-                style={{
-                  borderColor: "#1f1830",
-                  background: "linear-gradient(160deg,#221b38,#2d2649)",
-                }}
-              >
-                <span className="phone__screen" style={{ background: "#16112a" }}>
-                  <span
-                    className="phone__statusbar"
-                    style={{ color: "#ede7f4" }}
-                  >
-                    <span>9:41</span>
-                    <span className="phone__punchhole" />
-                    <span>87%</span>
-                  </span>
-                  <span
-                    style={{
-                      height: "48px",
-                      borderRadius: "6px",
-                      background: "linear-gradient(135deg,#6b4ab0,#a78bfa)",
-                    }}
-                  />
-                  <span
-                    style={{
-                      display: "flex",
-                      gap: "4px",
-                      alignItems: "center",
-                    }}
-                  >
-                    <span
-                      style={{
-                        flex: "1",
-                        height: "7px",
-                        borderRadius: "999px",
-                        background: "#4a4458",
-                      }}
-                    />
-                    <span
-                      style={{
-                        height: "7px",
-                        width: "7px",
-                        borderRadius: "999px",
-                        background: "#4a4458",
-                      }}
-                    />
-                  </span>
-                  <span
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr 1fr",
-                      gap: "4px",
-                      marginTop: "2px",
-                    }}
-                  >
-                    <span
-                      style={{
-                        aspectRatio: "4/5",
-                        borderRadius: "4px",
-                        background: "#2c2742",
-                      }}
-                    />
-                    <span
-                      style={{
-                        aspectRatio: "4/5",
-                        borderRadius: "4px",
-                        background: "#2c2742",
-                      }}
-                    />
-                    <span
-                      style={{
-                        aspectRatio: "4/5",
-                        borderRadius: "4px",
-                        background: "#2c2742",
-                      }}
-                    />
-                    <span
-                      style={{
-                        aspectRatio: "4/5",
-                        borderRadius: "4px",
-                        background: "#2c2742",
-                      }}
-                    />
-                  </span>
-                  <span
-                    className="phone__nav"
-                    style={{
-                      borderTopColor: "#221b38",
-                      background: "#221b38",
-                    }}
-                  >
-                    <span style={{ background: "#c8b8ff" }} />
-                    <span style={{ background: "#322d48" }} />
-                    <span style={{ background: "#322d48" }} />
-                    <span style={{ background: "#322d48" }} />
-                    <span style={{ background: "#322d48" }} />
-                  </span>
-                </span>
-              </a>
-              <div className="show__info show__info--right">
-                <div className="mini-donut">
-                  <svg width="56" height="56" viewBox="0 0 56 56">
-                    <circle
-                      cx="28"
-                      cy="28"
-                      r="22"
-                      fill="none"
-                      stroke="var(--muted)"
-                      strokeWidth="6"
-                    />
-                    <circle
-                      cx="28"
-                      cy="28"
-                      r="22"
-                      fill="none"
-                      stroke="var(--chart-1)"
-                      strokeWidth="6"
-                      strokeDasharray="23 138"
-                      transform="rotate(-90 28 28)"
-                    />
-                    <circle
-                      cx="28"
-                      cy="28"
-                      r="22"
-                      fill="none"
-                      stroke="var(--chart-2)"
-                      strokeWidth="6"
-                      strokeDasharray="23 138"
-                      strokeDashoffset="-23"
-                      transform="rotate(-90 28 28)"
-                    />
-                    <circle
-                      cx="28"
-                      cy="28"
-                      r="22"
-                      fill="none"
-                      stroke="var(--chart-3)"
-                      strokeWidth="6"
-                      strokeDasharray="23 138"
-                      strokeDashoffset="-46"
-                      transform="rotate(-90 28 28)"
-                    />
-                    <circle
-                      cx="28"
-                      cy="28"
-                      r="22"
-                      fill="none"
-                      stroke="var(--chart-4)"
-                      strokeWidth="6"
-                      strokeDasharray="23 138"
-                      strokeDashoffset="-69"
-                      transform="rotate(-90 28 28)"
-                    />
-                    <circle
-                      cx="28"
-                      cy="28"
-                      r="22"
-                      fill="none"
-                      stroke="var(--chart-5)"
-                      strokeWidth="6"
-                      strokeDasharray="23 138"
-                      strokeDashoffset="-92"
-                      transform="rotate(-90 28 28)"
-                    />
-                    <circle
-                      cx="28"
-                      cy="28"
-                      r="22"
-                      fill="none"
-                      stroke="var(--chart-1)"
-                      strokeWidth="6"
-                      strokeDasharray="23 138"
-                      strokeDashoffset="-115"
-                      transform="rotate(-90 28 28)"
-                    />
-                  </svg>
-                  <span className="mini-donut__num">6</span>
-                </div>
-                <div className="mini-bars">
-                  <div className="mini-bar-row">
-                    <span className="mini-bar-label">Screens</span>
-                    <div className="mini-bar-track">
-                      <div
-                        className="mini-bar-fill"
-                        style={{ width: "100%", background: "var(--chart-1)" }}
-                      />
-                    </div>
-                  </div>
-                  <div className="mini-bar-row">
-                    <span className="mini-bar-label">API</span>
-                    <div className="mini-bar-track">
-                      <div
-                        className="mini-bar-fill"
-                        style={{ width: "75%", background: "var(--chart-3)" }}
-                      />
-                    </div>
-                  </div>
-                  <div className="mini-bar-row">
-                    <span className="mini-bar-label">Library</span>
-                    <div className="mini-bar-track">
-                      <div
-                        className="mini-bar-fill"
-                        style={{ width: "90%", background: "var(--chart-2)" }}
-                      />
-                    </div>
-                  </div>
-                  <div className="mini-bar-row">
-                    <span className="mini-bar-label">History</span>
-                    <div className="mini-bar-track">
-                      <div
-                        className="mini-bar-fill"
-                        style={{ width: "60%", background: "var(--chart-4)" }}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="kv">
-                  <div className="kv__row">
-                    <b>6</b>
-                    &nbsp;screens
-                  </div>
-                  <div className="kv__row">
-                    <b>AniList</b>
-                    &nbsp;data
-                  </div>
-                </div>
-                <a className="openlink" href="prototypes/anime-app/">
-                  Open prototype
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M5 12h14" />
-                    <path d="m12 5 7 7-7 7" />
-                  </svg>
-                </a>
-              </div>
-            </article>
-
-            {/* ===== Setup Wizard (animated 8-step setup wizard) ===== */}
-            <article className="show">
-              <div className="show__info show__info--left">
-                <span className="tag tag--status">review</span>
-                <h3 className="show__name">Setup Wizard</h3>
-                <p className="show__desc">
-                  An animated 8-step setup wizard for an anime app. Material 3
-                  Expressive with a lime (#b3f35a) primary color. Theme
-                  switching, folder selection, permissions, backup restore,
-                  and a cute animated cat companion.
-                </p>
-                <div className="tags">
-                  <span className="tag">Material 3</span>
-                  <span className="tag">Animated</span>
-                  <span className="tag">Wizard</span>
-                </div>
-              </div>
-              <a
-                className="phone"
-                href="prototypes/setup-wizard/"
-                aria-label="Open Setup Wizard prototype"
-                style={{
-                  borderColor: "#253a25",
-                  background:
-                    "linear-gradient(160deg, #142214, #1f321f)",
-                }}
-              >
-                <span
-                  className="phone__screen"
-                  style={{ background: "#0a120a" }}
-                >
-                  <span
-                    className="phone__statusbar"
-                    style={{ color: "#e8ffd4" }}
-                  >
-                    <span>9:41</span>
-                    <span className="phone__punchhole" />
-                    <span>87%</span>
-                  </span>
-                  <span
-                    style={{
-                      height: 60,
-                      borderRadius: 8,
-                      background: "linear-gradient(135deg, #b3f35a, #8bc34a)",
-                    }}
-                  />
-                  <span
-                    style={{
-                      display: "flex",
-                      gap: 4,
-                      alignItems: "center",
-                      marginTop: 8,
-                    }}
-                  >
-                    <span
-                      style={{
-                        flex: 1,
-                        height: 8,
-                        borderRadius: 999,
-                        background: "#253a25",
-                      }}
-                    />
-                    <span
-                      style={{
-                        width: 8,
-                        height: 8,
-                        borderRadius: 999,
-                        background: "#b3f35a",
-                      }}
-                    />
-                  </span>
-                  <span
-                    style={{
-                      display: "grid",
-                      gridTemplateColumns: "1fr 1fr",
-                      gap: 4,
-                      marginTop: 4,
-                    }}
-                  >
-                    <span
-                      style={{
-                        aspectRatio: "4/3",
-                        borderRadius: 6,
-                        background: "#1a2a1a",
-                      }}
-                    />
-                    <span
-                      style={{
-                        aspectRatio: "4/3",
-                        borderRadius: 6,
-                        background: "#1a2a1a",
-                      }}
-                    />
-                  </span>
-                  <span
-                    className="phone__nav"
-                    style={{
-                      borderTopColor: "#142214",
-                      background: "#142214",
-                    }}
-                  >
-                    <span style={{ background: "#b3f35a" }} />
-                    <span style={{ background: "#253a25" }} />
-                    <span style={{ background: "#253a25" }} />
-                  </span>
-                </span>
-              </a>
-              <div className="show__info show__info--right">
-                <div className="mini-donut">
-                  <svg width="56" height="56" viewBox="0 0 56 56">
-                    <circle
-                      cx="28"
-                      cy="28"
-                      r="22"
-                      fill="none"
-                      stroke="var(--muted)"
-                      strokeWidth="6"
-                    />
-                    <circle
-                      cx="28"
-                      cy="28"
-                      r="22"
-                      fill="none"
-                      stroke="var(--chart-2)"
-                      strokeWidth="6"
-                      strokeDasharray="138 138"
-                      transform="rotate(-90 28 28)"
-                    />
-                  </svg>
-                  <span className="mini-donut__num">8</span>
-                </div>
-                <div className="mini-bars">
-                  <div className="mini-bar-row">
-                    <span className="mini-bar-label">Steps</span>
-                    <div className="mini-bar-track">
-                      <div
-                        className="mini-bar-fill"
-                        style={{
-                          width: "100%",
-                          background: "var(--chart-2)",
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <div className="mini-bar-row">
-                    <span className="mini-bar-label">Animations</span>
-                    <div className="mini-bar-track">
-                      <div
-                        className="mini-bar-fill"
-                        style={{
-                          width: "90%",
-                          background: "var(--chart-3)",
-                        }}
-                      />
-                    </div>
-                  </div>
-                  <div className="mini-bar-row">
-                    <span className="mini-bar-label">Palettes</span>
-                    <div className="mini-bar-track">
-                      <div
-                        className="mini-bar-fill"
-                        style={{
-                          width: "60%",
-                          background: "var(--chart-1)",
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-                <div className="kv">
-                  <div className="kv__row">
-                    <b>8</b>&nbsp;screens
-                  </div>
-                  <div className="kv__row">
-                    <b>Lime</b>&nbsp;theme
-                  </div>
-                </div>
-                <a className="openlink" href="prototypes/setup-wizard/">
-                  Open prototype
-                  <svg
-                    width="14"
-                    height="14"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden="true"
-                  >
-                    <path d="M5 12h14" />
-                    <path d="m12 5 7 7-7 7" />
-                  </svg>
-                </a>
-              </div>
-            </article>
-          </div>
-
-          <div className="empty" id="emptyNote" hidden>
-            No real prototypes yet — the first one will appear here once built.
-          </div>
+          <Gallery items={PROTOTYPES} />
         </section>
       </main>
     </>

@@ -37,6 +37,12 @@
 - **Theme is scoped to `.device`** — `data-theme` goes on the `.device` element, NOT `<html>`. The page never turns dark when the app toggle is pressed.
 - Tokens live in `src/proto-kit/tokens/tokens.css` (single source of truth). Import it once in the prototype's `layout.tsx`.
 
+### 3b. Design languages (multi-style system)
+- 11 design languages are supported: M3 (default), HIG, Carbon, Neumorphism, Glassmorphism, Brutalism, Claymorphism, Bauhaus, Minimalism, Bento, Flat.
+- **Pick a style** with [`docs/style-selection-guide.md`](./style-selection-guide.md), then read its spec in [`docs/design-languages/`](./design-languages/navigation.md).
+- **Wire it**: import `"../../../src/proto-kit/styles/index.css"` after `tokens.css` in `layout.tsx`; set `<DeviceFrame style="<id>">` + `<BottomNav variant="…">` / `<TopBar variant="…">` in `page.tsx`. Omit `style` = M3.
+- Style blues (HIG/Carbon/bauhaus-secondary) are **documented exceptions** to the no-blue rule — only when the user asked for that style.
+
 ### 4. Navigation discipline
 - Every directory has a `navigation.md`. **Update it in the same commit** as any change.
 - When you add/rename/move/delete a file, update the relevant `navigation.md`.

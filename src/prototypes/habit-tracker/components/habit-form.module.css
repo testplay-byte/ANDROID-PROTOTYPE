@@ -1,0 +1,158 @@
+/* HabitForm — inline add/edit form: name, icon picker, weekly target. */
+
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-size: var(--fs-label);
+  color: var(--color-text-subtle);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: var(--sp-2);
+}
+
+.input {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 var(--sp-3);
+  border: var(--border-w) solid var(--color-outline-variant);
+  border-radius: var(--r-sm);
+  background: var(--color-surface-1);
+  color: var(--color-text);
+  font-size: var(--fs-body);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-outline);
+}
+
+/* ---- Icon picker ---- */
+.icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+
+.iconBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  border: var(--border-w) solid var(--color-outline-variant);
+  background: transparent;
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    border-color var(--dur-1) var(--ease-standard),
+    background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard),
+    transform var(--dur-1) var(--ease-standard);
+}
+
+.iconBtn:active {
+  transform: scale(0.92);
+}
+
+.iconBtnActive {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+/* ---- Target stepper ---- */
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.stepBtn {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-sm);
+  border: var(--border-w) solid var(--color-outline-variant);
+  background: var(--color-surface-1);
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: opacity var(--dur-1) var(--ease-standard);
+}
+
+.stepBtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.stepVal {
+  min-width: 88px;
+  text-align: center;
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+  line-height: 1.2;
+}
+
+.stepUnit {
+  display: block;
+  font-size: var(--fs-label-s);
+  font-weight: 400;
+  color: var(--color-text-subtle);
+}
+
+/* ---- Actions ---- */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.save {
+  flex: 1 1 auto;
+  min-height: 44px;
+  border: var(--border-w) solid var(--color-primary);
+  border-radius: var(--r-sm);
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity var(--dur-1) var(--ease-standard);
+}
+
+.save:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.cancel {
+  min-height: 44px;
+  padding: 0 var(--sp-3);
+  border: none;
+  background: transparent;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.delete {
+  min-height: 44px;
+  padding: 0 var(--sp-3);
+  border: none;
+  background: transparent;
+  color: var(--color-error);
+  font-size: var(--fs-body);
+  cursor: pointer;
+}

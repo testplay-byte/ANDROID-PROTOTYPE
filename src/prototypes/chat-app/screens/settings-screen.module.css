@@ -1,0 +1,147 @@
+/* chat-app / screens / settings-screen — flat, zero shadows. */
+
+.content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: var(--sp-3) var(--sp-4) 110px;
+  scrollbar-width: none;
+}
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---- Profile row ---- */
+.profileRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  border: none;
+  border-radius: var(--r-md);
+  background: var(--color-surface-1);
+  cursor: pointer;
+  text-align: left;
+  margin-bottom: var(--sp-5);
+  transition: background var(--dur-1) var(--ease-standard);
+}
+.profileRow:active {
+  background: var(--color-surface-2);
+}
+.profileAvatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-h2);
+  font-weight: 800;
+  flex: 0 0 auto;
+}
+.profileInfo {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.profileName {
+  font-size: var(--fs-body-l);
+  font-weight: 700;
+  color: var(--color-text);
+}
+.profileDesc {
+  font-size: var(--fs-label);
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.chevron {
+  color: var(--color-text-subtle);
+  flex: 0 0 auto;
+}
+
+/* ---- Groups ---- */
+.group {
+  margin-bottom: var(--sp-5);
+}
+.groupLabel {
+  font-size: var(--fs-label);
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-primary);
+  margin: 0 0 var(--sp-2) var(--sp-1);
+}
+.card {
+  background: var(--color-surface-1);
+  border-radius: var(--r-md);
+  padding: var(--sp-1) var(--sp-4);
+  display: flex;
+  flex-direction: column;
+}
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-4) 0;
+  min-height: 56px;
+}
+.rowInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.rowTitle {
+  font-size: var(--fs-body-l);
+  font-weight: 600;
+  color: var(--color-text);
+}
+.rowDesc {
+  font-size: var(--fs-label);
+  color: var(--color-text-subtle);
+}
+
+/* ---- Theme toggle ---- */
+.themeToggle {
+  display: flex;
+  gap: var(--sp-1);
+  background: var(--color-surface-2);
+  border-radius: var(--r-pill);
+  padding: 3px;
+  flex: 0 0 auto;
+}
+.themeBtn {
+  min-height: 34px;
+  padding: 0 12px;
+  border: none;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  transition:
+    background var(--dur-2) var(--ease-standard),
+    color var(--dur-2) var(--ease-standard);
+}
+.themeBtnActive {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+.version {
+  margin: var(--sp-6) 0 0;
+  text-align: center;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+}

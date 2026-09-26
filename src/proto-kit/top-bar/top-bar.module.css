@@ -1,0 +1,121 @@
+/* proto-kit / top-bar — multi-variant top app bar.
+   All variants read the style tokens, so the active design language
+   (data-style on .device) restyles them automatically.
+
+   Variants:
+   - large:  M3-style large title, left-aligned, optional subtitle.
+   - center: iOS nav bar — leading slot, absolutely centered title,
+             trailing actions, hairline bottom border.
+   - inline: compact enterprise row (Carbon page header) — title left,
+             actions right, bottom border.
+   - hero:   oversized expressive display title (brutalism/bauhaus). */
+
+.topbar {
+  flex: 0 0 auto;
+  color: var(--color-text);
+  z-index: 5;
+}
+
+/* ---- large ---- */
+.large {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-4) var(--sp-3);
+}
+.largeTitle {
+  font-size: var(--fs-display);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.largeSubtitle {
+  margin-top: 2px;
+  font-size: var(--fs-body);
+  font-weight: 400;
+  color: var(--color-text-muted);
+}
+.actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  flex: 0 0 auto;
+}
+
+/* ---- center ---- */
+.center {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 52px;
+  padding: 0 var(--sp-2);
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+.centerTitle {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: var(--fs-body-l);
+  font-weight: 600;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 55%;
+}
+.leading,
+.trailing {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  flex: 0 0 auto;
+  min-height: 44px;
+}
+
+/* ---- inline ---- */
+.inline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  min-height: 48px;
+  padding: 0 var(--sp-4);
+  border-bottom: var(--border-w, 1px) solid var(--color-outline-variant);
+}
+.inlineTitle {
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.inlineSubtitle {
+  font-size: var(--fs-label);
+  font-weight: 400;
+  color: var(--color-text-muted);
+  margin-left: var(--sp-2);
+}
+
+/* ---- hero ---- */
+.hero {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4) var(--sp-2);
+}
+.heroTitle {
+  font-size: 40px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.heroSubtitle {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}

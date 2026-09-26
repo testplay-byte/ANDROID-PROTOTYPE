@@ -1,0 +1,112 @@
+/* chat-app.css — prototype-wide styles for the flat chat prototype.
+   Imported once by app/prototypes/chat-app/layout.tsx. Tokens come from
+   proto-kit/tokens/tokens.css + the flat style layer (styles/index.css).
+
+   Style: Flat Design 2.0 — ZERO box-shadows anywhere (the flat token layer
+   sets --shadow-*: none and we never re-add one). Depth comes purely from
+   --color-surface-* contrast. Saturated teal primary + coral secondary as
+   solid blocks. Generous padding, clean geometric rows. */
+
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  background: var(--stage-bg);
+  color: var(--sb-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+input,
+select,
+button {
+  font: inherit;
+}
+
+/* ---- Side-panel content (left tags + right screen info) ---- */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tag {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  background: var(--sb-muted);
+  color: var(--sb-text);
+  border: 1px solid var(--sb-border);
+}
+
+.screeninfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.screeninfo__name {
+  font-size: var(--fs-body-l);
+  font-weight: 700;
+}
+.screeninfo__desc {
+  font-size: var(--fs-label);
+  color: var(--sb-text-muted);
+  line-height: 1.5;
+}
+
+.kvlist {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.kvlist__row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+.kvlist__row span {
+  color: var(--sb-text-muted);
+}
+.kvlist__row b {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* ---- View stack ----
+   All screens are always mounted; visibility toggled via .view--active.
+   The chat detail view slides in from the right (pushed view). */
+.view {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--dur-3) var(--ease-emphasized-decel);
+  overflow: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+
+.view--active {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+/* Detail (pushed view) slides in from the right */
+.view[data-view="detail"] {
+  transform: translateX(100%);
+  transition:
+    transform var(--dur-4) var(--ease-emphasized),
+    opacity var(--dur-3) var(--ease-emphasized-decel);
+  z-index: 20;
+}
+
+.view[data-view="detail"].view--active {
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .view,
+  .view[data-view="detail"] {
+    transition: none !important;
+  }
+}

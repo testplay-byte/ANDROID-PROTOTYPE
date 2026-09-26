@@ -1,0 +1,55 @@
+/* Toggle — bento switch. Track = primary when on, surface-4 when off. */
+
+.hit {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.hit:active .track {
+  transform: scale(0.94);
+}
+
+.track {
+  width: 52px;
+  height: 30px;
+  border-radius: var(--r-pill);
+  background: var(--color-surface-4);
+  padding: 3px;
+  display: flex;
+  align-items: center;
+  transition: background var(--dur-2) var(--ease-standard),
+    transform var(--dur-1) var(--ease-standard);
+}
+
+.on .track {
+  background: var(--color-primary);
+}
+
+.knob {
+  width: 24px;
+  height: 24px;
+  border-radius: var(--r-pill);
+  background: var(--color-surface-1);
+  color: var(--color-text-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-1);
+  transform: translateX(0);
+  transition: transform var(--dur-2) var(--ease-emphasized-decel),
+    color var(--dur-2) var(--ease-standard);
+}
+
+.on .knob {
+  transform: translateX(22px);
+  color: var(--color-primary-fg);
+  background: var(--color-surface-1);
+}

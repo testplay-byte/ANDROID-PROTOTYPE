@@ -1,0 +1,131 @@
+/* SettingsScreen — grouped tiles: appearance, modes, home identity. */
+
+.root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+.content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 var(--sp-4) 130px;
+  scrollbar-width: none;
+}
+
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+.groupLabel {
+  display: block;
+  padding: 0 var(--sp-1) var(--sp-2);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-subtle);
+}
+
+.card {
+  background: var(--color-surface-1);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-1);
+  padding: var(--sp-2) var(--sp-4);
+  margin-bottom: var(--sp-4);
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-height: 68px;
+  padding: var(--sp-1) 0;
+}
+
+.row + .row {
+  border-top: 1px solid var(--color-outline-variant);
+}
+
+.rowIcon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-md);
+  background: var(--color-surface-3);
+  color: var(--color-text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rowInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.rowName {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.rowSub {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+}
+
+/* ---- Theme segmented control ---- */
+.segmented {
+  display: flex;
+  gap: 4px;
+  background: var(--color-surface-3);
+  border-radius: var(--r-pill);
+  padding: 4px;
+  flex-shrink: 0;
+}
+
+.segment {
+  border: none;
+  border-radius: var(--r-pill);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  padding: 8px 14px;
+  min-height: 36px;
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard);
+}
+
+.segmentActive {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+/* ---- Home name input ---- */
+.input {
+  width: 100%;
+  height: 48px;
+  border: none;
+  border-radius: var(--r-md);
+  background: var(--color-surface-3);
+  color: var(--color-text);
+  font-size: var(--fs-body);
+  font-weight: 600;
+  padding: 0 var(--sp-3);
+  margin: var(--sp-1) 0 var(--sp-2);
+  outline: none;
+  transition: box-shadow var(--dur-1) var(--ease-standard);
+}
+
+.input:focus {
+  box-shadow: 0 0 0 2px var(--color-primary);
+}

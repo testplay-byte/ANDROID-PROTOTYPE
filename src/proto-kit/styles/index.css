@@ -1,0 +1,54 @@
+/* =========================================================================
+   proto-kit / styles / index.css — multi-design-language style layer.
+
+   Import AFTER tokens.css in a prototype's layout.tsx:
+     import "@/proto-kit/tokens/tokens.css";
+     import "@/proto-kit/styles/index.css";
+
+   How it works:
+   - <DeviceFrame style="carbon"> sets data-style="carbon" on .device.
+   - Each style file below defines a COMPLETE token layer for both themes:
+       .device[data-style="X"]                      → dark/default values
+       .device[data-style="X"][data-theme="light"]  → light values
+   - Specificity: style dark (0,2,0) beats the M3 default on .device;
+     style light (0,3,0) beats tokens.css' .device[data-theme="light"].
+     Import order does not matter, but keep tokens.css first anyway.
+
+   THE TOKEN CONTRACT — every style file must define ALL of these for both
+   themes (a missing token silently falls back to the M3 purple palette):
+
+     Surfaces   --color-bg, --color-surface-1 .. --color-surface-5
+     Text       --color-text, --color-text-muted, --color-text-subtle
+     Roles      --color-primary, --color-primary-fg,
+                --color-primary-container, --color-on-primary-container,
+                --color-secondary, --color-secondary-container,
+                --color-tertiary, --color-tertiary-container,
+                --color-error, --color-error-container,
+                --color-success, --color-warn,
+                --color-outline, --color-outline-variant
+     Frame      --device-bezel, --device-edge, --bezel-w, --edge-w,
+                --frame-shadow
+     Extensible --shadow-1, --shadow-2, --shadow-inset, --border-w
+     Optional   radius scale overrides (--r-xs .. --r-xl),
+                --device-radius, style-specific extras (--glass-* etc.)
+
+   Rules:
+   - NEVER touch :root or <html> — tokens stay scoped to .device
+     (see docs/theme-architecture.md).
+   - NEVER define stage tokens (--stage-bg, --sb-*) in a style file;
+     the page keeps its own neutral look. Only --device-radius may be
+     changed (the frame is part of the app's identity).
+   - Component variants (BottomNav, TopBar) read these tokens — they are
+     style-agnostic. docs/design-languages/<style>.md recommends variants.
+   ========================================================================= */
+
+@import "./hig.css";
+@import "./carbon.css";
+@import "./neumorph.css";
+@import "./glass.css";
+@import "./brutalism.css";
+@import "./clay.css";
+@import "./bauhaus.css";
+@import "./minimal.css";
+@import "./bento.css";
+@import "./flat.css";

@@ -7,6 +7,58 @@
 
 ## [Unreleased]
 
+### 2026-09-26 — Multi-design-language system: 11 styles, nav/top-bar variants, 10 new prototypes, dashboard rework
+
+**The system is no longer M3-only.** Any agent can now build a prototype in any of 11 design
+languages, guided by intent-mapping docs and per-style specs.
+
+**Style system (proto-kit):**
+- `<DeviceFrame style="<id>">` sets `data-style` on `.device` — a full token layer per design
+  language, both themes, scoped exactly like `data-theme` (see `docs/theme-architecture.md`).
+- New styles in `src/proto-kit/styles/`: `hig` (Apple HIG), `carbon` (IBM Carbon), `neumorph`
+  (Neumorphism), `glass` (Glassmorphism), `brutalism` (Neo-brutalism), `clay` (Claymorphism),
+  `bauhaus` (Bauhaus), `minimal` (Minimalism), `bento` (Bento grid), `flat` (Flat Design 2.0).
+  M3 remains the default (no attribute). Each file defines the full token contract documented
+  in `styles/index.css` + extensible tokens (`--shadow-1/2`, `--shadow-inset`, `--border-w`,
+  `--device-radius`, `--glass-*`).
+- `<BottomNav variant>` — 6 style-agnostic variants: `floating` (default), `tabbar` (iOS),
+  `labeled`, `glass`, `soft`, `hard`.
+- New `<TopBar variant>` component — `large`, `center`, `inline`, `hero`.
+- Style-identity blues (HIG/Carbon, bauhaus-secondary) documented as exceptions to the
+  no-blue rule in `docs/preferences.md` + `docs/style-selection-guide.md`.
+
+**Docs for agents:**
+- `docs/style-selection-guide.md` — intent/vibe/category/reference-app → style mapping,
+  choice rules, how to add a new style.
+- `docs/design-languages/` — 10 new style specs (palette tables, shape/shadow signature,
+  must-use tokens, recommended variants, common mistakes, wiring snippet) + index.
+- Updated: STARTUP.md (§5a), agent-quickstart (§3b), prototype-blueprint (Step 1b),
+  template-rules (§3 + radius exception), docs/navigation.md, root navigation.md,
+  repo-map.md, proto-kit README, public/prototypes/navigation.md.
+
+**New demo prototypes (one per style, all different apps — not reskins):**
+| Prototype | Style | What it is |
+|---|---|---|
+| `music-player` | neumorph | Soft-UI player with simulated playback engine, extruded controls |
+| `weather-app` | glass | Frosted glass weather over drifting ambient blobs, multi-city + °C/°F |
+| `streetwear-store` | brutalism | DROP 07 shop: hard shadows, live cart badge, checkout flow |
+| `finance-hub` | carbon | IBM Carbon banking: layers/borders, spending chart, card freeze |
+| `smart-home` | bento | Bento dashboard: thermostat dial, lights, camera, energy tiles |
+| `fitness-tracker` | hig | Apple HIG: activity rings, workout timer, iOS grouped lists |
+| `kids-learning` | clay | Puffy clay quiz game with star rewards + badge shelf |
+| `chat-app` | flat | Zero-shadow messenger with custom keyboard + auto-reply |
+| `habit-tracker` | minimal | Monochrome checklist, streaks, weekly heatmap |
+| `gallery-app` | bauhaus | Geometric triad posters, favorites, stamped ticket booking |
+
+**Dashboard rework:** `app/page.tsx` rewritten data-driven via `src/dashboard/gallery.tsx` —
+filterable prototype gallery (filter chips per design language), style badges, updated stats
+and charts. To add a prototype, append one `PROTOTYPES` entry.
+
+**Verification:** `npm run build` clean (16 static pages), all routes 200 on the basePath
+preview, and all 11 pages visually reviewed (screenshots of the rendered site).
+
+---
+
 ### 2025-01-15 — Anime_App Android build complete (Build #16) — documentation finalized
 
 **Final state:** The Android app matches the web prototype with minor acceptable differences.

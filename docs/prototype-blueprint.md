@@ -30,6 +30,20 @@ And skimmed the reference prototype:
 - Examples: `food-delivery-checkout`, `bank-onboarding`, `music-player-home`.
 - Avoid generic names like `app1` or `prototype-v2`.
 
+## Step 1b: Choose the design language (NEW — multi-style system)
+
+1. **Pick a style** using [`docs/style-selection-guide.md`](./style-selection-guide.md)
+   (explicit user request wins; otherwise map the vibe/category).
+2. **Read the style spec**: [`docs/design-languages/<style>.md`](./design-languages/navigation.md) —
+   palette, must-use tokens, recommended BottomNav/TopBar variants, common mistakes.
+3. **Wire it** (two imports + two props):
+   - `layout.tsx`: import `"../../../src/proto-kit/styles/index.css"` **after** `tokens.css`.
+   - `page.tsx`: `<DeviceFrame theme="…" style="<style-id>">` and
+     `<BottomNav variant="…">` / `<TopBar variant="…">` per the style doc.
+   - Omitting `style` = default Material 3 (all pre-2026 prototypes).
+4. **Never hardcode colors** — the style's tokens ARE the palette. If a token is
+   missing for something the style needs, extend the style file, not the screen CSS.
+
 ---
 
 ## Step 2: Scaffold the two folders
@@ -66,6 +80,7 @@ src/prototypes/<your-name>/
 ```tsx
 import type { Metadata } from "next";
 import "../../../src/proto-kit/tokens/tokens.css";
+import "../../../src/proto-kit/styles/index.css"; // multi-style layer (after tokens!)
 import "../../../src/prototypes/<your-name>/<your-name>.css";
 
 export const metadata: Metadata = {
@@ -142,6 +157,9 @@ export default function Page() {
 ```
 
 Copy the full pattern from `app/prototypes/search-page/page.tsx` — don't reinvent it.
+For a styled prototype, study a style showcase instead — e.g. `app/prototypes/finance-hub/page.tsx`
+(Carbon) or `app/prototypes/streetwear-store/page.tsx` (Brutalism) — to see `style=` and
+`variant=` in context.
 
 ---
 

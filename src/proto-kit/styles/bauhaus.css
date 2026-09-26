@@ -1,0 +1,98 @@
+/* =========================================================================
+   Style: Bauhaus — geometric modernism
+   docs/design-languages/bauhaus.md
+
+   Look: 1920s geometric modernism. Off-white paper, near-black ink, and
+   the primary triad (red/blue/yellow) used as SOLID geometric blocks.
+   Sharp corners, circles + quarter-circles as motifs, uppercase headings.
+   Recommended nav: hard. Recommended top bar: hero.
+   NOTE: Bauhaus blue is part of the historical triad — documented
+   exception to the repo's "no blue primary" rule (primary here is RED;
+   blue appears only as a secondary geometric accent).
+   ========================================================================= */
+
+.device[data-style="bauhaus"] {
+  --color-bg: #1c1a17;
+  --color-surface-1: #25221e;
+  --color-surface-2: #2e2a25;
+  --color-surface-3: #37322c;
+  --color-surface-4: #413b33;
+  --color-surface-5: #4c443b;
+
+  --color-text: #f4f1ea;
+  --color-text-muted: #b5afa2;
+  --color-text-subtle: #7d776b;
+
+  --color-primary: #ff5a45;
+  --color-primary-fg: #1c0703;
+  --color-primary-container: #5c231c;
+  --color-on-primary-container: #ffb3a8;
+  --color-secondary: #4f74e3;
+  --color-secondary-container: #1f2c52;
+  --color-tertiary: #f2b705;
+  --color-tertiary-container: #574205;
+  --color-error: #ff5a45;
+  --color-error-container: #5c1a12;
+  --color-success: #6bab60;
+  --color-warn: #f2b705;
+  --color-outline: #f4f1ea;
+  --color-outline-variant: #7d776b;
+
+  --shadow-1: none;
+  --shadow-2: none;
+  --shadow-inset: none;
+  --border-w: 2px;
+
+  /* Geometry over softness: small radii everywhere. */
+  --r-xs: 2px;
+  --r-sm: 3px;
+  --r-md: 4px;
+  --r-lg: 6px;
+  --r-xl: 8px;
+  --device-radius: 10px;
+
+  --device-bezel: #e8e4da;
+  --device-edge: #b5afa2;
+  --bezel-w: 4px;
+  --edge-w: 4px;
+  --frame-shadow: rgba(0, 0, 0, 0.6);
+}
+
+.device[data-style="bauhaus"][data-theme="light"] {
+  --color-bg: #f4f1ea;
+  --color-surface-1: #ffffff;
+  --color-surface-2: #ece8dd;
+  --color-surface-3: #e0dbcd;
+  --color-surface-4: #cfc9b8;
+  --color-surface-5: #b8b19d;
+
+  --color-text: #141414;
+  --color-text-muted: #5c5850;
+  --color-text-subtle: #8f8a7d;
+
+  --color-primary: #d5321f;
+  --color-primary-fg: #ffffff;
+  --color-primary-container: #f8d2cc;
+  --color-on-primary-container: #6b150b;
+  --color-secondary: #2b50c8;
+  --color-secondary-container: #ccd8f6;
+  --color-tertiary: #f2b705;
+  --color-tertiary-container: #fce9b8;
+  --color-error: #d5321f;
+  --color-error-container: #f8d2cc;
+  --color-success: #4a8f3f;
+  --color-warn: #f2b705;
+  --color-outline: #141414;
+  --color-outline-variant: #8f8a7d;
+
+  --shadow-1: none;
+  --shadow-2: none;
+  --shadow-inset: none;
+  --border-w: 2px;
+
+  --device-bezel: #141414;
+  --device-edge: #141414;
+  --bezel-w: 4px;
+  --edge-w: 4px;
+  --frame-shadow: rgba(20, 20, 20, 0.4);
+}

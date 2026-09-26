@@ -1,0 +1,95 @@
+/* =========================================================================
+   Style: HIG — Apple Human Interface Guidelines
+   docs/design-languages/hig.md
+
+   Look: iOS-native. Pure black (dark) / grouped light-gray (light)
+   backgrounds, translucent tab bar, hairline separators, SF-style
+   system-blue accent. Recommended nav: tabbar. Recommended top bar: center.
+   NOTE: HIG's identity IS the iOS system blue — this is a documented
+   exception to the repo's "no blue primary" rule (only when the brief
+   explicitly calls for HIG/iOS look).
+   ========================================================================= */
+
+.device[data-style="hig"] {
+  --color-bg: #000000;
+  --color-surface-1: #1c1c1e;
+  --color-surface-2: #2c2c2e;
+  --color-surface-3: #3a3a3c;
+  --color-surface-4: #48484a;
+  --color-surface-5: #545456;
+
+  --color-text: #f2f2f7;
+  --color-text-muted: #98989f;
+  --color-text-subtle: #636366;
+
+  --color-primary: #0a84ff;
+  --color-primary-fg: #ffffff;
+  --color-primary-container: #0e3a66;
+  --color-on-primary-container: #9fd1ff;
+  --color-secondary: #98989f;
+  --color-secondary-container: #2c2c2e;
+  --color-tertiary: #ff9f0a;
+  --color-tertiary-container: #4a3210;
+  --color-error: #ff453a;
+  --color-error-container: #4a1418;
+  --color-success: #30d158;
+  --color-warn: #ffd60a;
+  --color-outline: #48484a;
+  --color-outline-variant: #2c2c2e;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.5);
+  --shadow-2: 0 8px 24px rgba(0, 0, 0, 0.55);
+  --shadow-inset: inset 0 0 0 100px rgba(0, 0, 0, 0);
+  --border-w: 1px;
+
+  --device-bezel: #cfcfcf;
+  --device-edge: #a8a8a8;
+  --bezel-w: 3.5px;
+  --edge-w: 4px;
+  --frame-shadow: rgba(0, 0, 0, 0.55);
+
+  --glass-blur: 24px;
+  --glass-border: rgba(255, 255, 255, 0.12);
+}
+
+.device[data-style="hig"][data-theme="light"] {
+  --color-bg: #f2f2f7;
+  --color-surface-1: #ffffff;
+  --color-surface-2: #ffffff;
+  --color-surface-3: #e5e5ea;
+  --color-surface-4: #d1d1d6;
+  --color-surface-5: #aeaeb2;
+
+  --color-text: #000000;
+  --color-text-muted: #6d6d72;
+  --color-text-subtle: #aeaeb2;
+
+  --color-primary: #007aff;
+  --color-primary-fg: #ffffff;
+  --color-primary-container: #d5e8ff;
+  --color-on-primary-container: #003d7a;
+  --color-secondary: #6d6d72;
+  --color-secondary-container: #e5e5ea;
+  --color-tertiary: #c93400;
+  --color-tertiary-container: #ffd9cc;
+  --color-error: #ff3b30;
+  --color-error-container: #ffdcd9;
+  --color-success: #34c759;
+  --color-warn: #ffcc00;
+  --color-outline: #c6c6c8;
+  --color-outline-variant: #e5e5ea;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.08);
+  --shadow-2: 0 8px 24px rgba(0, 0, 0, 0.1);
+  --shadow-inset: inset 0 0 0 100px rgba(0, 0, 0, 0);
+  --border-w: 1px;
+
+  --device-bezel: #0e0a17;
+  --device-edge: #1b1729;
+  --bezel-w: 4px;
+  --edge-w: 4.4px;
+  --frame-shadow: rgba(0, 0, 0, 0.4);
+
+  --glass-blur: 24px;
+  --glass-border: rgba(0, 0, 0, 0.08);
+}

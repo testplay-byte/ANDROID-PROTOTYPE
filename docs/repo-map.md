@@ -89,6 +89,8 @@ ANDROID-PROTOTYPE/
 │   ├── design-standards.md     ← UI/UX standards: spacing, type, color, frame.
 │   ├── template-rules.md       ← Rules every prototype (built on proto-kit) follows.
 │   ├── theme-architecture.md   ← CRITICAL: how app theme is scoped to .device.
+│   ├── style-selection-guide.md← How to PICK a design language for a brief.
+│   ├── design-languages/       ← Style specs for the 11 design languages.
 │   ├── preferences.md          ← MANDATORY MEMORY: all user design preferences.
 │   ├── notification-protocol.md← MANDATORY: how to notify via ntfy.sh.
 │   ├── github-pages.md         ← Deployment guide + troubleshooting.
@@ -119,6 +121,7 @@ ANDROID-PROTOTYPE/
 | The shared tokens | `src/proto-kit/tokens/tokens.css` |
 | How to build a prototype | `docs/prototype-blueprint.md` |
 | Design rules for prototypes | `docs/template-rules.md` |
+| Pick a design language (11 supported) | `docs/style-selection-guide.md` + `docs/design-languages/` |
 | User's design preferences | `docs/preferences.md` |
 | How theming works | `docs/theme-architecture.md` |
 | How to notify the user | `docs/notification-protocol.md` |

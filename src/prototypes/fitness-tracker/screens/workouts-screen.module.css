@@ -1,0 +1,175 @@
+/* WorkoutsScreen — iOS workout list + inline session with ring timer. */
+
+.root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+.content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 var(--sp-4) 96px;
+  scrollbar-width: none;
+}
+
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+.hint {
+  margin: 0;
+  padding: 0 var(--sp-2);
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+/* ---- Back button (TopBar leading) ---- */
+.backBtn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: none;
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  border-radius: var(--r-pill);
+  transition: background var(--dur-1) var(--ease-standard),
+    transform var(--dur-1) var(--ease-standard);
+}
+
+.backBtn:active {
+  background: var(--tint-blue-bg);
+  transform: scale(0.92);
+}
+
+/* ---- Icon disc tints ---- */
+.blue {
+  color: var(--color-primary);
+  background: var(--tint-blue-bg);
+}
+
+.green {
+  color: var(--color-success);
+  background: var(--tint-green-bg);
+}
+
+.teal {
+  color: var(--color-secondary);
+  background: var(--tint-teal-bg);
+}
+
+.purple {
+  color: var(--color-tertiary);
+  background: var(--tint-purple-bg);
+}
+
+.orange {
+  color: var(--color-warn);
+  background: var(--tint-orange-bg);
+}
+
+/* ---- Session view ---- */
+.timerWrap {
+  position: relative;
+  width: 200px;
+  margin: var(--sp-4) auto;
+}
+
+.timerCenter {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.timerTime {
+  font-size: var(--fs-display);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+  line-height: 1;
+}
+
+.timerLabel {
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+}
+
+.sessionStats {
+  display: flex;
+  justify-content: center;
+  gap: var(--sp-8);
+  margin-bottom: var(--sp-5);
+}
+
+.sessionStat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+}
+
+.sessionStatValue {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}
+
+.sessionStatLabel {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+
+/* ---- Controls ---- */
+.controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-4);
+}
+
+.controlBtn {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--r-pill);
+  border: none;
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform var(--dur-1) var(--ease-standard),
+    background var(--dur-1) var(--ease-standard), opacity var(--dur-1) var(--ease-standard);
+}
+
+.controlBtn:active {
+  transform: scale(0.9);
+}
+
+.controlBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.controlPrimary {
+  width: 72px;
+  height: 72px;
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}

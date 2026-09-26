@@ -1,0 +1,96 @@
+/* =========================================================================
+   Style: Glass — Glassmorphism
+   docs/design-languages/glass.md
+
+   Look: frosted translucent layers over a colorful ambient background.
+   Surfaces are translucent whites with backdrop blur + a 1px luminous
+   border. Needs COLORFUL page/blob backgrounds behind glass panels to
+   read as glass. Recommended nav: glass. Recommended top bar: center.
+   MUST-USE: --glass-blur + --glass-border on every glass surface.
+   ========================================================================= */
+
+.device[data-style="glass"] {
+  --color-bg: #101522;
+  --color-surface-1: rgba(255, 255, 255, 0.06);
+  --color-surface-2: rgba(255, 255, 255, 0.09);
+  --color-surface-3: rgba(255, 255, 255, 0.12);
+  --color-surface-4: rgba(255, 255, 255, 0.16);
+  --color-surface-5: rgba(255, 255, 255, 0.2);
+
+  --color-text: #f4f6fb;
+  --color-text-muted: #a8b0c4;
+  --color-text-subtle: #6d7690;
+
+  --color-primary: #c084fc;
+  --color-primary-fg: #2a1245;
+  --color-primary-container: rgba(192, 132, 252, 0.18);
+  --color-on-primary-container: #e9d5ff;
+  --color-secondary: #a8b0c4;
+  --color-secondary-container: rgba(255, 255, 255, 0.09);
+  --color-tertiary: #67e8f9;
+  --color-tertiary-container: rgba(103, 232, 249, 0.15);
+  --color-error: #fb7185;
+  --color-error-container: rgba(251, 113, 133, 0.15);
+  --color-success: #4ade80;
+  --color-warn: #fbbf24;
+  --color-outline: rgba(255, 255, 255, 0.25);
+  --color-outline-variant: rgba(255, 255, 255, 0.12);
+
+  --shadow-1: 0 4px 16px rgba(0, 0, 0, 0.25);
+  --shadow-2: 0 12px 40px rgba(0, 0, 0, 0.35);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  --border-w: 1px;
+
+  --device-bezel: #cfcfcf;
+  --device-edge: #a8a8a8;
+  --bezel-w: 3.5px;
+  --edge-w: 4px;
+  --frame-shadow: rgba(0, 0, 0, 0.55);
+
+  --glass-blur: 18px;
+  --glass-border: rgba(255, 255, 255, 0.18);
+  --glass-highlight: rgba(255, 255, 255, 0.25);
+}
+
+.device[data-style="glass"][data-theme="light"] {
+  --color-bg: #eef1f8;
+  --color-surface-1: rgba(255, 255, 255, 0.55);
+  --color-surface-2: rgba(255, 255, 255, 0.65);
+  --color-surface-3: rgba(255, 255, 255, 0.72);
+  --color-surface-4: rgba(255, 255, 255, 0.8);
+  --color-surface-5: rgba(255, 255, 255, 0.88);
+
+  --color-text: #1c2333;
+  --color-text-muted: #5a6377;
+  --color-text-subtle: #8b93a6;
+
+  --color-primary: #9333ea;
+  --color-primary-fg: #ffffff;
+  --color-primary-container: rgba(147, 51, 234, 0.12);
+  --color-on-primary-container: #581c87;
+  --color-secondary: #5a6377;
+  --color-secondary-container: rgba(255, 255, 255, 0.65);
+  --color-tertiary: #0ea5b7;
+  --color-tertiary-container: rgba(14, 165, 183, 0.12);
+  --color-error: #e11d48;
+  --color-error-container: rgba(225, 29, 72, 0.1);
+  --color-success: #16a34a;
+  --color-warn: #d97706;
+  --color-outline: rgba(28, 35, 51, 0.25);
+  --color-outline-variant: rgba(28, 35, 51, 0.1);
+
+  --shadow-1: 0 4px 16px rgba(28, 35, 51, 0.08);
+  --shadow-2: 0 12px 40px rgba(28, 35, 51, 0.12);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  --border-w: 1px;
+
+  --device-bezel: #1c2333;
+  --device-edge: #3a4358;
+  --bezel-w: 4px;
+  --edge-w: 4.4px;
+  --frame-shadow: rgba(28, 35, 51, 0.35);
+
+  --glass-blur: 18px;
+  --glass-border: rgba(255, 255, 255, 0.6);
+  --glass-highlight: rgba(255, 255, 255, 0.9);
+}

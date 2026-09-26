@@ -1,0 +1,267 @@
+/* kids-learning / screens / play-screen — the mini game. */
+
+.content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: var(--sp-2) var(--sp-4) 110px;
+  scrollbar-width: none;
+}
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---- Subject switcher pills ---- */
+.subjectRow {
+  display: flex;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-3);
+}
+.subjectPill {
+  flex: 1 1 0;
+  min-height: 44px;
+  border: none;
+  border-radius: var(--r-md);
+  background: var(--color-surface-2);
+  box-shadow: var(--shadow-1);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  font-weight: 800;
+  cursor: pointer;
+  transition:
+    box-shadow var(--dur-2) var(--ease-standard),
+    color var(--dur-2) var(--ease-standard),
+    transform var(--dur-1) var(--ease-emphasized);
+}
+.subjectPill:active {
+  box-shadow: var(--shadow-inset);
+  transform: scale(0.95);
+}
+.subjectPillActive {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  box-shadow: var(--shadow-2);
+}
+
+/* ---- Progress row ---- */
+.progressRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--color-surface-1);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-inset);
+  margin-bottom: var(--sp-4);
+}
+.progressLabel {
+  font-size: var(--fs-body-s);
+  font-weight: 800;
+  color: var(--color-text-muted);
+}
+
+/* ---- Question card ---- */
+.questionCard {
+  position: relative;
+  background: var(--color-surface-1);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-2);
+  padding: var(--sp-6) var(--sp-5);
+  margin-bottom: var(--sp-5);
+}
+.prompt {
+  margin: 0;
+  font-size: var(--fs-h2);
+  font-weight: 900;
+  color: var(--color-text);
+  text-align: center;
+  line-height: 1.3;
+}
+
+/* Star flies from the question card up into the progress row. */
+.flyStar {
+  position: absolute;
+  left: 50%;
+  bottom: -14px;
+  margin-left: -14px;
+  pointer-events: none;
+  animation: flyToStars 800ms var(--ease-emphasized) forwards;
+  z-index: 2;
+}
+@keyframes flyToStars {
+  0% {
+    opacity: 0;
+    transform: translate(0, 0) scale(0.4);
+  }
+  25% {
+    opacity: 1;
+    transform: translate(0, -20px) scale(1.25);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(var(--fly-x, 0px), -190px) scale(0.5);
+  }
+}
+
+/* ---- Answers ---- */
+.answers {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-2);
+}
+.answer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 76px;
+  padding: var(--sp-3);
+  border: none;
+  border-radius: var(--r-lg);
+  background: var(--color-surface-2);
+  box-shadow: var(--shadow-2);
+  cursor: pointer;
+  transition:
+    transform var(--dur-1) var(--ease-emphasized),
+    box-shadow var(--dur-2) var(--ease-standard);
+}
+.answer:active {
+  box-shadow: var(--shadow-inset);
+  transform: scale(0.97);
+}
+
+/* Correct: squish! */
+.answerCorrect {
+  background: var(--color-primary);
+  box-shadow: var(--shadow-inset);
+  animation: squish 400ms var(--ease-emphasized);
+}
+@keyframes squish {
+  0% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(0.9, 0.82);
+  }
+  70% {
+    transform: scale(1.04, 1.06);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* Wrong: pressed dough + gentle shake. */
+.answerWrong {
+  box-shadow: var(--shadow-inset);
+  animation: shake 500ms var(--ease-standard);
+}
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-6px);
+  }
+  40% {
+    transform: translateX(6px);
+  }
+  60% {
+    transform: translateX(-4px);
+  }
+  80% {
+    transform: translateX(4px);
+  }
+}
+
+.answerLabel {
+  font-size: var(--fs-display);
+  font-weight: 900;
+  color: var(--color-primary-fg);
+  line-height: 1;
+}
+.answerCorrect .answerLabel {
+  color: var(--color-primary-fg);
+}
+
+.answerBlob {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--r-lg);
+  display: block;
+}
+
+/* ---- Praise message ---- */
+.praise {
+  min-height: 28px;
+  margin: 0;
+  text-align: center;
+  font-size: var(--fs-h3);
+  font-weight: 900;
+  color: var(--color-success);
+  opacity: 0;
+  transform: scale(0.8);
+  transition:
+    opacity var(--dur-2) var(--ease-standard),
+    transform var(--dur-2) var(--ease-emphasized-decel);
+}
+.praiseShow {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* ---- Round summary ---- */
+.summaryCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  background: var(--color-surface-1);
+  border-radius: var(--r-xl);
+  box-shadow: var(--shadow-2);
+  padding: var(--sp-8) var(--sp-5);
+  margin-top: var(--sp-3);
+  text-align: center;
+}
+.summaryTitle {
+  margin: 0;
+  font-size: var(--fs-h1);
+  font-weight: 900;
+  color: var(--color-text);
+}
+.summaryDesc {
+  margin: 0 0 var(--sp-2);
+  font-size: var(--fs-body-l);
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.bigButton {
+  min-height: 56px;
+  width: 100%;
+  border: none;
+  border-radius: var(--r-lg);
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  font-size: var(--fs-body-l);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  box-shadow: var(--shadow-2);
+  transition:
+    transform var(--dur-1) var(--ease-emphasized),
+    box-shadow var(--dur-2) var(--ease-standard);
+}
+.bigButton:active {
+  box-shadow: var(--shadow-inset);
+  transform: scale(0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .flyStar,
+  .answerCorrect,
+  .answerWrong {
+    animation: none !important;
+  }
+}

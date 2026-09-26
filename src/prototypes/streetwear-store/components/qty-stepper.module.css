@@ -1,0 +1,55 @@
+/* QtyStepper — square, thick border, hard shadow, press = sink. */
+
+.stepper {
+  display: inline-flex;
+  align-items: stretch;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  box-shadow: var(--shadow-1);
+}
+
+.btn {
+  width: 40px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-surface-1);
+  color: var(--color-text);
+  border: none;
+  border-right: var(--border-w) solid var(--color-outline);
+  cursor: pointer;
+  transition:
+    background var(--dur-1) var(--ease-standard),
+    transform var(--dur-1) var(--ease-standard);
+}
+
+.btn:last-child {
+  border-right: none;
+  border-left: var(--border-w) solid var(--color-outline);
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+.btn:active:not(:disabled) {
+  transform: translate(1px, 1px);
+}
+
+.btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.value {
+  min-width: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-body-l);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}

@@ -56,6 +56,8 @@ ANDROID-PROTOTYPE/
 ├── docs/                   ← All documentation (workflow, standards, deploy, etc.).
 │   ├── navigation.md       ← Index of docs/.
 │   ├── agent-quickstart.md ← 2-minute fast-start for any AI agent.
+│   ├── style-selection-guide.md ← How to PICK a design language for a brief.
+│   ├── design-languages/   ← Style specs for the 11 design languages.
 │   ├── prototype-blueprint.md ← Step-by-step guide to build a new prototype.
 │   ├── repo-map.md         ← Visual annotated tree of the entire repo.
 │   ├── workflow.md         ← High-level prototype workflow.
@@ -137,6 +139,17 @@ See `docs/tech-stack.md` for the full rationale.
 Naming convention: `kebab-case`, descriptive. Example: `app/prototypes/food-delivery-checkout/`.
 
 **Reference implementation:** `app/prototypes/search-page/` (the first ported prototype). Study its layout + page + screens structure as the pattern to follow.
+
+### 5a. Choose a design language (multi-style system)
+
+Prototypes are no longer limited to Material 3. The proto-kit style system supports **11 design languages**: M3 (default), HIG (Apple), IBM Carbon, Neumorphism, Glassmorphism, Brutalism, Claymorphism, Bauhaus, Minimalism, Bento Grid, Flat.
+
+1. **Pick a style** via [`docs/style-selection-guide.md`](./docs/style-selection-guide.md) — maps vibes ("soft and squishy" → neumorph), categories (banking → carbon) and reference apps (iOS Settings → hig) to a style id. Explicit user requests always win.
+2. **Read the style spec** in [`docs/design-languages/`](./docs/design-languages/navigation.md) — exact palette, must-use tokens, recommended `<BottomNav variant>` / `<TopBar variant>` combinations, common mistakes.
+3. **Wire it**: import `src/proto-kit/styles/index.css` after `tokens.css` in `layout.tsx`; pass `style="<id>"` to `<DeviceFrame>` and the recommended `variant=` props to `<BottomNav>`/`<TopBar>`. Styles re-scope all `--color-*` tokens on `.device` (both themes), so screens always read the same token names. Theme stays scoped to `.device` exactly as before.
+4. **Palette exceptions:** HIG (iOS blue), Carbon (IBM blue) and Bauhaus (blue as a secondary triad color; primary is red) are documented exceptions to the "no blue primary" preference — valid **only** when the brief asks for that style.
+
+Style demo prototypes live in the dashboard gallery, filterable by design language.
 
 ---
 

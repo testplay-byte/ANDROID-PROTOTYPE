@@ -1,0 +1,88 @@
+/* =========================================================================
+   Style: Minimal — Minimalism / monochrome
+   docs/design-languages/minimal.md
+
+   Look: quiet luxury. Pure neutrals, hairline borders, generous
+   whitespace, NO decorative color — hierarchy comes from type weight and
+   spacing alone. Ink (near-black/white) IS the primary.
+   Recommended nav: floating (monochrome). Recommended top bar: large.
+   Rule: if you are tempted to add a color, don't.
+   ========================================================================= */
+
+.device[data-style="minimal"] {
+  --color-bg: #0e0e0e;
+  --color-surface-1: #161616;
+  --color-surface-2: #1c1c1c;
+  --color-surface-3: #232323;
+  --color-surface-4: #2b2b2b;
+  --color-surface-5: #343434;
+
+  --color-text: #f5f5f5;
+  --color-text-muted: #a3a3a3;
+  --color-text-subtle: #6b6b6b;
+
+  --color-primary: #fafafa;
+  --color-primary-fg: #0a0a0a;
+  --color-primary-container: #2b2b2b;
+  --color-on-primary-container: #f5f5f5;
+  --color-secondary: #a3a3a3;
+  --color-secondary-container: #232323;
+  --color-tertiary: #737373;
+  --color-tertiary-container: #262626;
+  --color-error: #e5484d;
+  --color-error-container: #3a1214;
+  --color-success: #46a758;
+  --color-warn: #f5a623;
+  --color-outline: #343434;
+  --color-outline-variant: #232323;
+
+  --shadow-1: none;
+  --shadow-2: 0 16px 48px rgba(0, 0, 0, 0.5);
+  --shadow-inset: none;
+  --border-w: 1px;
+
+  --device-bezel: #c9c9c9;
+  --device-edge: #8f8f8f;
+  --bezel-w: 3.5px;
+  --edge-w: 4px;
+  --frame-shadow: rgba(0, 0, 0, 0.6);
+}
+
+.device[data-style="minimal"][data-theme="light"] {
+  --color-bg: #ffffff;
+  --color-surface-1: #fafafa;
+  --color-surface-2: #f4f4f4;
+  --color-surface-3: #eeeeee;
+  --color-surface-4: #e5e5e5;
+  --color-surface-5: #d9d9d9;
+
+  --color-text: #111111;
+  --color-text-muted: #6b6b6b;
+  --color-text-subtle: #a3a3a3;
+
+  --color-primary: #111111;
+  --color-primary-fg: #ffffff;
+  --color-primary-container: #f0f0f0;
+  --color-on-primary-container: #111111;
+  --color-secondary: #6b6b6b;
+  --color-secondary-container: #f4f4f4;
+  --color-tertiary: #a3a3a3;
+  --color-tertiary-container: #eeeeee;
+  --color-error: #d13438;
+  --color-error-container: #fdebeb;
+  --color-success: #2f7d3b;
+  --color-warn: #b45309;
+  --color-outline: #d9d9d9;
+  --color-outline-variant: #eeeeee;
+
+  --shadow-1: none;
+  --shadow-2: 0 16px 48px rgba(0, 0, 0, 0.08);
+  --shadow-inset: none;
+  --border-w: 1px;
+
+  --device-bezel: #111111;
+  --device-edge: #3a3a3a;
+  --bezel-w: 4px;
+  --edge-w: 4.4px;
+  --frame-shadow: rgba(0, 0, 0, 0.25);
+}

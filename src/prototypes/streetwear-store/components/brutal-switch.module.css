@@ -1,0 +1,43 @@
+/* BrutalSwitch — square bordered track, yellow when on. */
+
+.track {
+  position: relative;
+  width: 58px;
+  height: 32px;
+  padding: 0;
+  flex: 0 0 auto;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-2);
+  box-shadow: var(--shadow-1);
+  cursor: pointer;
+  border-radius: 0;
+  transition:
+    background var(--dur-1) var(--ease-standard),
+    transform var(--dur-1) var(--ease-standard),
+    box-shadow var(--dur-1) var(--ease-standard);
+}
+
+.track:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.trackOn {
+  background: var(--color-primary);
+}
+
+.knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 24px;
+  height: 24px;
+  background: var(--color-bg);
+  border: var(--border-w) solid var(--color-outline);
+  transition: transform var(--dur-2) var(--ease-emphasized);
+}
+
+.knobOn {
+  transform: translateX(26px);
+  background: var(--color-bg);
+}

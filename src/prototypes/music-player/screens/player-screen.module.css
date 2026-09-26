@@ -1,0 +1,283 @@
+/* PlayerScreen — now playing (neumorphism). */
+
+.root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+.content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: var(--sp-3) var(--sp-5) 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ---- Album art: extruded ring + gradient disc ---- */
+.artWrap {
+  margin: var(--sp-4) 0 var(--sp-6);
+}
+
+.ring {
+  width: 236px;
+  height: 236px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow var(--dur-3) var(--ease-emphasized);
+}
+
+.art {
+  width: 190px;
+  height: 190px;
+  border-radius: 50%;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-inset);
+  animation: none;
+}
+
+.artSpinning {
+  animation: art-spin 24s linear infinite;
+}
+
+@keyframes art-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.artHole {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-inset);
+}
+
+/* Album-art gradients — derived from style tokens only. */
+.art0 {
+  background: radial-gradient(circle at 30% 25%, var(--color-primary) 0%, var(--color-primary-container) 55%, var(--color-surface-3) 100%);
+}
+.art1 {
+  background: radial-gradient(circle at 65% 30%, var(--color-warn) 0%, var(--color-primary) 60%, var(--color-surface-4) 100%);
+}
+.art2 {
+  background: radial-gradient(circle at 30% 70%, var(--color-tertiary) 0%, var(--color-tertiary-container) 55%, var(--color-surface-3) 100%);
+}
+.art3 {
+  background: radial-gradient(circle at 60% 60%, var(--color-secondary) 0%, var(--color-surface-4) 60%, var(--color-surface-2) 100%);
+}
+.art4 {
+  background: radial-gradient(circle at 40% 40%, var(--color-error) 0%, var(--color-primary) 65%, var(--color-surface-4) 100%);
+}
+.art5 {
+  background: radial-gradient(circle at 55% 35%, var(--color-on-primary-container) 0%, var(--color-primary-container) 55%, var(--color-surface-3) 100%);
+}
+
+/* ---- Track meta ---- */
+.meta {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
+}
+
+.metaText {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.artist {
+  font-size: var(--fs-body);
+  color: var(--color-text-muted);
+}
+
+.likeBtn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  flex: 0 0 auto;
+  transition:
+    box-shadow var(--dur-2) var(--ease-emphasized),
+    color var(--dur-2) var(--ease-emphasized),
+    transform var(--dur-1) var(--ease-emphasized);
+}
+
+.likeBtn:active {
+  transform: scale(0.92);
+}
+
+.likeActive {
+  color: var(--color-error);
+  box-shadow: var(--shadow-inset);
+}
+
+/* ---- Progress groove ---- */
+.progressBlock {
+  width: 100%;
+  margin-bottom: var(--sp-6);
+}
+
+.groove {
+  height: 14px;
+  border-radius: var(--r-pill);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-inset);
+  padding: 3px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.fill {
+  position: relative;
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: var(--color-primary);
+  min-width: 14px;
+  transition: width 120ms linear;
+}
+
+.knob {
+  position: absolute;
+  right: -2px;
+  top: 50%;
+  transform: translate(0, -50%);
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-1);
+}
+
+.times {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--sp-2);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-subtle);
+}
+
+/* ---- Transport ---- */
+.transport {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+
+.sideBtn {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+  flex: 0 0 auto;
+  transition:
+    box-shadow var(--dur-2) var(--ease-emphasized),
+    color var(--dur-2) var(--ease-emphasized),
+    transform var(--dur-1) var(--ease-emphasized);
+}
+
+.sideBtn:active {
+  transform: scale(0.92);
+}
+
+.sideActive {
+  color: var(--color-primary);
+  box-shadow: var(--shadow-inset);
+}
+
+.skipBtn {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text);
+  flex: 0 0 auto;
+  transition:
+    box-shadow var(--dur-2) var(--ease-emphasized),
+    transform var(--dur-1) var(--ease-emphasized);
+}
+
+.skipBtn:active {
+  transform: scale(0.92);
+  box-shadow: var(--shadow-inset);
+}
+
+/* Big play/pause — extruded; inset (pressed) while playing. */
+.playBtn {
+  width: 88px;
+  height: 88px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  box-shadow: var(--shadow-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary);
+  flex: 0 0 auto;
+  transition:
+    box-shadow var(--dur-3) var(--ease-emphasized),
+    transform var(--dur-1) var(--ease-emphasized);
+}
+
+.playBtn:active {
+  transform: scale(0.95);
+}
+
+.playBtnActive {
+  box-shadow: var(--shadow-inset);
+  color: var(--color-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .artSpinning {
+    animation: none !important;
+  }
+  .fill,
+  .likeBtn,
+  .sideBtn,
+  .skipBtn,
+  .playBtn {
+    transition: none !important;
+  }
+}

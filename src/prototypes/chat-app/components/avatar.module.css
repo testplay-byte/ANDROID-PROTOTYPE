@@ -1,0 +1,13 @@
+/* chat-app / components / avatar — flat circle, no shadow, no border. */
+
+.avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  color: var(--color-primary-fg);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  flex: 0 0 auto;
+  line-height: 1;
+}

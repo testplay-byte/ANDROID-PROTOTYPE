@@ -1,0 +1,191 @@
+/* CardsScreen — snap-scroll deck, flat cards with IBM blue accent strip. */
+
+.root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+.content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--sp-3) 0 110px;
+  scrollbar-width: none;
+}
+
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---- Reveal toggle ---- */
+.reveal {
+  margin: 0 var(--sp-4) var(--sp-3);
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: 0 var(--sp-4);
+  border: 1px solid var(--color-outline);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  cursor: pointer;
+  border-radius: 0;
+  transition:
+    background var(--dur-1) var(--ease-standard),
+    border-color var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard);
+}
+
+.reveal:active {
+  background: var(--color-surface-2);
+}
+
+.revealOn {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+/* ---- Snap-scroll deck ---- */
+.deck {
+  display: flex;
+  gap: var(--sp-4);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 0 var(--sp-4) var(--sp-2);
+  scrollbar-width: none;
+  margin-bottom: var(--sp-4);
+}
+
+.deck::-webkit-scrollbar {
+  display: none;
+}
+
+.card {
+  position: relative;
+  flex: 0 0 86%;
+  scroll-snap-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-outline-variant);
+  padding: var(--sp-4) var(--sp-4) var(--sp-5);
+  min-height: 200px;
+  overflow: hidden;
+}
+
+.cardFrozen {
+  opacity: 0.55;
+}
+
+.accentStrip {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 6px;
+  background: var(--color-primary);
+}
+
+.cardTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+}
+
+.cardLabel {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.networkTag,
+.frozenTag {
+  padding: 2px 8px;
+  border: 1px solid var(--color-outline);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+}
+
+.networkTag {
+  color: var(--color-text-muted);
+}
+
+.frozenTag {
+  border-color: var(--color-warn);
+  color: var(--color-warn);
+}
+
+.cardNumber {
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.08em;
+  color: var(--color-text);
+}
+
+.cardBottom {
+  margin-top: auto;
+  display: flex;
+  gap: var(--sp-5);
+}
+
+.cardField {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.fieldLabel {
+  font-size: var(--fs-label-s);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-subtle);
+}
+
+.fieldValue {
+  font-size: var(--fs-body-s);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}
+
+/* ---- Freeze rows ---- */
+.freezeRow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin: 0 var(--sp-4) var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-1);
+}
+
+.freezeInfo {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.freezeTitle {
+  font-size: var(--fs-body-s);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.freezeDesc {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+}

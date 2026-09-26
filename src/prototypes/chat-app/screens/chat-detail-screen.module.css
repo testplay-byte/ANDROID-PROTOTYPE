@@ -1,0 +1,243 @@
+/* chat-app / screens / chat-detail-screen — bubbles + keyboard-aware input. */
+
+/* The custom on-screen keyboard is ~280px tall when open. */
+.root {
+  --kb-h: 280px;
+}
+
+/* ---- Header ---- */
+.header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-4);
+  background: var(--color-surface-1);
+  border-bottom: var(--border-w, 1px) solid var(--color-outline-variant);
+}
+
+.backButton {
+  width: 44px;
+  height: 44px;
+  margin-left: calc(var(--sp-2) * -1);
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: 0 0 auto;
+  transition: background var(--dur-1) var(--ease-standard);
+}
+.backButton:active {
+  background: var(--color-surface-2);
+}
+
+.headerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.headerName {
+  font-size: var(--fs-body-l);
+  font-weight: 700;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.headerStatus {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+}
+.headerStatusOnline {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+/* ---- Messages ---- */
+.list {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: var(--sp-4) var(--sp-4) var(--sp-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  scrollbar-width: none;
+}
+.list::-webkit-scrollbar {
+  display: none;
+}
+
+.placeholder {
+  margin: auto;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-body);
+}
+
+.dayDivider {
+  display: flex;
+  justify-content: center;
+  padding: var(--sp-2) 0;
+}
+.dayChip {
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-text-subtle);
+  background: var(--color-surface-2);
+  padding: 4px 12px;
+  border-radius: var(--r-pill);
+}
+
+.msgRow {
+  display: flex;
+  justify-content: flex-start;
+}
+.msgRowMine {
+  justify-content: flex-end;
+}
+
+.bubble {
+  max-width: 78%;
+  border-radius: var(--r-lg);
+  padding: var(--sp-3) var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+/* Theirs: neutral surface block. */
+.bubbleTheirs {
+  background: var(--color-surface-2);
+  border-bottom-left-radius: var(--r-xs);
+}
+/* Mine: solid primary teal block. */
+.bubbleMine {
+  background: var(--color-primary);
+  border-bottom-right-radius: var(--r-xs);
+}
+
+.msgText {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: 1.45;
+  color: var(--color-text);
+  word-break: break-word;
+}
+.bubbleMine .msgText {
+  color: var(--color-primary-fg);
+}
+
+.msgTime {
+  font-size: 10px;
+  color: var(--color-text-subtle);
+  align-self: flex-end;
+}
+.msgTimeMine {
+  color: var(--color-primary-fg);
+  opacity: 0.7;
+}
+
+/* ---- Typing indicator ---- */
+.typingBubble {
+  flex-direction: row;
+  align-items: center;
+  gap: 5px;
+  min-height: 38px;
+}
+.dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--color-text-subtle);
+  display: block;
+  animation: typingBounce 1.2s var(--ease-standard) infinite;
+}
+.dot2 {
+  animation-delay: 0.15s;
+}
+.dot3 {
+  animation-delay: 0.3s;
+}
+@keyframes typingBounce {
+  0%,
+  60%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.5;
+  }
+  30% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
+}
+
+/* ---- Input bar ---- */
+.inputBar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3) calc(var(--sp-2) + 8px);
+  background: var(--color-surface-1);
+  border-top: var(--border-w, 1px) solid var(--color-outline-variant);
+  transition: transform var(--dur-4) var(--ease-emphasized-decel);
+}
+/* Lift above the keyboard when it's open. */
+.inputBarKb {
+  transform: translateY(calc(-1 * var(--kb-h, 280px)));
+}
+
+.input {
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 44px;
+  border: none;
+  outline: none;
+  background: var(--color-surface-2);
+  border-radius: var(--r-pill);
+  color: var(--color-text);
+  font-size: var(--fs-body);
+  padding: 0 var(--sp-4);
+}
+.input::placeholder {
+  color: var(--color-text-subtle);
+}
+
+.sendButton {
+  width: 44px;
+  height: 44px;
+  border: none;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex: 0 0 auto;
+  transition:
+    background var(--dur-2) var(--ease-standard),
+    transform var(--dur-1) var(--ease-emphasized);
+}
+.sendButton:active {
+  transform: scale(0.9);
+}
+.sendButton:disabled {
+  background: var(--color-surface-3);
+  color: var(--color-text-subtle);
+  cursor: default;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dot,
+  .inputBar {
+    animation: none !important;
+    transition: none !important;
+  }
+}

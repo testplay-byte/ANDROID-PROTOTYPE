@@ -1,0 +1,182 @@
+/* =========================================================================
+   music-player.css — prototype-wide styles (neumorphism / soft UI).
+   Imported once by app/prototypes/music-player/layout.tsx.
+   Tokens come from proto-kit/tokens/tokens.css + styles/neumorph.css.
+   Style rules: raised elements use --shadow-1/--shadow-2; pressed elements
+   use --shadow-inset; surfaces are --color-bg / --color-surface-* (same
+   family); NO hard borders; generous radii from the neumorph overrides.
+   ========================================================================= */
+
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
+  background: var(--stage-bg);
+  color: var(--sb-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+input,
+select,
+button {
+  font: inherit;
+}
+
+/* Bare-button reset — neumorphic buttons are shaped by shadows only. */
+.device button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.device input {
+  border: none;
+  outline: none;
+  background: none;
+  color: inherit;
+}
+
+/* ---- Side-panel helpers (Stage right/left panel content) ---- */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tag {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  background: var(--sb-muted);
+  color: var(--sb-text);
+  border: 1px solid var(--sb-border);
+}
+
+.screeninfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.screeninfo__name {
+  font-size: var(--fs-body-l);
+  font-weight: 700;
+}
+.screeninfo__desc {
+  font-size: var(--fs-label);
+  color: var(--sb-text-muted);
+  line-height: 1.5;
+}
+
+.mini-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.mini-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mini-bar-label {
+  width: 52px;
+  font-size: 10px;
+  color: var(--sb-text-muted);
+}
+.mini-bar-track {
+  flex: 1;
+  height: 4px;
+  border-radius: var(--r-pill);
+  background: var(--sb-muted);
+  overflow: hidden;
+}
+.mini-bar-fill {
+  height: 100%;
+  border-radius: var(--r-pill);
+}
+.mini-bar-num {
+  width: 34px;
+  text-align: right;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--sb-text-muted);
+}
+
+.kvlist {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.kvlist__row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+.kvlist__row span {
+  color: var(--sb-text-muted);
+}
+.kvlist__row b {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* ---- View switch (one screen mounted at a time; fade/rise on enter) ---- */
+.view {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
+  animation: view-in var(--dur-3) var(--ease-emphasized-decel) both;
+}
+
+@keyframes view-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---- Card-list stagger (40ms per item, M3 motion tokens) ---- */
+.stagger {
+  animation: stagger-in var(--dur-3) var(--ease-emphasized-decel) both;
+  animation-delay: calc(var(--stagger-i, 0) * 40ms);
+}
+
+@keyframes stagger-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---- Hidden scrollbars on every scroll container ---- */
+.device [class*="content"]::-webkit-scrollbar,
+.device [class*="list"]::-webkit-scrollbar,
+.device [class*="scroll"]::-webkit-scrollbar {
+  display: none;
+}
+.device [class*="content"],
+.device [class*="list"],
+.device [class*="scroll"] {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .view,
+  .stagger {
+    animation: none !important;
+  }
+}

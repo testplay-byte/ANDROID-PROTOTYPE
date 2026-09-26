@@ -1,0 +1,22 @@
+/* kids-learning / components / star-row — puffy star progress row. */
+
+.row {
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.star {
+  display: block;
+  transition: transform var(--dur-1) var(--ease-emphasized);
+}
+
+.starFilled {
+  color: var(--color-warn);
+  fill: currentColor;
+}
+
+.starEmpty {
+  color: var(--color-surface-4);
+  fill: currentColor;
+}

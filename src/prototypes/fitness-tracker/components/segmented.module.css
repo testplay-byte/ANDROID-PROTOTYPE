@@ -1,0 +1,31 @@
+/* Segmented — iOS segmented control. */
+
+.track {
+  display: flex;
+  gap: 2px;
+  background: var(--color-surface-3);
+  border-radius: var(--r-xs);
+  padding: 2px;
+}
+
+.segment {
+  flex: 1;
+  min-height: 44px;
+  border: none;
+  border-radius: calc(var(--r-xs) - 2px);
+  background: transparent;
+  color: var(--color-text);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  cursor: pointer;
+  padding: 4px 12px;
+  transition: background var(--dur-1) var(--ease-standard),
+    box-shadow var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard);
+}
+
+.segmentActive {
+  background: var(--color-surface-1);
+  box-shadow: var(--shadow-1);
+  font-weight: 600;
+}

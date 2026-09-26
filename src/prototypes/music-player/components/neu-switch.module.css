@@ -1,0 +1,51 @@
+/* NeuSwitch — carved when off, extruded + primary when on. */
+
+.switch {
+  position: relative;
+  width: 56px;
+  height: 32px;
+  border-radius: var(--r-pill);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-inset);
+  flex: 0 0 auto;
+  transition:
+    background var(--dur-2) var(--ease-emphasized),
+    box-shadow var(--dur-2) var(--ease-emphasized);
+  cursor: pointer;
+}
+
+.knob {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-surface-4);
+  box-shadow: var(--shadow-1);
+  transition:
+    transform var(--dur-2) var(--ease-emphasized),
+    background var(--dur-2) var(--ease-emphasized);
+}
+
+.switch:active .knob {
+  transform: scale(0.92);
+}
+
+/* ON — extruded, primary-filled track. */
+.on {
+  background: var(--color-primary);
+  box-shadow: var(--shadow-1);
+}
+
+.on .knob {
+  transform: translateX(24px);
+  background: var(--color-surface-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .switch,
+  .knob {
+    transition: none !important;
+  }
+}

@@ -8,7 +8,8 @@
 
 export { DeviceFrame, Screen, type DeviceFrameProps } from "./device-frame/device-frame";
 export { StatusBar } from "./device-frame/status-bar";
-export { BottomNav, type NavItem, type BottomNavProps } from "./bottom-nav/bottom-nav";
+export { BottomNav, type NavItem, type BottomNavProps, type BottomNavVariant } from "./bottom-nav/bottom-nav";
+export { TopBar, type TopBarProps, type TopBarVariant } from "./top-bar/top-bar";
 export {
   Stage,
   PanelBadge,
@@ -19,6 +20,11 @@ export {
 } from "./stage/stage";
 export { DeviceThemeProvider, useDeviceTheme } from "./theme/theme-provider";
 export type { AppTheme, ThemeProviderProps } from "./theme/types";
+export {
+  DEVICE_STYLES,
+  STYLE_LABELS,
+  type DeviceStyle,
+} from "./styles/types";
 
 // Swipe gestures — permanent proto-kit feature. Every prototype wires it
 // up in its page.tsx with its own screen order + navigation callbacks.

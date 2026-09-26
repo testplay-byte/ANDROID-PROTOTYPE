@@ -10,13 +10,17 @@
 | Component / File | What it does | Import |
 |------------------|--------------|--------|
 | `tokens/tokens.css` | ALL design tokens: type scale, spacing, radius, motion, M3 color roles, per-theme frame invert + widths, stage backgrounds. Import once in each prototype's layout. | `import "@proto-kit/tokens/tokens.css"` |
-| `device-frame/device-frame.tsx` | `<DeviceFrame theme="dark">` — the phone mockup (bezel + status bar + fullscreen button + screen slot). Frame color/width invert by theme automatically. | `{ DeviceFrame, Screen }` |
+| `styles/index.css` | **Multi-design-language layer** — 10 style token layers (HIG, Carbon, Neumorphism, Glassmorphism, Brutalism, Claymorphism, Bauhaus, Minimalism, Bento, Flat), each defining the full token contract for both themes. Import AFTER tokens.css. Ids in `styles/types.ts`. | `import "@proto-kit/styles/index.css"` |
+| `device-frame/device-frame.tsx` | `<DeviceFrame theme="dark" style="carbon">` — the phone mockup (bezel + status bar + fullscreen button + screen slot). Frame inverts by theme; `style` sets `data-style` and switches the design language (omit = M3). | `{ DeviceFrame, Screen }` |
 | `device-frame/status-bar.tsx` | `<StatusBar>` — live clock, punch-hole, Wi-Fi/signal/battery icons. Auto-rendered inside DeviceFrame. | `{ StatusBar }` |
 | `device-frame/fullscreen-button.tsx` | `<FullscreenButton>` — real Fullscreen API toggle. Desktop-only (hidden on mobile). Auto-rendered inside DeviceFrame. | (internal) |
-| `bottom-nav/bottom-nav.tsx` | `<BottomNav items activeId onSelect>` — floating pill nav. Active item is content-sized (full label always visible). 42px pill / 58px bar. | `{ BottomNav, NavItem }` |
+| `bottom-nav/bottom-nav.tsx` | `<BottomNav items activeId onSelect variant>` — 6 variants: `floating` (pill, default), `tabbar` (iOS), `labeled` (flat bar), `glass`, `soft`, `hard`. All read style tokens. | `{ BottomNav, NavItem, BottomNavVariant }` |
+| `top-bar/top-bar.tsx` | `<TopBar title variant leading trailing>` — 4 variants: `large`, `center` (iOS), `inline` (enterprise), `hero` (display). Reads style tokens. | `{ TopBar, TopBarVariant }` |
 | `stage/stage.tsx` | `<Stage leftPanel rightPanel>` — desktop layout with side panels. Panels hide on ≤1024px. | `{ Stage, PanelBadge, PanelTitle, PanelDesc, PanelHead }` |
 | `theme/theme-provider.tsx` | `<DeviceThemeProvider storageKey="..." initialTheme="dark">` — scopes `data-theme` to `.device` (NOT `<html>`). Persists to localStorage. | `{ DeviceThemeProvider, useDeviceTheme }` |
 | `swipe-simulation/use-swipe-simulation.ts` | `useSwipeSimulation({ onSwipeLeft, onSwipeRight })` — test feature. Click+drag = touch swipe. Easily removable. | `{ useSwipeSimulation }` |
+
+**Style system docs:** see [docs/style-selection-guide.md](../../docs/style-selection-guide.md) to pick a style and [docs/design-languages/](../../docs/design-languages/navigation.md) for per-style specs (palette, must-use tokens, recommended variants). Adding a new style: CSS in `styles/` + register in `styles/index.css` + `styles/types.ts` + a spec doc.
 
 ---
 

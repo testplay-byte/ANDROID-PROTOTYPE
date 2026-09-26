@@ -1,0 +1,98 @@
+/* kids-learning / screens / home-screen — puffy subject tile grid. */
+
+.content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: var(--sp-2) var(--sp-4) 110px;
+  scrollbar-width: none;
+}
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+.intro {
+  margin: 0 0 var(--sp-4);
+  font-size: var(--fs-body-l);
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4);
+}
+
+/* Puffy clay tile: idle raised, pressed = pressed dough. */
+.tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-5) var(--sp-3);
+  background: var(--color-surface-1);
+  border-radius: var(--r-xl);
+  border: none;
+  box-shadow: var(--shadow-2);
+  cursor: pointer;
+  transition:
+    transform var(--dur-2) var(--ease-emphasized),
+    box-shadow var(--dur-2) var(--ease-standard);
+}
+
+.tile:active {
+  box-shadow: var(--shadow-inset);
+  transform: scale(0.96);
+}
+
+.blob {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--r-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-inset);
+  margin-bottom: var(--sp-1);
+}
+
+.glyphText {
+  font-size: var(--fs-h1);
+  font-weight: 900;
+  color: var(--color-primary-fg);
+  line-height: 1;
+}
+
+.palette {
+  display: flex;
+}
+.paletteDot {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  display: block;
+  border: 3px solid var(--color-surface-1);
+  margin-left: -6px;
+}
+.paletteDot:first-child {
+  margin-left: 0;
+}
+
+.shapeStack {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.tileName {
+  font-size: var(--fs-body-l);
+  font-weight: 800;
+  color: var(--color-text);
+  letter-spacing: 0.01em;
+}
+
+.tileTagline {
+  font-size: var(--fs-label);
+  font-weight: 700;
+  color: var(--color-text-subtle);
+}

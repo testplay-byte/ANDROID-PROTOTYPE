@@ -1,0 +1,96 @@
+/* =========================================================================
+   Style: Neumorph — Neumorphism (Soft UI)
+   docs/design-languages/neumorph.md
+
+   Look: extruded/plastic surfaces — the SAME color as the background,
+   shaped entirely by dual soft shadows (dark bottom-right + light
+   top-left). One warm accent. Low contrast is the point, but keep body
+   text at AA. Recommended nav: soft. Recommended top bar: large.
+   MUST-USE: --shadow-1 / --shadow-2 (extrude) and --shadow-inset
+   (carve/press) on every raised or pressed element.
+   ========================================================================= */
+
+.device[data-style="neumorph"] {
+  --color-bg: #23262b;
+  --color-surface-1: #282b31;
+  --color-surface-2: #2e3137;
+  --color-surface-3: #34373d;
+  --color-surface-4: #3a3d43;
+  --color-surface-5: #41444a;
+
+  --color-text: #d7dae0;
+  --color-text-muted: #9aa0aa;
+  --color-text-subtle: #6b717c;
+
+  --color-primary: #e0a458;
+  --color-primary-fg: #2a2118;
+  --color-primary-container: #3d3427;
+  --color-on-primary-container: #f2d3a4;
+  --color-secondary: #9aa0aa;
+  --color-secondary-container: #2e3137;
+  --color-tertiary: #8fb8a8;
+  --color-tertiary-container: #2f423c;
+  --color-error: #e07a6e;
+  --color-error-container: #4a2a27;
+  --color-success: #8fb8a8;
+  --color-warn: #e0c358;
+  --color-outline: #4a4e55;
+  --color-outline-variant: #35383e;
+
+  --shadow-1: 5px 5px 12px rgba(0, 0, 0, 0.45), -5px -5px 12px rgba(255, 255, 255, 0.045);
+  --shadow-2: 10px 10px 24px rgba(0, 0, 0, 0.5), -8px -8px 20px rgba(255, 255, 255, 0.05);
+  --shadow-inset: inset 4px 4px 10px rgba(0, 0, 0, 0.5), inset -4px -4px 10px rgba(255, 255, 255, 0.04);
+  --border-w: 0px;
+
+  /* Softer, puffier radii across the board. */
+  --r-xs: 10px;
+  --r-sm: 14px;
+  --r-md: 18px;
+  --r-lg: 24px;
+  --r-xl: 30px;
+
+  --device-bezel: #9aa0aa;
+  --device-edge: #6b717c;
+  --bezel-w: 3.5px;
+  --edge-w: 4px;
+  --frame-shadow: rgba(0, 0, 0, 0.55);
+}
+
+.device[data-style="neumorph"][data-theme="light"] {
+  --color-bg: #e0e5ec;
+  --color-surface-1: #e4e9f0;
+  --color-surface-2: #e9edf3;
+  --color-surface-3: #eef1f6;
+  --color-surface-4: #f2f5f9;
+  --color-surface-5: #f6f8fb;
+
+  --color-text: #3a4150;
+  --color-text-muted: #6a7382;
+  --color-text-subtle: #98a0ad;
+
+  --color-primary: #e07b39;
+  --color-primary-fg: #ffffff;
+  --color-primary-container: #f5e3d4;
+  --color-on-primary-container: #8a4415;
+  --color-secondary: #6a7382;
+  --color-secondary-container: #e9edf3;
+  --color-tertiary: #5f9e8c;
+  --color-tertiary-container: #d8ebe4;
+  --color-error: #d65a4e;
+  --color-error-container: #f5dbd7;
+  --color-success: #5f9e8c;
+  --color-warn: #d9a422;
+  --color-outline: #b8bfc9;
+  --color-outline-variant: #d0d6de;
+
+  --shadow-1: 5px 5px 12px rgba(163, 177, 198, 0.65), -5px -5px 12px rgba(255, 255, 255, 0.9);
+  --shadow-2: 10px 10px 24px rgba(163, 177, 198, 0.7), -8px -8px 20px rgba(255, 255, 255, 0.95);
+  --shadow-inset: inset 4px 4px 10px rgba(163, 177, 198, 0.7), inset -4px -4px 10px rgba(255, 255, 255, 0.9);
+  --border-w: 0px;
+
+  --device-bezel: #3a4150;
+  --device-edge: #565f6e;
+  --bezel-w: 4px;
+  --edge-w: 4.4px;
+  --frame-shadow: rgba(163, 177, 198, 0.55);
+}

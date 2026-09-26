@@ -1,0 +1,94 @@
+/* ExhibitionsScreen — geometric poster cards + TICKETS buttons. */
+
+.root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+.content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 var(--sp-5) 90px;
+  scrollbar-width: none;
+}
+
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---- Feature card ---- */
+.card {
+  display: flex;
+  flex-direction: column;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  margin-bottom: var(--sp-8);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  border-top: var(--border-w) solid var(--color-outline);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--fs-h1);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  color: var(--color-text);
+  line-height: 1.05;
+}
+
+.metaRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+
+.dates {
+  font-size: var(--fs-label);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.price {
+  font-size: var(--fs-label);
+  font-weight: 800;
+  text-transform: uppercase;
+  color: var(--color-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- TICKETS button: 2px border, 0 radius, primary red ---- */
+.tickets {
+  min-height: 44px;
+  border: var(--border-w) solid var(--color-primary);
+  border-radius: 0;
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  font-size: var(--fs-label);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition:
+    background var(--dur-2) var(--ease-standard),
+    color var(--dur-2) var(--ease-standard);
+}
+
+.tickets:active {
+  transform: translateY(1px);
+}
+
+.ticketsOn {
+  background: transparent;
+  color: var(--color-primary);
+}

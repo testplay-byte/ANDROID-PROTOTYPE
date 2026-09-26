@@ -24,7 +24,7 @@ The frame is a single shared component — `<DeviceFrame>` in `src/proto-kit/dev
 
 **Frame inverts by theme (premium contrast):** in dark mode the bezel is a soft platinum (light but not stark white — reads visually heavier so it's thinner); in light mode the bezel is dark. This is token-driven (`--device-bezel`, `--device-edge`, `--bezel-w`, `--edge-w` in `src/proto-kit/tokens/tokens.css`), so toggling the theme flips the frame automatically.
 
-**Rule:** Don't make the corners more rounded than 32px. The user specifically asked for *less* rounding. If a future brief asks for "more rounded", confirm first (🟦).
+**Rule:** Don't make the corners more rounded than 32px. The user specifically asked for *less* rounding. If a future brief asks for "more rounded", confirm first (🟦). Exception: a design language may go **less** rounded than 32px as part of its identity (Brutalism uses 0px, Bauhaus 10px — token-driven via `--device-radius`); going MORE rounded than 32 still requires confirmation.
 
 ---
 
@@ -71,10 +71,12 @@ Rendered by `<StatusBar>` inside `<DeviceFrame>`. The status bar is **decorative
 - Tokens are defined in `src/proto-kit/tokens/tokens.css` (single source of truth). Import it once in the prototype's `layout.tsx`:
   ```ts
   import "../../src/proto-kit/tokens/tokens.css";
+  import "../../src/proto-kit/styles/index.css"; // multi-style layer — after tokens
   ```
+- **Design languages:** the default layer is M3 purple. A prototype may select one of the 11 supported design languages (HIG, Carbon, Neumorphism, Glassmorphism, Brutalism, Claymorphism, Bauhaus, Minimalism, Bento, Flat) via `<DeviceFrame style="<id>">` — see [`docs/style-selection-guide.md`](./style-selection-guide.md) and the specs in [`docs/design-languages/`](./design-languages/navigation.md). A style file (`src/proto-kit/styles/<id>.css`) re-scopes ALL app tokens on `.device`, so screens keep using the same `var(--color-*)` names. One style per prototype.
 - Two token layers: `:root` (universal + stage tokens, dark default) + `.device` (app tokens, M3 colors). Light overrides via `.device[data-theme="light"]` and `:has(.device[data-theme="light"])`. See [`docs/theme-architecture.md`](./theme-architecture.md).
 - Theme toggle is via `<DeviceThemeProvider storageKey="<name>-theme" initialTheme="dark">` + the `useDeviceTheme()` hook. It sets `data-theme` on the `.device` element and persists to `localStorage`.
-- Default M3 palette is purple (`--color-primary: #d0bcff` dark / `#6750a4` light). A prototype **may override any `--color-*` token** by re-declaring it on `.device` in its own CSS, but should keep all other tokens.
+- Default M3 palette is purple (`--color-primary: #d0bcff` dark / `#6750a4` light). A prototype **may override any `--color-*` token** by re-declaring it on `.device` in its own CSS (or select a full style layer instead — preferred). Keep all structural tokens (`--fs-*`, `--sp-*`, `--dur-*`) unless the selected style's spec overrides them.
 - See `docs/design-standards.md` for the full token list.
 
 ---

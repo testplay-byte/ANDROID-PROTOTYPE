@@ -1,0 +1,210 @@
+/* ShopScreen — chips + 2-col brutalist product grid. */
+
+.root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+.content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--sp-4) var(--sp-4) 110px;
+  scrollbar-width: none;
+}
+
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---- Category chips ---- */
+.chips {
+  display: flex;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.chips::-webkit-scrollbar {
+  display: none;
+}
+
+.chip {
+  flex: 0 0 auto;
+  min-height: 44px;
+  padding: 0 var(--sp-4);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  box-shadow: var(--shadow-1);
+  color: var(--color-text);
+  font-size: var(--fs-label);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  border-radius: 0;
+  transition:
+    transform var(--dur-1) var(--ease-standard),
+    box-shadow var(--dur-1) var(--ease-standard),
+    background var(--dur-1) var(--ease-standard);
+}
+
+.chip:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+.chipActive {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+/* ---- Product grid ---- */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4);
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  box-shadow: var(--shadow-1);
+  cursor: pointer;
+  transition:
+    transform var(--dur-1) var(--ease-standard),
+    box-shadow var(--dur-1) var(--ease-standard);
+}
+
+.card:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+/* ---- Placeholder cover (solid token tone + geometric shapes) ---- */
+.cover {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-bottom: var(--border-w) solid var(--color-outline);
+}
+
+.tonePrimary {
+  background: var(--color-primary);
+}
+.toneSecondary {
+  background: var(--color-secondary);
+}
+.toneTertiary {
+  background: var(--color-tertiary);
+}
+.toneSuccess {
+  background: var(--color-success);
+}
+.toneSurface {
+  background: var(--color-surface-4);
+}
+
+.shapeCircle {
+  position: absolute;
+  top: -18%;
+  right: -18%;
+  width: 60%;
+  aspect-ratio: 1 / 1;
+  border: var(--border-w) solid var(--color-outline);
+  border-radius: 50%;
+  background: var(--color-bg);
+  opacity: 0.5;
+}
+
+.shapeBar {
+  position: absolute;
+  left: -20%;
+  bottom: 16%;
+  width: 95%;
+  height: 12px;
+  background: var(--color-outline);
+  transform: rotate(-18deg);
+  opacity: 0.85;
+}
+
+.shapeDot {
+  position: absolute;
+  left: 10%;
+  top: 12%;
+  width: 14px;
+  height: 14px;
+  background: var(--color-bg);
+  border: var(--border-w) solid var(--color-outline);
+}
+
+.tag {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  padding: 3px 8px;
+  background: var(--color-bg);
+  border-top: var(--border-w) solid var(--color-outline);
+  border-left: var(--border-w) solid var(--color-outline);
+  font-size: var(--fs-label-s);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: var(--color-text);
+}
+
+/* ---- Card body ---- */
+.cardBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-2) var(--sp-2) var(--sp-3);
+  flex: 1 1 auto;
+}
+
+.name {
+  font-size: var(--fs-label);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text);
+  line-height: 1.3;
+}
+
+.price {
+  font-size: var(--fs-body-l);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}
+
+/* Sale tag colors the price red via parent card having a -30% tag */
+.add {
+  margin-top: var(--sp-1);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  box-shadow: var(--shadow-1);
+  font-size: var(--fs-label);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  border-radius: 0;
+  transition:
+    transform var(--dur-1) var(--ease-standard),
+    box-shadow var(--dur-1) var(--ease-standard);
+}
+
+.add:active {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}

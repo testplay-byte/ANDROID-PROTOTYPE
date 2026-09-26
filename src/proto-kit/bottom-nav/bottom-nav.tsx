@@ -12,28 +12,59 @@ export interface NavItem {
   icon: ReactNode;
 }
 
+export type BottomNavVariant =
+  | "floating" // Floating pill (default). Active item = expanding content-sized pill.
+  | "tabbar" // iOS tab bar: full-width, translucent blur, labels always visible.
+  | "labeled" // Classic labeled bar: full-width, icon above label, top indicator.
+  | "glass" // Floating glass pill: translucent + backdrop blur (glassmorphism/HIG).
+  | "soft" // Floating soft bar: style-driven extruded shadows (neumorphism/clay).
+  | "hard"; // Full-width slab: thick border, square corners, uppercase labels.
+
 export interface BottomNavProps {
   items: NavItem[];
   /** The id of the active item. */
   activeId: string;
   /** Called when an item is clicked. */
   onSelect: (id: string) => void;
+  /** Visual variant. Default "floating". See docs/design-languages/. */
+  variant?: BottomNavVariant;
 }
 
+const VARIANT_CLASS: Record<BottomNavVariant, string> = {
+  floating: "",
+  tabbar: styles.vTabbar,
+  labeled: styles.vLabeled,
+  glass: styles.vGlass,
+  soft: styles.vSoft,
+  hard: styles.vHard,
+};
+
 /**
- * BottomNav — floating pill navigation.
+ * BottomNav — multi-variant bottom navigation.
  *
- * - Active item: content-sized expanding pill, full label always visible.
- * - Inactive items: icon-only, share remaining space evenly.
- * - Slim 42px pill height, 58px bar height.
+ * All variants read the style tokens, so they automatically adapt to the
+ * active design language (data-style on .device). The parent owns the
+ * active state + routing; BottomNav is presentational.
  *
- * The parent owns the active state + routing; BottomNav is presentational.
+ * - floating: floating pill; active item is content-sized, full label.
+ * - tabbar:   full-width translucent bar, labels always visible (iOS).
+ * - labeled:  full-width flat bar, icon above label, top indicator line.
+ * - glass:    floating pill, translucent + backdrop blur.
+ * - soft:     floating bar with the style's extruded/inset shadows.
+ * - hard:     full-width slab with thick border + uppercase labels.
  */
-export function BottomNav({ items, activeId, onSelect }: BottomNavProps) {
+export function BottomNav({ items, activeId, onSelect, variant = "floating" }: BottomNavProps) {
+  // tabbar + labeled always show labels; other variants label the active item only.
+  const alwaysShowLabels = variant === "tabbar" || variant === "labeled";
+
   return (
-    <nav className={styles.bottomnav} aria-label="Primary">
+    <nav
+      className={`${styles.bottomnav} ${VARIANT_CLASS[variant]}`}
+      aria-label="Primary"
+    >
       {items.map((item) => {
         const isActive = item.id === activeId;
+        const showLabel = isActive || alwaysShowLabels;
         return (
           <button
             key={item.id}
@@ -46,9 +77,7 @@ export function BottomNav({ items, activeId, onSelect }: BottomNavProps) {
             >
               {item.icon}
             </span>
-            <span
-              className={`${styles.label} ${isActive ? "" : styles.labelHidden}`}
-            >
+            <span className={`${styles.label} ${showLabel ? "" : styles.labelHidden}`}>
               {item.label}
             </span>
           </button>

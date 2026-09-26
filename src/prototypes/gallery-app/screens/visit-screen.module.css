@@ -1,0 +1,290 @@
+/* VisitScreen — hours, address, ticket steppers, booking + stamp. */
+
+.root {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+}
+
+.content {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 var(--sp-5) 90px;
+  scrollbar-width: none;
+}
+
+.content::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---- Sharp-cornered bordered groups ---- */
+.group {
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-6);
+}
+
+.groupLabel {
+  margin: 0 0 var(--sp-3);
+  font-size: var(--fs-label);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--color-text);
+}
+
+/* ---- Opening hours: hairline rows ---- */
+.hoursTable {
+  display: flex;
+  flex-direction: column;
+}
+
+.hoursRow {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--sp-2) 0;
+  border-bottom: var(--border-w) solid var(--color-outline-variant);
+  font-size: var(--fs-label);
+  font-variant-numeric: tabular-nums;
+}
+
+.hoursRow:last-child {
+  border-bottom: none;
+}
+
+.hoursDay {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+.hoursTime {
+  color: var(--color-text);
+}
+
+.hoursClosed .hoursDay,
+.hoursClosed .hoursTime {
+  color: var(--color-text-subtle);
+}
+
+/* ---- Address ---- */
+.address {
+  font-style: normal;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  line-height: 1.5;
+  color: var(--color-text);
+}
+
+.addressNote {
+  margin: var(--sp-2) 0 0;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+
+/* ---- Ticket rows + square steppers ---- */
+.ticketRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-3) 0;
+  border-bottom: var(--border-w) solid var(--color-outline-variant);
+}
+
+.ticketMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.ticketLabel {
+  font-size: var(--fs-body);
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.ticketPrice {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.stepper {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.stepBtn {
+  width: 44px;
+  height: 44px;
+  border: var(--border-w) solid var(--color-outline);
+  border-radius: 0;
+  background: var(--color-surface-1);
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition:
+    background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard);
+}
+
+.stepBtn:active:not(:disabled) {
+  background: var(--color-outline);
+  color: var(--color-bg);
+}
+
+.stepBtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.stepVal {
+  min-width: 28px;
+  text-align: center;
+  font-size: var(--fs-h2);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text);
+}
+
+/* ---- Total ---- */
+.totalRow {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: var(--sp-4) 0 var(--sp-3);
+}
+
+.totalLabel {
+  font-size: var(--fs-label);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  color: var(--color-text);
+}
+
+.totalValue {
+  font-size: var(--fs-h1);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-secondary);
+}
+
+/* ---- BOOK button: primary red slab ---- */
+.bookBtn {
+  width: 100%;
+  min-height: 52px;
+  border: var(--border-w) solid var(--color-primary);
+  border-radius: 0;
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  font-size: var(--fs-body);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  cursor: pointer;
+  transition: opacity var(--dur-1) var(--ease-standard);
+}
+
+.bookBtn:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.bookBtn:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+/* ---- Booked confirmation + geometric stamp ---- */
+.confirmation {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-5) 0 var(--sp-2);
+  animation: confirmIn var(--dur-3) var(--ease-emphasized-decel);
+}
+
+@keyframes confirmIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* The stamp: bordered square, rotated, built from triad geometry. */
+.stamp {
+  position: relative;
+  width: 132px;
+  height: 132px;
+  border: var(--border-w) solid var(--color-outline);
+  transform: rotate(-8deg);
+  overflow: hidden;
+}
+
+.stampDisc {
+  position: absolute;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  left: 14px;
+  top: 14px;
+  background: var(--color-primary);
+}
+
+.stampQuarter {
+  position: absolute;
+  width: 56px;
+  height: 56px;
+  right: 0;
+  bottom: 0;
+  background: var(--color-secondary);
+  border-top-left-radius: 100%;
+}
+
+.stampBar {
+  position: absolute;
+  left: 0;
+  bottom: 26px;
+  width: 100%;
+  height: 10px;
+  background: var(--color-tertiary);
+}
+
+.stampText {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--fs-label);
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  color: var(--color-text);
+  text-shadow: none;
+}
+
+.confirmTitle {
+  margin: 0;
+  font-size: var(--fs-h1);
+  font-weight: 900;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+.confirmMeta {
+  margin: 0;
+  font-size: var(--fs-label);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+  text-align: center;
+}

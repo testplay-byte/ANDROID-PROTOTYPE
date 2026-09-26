@@ -1,0 +1,39 @@
+/* chat-app / components / flat-switch — zero shadows, color contrast only. */
+
+.switch {
+  width: 56px;
+  height: 32px;
+  border-radius: var(--r-pill);
+  background: var(--color-surface-4);
+  border: none;
+  position: relative;
+  cursor: pointer;
+  flex: 0 0 auto;
+  transition: background var(--dur-2) var(--ease-standard);
+}
+.switch:active {
+  background: var(--color-surface-5);
+}
+
+.switchOn {
+  background: var(--color-primary);
+}
+.switchOn:active {
+  background: var(--color-primary);
+}
+
+.knob {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--color-surface-1);
+  transition: transform var(--dur-2) var(--ease-emphasized);
+}
+
+.knobOn {
+  transform: translateX(24px);
+  background: var(--color-primary-fg);
+}

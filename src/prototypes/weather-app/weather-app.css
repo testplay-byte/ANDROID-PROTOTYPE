@@ -1,0 +1,253 @@
+/* =========================================================================
+   weather-app.css — prototype-wide styles (glassmorphism).
+   Imported once by app/prototypes/weather-app/layout.tsx.
+   Tokens come from proto-kit/tokens/tokens.css + styles/glass.css.
+
+   Glass surfaces MUST use:
+     background: var(--color-surface-*);
+     backdrop-filter: blur(var(--glass-blur)) saturate(1.3);
+     border: var(--border-w) solid var(--glass-border);
+     box-shadow: var(--shadow-inset);  (top inner highlight)
+   ...over the colorful ambient blobs below.
+   ========================================================================= */
+
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
+  background: var(--stage-bg);
+  color: var(--sb-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+input,
+select,
+button {
+  font: inherit;
+}
+
+.device button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  font: inherit;
+}
+
+.device input {
+  border: none;
+  outline: none;
+  background: none;
+  color: inherit;
+}
+
+/* ---- Ambient colorful background (inside the screen, behind everything) --
+   Three large blurred radial-gradient blobs: violet / cyan / amber at low
+   opacity. The glass panels' backdrop-filter blurs these. Uses style tokens
+   only (--color-primary violet, --color-tertiary cyan, --color-warn amber). */
+.ambient {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.ambient__blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(64px);
+}
+
+.ambient__blob--violet {
+  width: 340px;
+  height: 340px;
+  top: -90px;
+  left: -110px;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-primary) 55%, transparent) 0%,
+    transparent 70%
+  );
+}
+
+.ambient__blob--cyan {
+  width: 380px;
+  height: 380px;
+  top: 240px;
+  right: -150px;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-tertiary) 45%, transparent) 0%,
+    transparent 70%
+  );
+}
+
+.ambient__blob--amber {
+  width: 320px;
+  height: 320px;
+  bottom: -60px;
+  left: -40px;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--color-warn) 35%, transparent) 0%,
+    transparent 70%
+  );
+}
+
+/* Gentle drift so the glass blur reads as alive. */
+.ambient__blob--violet { animation: blob-drift 18s ease-in-out infinite alternate; }
+.ambient__blob--cyan   { animation: blob-drift 22s ease-in-out infinite alternate-reverse; }
+.ambient__blob--amber  { animation: blob-drift 26s ease-in-out infinite alternate; }
+
+@keyframes blob-drift {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(30px, 24px) scale(1.12); }
+}
+
+/* ---- Side-panel helpers (Stage right/left panel content) ---- */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tag {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  background: var(--sb-muted);
+  color: var(--sb-text);
+  border: 1px solid var(--sb-border);
+}
+
+.screeninfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.screeninfo__name {
+  font-size: var(--fs-body-l);
+  font-weight: 700;
+}
+.screeninfo__desc {
+  font-size: var(--fs-label);
+  color: var(--sb-text-muted);
+  line-height: 1.5;
+}
+
+.mini-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.mini-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mini-bar-label {
+  width: 52px;
+  font-size: 10px;
+  color: var(--sb-text-muted);
+}
+.mini-bar-track {
+  flex: 1;
+  height: 4px;
+  border-radius: var(--r-pill);
+  background: var(--sb-muted);
+  overflow: hidden;
+}
+.mini-bar-fill {
+  height: 100%;
+  border-radius: var(--r-pill);
+}
+.mini-bar-num {
+  width: 34px;
+  text-align: right;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--sb-text-muted);
+}
+
+.kvlist {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.kvlist__row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+.kvlist__row span {
+  color: var(--sb-text-muted);
+}
+.kvlist__row b {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* ---- View switch (one screen mounted at a time; fade/rise on enter) ---- */
+.view {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 1;
+  animation: view-in var(--dur-3) var(--ease-emphasized-decel) both;
+}
+
+@keyframes view-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---- Card-list stagger (40ms per item) ---- */
+.stagger {
+  animation: stagger-in var(--dur-3) var(--ease-emphasized-decel) both;
+  animation-delay: calc(var(--stagger-i, 0) * 40ms);
+}
+
+@keyframes stagger-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ---- Hidden scrollbars on every scroll container ---- */
+.device [class*="content"]::-webkit-scrollbar,
+.device [class*="list"]::-webkit-scrollbar,
+.device [class*="scroll"]::-webkit-scrollbar,
+.device [class*="strip"]::-webkit-scrollbar {
+  display: none;
+}
+.device [class*="content"],
+.device [class*="list"],
+.device [class*="scroll"],
+.device [class*="strip"] {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .view,
+  .stagger,
+  .ambient__blob {
+    animation: none !important;
+  }
+}

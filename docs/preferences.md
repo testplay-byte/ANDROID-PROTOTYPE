@@ -140,8 +140,9 @@
 - Chart accents: `#fe6a00`, `#43c07a`, `#608da4`, `#f0b135`, `#f75f4c`
 
 ### Rule
-- **Never use indigo or blue** as primary colors.
+- **Never use indigo or blue** as primary colors in custom palettes.
 - Warm earth tones (cream, beige, amber, orange) are the approved palette.
+- **Style-identity exceptions (2026-09-26):** when the user explicitly requests a design language whose brand IS blue, the style's authentic blue is correct: HIG (iOS system blue `#0a84ff`/`#007aff`), IBM Carbon (`#0f62fe`), and Bauhaus (blue `#2b50c8` as a secondary triad color only — its primary is red). See `docs/style-selection-guide.md`. Never smuggle blue into custom palettes or other styles.
 
 ---
 

@@ -1,0 +1,96 @@
+/* =========================================================================
+   Style: Carbon — IBM Carbon Design System
+   docs/design-languages/carbon.md
+
+   Look: enterprise, sharp, grid-driven. Layer grays, IBM blue-60 primary,
+   0px radii on containers, productive motion (fast, no bounce).
+   Recommended nav: labeled. Recommended top bar: inline.
+   NOTE: IBM blue is Carbon's brand identity — documented exception to the
+   repo's "no blue primary" rule (only when the brief calls for Carbon).
+   ========================================================================= */
+
+.device[data-style="carbon"] {
+  --color-bg: #161616;
+  --color-surface-1: #262626;
+  --color-surface-2: #333333;
+  --color-surface-3: #393939;
+  --color-surface-4: #474747;
+  --color-surface-5: #525252;
+
+  --color-text: #f4f4f4;
+  --color-text-muted: #c6c6c6;
+  --color-text-subtle: #8d8d8d;
+
+  --color-primary: #0f62fe;
+  --color-primary-fg: #ffffff;
+  --color-primary-container: #002d9c;
+  --color-on-primary-container: #d0e2ff;
+  --color-secondary: #c6c6c6;
+  --color-secondary-container: #393939;
+  --color-tertiary: #42be65;
+  --color-tertiary-container: #0d3b1d;
+  --color-error: #fa4d56;
+  --color-error-container: #64202b;
+  --color-success: #42be65;
+  --color-warn: #f1c21b;
+  --color-outline: #8d8d8d;
+  --color-outline-variant: #393939;
+
+  /* Carbon is flat: layers, not shadows. Borders carry the structure. */
+  --shadow-1: none;
+  --shadow-2: none;
+  --shadow-inset: none;
+  --border-w: 1px;
+
+  /* Sharp corners on components (keep --device-radius at 32 for the frame). */
+  --r-xs: 0px;
+  --r-sm: 0px;
+  --r-md: 0px;
+  --r-lg: 0px;
+  --r-xl: 0px;
+
+  --device-bezel: #525252;
+  --device-edge: #393939;
+  --bezel-w: 3.5px;
+  --edge-w: 4px;
+  --frame-shadow: rgba(0, 0, 0, 0.55);
+}
+
+.device[data-style="carbon"][data-theme="light"] {
+  --color-bg: #f4f4f4;
+  --color-surface-1: #ffffff;
+  --color-surface-2: #f4f4f4;
+  --color-surface-3: #e0e0e0;
+  --color-surface-4: #c6c6c6;
+  --color-surface-5: #a8a8a8;
+
+  --color-text: #161616;
+  --color-text-muted: #525252;
+  --color-text-subtle: #a8a8a8;
+
+  --color-primary: #0f62fe;
+  --color-primary-fg: #ffffff;
+  --color-primary-container: #d0e2ff;
+  --color-on-primary-container: #002d9c;
+  --color-secondary: #525252;
+  --color-secondary-container: #e0e0e0;
+  --color-tertiary: #198038;
+  --color-tertiary-container: #a7f0ba;
+  --color-error: #da1e28;
+  --color-error-container: #ffd7d9;
+  --color-success: #24a148;
+  --color-warn: #f1c21b;
+  --color-outline: #8d8d8d;
+  --color-outline-variant: #e0e0e0;
+
+  --shadow-1: none;
+  --shadow-2: none;
+  --shadow-inset: none;
+  --border-w: 1px;
+
+  --device-bezel: #161616;
+  --device-edge: #393939;
+  --bezel-w: 4px;
+  --edge-w: 4.4px;
+  --frame-shadow: rgba(0, 0, 0, 0.4);
+}

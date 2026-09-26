@@ -1,0 +1,89 @@
+/* =========================================================================
+   Style: Flat — Flat Design 2.0
+   docs/design-languages/flat.md
+
+   Look: solid saturated color blocks with ZERO shadows and ZERO gradients.
+   Depth comes from color contrast alone (teal primary + coral secondary).
+   Bold geometry, generous padding, crisp edges.
+   Recommended nav: labeled. Recommended top bar: inline.
+   Rule: never add box-shadow — if a surface needs emphasis, change its
+   color, not its shadow.
+   ========================================================================= */
+
+.device[data-style="flat"] {
+  --color-bg: #121212;
+  --color-surface-1: #1c1c1c;
+  --color-surface-2: #262626;
+  --color-surface-3: #303030;
+  --color-surface-4: #3b3b3b;
+  --color-surface-5: #474747;
+
+  --color-text: #f5f5f5;
+  --color-text-muted: #b0b0b0;
+  --color-text-subtle: #757575;
+
+  --color-primary: #26a69a;
+  --color-primary-fg: #06211d;
+  --color-primary-container: #0e3b36;
+  --color-on-primary-container: #80cbc4;
+  --color-secondary: #ff8a65;
+  --color-secondary-container: #4a2617;
+  --color-tertiary: #ffb300;
+  --color-tertiary-container: #4a3606;
+  --color-error: #ef5350;
+  --color-error-container: #4a1a19;
+  --color-success: #66bb6a;
+  --color-warn: #ffb300;
+  --color-outline: #757575;
+  --color-outline-variant: #303030;
+
+  --shadow-1: none;
+  --shadow-2: none;
+  --shadow-inset: none;
+  --border-w: 0px;
+
+  --device-bezel: #cfcfcf;
+  --device-edge: #a8a8a8;
+  --bezel-w: 3.5px;
+  --edge-w: 4px;
+  --frame-shadow: rgba(0, 0, 0, 0.55);
+}
+
+.device[data-style="flat"][data-theme="light"] {
+  --color-bg: #f7f7f7;
+  --color-surface-1: #ffffff;
+  --color-surface-2: #efefef;
+  --color-surface-3: #e6e6e6;
+  --color-surface-4: #dcdcdc;
+  --color-surface-5: #cfcfcf;
+
+  --color-text: #212121;
+  --color-text-muted: #616161;
+  --color-text-subtle: #9e9e9e;
+
+  --color-primary: #00897b;
+  --color-primary-fg: #ffffff;
+  --color-primary-container: #ccf0ec;
+  --color-on-primary-container: #00473f;
+  --color-secondary: #f4511e;
+  --color-secondary-container: #fde0d4;
+  --color-tertiary: #ffb300;
+  --color-tertiary-container: #fff3d1;
+  --color-error: #e53935;
+  --color-error-container: #fde3e2;
+  --color-success: #43a047;
+  --color-warn: #ffb300;
+  --color-outline: #9e9e9e;
+  --color-outline-variant: #e6e6e6;
+
+  --shadow-1: none;
+  --shadow-2: none;
+  --shadow-inset: none;
+  --border-w: 0px;
+
+  --device-bezel: #0e0a17;
+  --device-edge: #1b1729;
+  --bezel-w: 4px;
+  --edge-w: 4.4px;
+  --frame-shadow: rgba(33, 33, 33, 0.35);
+}
