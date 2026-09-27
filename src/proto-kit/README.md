@@ -17,7 +17,7 @@
 | `device-frame/fullscreen-button.tsx` | `<FullscreenButton>` — real Fullscreen API toggle. Desktop-only (hidden on mobile). Auto-rendered inside DeviceFrame. | (internal) |
 | `bottom-nav/bottom-nav.tsx` | `<BottomNav items activeId onSelect variant>` — 6 variants: `floating` (pill, default), `tabbar` (iOS), `labeled` (flat bar), `glass`, `soft`, `hard`. All read style tokens. | `{ BottomNav, NavItem, BottomNavVariant }` |
 | `top-bar/top-bar.tsx` | `<TopBar title variant leading trailing>` — 4 variants: `large`, `center` (iOS), `inline` (enterprise), `hero` (display). Reads style tokens. | `{ TopBar, TopBarVariant }` |
-| `stage/stage.tsx` | `<Stage leftPanel rightPanel>` — desktop layout with side panels. Panels hide on ≤1024px. | `{ Stage, PanelBadge, PanelTitle, PanelDesc, PanelHead }` |
+| `stage/stage.tsx` | `<Stage leftPanel rightPanel>` — desktop layout with side panels + a fixed top-left Dashboard back button (PC only). Panels hide on ≤1024px. | `{ Stage, PanelBadge, PanelTitle, PanelDesc, PanelHead }` |
 | `theme/theme-provider.tsx` | `<DeviceThemeProvider storageKey="..." initialTheme="dark">` — scopes `data-theme` to `.device` (NOT `<html>`). Persists to localStorage. | `{ DeviceThemeProvider, useDeviceTheme }` |
 | `swipe-simulation/use-swipe-simulation.ts` | `useSwipeSimulation({ onSwipeLeft, onSwipeRight })` — test feature. Click+drag = touch swipe. Easily removable. | `{ useSwipeSimulation }` |
 

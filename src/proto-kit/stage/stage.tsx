@@ -15,10 +15,34 @@ export interface StageProps {
  *
  * Side panels hide on <=1024px. The device fills the viewport on <=480px.
  * The stage background adapts to the device theme (via :has() in tokens.css).
+ *
+ * A "Dashboard" back button sits top-left on PC (hidden on mobile, where
+ * there is no dashboard context to return from) — same pill style as the
+ * dashboard's own nav buttons.
  */
 export function Stage({ leftPanel, children, rightPanel }: StageProps) {
   return (
     <div className={styles.stage}>
+      <a
+        className={styles.backlink}
+        href="../../"
+        aria-label="Back to dashboard"
+      >
+        <svg
+          width="16"
+          height="16"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M19 12H5M12 19l-7-7 7-7" />
+        </svg>
+        <span className={styles.backlink__label}>Dashboard</span>
+      </a>
       {leftPanel && (
         <aside className={styles.sidepanel} aria-label="Prototype info">
           {leftPanel}

@@ -7,6 +7,15 @@
 
 ## [Unreleased]
 
+### 2026-09-27 — prototypes: PC back-to-dashboard button
+
+`<Stage>` (proto-kit) now renders a fixed top-left **Dashboard** pill on
+every prototype page — same recipe as the dashboard's own nav buttons
+(12px pill, card bg + border + shadow, backdrop blur, 36px icon button,
+label collapses <640px), using stage tokens so it adapts to the device
+theme. Links `../../` → the gallery root. Hidden on mobile (≤1024px),
+where the device fills the screen. Zero per-prototype wiring.
+
 ### 2026-09-27 — device settings refinements (user feedback pass)
 
 - **Punch size works in both positions** (center and left) — the large dot
