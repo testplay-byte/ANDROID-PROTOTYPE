@@ -101,7 +101,11 @@ Per the `neumorph.css` header: `--shadow-1` / `--shadow-2` (extrude) and `--shad
 
 ## Demo prototype
 
-Demo prototype: see the dashboard at https://testplay-byte.github.io/ANDROID-PROTOTYPE/ (styles gallery).
+Demo prototypes: the music player at `app/prototypes/music-player` and **Still** at
+`app/prototypes/still` — a meditation/breathing app that pushes the extruded/pressed
+physicality further: a single molded slab where every control carves INTO the surface on
+press, a huge extruded breathing orb that IS the start/pause control, and a headerless
+focus screen. Also the styles gallery at https://testplay-byte.github.io/ANDROID-PROTOTYPE/.
 
 ## Wiring
 

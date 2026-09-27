@@ -7,6 +7,38 @@
 
 ## [Unreleased]
 
+### 2026-09-28 — prototype expansion batch 2: Pulse (carbon), Still (neumorph), Simmer (clay)
+
+Three sub-agents built in parallel (efficiency-briefed: read once, write in big passes,
+no build/screenshot loops); coordinator integrated + built centrally.
+
+**Pulse (carbon)** — system-status dashboard, deliberately unlike finance-hub's consumer
+fintech: flat 48px enterprise header (blue logo square + bordered health pill) and an
+underlined Carbon tab strip instead of TopBar/floating pill. Blinking DOWN squares,
+ack/resolve incident flow with expandable timelines (persisted — repaints the overview
+grid), deterministic seeded 24h charts that rescale under a 1H/6H/12H/24H selector, and a
+real Comfortable/Compact density toggle resizing rows app-wide. 0 radius / 0 shadow /
+tabular-nums discipline grep-audited. Coordinator fix: missing `DEFAULT_RESOLVED` import
+caught by the central typecheck.
+
+**Still (neumorph)** — meditation & breathing companion: the extruded orb IS the
+start/pause control, its scale traveling over exactly each phase's seconds (box / 4-7-8 /
+ocean patterns, phase derived from elapsed time so switches can't desync); every press
+carves into the molded slab; Breathe is headerless (full-bleed focus); sessions complete
+with persisted checkmarks + quiet-minutes credit; copper accent stays almost silent.
+47 dual-shadow extrusions, no borders.
+
+**Simmer (clay)** — recipes & cooking companion: generative CSS dish art (seeded clay
+blobs + steam per recipe), recipe detail push with live serving-stepper quantity scaling
+and press-in step blobs, a 5-day meal plan that auto-derives an aisle-grouped shopping
+list, and a chunky clay countdown dial (SVG ring drains inside the puffy face). Light
+theme is the contrast reference: text only on >=5.2:1 tokens with deepened accent inks
+under `[data-theme="light"]` — no pale-on-pale.
+
+Registered all three in the gallery (entries + custom thumbs), prototypes index, README
+catalog; demo sections added to carbon.md, neumorph.md, clay.md.
+`tsc --noEmit` + `npm run build` clean (22 routes).
+
 ### 2026-09-27 — prototype expansion batch 1: streetwear-store + gallery-app overhauls, Drift (glass) added
 
 Three sub-agents built in parallel; coordinator integrated + built centrally.

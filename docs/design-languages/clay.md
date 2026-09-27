@@ -110,7 +110,13 @@ Secondary is pink (`#f0a6ca` dark / `#c94f8c` light) — use it sparingly for pl
 
 ## Demo prototype
 
-Demo prototype: see the dashboard at https://testplay-byte.github.io/ANDROID-PROTOTYPE/ (styles gallery).
+Demo prototypes: the kids learning game at `app/prototypes/kids-learning` and **Simmer**
+at `app/prototypes/simmer` — a recipes & cooking companion with generative clay dish art,
+triple-shadow puffy cards (outer lift + inner light + inner shade, >=0.28 alpha), press-in
+step blobs, and a chunky clay countdown dial. Its light theme is the contrast reference:
+text only on `--color-text`/`--color-text-muted` (>=5.2:1) with deepened accent inks via
+`[data-theme="light"]` overrides — never pale-on-pale.
+Also the styles gallery at https://testplay-byte.github.io/ANDROID-PROTOTYPE/.
 
 ## Wiring
 

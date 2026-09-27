@@ -92,6 +92,30 @@ const THUMBS: Record<string, (p: Palette) => ReactNode> = {
       </div>
     </>
   ),
+  "Still": (p) => (
+    <>
+      {/* pattern pills — middle carved in (active) */}
+      <div style={{ display: "flex", justifyContent: "center", gap: 4, marginBottom: 4 }}>
+        {[0, 1, 2].map((i) => (
+          <span key={i} style={{ width: 16, height: 7, borderRadius: 999, background: i === 1 ? p.bg : p.surface, boxShadow: i === 1 ? "inset 1px 1px 2px rgba(0,0,0,.5)" : "2px 2px 4px rgba(0,0,0,.3), -2px -2px 4px rgba(255,255,255,.06)" }} />
+        ))}
+      </div>
+      {/* the breathing orb — extruded with copper core */}
+      <div style={{ display: "flex", justifyContent: "center", padding: "4px 0 8px" }}>
+        <div style={{ width: "58%", aspectRatio: "1", borderRadius: "50%", background: p.surface, boxShadow: `7px 7px 14px rgba(0,0,0,.45), -7px -7px 14px rgba(255,255,255,.07)`, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <span style={{ width: "34%", height: "34%", borderRadius: "50%", background: p.accent }} />
+        </div>
+      </div>
+      {/* carved cycle track with fill stub */}
+      <span style={{ height: 6, borderRadius: 999, background: p.bg, boxShadow: "inset 2px 2px 4px rgba(0,0,0,.5)", position: "relative" }}>
+        <span style={{ position: "absolute", inset: "0 62% 0 0", borderRadius: 999, background: p.accent, opacity: 0.85 }} />
+      </span>
+      <div style={{ display: "flex", gap: 4 }}>
+        <span style={line(p.surface, "58%", 6, 4)} />
+        <span style={line(p.surface, "30%", 6, 4)} />
+      </div>
+    </>
+  ),
   "Wallet": (p) => (
     <>
       {/* fanned pass stack — front card in the accent gradient */}
@@ -202,6 +226,36 @@ const THUMBS: Record<string, (p: Palette) => ReactNode> = {
       </div>
     </>
   ),
+  "Pulse": (p) => (
+    <>
+      {/* flat header: blue square + bordered health pill */}
+      <div style={{ display: "flex", alignItems: "center", gap: 4, border: `1px solid ${p.surfaceAlt}`, padding: "4px 5px" }}>
+        <span style={{ width: 8, height: 8, background: p.accent }} />
+        <span style={{ border: `1px solid ${p.surfaceAlt}`, fontSize: 6, fontWeight: 700, color: p.text, padding: "1px 4px", letterSpacing: 0.4 }}>OPERATIONAL</span>
+      </div>
+      {/* 2x3 status grid — 4 green, 1 amber, 1 red */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 3 }}>
+        {["#42be65", "#42be65", "#42be65", "#f1c21b", "#fa4d56", "#42be65"].map((c, i) => (
+          <div key={i} style={{ border: `1px solid ${p.surfaceAlt}`, background: p.surface, padding: 3, display: "flex", flexDirection: "column", gap: 2 }}>
+            <span style={{ width: 4, height: 4, background: c }} />
+            <span style={{ height: 2, width: "80%", background: p.surfaceAlt }} />
+          </div>
+        ))}
+      </div>
+      {/* bar chart strip, peak blue */}
+      <div style={{ display: "flex", alignItems: "flex-end", gap: 2, height: 16 }}>
+        {[6, 9, 5, 12, 8, 16, 7, 10].map((h, i) => (
+          <span key={i} style={{ flex: 1, height: h, background: i === 5 ? p.accent : p.surfaceAlt }} />
+        ))}
+      </div>
+      {/* square tab bar with blue underline */}
+      <div style={{ display: "flex", borderTop: `1px solid ${p.surfaceAlt}`, marginTop: "auto" }}>
+        {["OVERVIEW", "INCIDENTS", "METRICS", "MORE"].map((t, i) => (
+          <span key={t} style={{ flex: 1, textAlign: "center", fontSize: 4.5, fontWeight: 700, color: i === 0 ? p.accent : p.text, opacity: i === 0 ? 1 : 0.5, borderBottom: i === 0 ? `2px solid ${p.accent}` : "2px solid transparent", padding: "2px 0" }}>{t}</span>
+        ))}
+      </div>
+    </>
+  ),
   "Finance Hub": (p) => (
     <>
       <div style={{ border: `1px solid ${p.surfaceAlt}`, padding: 7, display: "flex", flexDirection: "column", gap: 4 }}>
@@ -279,6 +333,36 @@ const THUMBS: Record<string, (p: Palette) => ReactNode> = {
             <span style={{ width: 22, height: 22, borderRadius: 8, background: t.bg, color: "#fff", fontSize: 9, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>{t.g}</span>
             <span style={line(p.text, "56%", 4, 2)} />
           </div>
+        ))}
+      </div>
+    </>
+  ),
+  "Simmer": (p) => (
+    <>
+      {/* rounded clay header band */}
+      <div style={{ background: p.surface, borderRadius: 12, padding: "5px 8px", display: "flex", alignItems: "center", gap: 4, boxShadow: "4px 4px 8px rgba(10,8,18,.45), inset 2px 2px 4px rgba(255,255,255,.07)" }}>
+        <span style={{ width: 8, height: 8, borderRadius: "50%", background: p.accent }} />
+        <span style={line(p.text, "46%", 5, 3)} />
+      </div>
+      {/* hero dish: violet pan + food disc + clay blobs + steam */}
+      <div style={{ background: p.surface, borderRadius: 14, padding: 8, display: "flex", flexDirection: "column", alignItems: "center", gap: 4, boxShadow: "6px 6px 12px rgba(10,8,18,.45), -4px -4px 8px rgba(255,255,255,.05), inset 2px 2px 4px rgba(255,255,255,.08)" }}>
+        <div style={{ display: "flex", gap: 3 }}>
+          {[8, 11].map((h, i) => <span key={i} style={{ width: 3, height: h, borderRadius: 2, background: p.text, opacity: 0.25 }} />)}
+        </div>
+        <div style={{ width: "62%", aspectRatio: "1.6", borderRadius: "50%", background: p.accent, position: "relative" }}>
+          <span style={{ position: "absolute", left: "30%", top: "26%", width: "40%", height: "48%", borderRadius: "50%", background: "#d9ccff" }} />
+          <span style={{ position: "absolute", left: "14%", top: "48%", width: 6, height: 6, borderRadius: "50%", background: "#ff8a5c" }} />
+          <span style={{ position: "absolute", left: "68%", top: "22%", width: 5, height: 5, borderRadius: "50%", background: "#7fd6b1" }} />
+        </div>
+        <div style={{ display: "flex", gap: 4 }}>
+          <span style={{ height: 6, width: 22, borderRadius: 999, background: "#4a3d75" }} />
+          <span style={{ height: 6, width: 18, borderRadius: 999, background: "#2e4f4b" }} />
+        </div>
+      </div>
+      {/* puffy nav pill with inset-active */}
+      <div style={{ display: "flex", gap: 4, padding: 3, borderRadius: 999, background: p.surface, boxShadow: "4px 4px 8px rgba(10,8,18,.4), inset 1px 1px 2px rgba(255,255,255,.08)", marginTop: "auto" }}>
+        {[0, 1, 2, 3].map((i) => (
+          <span key={i} style={{ flex: 1, height: 10, borderRadius: 999, background: i === 0 ? p.bg : "transparent", boxShadow: i === 0 ? "inset 2px 2px 3px rgba(0,0,0,.4)" : "none" }} />
         ))}
       </div>
     </>

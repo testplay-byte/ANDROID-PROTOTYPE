@@ -100,7 +100,12 @@ Per the `carbon.css` header: the 0px radius overrides (sharp corners on all comp
 
 ## Demo prototype
 
-Demo prototype: see the dashboard at https://testplay-byte.github.io/ANDROID-PROTOTYPE/ (styles gallery).
+Demo prototypes: the banking app at `app/prototypes/finance-hub` and **Pulse** at
+`app/prototypes/pulse` — a system-status dashboard showing Carbon's enterprise habitat:
+flat 0px-radius layer surfaces carried entirely by 1px hairline borders, blinking status
+squares, bordered severity tags, seeded deterministic charts, a real density toggle, and
+the flat inline header + underlined tab-strip chrome (no consumer-app pill nav).
+Also the styles gallery at https://testplay-byte.github.io/ANDROID-PROTOTYPE/.
 
 ## Wiring
 

@@ -1,0 +1,1309 @@
+/* ============================================================
+   pulse.css — "Pulse" system-status dashboard (IBM Carbon)
+
+   Base language from src/proto-kit/styles/carbon.css (data-style on
+   .device): flat layer grays, 0px radius, --shadow-*: none, 1px
+   borders carry structure, IBM blue #0f62fe only for primary/active,
+   semantic green/amber/red for status. This file adds only the
+   prototype-scoped app (every selector under `.plu`) + the side-panel
+   helpers the Stage uses on this route.
+
+   Sections:
+     1.  page chrome (body, scrollbars)
+     2.  app root + density vars
+     3.  custom product header (brand · status pill · avatar)
+     4.  shared bits (panels, section heads, tags, squares, buttons)
+     5.  controls (switch, segmented, stepper, chips)
+     6.  Overview (banner, health strip, status grid, data table)
+     7.  Incidents (list, expandable timeline, actions)
+     8.  Metrics (chart panels, axes)
+     9.  Settings (rows, groups)
+     10. Toast
+     11. Motion entrances + reduced motion
+     12. Stage side-panel helpers
+   ============================================================ */
+
+/* ---------- 1. page chrome ---------- */
+body {
+  font-family: "IBM Plex Sans", "Inter", -apple-system, BlinkMacSystemFont,
+    "Segoe UI", Roboto, sans-serif;
+  background: var(--stage-bg);
+  color: var(--sb-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+input,
+select,
+button {
+  font: inherit;
+}
+
+/* No visible scrollbars anywhere in the device */
+.device * {
+  scrollbar-width: none;
+}
+.device *::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- 2. app root + density vars ---------- */
+.plu {
+  /* row padding — flipped by the density preference */
+  --plu-row-py: 12px;
+  --plu-cell-py: 10px;
+  --plu-gap: 8px;
+
+  position: absolute;
+  inset: 0;
+  z-index: 10; /* proto-kit status bar (z 30) paints above the app */
+  overflow: hidden;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: var(--fs-body);
+  transition: background var(--dur-2) var(--ease-standard),
+    color var(--dur-2) var(--ease-standard);
+}
+.plu-compact {
+  --plu-row-py: 6px;
+  --plu-cell-py: 5px;
+  --plu-gap: 4px;
+}
+
+.plu button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.plu button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+.plu button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+.plu .tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.plu-body {
+  position: absolute;
+  top: 48px; /* header height */
+  bottom: 48px; /* tab strip height */
+  left: 0;
+  right: 0;
+}
+
+/* Carbon tabs: flat strip, 1px rule, 2px blue indicator under active */
+.plu-tabs {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 48px;
+  display: flex;
+  background: var(--color-bg);
+  border-top: 1px solid var(--color-outline-variant);
+  z-index: 20;
+}
+.plu-tabs__item {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  color: var(--color-text-subtle);
+  transition: color 110ms var(--ease-standard), background 110ms var(--ease-standard);
+}
+.plu-tabs__item:hover {
+  color: var(--color-text-muted);
+}
+.plu-tabs__item:active {
+  background: var(--color-surface-2);
+}
+.plu-tabs__label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.plu-tabs__item--active {
+  color: var(--color-primary);
+}
+.device[data-theme="light"] .plu-tabs__item--active {
+  color: var(--color-primary);
+}
+.plu-tabs__item--active::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--color-primary);
+}
+/* badge dot on the incidents tab when active incidents exist */
+.plu-tabs__dot {
+  position: absolute;
+  top: 7px;
+  left: calc(50% + 7px);
+  width: 6px;
+  height: 6px;
+  background: var(--color-error);
+}
+.plu-screen {
+  position: absolute;
+  inset: 0;
+  animation: plu-fade 120ms var(--ease-standard) both;
+}
+.plu-scroll {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  padding: var(--sp-4) var(--sp-4) 32px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  cursor: grab;
+}
+.plu-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---------- 3. custom product header ---------- */
+.plu-header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 0 var(--sp-4);
+  background: var(--color-surface-1);
+  border-bottom: 1px solid var(--color-outline-variant);
+  z-index: 20;
+}
+.plu-header__brand {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+.plu-header__mark {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  flex: none;
+}
+.plu-header__name {
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+.plu-header__sub {
+  font-style: normal;
+  font-weight: 400;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--color-text-subtle);
+  margin-left: 6px;
+}
+
+/* live status pill — square, 1px border, semantic color */
+.plu-header__pill {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 26px;
+  padding: 0 10px;
+  border: 1px solid;
+  min-width: 0;
+  overflow: hidden;
+}
+.plu-header__pill--operational {
+  border-color: color-mix(in srgb, var(--color-tertiary) 55%, transparent);
+  color: var(--color-tertiary);
+}
+.plu-header__pill--degraded {
+  border-color: color-mix(in srgb, var(--color-warn) 60%, transparent);
+  color: var(--color-warn);
+}
+.plu-header__pill--down {
+  border-color: color-mix(in srgb, var(--color-error) 60%, transparent);
+  color: var(--color-error);
+}
+.plu-header__pill-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.plu-header__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex: none;
+}
+.plu-header__iconbtn {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  color: var(--color-text-muted);
+  border: 1px solid transparent;
+  transition: background 110ms var(--ease-standard),
+    color 110ms var(--ease-standard), border-color 110ms var(--ease-standard);
+}
+.plu-header__iconbtn:hover {
+  color: var(--color-text);
+  border-color: var(--color-outline-variant);
+}
+.plu-header__iconbtn:active {
+  background: var(--color-surface-3);
+}
+.plu-header__avatar {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  background: var(--color-surface-4);
+  color: var(--color-text);
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  border: 1px solid var(--color-outline-variant);
+  user-select: none;
+}
+
+/* ---------- 4. shared bits ---------- */
+.plu-panel {
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-1);
+  padding: var(--sp-3) var(--sp-4) var(--sp-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+.plu-panel--flush {
+  padding: var(--sp-3) 0 0;
+}
+
+.plu-sechead {
+  margin: 0;
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.plu-foot-note {
+  margin: 0;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+}
+.plu-foot-note b {
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+.plu-blue {
+  color: var(--color-primary);
+}
+
+/* status square — the atom of the whole app */
+.plu-sq {
+  width: 12px;
+  height: 12px;
+  flex: none;
+  border: 1px solid;
+}
+.plu-sq--sm {
+  width: 8px;
+  height: 8px;
+}
+.plu-sq--operational {
+  background: var(--color-tertiary);
+  border-color: var(--color-tertiary);
+}
+.plu-sq--degraded {
+  background: var(--color-warn);
+  border-color: var(--color-warn);
+}
+.plu-sq--down {
+  background: var(--color-error);
+  border-color: var(--color-error);
+  animation: plu-blink 1.4s step-end infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .plu-sq--down {
+    animation: none;
+  }
+}
+
+/* bordered uppercase tags */
+.plu-tag {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 7px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  border: 1px solid;
+}
+.plu-tag--green {
+  color: var(--color-tertiary);
+  border-color: color-mix(in srgb, var(--color-tertiary) 55%, transparent);
+}
+.plu-tag--amber {
+  color: var(--color-warn);
+  border-color: color-mix(in srgb, var(--color-warn) 55%, transparent);
+}
+.plu-tag--red {
+  color: var(--color-error);
+  border-color: color-mix(in srgb, var(--color-error) 55%, transparent);
+}
+.plu-tag--blue {
+  color: var(--color-primary);
+  border-color: color-mix(in srgb, var(--color-primary) 60%, transparent);
+}
+.plu-tag--gray {
+  color: var(--color-text-muted);
+  border-color: var(--color-outline-variant);
+}
+.device[data-theme="light"] .plu-tag--amber {
+  color: #8a6d00; /* warn yellow is unreadable on white — darken */
+}
+
+/* Carbon buttons: square, 40px, no shadow */
+.plu-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 14px;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  border: 1px solid transparent;
+  transition: background 110ms var(--ease-standard),
+    color 110ms var(--ease-standard), border-color 110ms var(--ease-standard);
+}
+.plu-btn--primary {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+.plu-btn--primary:hover {
+  background: color-mix(in srgb, var(--color-primary) 82%, white);
+}
+.plu-btn--primary:active {
+  background: color-mix(in srgb, var(--color-primary) 70%, white);
+}
+.plu-btn--ghost {
+  background: transparent;
+  color: var(--color-primary);
+}
+.plu-btn--ghost:hover {
+  background: var(--color-surface-2);
+}
+.plu-btn--ghost:active {
+  background: var(--color-surface-3);
+}
+.plu-btn--danger {
+  background: var(--color-error);
+  color: #161616;
+}
+.device[data-theme="light"] .plu-btn--danger {
+  color: #ffffff;
+}
+.plu-btn--danger:hover {
+  background: color-mix(in srgb, var(--color-error) 82%, white);
+}
+
+/* ---------- 5. controls ---------- */
+
+/* Carbon toggle switch: bordered track, square thumb slides 0→100% */
+.plu-switch {
+  position: relative;
+  width: 48px;
+  height: 24px;
+  flex: none;
+  border: 1px solid var(--color-outline);
+  background: var(--color-surface-2);
+  transition: background 120ms var(--ease-standard),
+    border-color 120ms var(--ease-standard);
+}
+.plu-switch--on {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.plu-switch__thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  display: grid;
+  place-items: center;
+  background: var(--color-text);
+  transition: left 120ms var(--ease-standard), background 120ms var(--ease-standard);
+}
+.plu-switch--on .plu-switch__thumb {
+  left: 27px;
+  background: var(--color-primary-fg);
+}
+.plu-switch:active .plu-switch__thumb {
+  transform: scale(0.88);
+}
+
+/* segmented control — 1px bordered strip, active cell blue-filled */
+.plu-seg {
+  display: inline-flex;
+  border: 1px solid var(--color-outline);
+  background: var(--color-bg);
+}
+.plu-seg__opt {
+  height: 30px;
+  padding: 0 11px;
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  color: var(--color-text-muted);
+  border-right: 1px solid var(--color-outline-variant);
+  transition: background 110ms var(--ease-standard),
+    color 110ms var(--ease-standard);
+}
+.plu-seg__opt:last-child {
+  border-right: none;
+}
+.plu-seg__opt:hover {
+  color: var(--color-text);
+}
+.plu-seg__opt:active {
+  background: var(--color-surface-3);
+}
+.plu-seg__opt--active {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+.plu-seg__opt--active:hover {
+  color: var(--color-primary-fg);
+}
+
+/* stepper — minus · value · plus in one bordered group */
+.plu-stepper {
+  display: inline-flex;
+  border: 1px solid var(--color-outline);
+  height: 32px;
+}
+.plu-stepper__btn {
+  width: 32px;
+  display: grid;
+  place-items: center;
+  color: var(--color-text-muted);
+  transition: background 110ms var(--ease-standard), color 110ms var(--ease-standard);
+}
+.plu-stepper__btn:hover:not(:disabled) {
+  color: var(--color-text);
+  background: var(--color-surface-3);
+}
+.plu-stepper__btn:active:not(:disabled) {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+.plu-stepper__val {
+  min-width: 52px;
+  display: grid;
+  place-items: center;
+  padding: 0 6px;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  border-left: 1px solid var(--color-outline-variant);
+  border-right: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-1);
+}
+
+/* filter chips — square, bordered, blue when active */
+.plu-chipbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+.plu-chip {
+  height: 28px;
+  padding: 0 10px;
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--color-text-muted);
+  border: 1px solid var(--color-outline-variant);
+  background: transparent;
+  transition: background 110ms var(--ease-standard),
+    color 110ms var(--ease-standard), border-color 110ms var(--ease-standard);
+}
+.plu-chip:hover {
+  border-color: var(--color-outline);
+  color: var(--color-text);
+}
+.plu-chip:active {
+  transform: translateY(1px);
+}
+.plu-chip--active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+.plu-chipbar__count {
+  margin-left: auto;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+}
+
+/* ---------- 6. Overview ---------- */
+
+/* incident banner — Carbon inline-notification: left accent, flat */
+.plu-banner {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  border: 1px solid var(--color-outline-variant);
+  border-left-width: 3px;
+  background: var(--color-surface-1);
+  padding: var(--sp-3) var(--sp-4);
+  animation: plu-rise 140ms var(--ease-standard) both;
+}
+.plu-banner--sev-1 {
+  border-left-color: var(--color-error);
+}
+.plu-banner--sev-2 {
+  border-left-color: var(--color-warn);
+}
+.plu-banner--sev-3 {
+  border-left-color: var(--color-primary);
+}
+.plu-banner--ok {
+  border-left-color: var(--color-tertiary);
+}
+.plu-banner__icon {
+  color: var(--color-error);
+  flex: none;
+  display: grid;
+  place-items: center;
+}
+.plu-banner--sev-2 .plu-banner__icon {
+  color: var(--color-warn);
+}
+.plu-banner--ok .plu-banner__icon {
+  color: inherit;
+}
+.plu-banner__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.plu-banner__title {
+  margin: 0;
+  font-size: var(--fs-body-s);
+  font-weight: 600;
+  line-height: 1.35;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+.plu-banner__meta {
+  margin: 0;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+}
+
+/* health strip: ring + counters */
+.plu-health {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--sp-5);
+  padding: var(--sp-4);
+}
+.plu-ring-text {
+  font-size: 15px;
+  font-weight: 600;
+  fill: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+.plu-health__stats {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border: 1px solid var(--color-outline-variant);
+}
+.plu-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--sp-2) 2px;
+  border-right: 1px solid var(--color-outline-variant);
+}
+.plu-stat:last-child {
+  border-right: none;
+}
+.plu-stat__num {
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  line-height: 1;
+}
+.plu-stat__num--red {
+  color: var(--color-error);
+}
+.plu-stat__num--amber {
+  color: var(--color-warn);
+}
+.device[data-theme="light"] .plu-stat__num--amber {
+  color: #8a6d00;
+}
+.plu-stat__label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+
+/* status grid */
+.plu-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--plu-gap);
+}
+.plu-cell {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--plu-cell-py) 10px;
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-2);
+  min-width: 0;
+  transition: border-color 110ms var(--ease-standard);
+}
+.plu-cell--down {
+  border-color: color-mix(in srgb, var(--color-error) 55%, transparent);
+}
+.plu-cell--degraded {
+  border-color: color-mix(in srgb, var(--color-warn) 45%, transparent);
+}
+.plu-cell__txt {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.plu-cell__name {
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.plu-cell__up {
+  font-size: 10px;
+  color: var(--color-text-subtle);
+}
+
+/* data table — Carbon zebra-free, hairlines, hover tint */
+.plu-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.plu-table thead th {
+  text-align: left;
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  border-bottom: 1px solid var(--color-outline);
+  padding: var(--plu-row-py) var(--sp-3);
+  white-space: nowrap;
+}
+.plu-table tbody td {
+  padding: var(--plu-row-py) var(--sp-3);
+  border-bottom: 1px solid var(--color-outline-variant);
+  vertical-align: middle;
+}
+.plu-table tbody tr {
+  transition: background 110ms var(--ease-standard);
+}
+.plu-table tbody tr:hover {
+  background: var(--color-surface-2);
+}
+.plu-th {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font: inherit;
+  color: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  transition: color 110ms var(--ease-standard);
+}
+.plu-th:hover {
+  color: var(--color-text);
+}
+.plu-th--active {
+  color: var(--color-primary);
+}
+.plu-table-head-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0 var(--sp-3);
+}
+.plu-table-head-note {
+  font-size: 10px;
+  color: var(--color-text-subtle);
+}
+.plu-td-name {
+  min-width: 0;
+}
+.plu-td-name > span:last-child {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.plu-td-idx {
+  float: left;
+  font-size: 10px;
+  color: var(--color-text-subtle);
+  margin: 3px 8px 0 0;
+}
+.plu-td-name-txt {
+  font-size: var(--fs-body-s);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.plu-td-zone {
+  font-size: 10px;
+  color: var(--color-text-subtle);
+}
+.plu-td-num {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  text-align: right;
+}
+.plu-table thead th:nth-child(3),
+.plu-table thead th:nth-child(4) {
+  text-align: right;
+}
+.plu-table thead th:nth-child(3) .plu-th,
+.plu-table thead th:nth-child(4) .plu-th {
+  justify-content: flex-end;
+  width: 100%;
+}
+.plu-td-spark {
+  width: 76px;
+}
+.plu-spark {
+  display: block;
+}
+
+/* ---------- 7. Incidents ---------- */
+.plu-inc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--plu-gap);
+}
+.plu-inc {
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-1);
+  border-left: 3px solid var(--color-outline-variant);
+  transition: border-color 110ms var(--ease-standard);
+}
+.plu-inc--open {
+  border-left-color: var(--color-error);
+}
+.plu-inc--acknowledged {
+  border-left-color: var(--color-primary);
+}
+.plu-inc--resolved {
+  border-left-color: var(--color-tertiary);
+  opacity: 0.75;
+}
+.plu-inc--resolved:hover {
+  opacity: 1;
+}
+.plu-inc__head {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: calc(var(--plu-row-py) + 2px) var(--sp-3);
+  text-align: left;
+  transition: background 110ms var(--ease-standard);
+}
+.plu-inc__head:hover {
+  background: var(--color-surface-2);
+}
+.plu-inc__sev {
+  flex: none;
+}
+.plu-inc__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.plu-inc__title {
+  font-size: var(--fs-body-s);
+  font-weight: 600;
+  line-height: 1.3;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.plu-inc__meta {
+  font-size: 10px;
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.plu-inc__right {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex: none;
+}
+.plu-inc__chev {
+  display: grid;
+  place-items: center;
+  color: var(--color-text-muted);
+  transition: transform 130ms var(--ease-standard);
+}
+.plu-inc__chev--up {
+  transform: rotate(180deg);
+}
+
+/* expandable panel: grid-rows 0fr→1fr, fast and direct */
+.plu-inc__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 150ms var(--ease-standard);
+}
+.plu-inc--open .plu-inc__panel {
+  grid-template-rows: 1fr;
+}
+.plu-inc__panel-inner {
+  overflow: hidden;
+  min-height: 0;
+}
+
+.plu-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 2px var(--sp-3) var(--sp-3) var(--sp-3);
+  margin-left: 12px;
+  border-left: 1px solid var(--color-outline-variant);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.plu-tl {
+  display: flex;
+  gap: var(--sp-3);
+  position: relative;
+  padding: 4px 0 4px var(--sp-3);
+  font-size: var(--fs-label-s);
+  line-height: 1.45;
+}
+.plu-tl::before {
+  content: "";
+  position: absolute;
+  left: -4.5px;
+  top: 9px;
+  width: 8px;
+  height: 8px;
+  background: var(--color-surface-4);
+  border: 1px solid var(--color-outline-variant);
+}
+.plu-tl:first-child::before {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.plu-tl--pending::before {
+  background: var(--color-bg);
+  border-color: var(--color-outline);
+  animation: plu-blink 1.4s step-end infinite;
+}
+.plu-tl__time {
+  flex: none;
+  width: 56px;
+  color: var(--color-text-subtle);
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+.plu-tl__label {
+  color: var(--color-text-muted);
+}
+.plu-inc__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-3) calc(var(--plu-row-py) + 4px);
+  border-top: 1px solid var(--color-outline-variant);
+}
+.plu-inc__dur {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--color-text-subtle);
+}
+.plu-empty {
+  border: 1px dashed var(--color-outline-variant);
+  padding: var(--sp-8) var(--sp-4);
+  text-align: center;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-body-s);
+}
+
+/* ---------- 8. Metrics ---------- */
+.plu-metric-filter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+.plu-chartcard__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+}
+.plu-chartcard__title {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 600;
+}
+.plu-chartcard__caption {
+  margin: 2px 0 0;
+  font-size: 10px;
+  color: var(--color-text-subtle);
+}
+.plu-chartcard__current {
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.plu-chartcard__chart {
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-bg);
+  padding: 4px 2px 2px;
+  animation: plu-rescale 140ms var(--ease-standard) both;
+}
+.plu-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.plu-chart-axis {
+  font-size: 8.5px;
+  fill: var(--color-text-subtle);
+  font-variant-numeric: tabular-nums;
+  font-family: inherit;
+}
+.plu-bar {
+  transition: fill 110ms var(--ease-standard);
+}
+.plu-chartcard__stats {
+  display: flex;
+  gap: 0;
+  border: 1px solid var(--color-outline-variant);
+  border-bottom: none;
+}
+.plu-ministat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--sp-2) var(--sp-3);
+  border-right: 1px solid var(--color-outline-variant);
+}
+.plu-ministat:last-child {
+  border-right: none;
+}
+.plu-ministat__label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--color-text-subtle);
+}
+.plu-ministat__num {
+  font-size: var(--fs-body-s);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 9. Settings ---------- */
+.plu-setgroup {
+  display: flex;
+  flex-direction: column;
+}
+.plu-setrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: calc(var(--plu-row-py) + 2px) 0;
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+.plu-setgroup .plu-setrow:last-child {
+  border-bottom: none;
+}
+.plu-setrow__txt {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.plu-setrow__label {
+  font-size: var(--fs-body-s);
+  font-weight: 600;
+}
+.plu-setrow__hint {
+  font-size: 10px;
+  color: var(--color-text-subtle);
+}
+.plu-setrow__ctrl {
+  flex: none;
+  display: flex;
+  align-items: center;
+}
+.plu-setval {
+  font-size: var(--fs-label);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 10. Toast ---------- */
+.plu-toast {
+  position: absolute;
+  left: var(--sp-4);
+  right: var(--sp-4);
+  bottom: calc(48px + var(--sp-3)); /* above the tab strip */
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  background: var(--color-surface-3);
+  border: 1px solid var(--color-outline-variant);
+  border-left: 4px solid var(--color-primary);
+  font-size: var(--fs-label);
+  animation: plu-toast-in 140ms var(--ease-standard) both;
+}
+.plu-toast--success {
+  border-left-color: var(--color-tertiary);
+}
+.plu-toast--warning {
+  border-left-color: var(--color-warn);
+}
+.plu-toast__icon {
+  flex: none;
+  display: grid;
+  place-items: center;
+  color: var(--color-primary);
+}
+.plu-toast--success .plu-toast__icon {
+  color: var(--color-tertiary);
+}
+.plu-toast--warning .plu-toast__icon {
+  color: var(--color-warn);
+}
+.device[data-theme="light"] .plu-toast--warning .plu-toast__icon {
+  color: #8a6d00;
+}
+.plu-toast__msg {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- 11. motion ---------- */
+@keyframes plu-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes plu-rise {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes plu-rescale {
+  from {
+    opacity: 0.35;
+    transform: scaleY(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes plu-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes plu-blink {
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* stagger panel entrances on the overview */
+.plu-screen--overview .plu-banner,
+.plu-screen--overview .plu-health,
+.plu-screen--overview .plu-panel {
+  animation: plu-rise 140ms var(--ease-standard) both;
+}
+.plu-screen--overview .plu-health {
+  animation-delay: 40ms;
+}
+.plu-screen--overview .plu-panel {
+  animation-delay: 80ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .plu *,
+  .plu {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- 12. Stage side-panel helpers ---------- */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tag {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  background: var(--sb-muted);
+  color: var(--sb-text);
+  border: 1px solid var(--sb-border);
+}
+
+.screeninfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.screeninfo__name {
+  font-size: var(--fs-body-l);
+  font-weight: 700;
+}
+.screeninfo__desc {
+  font-size: var(--fs-label);
+  color: var(--sb-text-muted);
+  line-height: 1.5;
+}
+
+.mini-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.mini-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mini-bar-label {
+  width: 52px;
+  font-size: 10px;
+  color: var(--sb-text-muted);
+}
+.mini-bar-track {
+  flex: 1;
+  height: 4px;
+  border-radius: var(--r-pill);
+  background: var(--sb-muted);
+  overflow: hidden;
+}
+.mini-bar-fill {
+  height: 100%;
+  border-radius: var(--r-pill);
+}
+.mini-bar-num {
+  width: 28px;
+  text-align: right;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--sb-text-muted);
+}
+
+.kvlist {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.kvlist__row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+.kvlist__row span {
+  color: var(--sb-text-muted);
+}
+.kvlist__row b {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}

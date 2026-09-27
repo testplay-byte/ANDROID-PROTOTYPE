@@ -1,0 +1,1062 @@
+/* =========================================================================
+   still.css — prototype-wide styles for "Still" (neumorphism / soft UI).
+   Imported once by app/prototypes/still/layout.tsx.
+   Tokens come from proto-kit/tokens/tokens.css + styles/neumorph.css
+   (data-style="neumorph" on .device). Style contract honored throughout:
+   raised = --shadow-1/--shadow-2 (dual light-top-left / dark-bottom-right),
+   pressed/carved = --shadow-inset, surfaces ≈ background (--color-bg /
+   --color-surface-*), zero borders, puffy radii, text stays AA.
+
+   Still vs the music-player demo: same language, slower tempo — larger
+   radii, deeper wells, near-silent accent use (copper only for the breath
+   ring's core glow and lit toggles), everything reads as one molded slab.
+   ========================================================================= */
+
+body {
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
+  background: var(--stage-bg);
+  color: var(--sb-text);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+input,
+select,
+button {
+  font: inherit;
+}
+
+/* Bare-button reset — neumorphic controls are shaped by shadows only. */
+.device button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  color: inherit;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.device input {
+  border: none;
+  outline: none;
+  background: none;
+  color: inherit;
+}
+
+/* ---- Side-panel helpers (Stage left/right content) ---- */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tag {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  background: var(--sb-muted);
+  color: var(--sb-text);
+  border: 1px solid var(--sb-border);
+}
+
+.screeninfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.screeninfo__name {
+  font-size: var(--fs-body-l);
+  font-weight: 700;
+}
+.screeninfo__desc {
+  font-size: var(--fs-label);
+  color: var(--sb-text-muted);
+  line-height: 1.5;
+}
+
+.mini-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.mini-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mini-bar-label {
+  width: 52px;
+  font-size: 10px;
+  color: var(--sb-text-muted);
+}
+.mini-bar-track {
+  flex: 1;
+  height: 4px;
+  border-radius: var(--r-pill);
+  background: var(--sb-muted);
+  overflow: hidden;
+}
+.mini-bar-fill {
+  height: 100%;
+  border-radius: var(--r-pill);
+}
+.mini-bar-num {
+  width: 34px;
+  text-align: right;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--sb-text-muted);
+}
+
+.kvlist {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.kvlist__row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+.kvlist__row span {
+  color: var(--sb-text-muted);
+}
+.kvlist__row b {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
+
+/* =========================================================================
+   App root — .st fills the Screen; views swap under the proto-kit chrome
+   ========================================================================= */
+.st {
+  /* the app's own small token layer — quiet, re-scoped per theme below */
+  --st-ridge: var(--shadow-1);
+  --st-ridge-lg: var(--shadow-2);
+  --st-carve: var(--shadow-inset);
+  position: absolute;
+  inset: 0;
+  color: var(--color-text);
+}
+.st button:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 3px;
+  border-radius: var(--r-md);
+}
+.st-num {
+  font-variant-numeric: tabular-nums;
+}
+
+.st-screens {
+  position: absolute;
+  inset: 0;
+}
+.st-screen {
+  position: absolute;
+  inset: 0;
+  animation: st-fade var(--dur-3) var(--ease-standard) both;
+}
+
+.st-content {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+  padding: 18px 20px 132px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.st-content::-webkit-scrollbar {
+  display: none;
+}
+
+@keyframes st-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* staggered entrance — every block carries --stagger, view remount replays */
+.st-head,
+.st-streak,
+.st-intention,
+.st-sechead,
+.st-reco__card,
+.st-pills,
+.st-orb-zone,
+.st-track,
+.st-readout,
+.st-finish,
+.st-breathe__foot,
+.st-seg,
+.st-prog,
+.st-row,
+.st-id,
+.st-stats,
+.st-remind,
+.st-sounds,
+.st-note,
+.st-about {
+  animation: st-rise var(--dur-3) var(--ease-emphasized-decel) both;
+  animation-delay: var(--stagger, 0ms);
+}
+
+@keyframes st-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* =========================================================================
+   Chrome — quiet centered label header (never a large-title clone)
+   ========================================================================= */
+.st-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  padding-top: 6px;
+}
+.st-head__label {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.34em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.st-head__greet {
+  margin: 0;
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+}
+.st-head--small {
+  padding-bottom: 2px;
+}
+
+/* =========================================================================
+   Today — streak disc, intention slab, pillow cards
+   ========================================================================= */
+.st-streak {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 6px 2px;
+}
+.st-streak__disc {
+  width: 92px;
+  height: 92px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--color-bg);
+  box-shadow: var(--st-ridge-lg);
+  display: grid;
+  place-items: center;
+}
+.st-streak__well {
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  box-shadow: var(--st-carve);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1px;
+}
+.st-streak__well b {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  line-height: 1;
+}
+.st-streak__well span {
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.st-streak__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.st-streak__meta b {
+  font-size: var(--fs-body-l);
+  font-weight: 600;
+}
+.st-streak__meta span {
+  font-size: var(--fs-label);
+  color: var(--color-text-muted);
+}
+.st-streak__hint {
+  font-style: italic;
+  opacity: 0.8;
+}
+
+.st-intention {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  text-align: left;
+  padding: 18px 20px;
+  border-radius: var(--r-xl);
+  background: var(--color-surface-1);
+  box-shadow: var(--st-ridge);
+  transition: box-shadow var(--dur-2) var(--ease-standard),
+    transform var(--dur-2) var(--ease-standard);
+}
+.st-intention:active {
+  box-shadow: var(--st-carve);
+  transform: scale(0.985);
+}
+.st-intention__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.st-intention__line {
+  font-size: var(--fs-body-l);
+  font-weight: 500;
+  line-height: 1.45;
+  color: var(--color-text);
+}
+
+.st-sechead {
+  margin: 6px 0 0;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.st-reco {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.st-reco__card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: var(--r-lg);
+  background: var(--color-bg);
+  box-shadow: var(--st-ridge);
+  text-align: left;
+  transition: box-shadow var(--dur-2) var(--ease-standard),
+    transform var(--dur-2) var(--ease-standard);
+}
+/* pressing sinks the whole pillow into the sheet — the style's signature */
+.st-reco__card:active {
+  box-shadow: var(--st-carve);
+  transform: scale(0.98);
+}
+.st-reco__disc {
+  width: 40px;
+  height: 40px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--color-surface-2);
+  box-shadow: var(--st-ridge);
+  display: grid;
+  place-items: center;
+  color: var(--color-primary);
+}
+.st-reco__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.st-reco__text b {
+  font-size: var(--fs-body);
+  font-weight: 600;
+}
+.st-reco__text span {
+  font-size: var(--fs-label);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.st-reco__dur {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+/* =========================================================================
+   Breathe — full-bleed focus, no header. The orb IS the control.
+   ========================================================================= */
+.st-screen--breathe .st-content,
+.st-breathe {
+  position: absolute;
+  inset: 0;
+  padding: 20px 24px 118px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+}
+.st-pills {
+  display: flex;
+  gap: 10px;
+  padding: 5px;
+  border-radius: var(--r-pill);
+  background: var(--color-bg);
+  box-shadow: var(--st-carve);
+}
+.st-pill {
+  padding: 8px 18px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--color-text-muted);
+  background: transparent;
+  box-shadow: none;
+  transition: box-shadow var(--dur-2) var(--ease-standard),
+    color var(--dur-2) var(--ease-standard);
+}
+.st-pill--on {
+  color: var(--color-text);
+  background: var(--color-surface-2);
+  box-shadow: var(--st-ridge);
+}
+.st-pills__blurb {
+  margin: 10px 0 0;
+  font-size: var(--fs-label);
+  color: var(--color-text-muted);
+  letter-spacing: 0.06em;
+}
+
+.st-orb-zone {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  min-height: 260px;
+  display: grid;
+  place-items: center;
+}
+
+/* haptic-feel pulse — one soft ring released per phase change */
+.st-orb__pulse {
+  position: absolute;
+  width: 232px;
+  height: 232px;
+  border-radius: 50%;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 30%, transparent);
+  animation: st-pulse 900ms var(--ease-emphasized-decel) both;
+  pointer-events: none;
+}
+@keyframes st-pulse {
+  from {
+    transform: scale(0.72);
+    opacity: 0.85;
+  }
+  to {
+    transform: scale(1.16);
+    opacity: 0;
+  }
+}
+
+/* the extruded orb: scale tracks the pattern phase, the long slow
+   ease-in-out travel is deliberate — this is the ONE place 5s motion fits */
+.st-orb {
+  --orb-scale: 0.82;
+  --orb-travel: 4s;
+  position: relative;
+  width: 218px;
+  height: 218px;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 32% 28%,
+    var(--color-surface-3),
+    var(--color-bg) 68%
+  );
+  box-shadow: var(--st-ridge-lg),
+    inset 0 0 34px color-mix(in srgb, var(--color-primary) 7%, transparent);
+  display: grid;
+  place-items: center;
+  transform: scale(0.82);
+  transition: transform var(--orb-travel) ease-in-out;
+}
+.st-orb--on {
+  transform: scale(var(--orb-scale));
+}
+.st-orb:active {
+  /* a moment of carve under the finger before it carries on breathing */
+  box-shadow: var(--st-carve);
+}
+
+.st-orb__face {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  pointer-events: none;
+  user-select: none;
+}
+.st-orb__phase {
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--color-text);
+}
+.st-orb__count {
+  font-size: var(--fs-display);
+  font-weight: 300;
+  line-height: 1;
+  color: var(--color-text-muted);
+}
+.st-orb__hint {
+  font-size: var(--fs-label);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* cycle position — pressed-in soft track */
+.st-track {
+  width: 78%;
+  height: 10px;
+  margin-top: 6px;
+  border-radius: var(--r-pill);
+  background: var(--color-bg);
+  box-shadow: var(--st-carve);
+  overflow: hidden;
+}
+.st-track__fill {
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--color-primary) 55%, var(--color-surface-3)),
+    var(--color-primary)
+  );
+  transition: width 120ms linear;
+}
+
+.st-readout {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+  margin-top: 14px;
+}
+.st-readout__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+}
+.st-readout__item b {
+  font-size: var(--fs-body-l);
+  font-weight: 600;
+}
+.st-readout__item span {
+  font-size: 10px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.st-readout__dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--color-text-muted);
+  opacity: 0.5;
+}
+
+.st-finish {
+  margin-top: 12px;
+  padding: 10px 26px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  background: var(--color-surface-1);
+  box-shadow: var(--st-ridge);
+  transition: box-shadow var(--dur-2) var(--ease-standard),
+    transform var(--dur-2) var(--ease-standard);
+}
+.st-finish:active {
+  box-shadow: var(--st-carve);
+  transform: scale(0.96);
+}
+.st-breathe__foot {
+  margin-top: 18px;
+  font-size: var(--fs-label);
+  font-style: italic;
+  color: var(--color-text-muted);
+  opacity: 0.8;
+}
+
+/* =========================================================================
+   Sessions — segmented filter trough, program rows with extruded discs
+   ========================================================================= */
+.st-seg {
+  display: flex;
+  gap: 4px;
+  padding: 5px;
+  border-radius: var(--r-lg);
+  background: var(--color-bg);
+  box-shadow: var(--st-carve);
+}
+.st-seg__item {
+  flex: 1;
+  padding: 9px 4px;
+  border-radius: var(--r-md);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-align: center;
+  transition: box-shadow var(--dur-2) var(--ease-standard),
+    color var(--dur-2) var(--ease-standard),
+    background var(--dur-2) var(--ease-standard);
+}
+.st-seg__item--on {
+  color: var(--color-text);
+  background: var(--color-surface-2);
+  box-shadow: var(--st-ridge);
+}
+.st-seg__item:active {
+  color: var(--color-text);
+  box-shadow: var(--st-carve);
+}
+
+.st-prog {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.st-prog__head {
+  margin: 10px 0 0;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.st-prog__head span {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.st-prog__head em {
+  font-size: var(--fs-label);
+  font-style: normal;
+  color: var(--color-text-muted);
+}
+
+.st-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.st-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: var(--r-lg);
+  background: var(--color-bg);
+  box-shadow: var(--st-ridge);
+}
+.st-row__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.st-row__text b {
+  font-size: var(--fs-body);
+  font-weight: 600;
+}
+.st-row__text span {
+  font-size: var(--fs-label);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.st-row__check {
+  color: var(--color-tertiary);
+  display: grid;
+  place-items: center;
+  animation: st-pop var(--dur-3) var(--ease-emphasized-decel) both;
+}
+@keyframes st-pop {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* extruded play disc — press carves it, completion flips it to a check */
+.st-disc {
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  border-radius: 50%;
+  background: var(--color-surface-2);
+  box-shadow: var(--st-ridge);
+  display: grid;
+  place-items: center;
+  color: var(--color-text);
+  transition: box-shadow var(--dur-2) var(--ease-standard),
+    transform var(--dur-2) var(--ease-standard),
+    color var(--dur-2) var(--ease-standard);
+}
+.st-disc:active {
+  box-shadow: var(--st-carve);
+  transform: scale(0.94);
+}
+.st-disc--done {
+  color: var(--color-tertiary);
+  box-shadow: var(--st-carve);
+}
+
+.st-empty {
+  margin: 24px 4px 0;
+  text-align: center;
+  font-size: var(--fs-body);
+  color: var(--color-text-muted);
+  font-style: italic;
+}
+
+/* =========================================================================
+   Profile — stats pills, reminder stepper, soundscape toggles
+   ========================================================================= */
+.st-id {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: var(--r-xl);
+  background: var(--color-surface-1);
+  box-shadow: var(--st-ridge);
+}
+.st-id__avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  box-shadow: var(--st-carve);
+  display: grid;
+  place-items: center;
+  color: var(--color-primary);
+}
+.st-id__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.st-id__text b {
+  font-size: var(--fs-body-l);
+  font-weight: 600;
+}
+.st-id__text span {
+  font-size: var(--fs-label);
+  color: var(--color-text-muted);
+}
+
+.st-stats {
+  display: flex;
+  gap: 12px;
+}
+.st-stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 14px 6px;
+  border-radius: var(--r-lg);
+  background: var(--color-bg);
+  box-shadow: var(--st-ridge);
+}
+.st-stat b {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  line-height: 1;
+}
+.st-stat span {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.st-remind {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.st-remind__row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 14px 16px;
+  border-radius: var(--r-xl);
+  background: var(--color-bg);
+  box-shadow: var(--st-ridge);
+}
+.st-remind__time {
+  min-width: 116px;
+  text-align: center;
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  padding: 10px 8px;
+  border-radius: var(--r-md);
+  background: var(--color-bg);
+  box-shadow: var(--st-carve);
+}
+.st-nudge {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-surface-2);
+  box-shadow: var(--st-ridge);
+  display: grid;
+  place-items: center;
+  color: var(--color-text);
+  transition: box-shadow var(--dur-2) var(--ease-standard),
+    transform var(--dur-2) var(--ease-standard);
+}
+.st-nudge:active {
+  box-shadow: var(--st-carve);
+  transform: scale(0.93);
+}
+
+/* soft switch row — knob in a carved trough; on = knob extruded + lit */
+.st-switchrow,
+.st-about {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 13px 16px;
+  border-radius: var(--r-lg);
+  background: var(--color-bg);
+  box-shadow: var(--st-ridge);
+  text-align: left;
+  transition: transform var(--dur-2) var(--ease-standard);
+}
+.st-switchrow:active,
+.st-about:active {
+  transform: scale(0.985);
+}
+.st-switchrow__icon {
+  color: var(--color-text-muted);
+  display: grid;
+  place-items: center;
+}
+.st-switchrow__label {
+  flex: 1;
+  font-size: var(--fs-body);
+  font-weight: 500;
+  color: var(--color-text);
+}
+.st-switchrow__knob {
+  width: 52px;
+  height: 28px;
+  flex: 0 0 auto;
+  border-radius: var(--r-pill);
+  background: var(--color-bg);
+  box-shadow: var(--st-carve);
+  position: relative;
+  transition: background var(--dur-2) var(--ease-standard);
+}
+.st-switchrow__knob::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-surface-3);
+  box-shadow: var(--st-ridge);
+  transition: transform var(--dur-2) var(--ease-emphasized);
+}
+.st-switchrow--on .st-switchrow__knob::after {
+  transform: translateX(24px);
+  background: var(--color-primary);
+}
+
+/* soundscape toggles — press-in soft pills with a lit dot when on */
+.st-sounds {
+  display: flex;
+  gap: 10px;
+}
+.st-sound {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 14px 6px 12px;
+  border-radius: var(--r-lg);
+  background: var(--color-bg);
+  box-shadow: var(--st-ridge);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  transition: box-shadow var(--dur-2) var(--ease-standard),
+    color var(--dur-2) var(--ease-standard),
+    transform var(--dur-2) var(--ease-standard);
+}
+.st-sound__icon {
+  color: inherit;
+}
+.st-sound__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--color-surface-3);
+  box-shadow: var(--st-carve);
+  transition: background var(--dur-2) var(--ease-standard),
+    box-shadow var(--dur-2) var(--ease-standard);
+}
+.st-sound--on {
+  color: var(--color-text);
+  box-shadow: var(--st-carve);
+}
+.st-sound--on .st-sound__dot {
+  background: var(--color-primary);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--color-primary) 60%, transparent);
+}
+
+.st-note {
+  margin: -6px 4px 0;
+  font-size: var(--fs-label-s);
+  font-style: italic;
+  color: var(--color-text-muted);
+  opacity: 0.85;
+}
+
+.st-about__ver {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+
+/* =========================================================================
+   Toast — carved soft pill above the nav
+   ========================================================================= */
+.st-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 104px;
+  transform: translateX(-50%);
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  max-width: 84%;
+  padding: 11px 18px;
+  border-radius: var(--r-pill);
+  background: var(--color-surface-2);
+  box-shadow: var(--st-carve);
+  animation: st-toast-in var(--dur-3) var(--ease-emphasized-decel) both;
+}
+.st-toast__icon {
+  color: var(--color-primary);
+  display: grid;
+  place-items: center;
+  flex: 0 0 auto;
+}
+.st-toast__msg {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  color: var(--color-text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@keyframes st-toast-in {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+}
+
+/* =========================================================================
+   Reduced motion — the UI stops; the orb keeps its rhythm as discrete
+   steps (instant scale per phase + softened opacity), never just frozen.
+   ========================================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .st-head,
+  .st-streak,
+  .st-intention,
+  .st-sechead,
+  .st-reco__card,
+  .st-pills,
+  .st-orb-zone,
+  .st-track,
+  .st-readout,
+  .st-finish,
+  .st-breathe__foot,
+  .st-seg,
+  .st-prog,
+  .st-row,
+  .st-id,
+  .st-stats,
+  .st-remind,
+  .st-sounds,
+  .st-note,
+  .st-about,
+  .st-screen,
+  .st-toast,
+  .st-row__check {
+    animation: none !important;
+  }
+  .st-orb {
+    /* no travel — the phase still changes the orb, in steps */
+    transition: none;
+  }
+  .st-orb--on {
+    transition: none;
+  }
+  .st-orb__pulse {
+    animation: none !important;
+    display: none;
+  }
+  .st-track__fill {
+    transition: none;
+  }
+}
