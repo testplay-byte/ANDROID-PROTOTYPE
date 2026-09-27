@@ -95,22 +95,33 @@ export function WaTopbar() {
 
 export function WaDock() {
   const { view, go } = useWeather();
+  const activeIdx = Math.max(
+    0,
+    TABS.findIndex((t) => t.id === view || (view === "error" && t.id === "home"))
+  );
   return (
     <nav className="dock glass rim" aria-label="Primary">
-      {TABS.map((tab) => {
-        const on = view === tab.id || (view === "error" && tab.id === "home");
-        return (
-          <button
-            key={tab.id}
-            className={"tab" + (on ? " on" : "")}
-            aria-current={on ? "page" : undefined}
-            onClick={() => go(tab.id)}
-          >
-            <svg viewBox="0 0 24 24">{tab.icon}</svg>
-            <span>{tab.label}</span>
-          </button>
-        );
-      })}
+      <div className="dock-tabs">
+        <span
+          className="dock-ind"
+          style={{ transform: `translateX(${activeIdx * 100}%)` }}
+          aria-hidden="true"
+        />
+        {TABS.map((tab) => {
+          const on = view === tab.id || (view === "error" && tab.id === "home");
+          return (
+            <button
+              key={tab.id}
+              className={"tab" + (on ? " on" : "")}
+              aria-current={on ? "page" : undefined}
+              onClick={() => go(tab.id)}
+            >
+              <svg viewBox="0 0 24 24">{tab.icon}</svg>
+              <span>{tab.label}</span>
+            </button>
+          );
+        })}
+      </div>
     </nav>
   );
 }

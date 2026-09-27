@@ -7,6 +7,19 @@
 
 ## [Unreleased]
 
+### 2026-09-27 — weather-app: polished dock — sliding active pill + nav-layer glass
+
+- The active pill is now one element (`.dock-ind`) that **slides** under the 4 tabs with a
+  spring transition, instead of each tab carrying its own white background; tabs only swap
+  ink color and replay the icon bump (`wa-navBump`).
+- The dock reads as the navigation layer: boosted glass fill (0.20; 0.15 at night) and a
+  heavier blur (`--wa-blur + 6px`, saturate 1.7), also kept alive under the
+  reduced-transparency override in `weather-app.css`.
+- Micro-interactions: hover lifts the icon, press scales the tab, and the dock rises in
+  softly (`wa-dockIn`) as the splash fades.
+- Verified on the live preview in a fresh browser tab: indicator present, slides
+  Weather → Forecast → Cities, hash and screen state stay in sync.
+
 ### 2026-09-27 — weather-app: full rebuild as "Aurora Weather" (1:1 port of the user's reference)
 
 **User direction:** scrap the previous weather-app implementation entirely and recreate the

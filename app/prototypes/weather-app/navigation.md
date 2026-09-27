@@ -57,8 +57,10 @@ Settings (+ a transient error state).
 ## Non-obvious decisions (for future agents)
 
 - **The dock and topbar are app-level ports, not proto-kit `BottomNav`/`TopBar`** — the
-  reference's exact markup/behavior was prioritized (white active pill, navBump, refresh
-  spin). proto-kit's `variant="glass"` nav remains available for other glass prototypes.
+  reference's exact markup/behavior was prioritized. The dock's active pill is a single
+  sliding element (`.dock-ind`, `translateX(index * 100%)`, spring transition) with the
+  dock as the strongest glass layer (boosted fill + `--wa-blur + 6px` blur). proto-kit's
+  `variant="glass"` nav remains available for other glass prototypes.
 - **glass.css fallback neutralization:** `src/proto-kit/styles/glass.css` forces every
   `[class*="glass"]` surface opaque under `prefers-reduced-transparency` (Windows
   transparency effects off ⇒ this machine reports it) and `prefers-contrast: more`.

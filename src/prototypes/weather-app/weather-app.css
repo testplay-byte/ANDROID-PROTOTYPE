@@ -1617,7 +1617,11 @@
   gap: 12px;
 }
 
-/* ---------------- dock nav — 4 tabs ---------------- */
+/* ---------------- dock nav — 4 tabs, sliding active pill ----------------
+   The dock is the navigation layer, so it gets the strongest glass on
+   screen: a boosted fill + heavier blur + tinted float. The active pill
+   is one element that SLIDES under the tabs (spring transition) instead
+   of each tab carrying its own background; tabs only swap ink color. */
 .wa .dock {
   position: absolute;
   left: 14px;
@@ -1630,8 +1634,40 @@
   justify-content: space-around;
   padding: 8px 10px;
   border-radius: 999px;
+  --glass-fill: rgba(255, 255, 255, 0.2);
+  -webkit-backdrop-filter: blur(calc(var(--wa-blur, 26px) + 6px)) saturate(1.7);
+  backdrop-filter: blur(calc(var(--wa-blur, 26px) + 6px)) saturate(1.7);
+  animation: wa-dockIn 0.65s var(--spring) 1.3s both;
+}
+.wa[data-sky="night"] .dock {
+  --glass-fill: rgba(255, 255, 255, 0.15);
+}
+.wa .dock-tabs {
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  height: 100%;
+}
+.wa .dock-ind {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 25%;
+  height: 100%;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow:
+    0 10px 26px -8px rgba(20, 10, 60, 0.55),
+    0 2px 8px rgba(20, 10, 60, 0.18),
+    inset 0 1.5px 0 #fff,
+    inset 0 -1px 0 rgba(20, 10, 60, 0.06);
+  transition: transform 0.5s var(--spring);
+  will-change: transform;
 }
 .wa .dock .tab {
+  position: relative;
+  z-index: 1;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -1643,11 +1679,11 @@
   background: none;
   border-radius: 999px;
   cursor: pointer;
-  color: rgba(255, 255, 255, 0.62);
+  color: rgba(255, 255, 255, 0.66);
   font-size: 10.5px;
   font-weight: 500;
   letter-spacing: 0.3px;
-  transition: color 0.25s, background 0.3s var(--ease), transform 0.2s var(--spring), box-shadow 0.3s;
+  transition: color 0.3s var(--ease), transform 0.2s var(--spring);
 }
 .wa .dock .tab svg {
   width: 21px;
@@ -1657,18 +1693,20 @@
   stroke-width: 1.7;
   stroke-linecap: round;
   stroke-linejoin: round;
+  transition: transform 0.25s var(--spring), stroke-width 0.3s;
 }
 .wa .dock .tab:hover {
   color: var(--txt);
+}
+.wa .dock .tab:hover svg {
+  transform: translateY(-1.5px);
 }
 .wa .dock .tab:active {
   transform: scale(0.93);
 }
 .wa .dock .tab.on {
-  background: #fff;
   color: var(--pill-ink);
   font-weight: 600;
-  box-shadow: 0 8px 22px -6px rgba(20, 10, 60, 0.5), inset 0 1px 0 #fff;
 }
 .wa .dock .tab.on svg {
   stroke-width: 1.9;
@@ -2178,6 +2216,16 @@
     transform: scale(1);
   }
 }
+@keyframes wa-dockIn {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
 @keyframes wa-spin {
   to {
     transform: rotate(360deg);
@@ -2242,6 +2290,11 @@
     background: var(--glass-fill-soft) !important;
     border-color: var(--glass-border-soft);
     box-shadow: var(--glass-shadow-sm), var(--inner-hi);
+  }
+  /* the dock is the navigation layer: heavier blur even under the override */
+  .device .wa .glass.dock {
+    -webkit-backdrop-filter: blur(calc(var(--wa-blur, 26px) + 6px)) saturate(1.7) !important;
+    backdrop-filter: blur(calc(var(--wa-blur, 26px) + 6px)) saturate(1.7) !important;
   }
 }
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
