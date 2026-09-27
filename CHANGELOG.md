@@ -7,6 +7,61 @@
 
 ## [Unreleased]
 
+### 2026-09-27 — system pass: device settings page, fullscreen status bar, dashboard fonts, Bloom reference prototype, search-page + template removal
+
+Four coordinated improvements across the whole system:
+
+**1. Device settings (new `app/settings/` + `src/proto-kit/device-settings/`).**
+The dashboard top-right now has a Settings button (Repo · Settings · theme).
+The page configures the camera cutout every prototype's StatusBar renders —
+live preview + radio groups, persisted to `proto-kit-device-settings-v1`:
+- **Cutout:** punch hole (default) · pill (Dynamic Island) · notch (center only).
+- **Position:** center · left (the clock shifts right to clear it; left+notch
+  falls back to punch; a left pill is automatically much smaller).
+- **Pill size:** compact · wide — height fixed at 24px, width-only change.
+- **Punch size:** normal (13px) · large (17px).
+Mechanics: module-level observable store (localStorage + custom event +
+cross-tab `storage` sync); `<StatusBar>` applies variant classes and mirrors
+`data-cutout*` onto `.device`; morph transitions only arm after first
+settings application (no punch→pill animation on every prototype load).
+Prototypes need zero wiring — it's automatic via DeviceFrame.
+
+**2. Fullscreen status bar fix.** The bar no longer pads itself down by
+`env(safe-area-inset-top)` in fullscreen — the time + icons + cutout now
+share one fixed 36px row centered at the very top (the clock had been
+sitting visibly low).
+
+**3. Dashboard fonts on Android.** The dashboard + settings pages never
+loaded Inter (system-stack fallback → thin Roboto cuts on Android, so
+headings read un-bolded vs the prototypes). Inter 400–900 is now
+self-hosted via `next/font` in `app/layout.tsx` (`--font-inter`), consumed
+by `dashboard.css` + `globals.css`. Verified computed font on the page.
+
+**4. Bloom — the new canonical M3 reference (replaces "Starter Template").**
+A plant-care companion (4 tabs: Home/Water/Guide/Profile) built by a
+sub-agent on the modern proto-kit pattern: generative SVG plant art
+(7 shapes × 6 pots), mount-animated thirst rings, M3 bottom sheets,
+droplet-ripple schedule checks, accordion guide with working category
+chips, persisted prefs. Registered in the gallery (status `reference`) +
+custom mini-thumb. Fixed during review: profile-screen JSX brace errors,
+guide chip row collapsing (missing `flex:0 0 auto` on an `overflow-x`
+column-flex child). Docs: `app/prototypes/bloom/navigation.md` + README.
+
+**5. Removals.** `search-page` (duplicate of anime-app's search) and the
+legacy static `public/prototypes/_template/` deleted outright. All
+references repointed to `bloom` across STARTUP/README/navigation/
+agent-quickstart/template-rules/prototype-blueprint/workflow/theme-architecture/
+repo-map/proto-kit README/templates nav/design-systems docs; M3 spec docs
+now point at the archived static original (`archive/legacy/search-page/`)
+for their verbatim token provenance. anime-app comments that referenced
+search-page made self-contained.
+
+Verified: `tsc --noEmit` + `npm run build` clean (18 routes); settings
+rules exercised in-browser (notch↔left fallback, compact width-only,
+punch large, cross-page propagation to the wallet); Bloom home/guide +
+sheet/water flow + toast checked in light+dark; dashboard Wallet/Bloom
+cards render.
+
 ### 2026-09-27 — wallet: finalized the Liquid Glass prototype (finish + docs pass)
 
 Completed the in-progress Wallet prototype (Apple Wallet–style passes &

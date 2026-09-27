@@ -9,7 +9,7 @@
 
 | Folder / File                  | What it contains                                                     |
 |--------------------------------|----------------------------------------------------------------------|
-| `material-3-expressive/`       | The Material 3 Expressive design system — color, type, spacing, elevation, motion, components, layout patterns. Used by the search-page prototype. |
+| `material-3-expressive/`       | The Material 3 Expressive design system — color, type, spacing, elevation, motion, components, layout patterns. Used by the bloom + anime-app prototypes. |
 | `basic-design/`                | Fundamental design principles — what makes good UI, common AI mistakes, mobile-first, accessibility, color theory, typography. Applies to ALL prototypes. |
 | `design-system-guide.md`       | **Master guide** — how to use these docs for future prototypes, which docs to read when, and the design workflow. |
 

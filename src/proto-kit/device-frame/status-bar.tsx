@@ -1,16 +1,36 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useDeviceSettings } from "../device-settings/store";
 import styles from "./device-frame.module.css";
 
 /**
- * StatusBar — the phone status bar (time, punch-hole, wifi/signal/battery).
+ * StatusBar — the phone status bar (time, camera cutout, wifi/signal/battery).
  *
  * The clock updates live (once per minute). Battery/signal are static icons
  * matching the approved template (left 2 signal bars bright, right 2 dim).
+ *
+ * The camera cutout is configurable via proto-kit device-settings (dashboard
+ * Settings page): punch-hole / pill (Dynamic Island) / notch, centered or
+ * left, compact or wide pill. The choice is read from the store and mirrored
+ * onto the nearest `.device` ancestor as data attributes — all visual rules
+ * live in device-frame.module.css, so prototypes never need to care.
+ * When the cutout sits left, the clock shifts right to clear it.
  */
 export function StatusBar() {
+  const ref = useRef<HTMLDivElement | null>(null);
   const [time, setTime] = useState("9:41");
+  const [settled, setSettled] = useState(false);
+  const { cutout, position, pillSize, punchSize } = useDeviceSettings();
+
+  // Enable cutout transitions only AFTER the first settings application, so
+  // opening a prototype doesn't morph the default punch-hole into the saved
+  // cutout on load (the store hydrates one effect after mount). Live changes
+  // (e.g. the settings page open in another tab) still animate.
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setSettled(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
 
   useEffect(() => {
     const update = () => {
@@ -25,10 +45,36 @@ export function StatusBar() {
     return () => clearInterval(id);
   }, []);
 
+  // Mirror the settings onto the .device element so CSS can drive the cutout
+  // (and the clock offset) without prop-drilling through DeviceFrame.
+  useEffect(() => {
+    const device = ref.current?.closest<HTMLElement>(".device");
+    if (!device) return;
+    device.dataset.cutout = cutout;
+    device.dataset.cutoutPos = position;
+    device.dataset.pillSize = pillSize;
+    device.dataset.punchSize = punchSize;
+  }, [cutout, position, pillSize, punchSize]);
+
   return (
-    <div className={styles.statusbar}>
-      <span className={styles.statusbar__time}>{time}</span>
-      <span className={styles.statusbar__punchhole} aria-hidden="true" />
+    <div className={styles.statusbar} ref={ref}>
+      <span className={styles.statusbar__time}>9:41</span>
+      <span
+        className={`${styles.statusbar__cutout} ${
+          settled ? styles["statusbar__cutout--anim"] : ""
+        } ${
+          cutout === "pill"
+            ? styles["statusbar__cutout--pill"]
+            : cutout === "notch"
+              ? styles["statusbar__cutout--notch"]
+              : ""
+        } ${position === "left" ? styles["statusbar__cutout--left"] : ""} ${
+          cutout === "pill" && position === "center" && pillSize === "compact"
+            ? styles["statusbar__cutout--compact"]
+            : ""
+        } ${cutout === "punch" && position === "center" && punchSize === "large" ? styles["statusbar__cutout--large"] : ""}`}
+        aria-hidden="true"
+      />
       <span className={styles.statusbar__icons} aria-hidden="true">
         {/* Wi-Fi */}
         <svg

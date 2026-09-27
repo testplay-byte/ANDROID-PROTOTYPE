@@ -13,9 +13,7 @@
  * State (query, filters, sort, source, sheet open, sort dropdown open,
  * topbar collapsed) lives here; child components are presentational.
  *
- * Same UI as search-page's search screen; the only difference is that
- * clicking a card calls onOpenAnime(id) (the page-level detail push)
- * instead of being a no-op.
+ * Clicking a card calls onOpenAnime(id) (the page-level detail push).
  */
 import { useEffect, useMemo, useRef, useState } from "react";
 import { SourceToggle } from "../components/source-toggle";

@@ -158,7 +158,7 @@ What it does:
 
 To verify the theme is properly scoped:
 
-1. Open a prototype page (e.g. `/ANDROID-PROTOTYPE/prototypes/search-page/`).
+1. Open a prototype page (e.g. `/ANDROID-PROTOTYPE/prototypes/bloom/`).
 2. Note the page background and side panel colors (dark gray in dark mode, light gray in light mode — they should follow the device theme via `:has()`).
 3. Press the dark mode toggle inside the app (e.g. in the Settings screen).
 4. **The device screen should flip theme.** The bezel should invert (platinum ↔ dark). The stage background and side panels should *follow* the new theme via `:has()` — but they never read `data-theme` directly from `<html>`.

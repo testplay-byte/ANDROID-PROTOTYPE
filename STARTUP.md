@@ -138,7 +138,7 @@ See `docs/tech-stack.md` for the full rationale.
 
 Naming convention: `kebab-case`, descriptive. Example: `app/prototypes/food-delivery-checkout/`.
 
-**Reference implementation:** `app/prototypes/search-page/` (the first ported prototype). Study its layout + page + screens structure as the pattern to follow.
+**Reference implementation:** `app/prototypes/bloom/` + `src/prototypes/bloom/` (the canonical Material 3 reference — structure, motion, and polish to study and match). For non-M3 styles, study `app/prototypes/wallet/` (hig + custom material layer) and `app/prototypes/finance-hub/` (carbon).
 
 ### 5a. Choose a design language (multi-style system)
 
@@ -274,7 +274,7 @@ Reply with A or B to continue.
 | **See the full repo map**              | [`docs/repo-map.md`](./docs/repo-map.md) |
 | See all prototypes                     | `prototypes/navigation.md`             |
 | **Build a new prototype (detailed)**   | [`docs/prototype-blueprint.md`](./docs/prototype-blueprint.md) |
-| Start a new prototype (high-level)     | `prototypes/_template/` + `docs/workflow.md` |
+| Start a new prototype (high-level)     | `docs/workflow.md` + study `app/prototypes/bloom/` (the M3 reference) |
 | Learn the tech stack                   | `docs/tech-stack.md`                   |
 | Learn UI/UX standards                  | `docs/design-standards.md`             |
 | Read the prototype template rules      | `docs/template-rules.md`               |

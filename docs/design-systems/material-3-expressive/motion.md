@@ -1,6 +1,6 @@
 # docs/design-systems/material-3-expressive/motion.md
 
-> Material 3 Expressive motion system: easing curves, durations, named keyframe animations, and the rules for when to use each. Every value here is copied from `prototypes/search-page/styles.css` and `prototypes/search-page/script.js`.
+> Material 3 Expressive motion system: easing curves, durations, named keyframe animations, and the rules for when to use each. Every value here is copied from `archive/legacy/search-page/styles.css` and `archive/legacy/search-page/script.js`.
 
 Motion in M3 Expressive is **physical-feeling but not bouncy**. The curves are asymmetric (fast out, slow in), durations are short (100–500ms), and animations cascade (staggered card fade-ins, sequenced header collapse).
 

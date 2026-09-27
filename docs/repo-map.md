@@ -22,11 +22,14 @@ ANDROID-PROTOTYPE/
 ├── .gitignore                  ← Ignores node_modules, out, .next.
 │
 ├── app/                        ← Next.js App Router (routes are thin).
-│   ├── layout.tsx              ← Root layout (fonts, metadata, <html>).
+│   ├── layout.tsx              ← Root layout (Inter via next/font, metadata, <html>).
 │   ├── page.tsx                ← Dashboard / prototypes gallery (Pages root).
 │   ├── globals.css             ← Minimal global reset.
+│   ├── settings/               ← Device settings page (camera cutout config — proto-kit/device-settings).
+│   │   ├── layout.tsx
+│   │   └── page.tsx
 │   └── prototypes/             ← One route folder per prototype.
-│       ├── search-page/        ← Reference prototype.
+│       ├── bloom/              ← Reference prototype (canonical M3 — structure + motion).
 │       │   ├── layout.tsx      ← Imports tokens.css + prototype CSS; pass-through.
 │       │   └── page.tsx        ← Client. Shell + hash router → renders screens.
 │       └── anime-app/          ← 6-screen M3 Expressive anime app.
@@ -38,7 +41,9 @@ ANDROID-PROTOTYPE/
 │   │   ├── dashboard.css       ← Warm-cream theme (approved palette — do not re-theme).
 │   │   ├── theme-toggle.tsx    ← Page-level light/dark toggle.
 │   │   ├── gallery.tsx         ← Filterable prototype gallery (detailed + grid views).
-│   │   └── thumbs.tsx          ← Mini home-screen thumbnails per prototype.
+│   │   ├── thumbs.tsx          ← Mini home-screen thumbnails per prototype.
+│   │   ├── settings-panel.tsx  ← Device settings page body (cutout config + live preview).
+│   │   └── settings.css        ← Settings page styles.
 │   ├── proto-kit/              ← SHARED DESIGN SYSTEM (fix once, inherit everywhere).
 │   │   ├── index.ts            ← Barrel export.
 │   │   ├── tokens/
@@ -47,7 +52,11 @@ ANDROID-PROTOTYPE/
 │   │   ├── device-frame/       ← Phone mockup (bezel, status bar, screen slot).
 │   │   │   ├── device-frame.tsx
 │   │   │   ├── device-frame.module.css
+│   │   │   ├── fullscreen-button.tsx
 │   │   │   └── status-bar.tsx
+│   │   ├── device-settings/    ← Configurable device chrome (cutout type/position/pill size).
+│   │   │   ├── types.ts        ← Types + localStorage key + defaults.
+│   │   │   └── store.ts        ← Observable store + useDeviceSettings hook.
 │   │   ├── bottom-nav/         ← Multi-variant nav (floating/tabbar/labeled/glass/soft/hard).
 │   │   │   ├── bottom-nav.tsx
 │   │   │   └── bottom-nav.module.css
@@ -59,19 +68,17 @@ ANDROID-PROTOTYPE/
 │   │       ├── theme-provider.tsx
 │   │       └── types.ts
 │   └── prototypes/             ← Prototype screens/components/hooks/lib (one file per screen).
-│       ├── search-page/        ← Reference prototype source.
-│       │   ├── search-page.css ← Prototype-wide token overrides + globals.
-│       │   ├── screens/        ← One file per screen (.tsx + .module.css).
+│       ├── bloom/              ← Reference prototype source (canonical M3).
+│       │   ├── bloom.css       ← Prototype-wide styles (scoped under .bl).
+│       │   ├── screens/        ← One file per screen (.tsx).
 │       │   ├── components/     ← Prototype-specific UI pieces.
-│       │   ├── hooks/          ← Prototype-specific hooks (e.g. use-anilist).
-│       │   └── lib/            ← Prototype-specific logic (anilist, filters, types).
+│       │   ├── state/          ← BloomProvider (plants, watering, prefs, toast).
+│       │   └── lib/            ← Prototype-specific logic (data, helpers).
 │       └── anime-app/          ← 6-screen prototype source (same structure).
 │
 ├── public/                     ← Static files served verbatim by Next.js.
-│   ├── prototypes/             ← Legacy static prototypes (preserved during migration).
-│   │   ├── navigation.md
-│   │   └── _template/          ← OLD static template (legacy reference, NOT the starting point).
-│   │       ├── index.html, styles.css, script.js, navigation.md, README.md
+│   ├── prototypes/             ← Legacy index (navigation.md) — the static prototypes were
+│   │   └── navigation.md          removed; this folder now only indexes routes.
 │   └── assets/                 ← Shared static assets (icons, fonts, images).
 │       └── navigation.md
 │
@@ -120,7 +127,7 @@ ANDROID-PROTOTYPE/
 |---|---|
 | The master context | `STARTUP.md` |
 | The dashboard / gallery (live) | `app/page.tsx` → built to `out/index.html` |
-| The reference prototype | `app/prototypes/search-page/` + `src/prototypes/search-page/` |
+| The reference prototype | `app/prototypes/bloom/` + `src/prototypes/bloom/` |
 | The 6-screen anime prototype | `app/prototypes/anime-app/` + `src/prototypes/anime-app/` |
 | The shared design system | `src/proto-kit/` (DeviceFrame, StatusBar, BottomNav, Stage, tokens, DeviceThemeProvider) |
 | The shared tokens | `src/proto-kit/tokens/tokens.css` |
@@ -132,8 +139,7 @@ ANDROID-PROTOTYPE/
 | How to notify the user | `docs/notification-protocol.md` |
 | The deploy workflow | `.github/workflows/deploy.yml` |
 | The Next.js config | `next.config.ts` |
-| Old static site (backup) | `archive/` (zip + `legacy/`) |
-| Old static template (legacy) | `public/prototypes/_template/` (NOT the starting point — use `search-page`) |
+| Old static site (backup) | `archive/` (zip + `legacy/` — the pre-Next.js static search-page + anime-app) |
 | What changed recently | `CHANGELOG.md` |
 | Reusable UI fragments | `templates/` |
 | Shared icons/images | `public/assets/` |
@@ -166,9 +172,10 @@ ANDROID-PROTOTYPE/
 ### `src/proto-kit/` — the shared design system
 | Path | Role |
 |---|---|
-| `index.ts` | Barrel: `DeviceFrame`, `Screen`, `StatusBar`, `BottomNav`, `Stage`, `PanelBadge/Title/Desc/Head`, `DeviceThemeProvider`, `useDeviceTheme` |
+| `index.ts` | Barrel: `DeviceFrame`, `Screen`, `StatusBar`, `BottomNav`, `Stage`, `PanelBadge/Title/Desc/Head`, `DeviceThemeProvider`, `useDeviceTheme`, `useDeviceSettings`/`saveDeviceSettings` |
 | `tokens/tokens.css` | Single source of truth: type/spacing/radius/motion + M3 color roles + stage tokens |
-| `device-frame/` | `<DeviceFrame>` (bezel + screen) + `<StatusBar>` + `<Screen>` |
+| `device-frame/` | `<DeviceFrame>` (bezel + screen) + `<StatusBar>` + `<Screen>` + `<FullscreenButton>` |
+| `device-settings/` | Configurable device chrome — camera cutout type (punch/pill/notch), position (center/left), pill size. Store + `useDeviceSettings()`; set from the dashboard Settings page (`app/settings/`), applied by `<StatusBar>` on every device |
 | `bottom-nav/` | `<BottomNav>` — floating pill, content-sized active item (42px pill / 58px bar) |
 | `stage/` | `<Stage>` — desktop layout with left/right info panels |
 | `theme/` | `<DeviceThemeProvider>` + `useDeviceTheme()` (scopes `data-theme` to `.device`) |
@@ -185,7 +192,7 @@ ANDROID-PROTOTYPE/
 ### `public/` — static files served verbatim
 | Path | Role |
 |---|---|
-| `prototypes/_template/` | Legacy static HTML template (preserved for reference, NOT the primary starting point) |
+| `prototypes/navigation.md` | Prototype index (route table) — keep in sync with `app/page.tsx` |
 | `assets/` | Shared icons/fonts/images (currently sparse — add when needed) |
 
 ### `archive/` — backup of the pre-Next.js site
@@ -217,7 +224,6 @@ STARTUP.md
        ├→ src/proto-kit/   (no navigation.md yet — see index.ts barrel)
        ├→ src/prototypes/<name>/  (no navigation.md yet — see the prototype's own docs)
        ├→ public/prototypes/navigation.md
-       │    └→ public/prototypes/_template/navigation.md
        ├→ templates/navigation.md
        ├→ public/assets/navigation.md
        ├→ archive/STATIC-V1-MANIFEST.md
@@ -228,4 +234,4 @@ STARTUP.md
 
 ---
 
-*Last updated: Next.js migration (Phase 4) — project converted from static HTML to Next.js 16 static export. Old static files preserved under `archive/` and `public/prototypes/_template/`. Keep this map accurate — it's how agents find things.*
+*Last updated: 2026-09-27 — search-page + legacy `_template` removed; `app/prototypes/bloom/` is the canonical M3 reference; `app/settings/` + `src/proto-kit/device-settings/` added (configurable device chrome). Old static files preserved under `archive/`. Keep this map accurate — it's how agents find things.*

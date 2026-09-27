@@ -1,6 +1,6 @@
 # docs/design-systems/material-3-expressive/color-system.md
 
-> The Material 3 color system used by the `search-page` prototype. Every hex value here is copied from `prototypes/search-page/styles.css` — these are the canonical tokens, not approximations.
+> The Material 3 color system used by the `search-page` prototype. Every hex value here is copied from `archive/legacy/search-page/styles.css` — these are the canonical tokens, not approximations.
 
 ---
 

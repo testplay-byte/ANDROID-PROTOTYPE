@@ -1,6 +1,6 @@
 # docs/design-systems/material-3-expressive/components.md
 
-> M3 component specs for the `search-page` prototype. Each component lists: elevation tier, radius, height, padding, color roles, states, and the CSS class names. Every value is copied from `prototypes/search-page/styles.css`.
+> M3 component specs for the `search-page` prototype. Each component lists: elevation tier, radius, height, padding, color roles, states, and the CSS class names. Every value is copied from `archive/legacy/search-page/styles.css`.
 
 This is the component-by-component reference. For how they compose into screen patterns (collapsing header, trays, sheets), see [`layout-patterns.md`](./layout-patterns.md). For token definitions, see [`color-system.md`](./color-system.md), [`typography.md`](./typography.md), [`spacing.md`](./spacing.md), [`elevation.md`](./elevation.md), [`motion.md`](./motion.md).
 
@@ -511,7 +511,7 @@ M3 Expressive prefers horizontal nav items over the older "icon-over-label" patt
 - Saves vertical space (48px item height vs ~72px for stacked).
 - Lets the active item's label appear with the icon as a single pill, reinforcing "this is selected."
 
-Non-active items hide their label entirely — only the active item shows text. This is the user's explicit preference (see [`prototypes/search-page/navigation.md`](../../../prototypes/search-page/navigation.md) §Bottom navigation).
+Non-active items hide their label entirely — only the active item shows text. This is the user's explicit preference (see [`prototypes/search-page/navigation.md`](../../../archive/legacy/search-page/navigation.md) §Bottom navigation).
 
 ---
 

@@ -26,7 +26,7 @@
 |-------------------|--------------------------------------------------------------------|---------------------------|
 | `app/`            | Next.js App Router routes (thin): dashboard + prototype routes.    | [`STARTUP.md`](./STARTUP.md) §3 |
 | `src/`            | Source code: `proto-kit/` (shared design system) + `prototypes/` (prototype screens/components/hooks/lib) + `dashboard/`. | [`STARTUP.md`](./STARTUP.md) §3 |
-| `public/`         | Static files served verbatim by Next.js (legacy `_template/` + `assets/`). | — |
+| `public/`         | Static files served verbatim by Next.js (`assets/`). | — |
 | `templates/`      | Reusable UI fragments (agent reference, not served).               | [`templates/navigation.md`](./templates/navigation.md) |
 | `archive/`        | Backup of pre-Next.js static site (zip + legacy prototype files).  | [`archive/STATIC-V1-MANIFEST.md`](./archive/STATIC-V1-MANIFEST.md) |
 | `Android_app/`    | **Native Android apps** (Kotlin + Compose). APKs built via GitHub Actions. | [`Android_app/navigation.md`](./Android_app/navigation.md) |
@@ -46,7 +46,7 @@
 | **See the full repo map**               | [`docs/repo-map.md`](./docs/repo-map.md)                              |
 | Find a specific prototype               | `app/prototypes/<name>/` + `src/prototypes/<name>/`                   |
 | **Build a new prototype (detailed)**    | [`docs/prototype-blueprint.md`](./docs/prototype-blueprint.md)        |
-| Start a new prototype (high-level)      | Study `app/prototypes/search-page/` as the reference pattern          |
+| Start a new prototype (high-level)      | Study `app/prototypes/bloom/` as the reference pattern          |
 | Learn the tech stack                    | [`docs/tech-stack.md`](./docs/tech-stack.md)                          |
 | Learn the UI/UX design standards        | [`docs/design-standards.md`](./docs/design-standards.md)              |
 | Read the prototype template rules       | [`docs/template-rules.md`](./docs/template-rules.md)                  |

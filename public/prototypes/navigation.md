@@ -12,8 +12,7 @@
 
 | Route | Name | Style | Status | Screens |
 |-------|------|-------|--------|---------|
-| `/prototypes/_template/` | Starter Template | m3 (legacy static) | reference | 4 |
-| `/prototypes/search-page/` | Search Page | m3 | approved | 2 |
+| `/prototypes/bloom/` | Bloom | m3 | review | 4 |
 | `/prototypes/anime-app/` | Anime App | m3 | review | 6 |
 | `/prototypes/setup-wizard/` | Setup Wizard | m3 | review | 8 |
 | `/prototypes/music-player/` | Music Player | neumorph | review | 4 |
@@ -31,14 +30,11 @@
 All 11 design languages are supported by the style system (`src/proto-kit/styles/`) —
 see `docs/style-selection-guide.md` and `docs/design-languages/`.
 
-## Legacy (served from public/)
+## Legacy
 
-| Folder | What |
-|--------|------|
-| `_template/` | Old static HTML starter template. Linked from the dashboard but NOT the primary starting point — use `src/proto-kit/` + the search-page pattern instead. |
-
-Old static versions of search-page + anime-app are in `archive/legacy/`.
+The old static HTML prototypes (`_template/`, static search-page) were removed
+from `public/` on 2026-09-27. Pre-Next.js snapshots live in `archive/legacy/`.
 
 ---
 
-*Last updated: 2026-09-27 — added Wallet (hig · iOS 26/27 Liquid Glass).*
+*Last updated: 2026-09-27 — added Bloom (canonical M3 reference) + Wallet; removed search-page + legacy `_template`.*

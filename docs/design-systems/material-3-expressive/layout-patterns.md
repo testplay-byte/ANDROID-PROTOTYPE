@@ -1,6 +1,6 @@
 # docs/design-systems/material-3-expressive/layout-patterns.md
 
-> Screen-level layout patterns used in the `search-page` prototype: collapsing header, floating bottom nav, section trays, recent-searches collapse, blur gradient on scroll. Every value is copied from `prototypes/search-page/styles.css` and `prototypes/search-page/script.js`.
+> Screen-level layout patterns used in the `search-page` prototype: collapsing header, floating bottom nav, section trays, recent-searches collapse, blur gradient on scroll. Every value is copied from `archive/legacy/search-page/styles.css` and `archive/legacy/search-page/script.js`.
 
 This doc covers **how components compose into screen-level patterns**. For component specs (heights, radii, tokens), see [`components.md`](./components.md). For the motion values referenced here, see [`motion.md`](./motion.md).
 

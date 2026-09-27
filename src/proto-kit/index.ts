@@ -8,6 +8,23 @@
 
 export { DeviceFrame, Screen, type DeviceFrameProps } from "./device-frame/device-frame";
 export { StatusBar } from "./device-frame/status-bar";
+
+// Device chrome settings — configurable camera cutout (punch / pill / notch),
+// its position and pill size. Set from the dashboard Settings page
+// (app/settings/); read + applied by <StatusBar> on every prototype device.
+export {
+  useDeviceSettings,
+  loadDeviceSettings,
+  saveDeviceSettings,
+} from "./device-settings/store";
+export {
+  DEVICE_SETTINGS_KEY,
+  DEFAULT_DEVICE_SETTINGS,
+  type DeviceSettings,
+  type CutoutType,
+  type CutoutPosition,
+  type PillSize,
+} from "./device-settings/types";
 export { BottomNav, type NavItem, type BottomNavProps, type BottomNavVariant } from "./bottom-nav/bottom-nav";
 export { TopBar, type TopBarProps, type TopBarVariant } from "./top-bar/top-bar";
 export {

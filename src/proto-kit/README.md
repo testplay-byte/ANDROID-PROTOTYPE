@@ -12,7 +12,8 @@
 | `tokens/tokens.css` | ALL design tokens: type scale, spacing, radius, motion, M3 color roles, per-theme frame invert + widths, stage backgrounds. Import once in each prototype's layout. | `import "@proto-kit/tokens/tokens.css"` |
 | `styles/index.css` | **Multi-design-language layer** — 10 style token layers (HIG, Carbon, Neumorphism, Glassmorphism, Brutalism, Claymorphism, Bauhaus, Minimalism, Bento, Flat), each defining the full token contract for both themes. Import AFTER tokens.css. Ids in `styles/types.ts`. | `import "@proto-kit/styles/index.css"` |
 | `device-frame/device-frame.tsx` | `<DeviceFrame theme="dark" style="carbon">` — the phone mockup (bezel + status bar + fullscreen button + screen slot). Frame inverts by theme; `style` sets `data-style` and switches the design language (omit = M3). | `{ DeviceFrame, Screen }` |
-| `device-frame/status-bar.tsx` | `<StatusBar>` — live clock, punch-hole, Wi-Fi/signal/battery icons. Auto-rendered inside DeviceFrame. | `{ StatusBar }` |
+| `device-frame/status-bar.tsx` | `<StatusBar>` — live clock, configurable camera cutout (see `device-settings/`), Wi-Fi/signal/battery icons. Auto-rendered inside DeviceFrame. | `{ StatusBar }` |
+| `device-settings/` | Configurable device chrome: cutout type (punch / pill / notch), position (center / left), pill size (compact / wide), punch size (normal / large). Observable localStorage store + `useDeviceSettings()`; `<StatusBar>` reads it and mirrors `data-cutout*` onto `.device`. Set from the dashboard **Settings page** (`app/settings/`). | `{ useDeviceSettings, saveDeviceSettings, DEVICE_SETTINGS_KEY }` |
 | `device-frame/fullscreen-button.tsx` | `<FullscreenButton>` — real Fullscreen API toggle. Desktop-only (hidden on mobile). Auto-rendered inside DeviceFrame. | (internal) |
 | `bottom-nav/bottom-nav.tsx` | `<BottomNav items activeId onSelect variant>` — 6 variants: `floating` (pill, default), `tabbar` (iOS), `labeled` (flat bar), `glass`, `soft`, `hard`. All read style tokens. | `{ BottomNav, NavItem, BottomNavVariant }` |
 | `top-bar/top-bar.tsx` | `<TopBar title variant leading trailing>` — 4 variants: `large`, `center` (iOS), `inline` (enterprise), `hero` (display). Reads style tokens. | `{ TopBar, TopBarVariant }` |
@@ -54,6 +55,18 @@ The frame + background transition smoothly when toggling themes.
 
 ---
 
+## Device settings — configurable camera cutout
+
+The dashboard's **Settings page** (`app/settings/`, body in `src/dashboard/settings-panel.tsx`) lets the user configure the phone chrome that every prototype's `<StatusBar>` renders:
+
+- **Cutout type:** `punch` (13px dot, Android default) · `pill` (Dynamic Island, 100×24 wide / 72×24 compact — height fixed, width-only change) · `notch` (132×26 tab hanging from the top edge, center only).
+- **Position:** `center` · `left` (clock shifts right to clear it). Left + pill = a much smaller island (52×18); left + notch falls back to punch.
+- **Punch size:** `normal` (13px) · `large` (17px).
+
+Mechanics: `device-settings/store.ts` is a module-level observable store (localStorage `proto-kit-device-settings-v1` + custom event + cross-tab `storage` sync). `<StatusBar>` reads it via `useDeviceSettings()`, applies variant classes, and mirrors `data-cutout` / `data-cutout-pos` / `data-pill-size` / `data-punch-size` onto `.device` so prototype CSS can react. The morph transition only enables after the first settings application (`--anim` class), so opening a prototype snaps straight to the saved cutout. Prototypes need **no wiring** — it's automatic via DeviceFrame.
+
+---
+
 ## Bottom nav — content-sized active pill
 
 - Active item: `flex: 0 1 auto` (content-sized) — full label always visible, never truncated.
@@ -71,6 +84,9 @@ The frame + background transition smoothly when toggling themes.
 - **Mobile-only** — hidden on PC (>480px) via `@media (min-width: 481px)`.
 - **Completely disappears when in fullscreen mode** (no exit button). The user exits via the system back button/gesture (mobile).
 - The button only enters fullscreen — it never toggles to an exit button.
+- In fullscreen the status bar keeps its fixed 36px row at the very top — the
+  time/icons and the cutout stay vertically centered together (no
+  `env(safe-area-inset-top)` padding, which used to push the clock down).
 
 ---
 
@@ -146,4 +162,4 @@ import { DeviceThemeProvider, DeviceFrame, Screen, Stage, BottomNav } from "@/pr
 </DeviceThemeProvider>
 ```
 
-See `app/prototypes/search-page/` as the reference implementation.
+See `app/prototypes/bloom/` as the reference implementation.

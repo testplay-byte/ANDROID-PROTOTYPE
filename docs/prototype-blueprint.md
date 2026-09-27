@@ -4,7 +4,7 @@
 > Read this alongside [`docs/workflow.md`](./workflow.md) (which is the high-level process).
 > This is the **how-to with specifics**.
 >
-> **Reference implementation:** `app/prototypes/search-page/` + `src/prototypes/search-page/`. Study it before you start — it is the canonical pattern.
+> **Reference implementation:** `app/prototypes/bloom/` + `src/prototypes/bloom/`. Study it before you start — it is the canonical pattern.
 
 ---
 
@@ -18,9 +18,9 @@ Before you start, you should have read:
 - [`docs/tech-stack.md`](./tech-stack.md) — the allowed tech + why
 
 And skimmed the reference prototype:
-- `app/prototypes/search-page/layout.tsx` — how tokens are imported
-- `app/prototypes/search-page/page.tsx` — the shell + hash router pattern
-- `src/prototypes/search-page/screens/*.tsx` — one file per screen
+- `app/prototypes/bloom/layout.tsx` — how tokens are imported
+- `app/prototypes/bloom/page.tsx` — the shell + hash router pattern
+- `src/prototypes/bloom/screens/*.tsx` — one file per screen
 
 ---
 
@@ -156,7 +156,7 @@ export default function Page() {
 }
 ```
 
-Copy the full pattern from `app/prototypes/search-page/page.tsx` — don't reinvent it.
+Copy the full pattern from `app/prototypes/bloom/page.tsx` — don't reinvent it.
 For a styled prototype, study a style showcase instead — e.g. `app/prototypes/finance-hub/page.tsx`
 (Carbon) or `app/prototypes/streetwear-store/page.tsx` (Brutalism) — to see `style=` and
 `variant=` in context.
@@ -395,4 +395,4 @@ Status: awaiting your review." \
 
 ---
 
-*Last updated: Next.js migration (Phase 4) — prototypes now scaffolded as `app/prototypes/<name>/` + `src/prototypes/<name>/`, built on `src/proto-kit/`. Reference pattern: `app/prototypes/search-page/`. Follow this blueprint for every new prototype.*
+*Last updated: Next.js migration (Phase 4) — prototypes now scaffolded as `app/prototypes/<name>/` + `src/prototypes/<name>/`, built on `src/proto-kit/`. Reference pattern: `app/prototypes/bloom/`. Follow this blueprint for every new prototype.*

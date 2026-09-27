@@ -1,8 +1,8 @@
 # docs/design-systems/material-3-expressive/navigation.md
 
-> Index of every Material 3 Expressive design-system doc in this folder. These files are the **authoritative token + spec reference** for any prototype built on the M3 dark-purple theme (e.g. `prototypes/search-page/`).
+> Index of every Material 3 Expressive design-system doc in this folder. These files are the **authoritative token + spec reference** for any prototype built on the M3 dark-purple theme (the archived static original — live M3 reference now: `app/prototypes/bloom/`).
 >
-> Read the relevant file before touching CSS variables, motion, or component styling in an M3 prototype. The values here are copied verbatim from `prototypes/search-page/styles.css` — do not "improve" or "approximate" them.
+> Read the relevant file before touching CSS variables, motion, or component styling in an M3 prototype. The values here are copied verbatim from `archive/legacy/search-page/styles.css` — do not "improve" or "approximate" them.
 
 ---
 
@@ -43,12 +43,12 @@ If `design-standards.md` and a file here ever disagree, **this folder wins** for
 
 ## Source of truth
 
-Every value in these docs is lifted from `prototypes/search-page/styles.css` (v3 redesign). If you change a token in a prototype, **update the corresponding doc here in the same commit** so the system stays in sync.
+Every value in these docs is lifted from `archive/legacy/search-page/styles.css` (v3 redesign). If you change a token in a prototype, **update the corresponding doc here in the same commit** so the system stays in sync.
 
 The reference prototype lives at:
-- Code: `prototypes/search-page/{index.html, styles.css, script.js}`
-- Live: <https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/search-page/>
-- README: `prototypes/search-page/README.md`
+- Code: `archive/legacy/search-page/{index.html, styles.css, script.js}`
+- Live: <https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/bloom/> (Next.js port; static original archived)
+- README: `archive/legacy/search-page/README.md`
 
 ---
 

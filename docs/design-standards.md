@@ -20,7 +20,7 @@
 - **Theming:** app theme is scoped to `.device` (`data-theme` on the device element, NOT `<html>`). The page never turns dark when the app toggle is pressed. See `docs/theme-architecture.md`.
 - **Mobile preview:** frame collapses to full viewport (no device chrome, panels hidden) so it feels native. A floating button toggles back to framed view.
 
-The template in `prototypes/_template/` implements this. Copy it; don't reinvent. Authoritative rules live in `docs/template-rules.md`.
+The `app/prototypes/bloom/` prototype implements this. Study it; don't reinvent. Authoritative rules live in `docs/template-rules.md`.
 
 ---
 

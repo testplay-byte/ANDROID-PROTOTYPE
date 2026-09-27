@@ -1,0 +1,238 @@
+/* =====================================================================
+   src/dashboard/settings.css — the dashboard Settings page (app/settings/).
+   Uses the dashboard's warm-cream tokens (dashboard.css) + a mini device
+   preview that mirrors proto-kit's status-bar cutout geometry.
+   ===================================================================== */
+
+.settings {
+  padding: 40px 24px 80px;
+}
+
+.settings__head { margin-bottom: 28px; }
+.settings__title {
+  margin: 0;
+  font-size: clamp(28px, 4.5vw, 40px);
+  font-weight: 800;
+  letter-spacing: -0.025em;
+}
+.settings__sub {
+  margin: 8px 0 0;
+  max-width: 560px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--muted-foreground);
+}
+.settings__sub b { color: var(--foreground); font-weight: 600; }
+
+.settings__grid {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 28px;
+  align-items: start;
+}
+@media (max-width: 780px) {
+  .settings__grid { grid-template-columns: 1fr; }
+}
+
+/* ---- Preview column ---- */
+.settings__preview {
+  position: sticky;
+  top: 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 28px 20px;
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  box-shadow: var(--shadow-md);
+}
+@media (max-width: 780px) {
+  .settings__preview { position: static; }
+}
+.settings__hint {
+  margin: 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--muted-foreground);
+}
+.settings__saved { color: var(--chart-2); font-weight: 700; }
+
+/* mini device — geometry mirrors proto-kit device-frame (36px bar, 13px
+   punch, 70/96px pill, 150px notch). Keep in sync with
+   src/proto-kit/device-frame/device-frame.module.css. */
+.sp-device {
+  width: 260px;
+  border-radius: 30px;
+  border: 6px solid #1c1916;
+  background: #12100e;
+  overflow: hidden;
+  box-shadow: 0 18px 40px -18px rgba(0, 0, 0, 0.55);
+  transition: border-color 0.25s ease;
+}
+[data-theme="light"] .sp-device { border-color: #cfcfcf; background: #f2e8da; }
+
+.sp-statusbar {
+  position: relative;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 14px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #f2e8da;
+}
+[data-theme="light"] .sp-statusbar { color: #1e1a13; }
+.sp-time { font-variant-numeric: tabular-nums; transition: margin-left 0.2s ease; }
+.sp-device[data-cutout-pos="left"] .sp-time { margin-left: 26px; }
+.sp-icons { display: inline-flex; align-items: center; gap: 5px; }
+.sp-batt { font-size: 10px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+.sp-cutout {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #2b2b30 0%, #060608 70%);
+  transition: all 0.22s ease;
+}
+.sp-cutout--pill {
+  top: calc(50% + 1.5px);
+  width: 76px;
+  height: 18px;
+  border-radius: 10px;
+  background: #000;
+}
+.sp-cutout--pill.sp-cutout--compact {
+  width: 56px;
+}
+.sp-cutout--pill.sp-cutout--left {
+  top: 50%;
+  width: 40px;
+  height: 14px;
+  border-radius: 8px;
+}
+.sp-cutout--notch {
+  top: 0;
+  transform: translate(-50%, 0);
+  width: 100px;
+  height: 20px;
+  border-radius: 0 0 12px 12px;
+  background: #000;
+}
+.sp-cutout--left { left: 22px; }
+.sp-cutout--large { width: 13px; height: 13px; }
+
+.sp-screen { padding: 14px 12px 16px; display: flex; flex-direction: column; gap: 10px; }
+.sp-appbar {
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #f2e8da;
+  padding: 2px 2px 6px;
+}
+[data-theme="light"] .sp-appbar { color: #1e1a13; }
+.sp-card {
+  height: 44px;
+  border-radius: 10px;
+  background: #282521;
+}
+[data-theme="light"] .sp-card { background: #e9decf; }
+.sp-card--short { width: 62%; height: 34px; }
+.sp-nav {
+  display: flex;
+  justify-content: center;
+  gap: 26px;
+  margin-top: 10px;
+  padding: 8px 18px;
+  border-radius: 999px;
+  background: #1c1916;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+[data-theme="light"] .sp-nav { background: #f9f2ea; border-color: #d7cec1; }
+.sp-nav__dot { width: 22px; height: 5px; border-radius: 999px; background: #5d574e; }
+[data-theme="light"] .sp-nav__dot { background: #b3a894; }
+.sp-nav__dot--on { background: var(--chart-1); }
+
+/* ---- Controls column ---- */
+.settings__controls { display: flex; flex-direction: column; gap: 20px; }
+.settings__group {
+  margin: 0;
+  padding: 18px 20px 20px;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  background: var(--card);
+  box-shadow: var(--shadow-sm);
+}
+.settings__group:disabled { opacity: 0.55; }
+.settings__group legend {
+  padding: 0 8px;
+  margin-left: -8px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted-foreground);
+}
+.settings__group legend small {
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+  color: var(--ring);
+}
+
+.settings__opt {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 12px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+.settings__opt:hover { background: var(--accent); }
+.settings__opt--blocked,
+.settings__opt:has(input:disabled) {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.settings__opt--blocked:hover,
+.settings__opt:has(input:disabled):hover { background: transparent; }
+.settings__opt input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+}
+.settings__opt-dot {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin-top: 2px;
+  border-radius: 50%;
+  border: 2px solid var(--ring);
+  display: grid;
+  place-items: center;
+  transition: border-color 0.15s ease;
+}
+.settings__opt.on .settings__opt-dot { border-color: var(--chart-1); }
+.settings__opt.on .settings__opt-dot::after {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--chart-1);
+}
+.settings__opt-text { display: flex; flex-direction: column; gap: 2px; }
+.settings__opt-label { font-size: 15px; font-weight: 600; }
+.settings__opt-hint { font-size: 12.5px; color: var(--muted-foreground); }
+.settings__opt:has(input:focus-visible) {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}

@@ -11,31 +11,18 @@ import { STYLE_LABELS } from "../src/proto-kit/styles/types";
 
 const PROTOTYPES: GalleryItem[] = [
   {
-    name: "Starter Template",
-    url: "prototypes/_template/",
+    name: "Bloom",
+    url: "prototypes/bloom/",
     status: "reference",
-    desc: "A real, clickable phone frame with four switchable screens, bottom navigation, dark/light theming, and a live status bar with punch-hole camera.",
+    desc: "A plant-care companion in plain Material 3 — the repo's canonical M3 reference. Generative SVG plant art, animated thirst rings, M3 bottom sheets, FAB, emphasized motion and a live water schedule across four tabs.",
     style: "m3",
-    tags: ["HTML", "CSS", "JS"],
+    tags: ["M3 reference", "Plant care", "Sheets"],
     palette: { bg: "#14111f", surface: "#221e33", surfaceAlt: "#332d4c", accent: "#d0bcff", text: "#ece6f5" },
     screens: [
-      { name: "Home", interactions: 70 },
-      { name: "Search", interactions: 50 },
+      { name: "Home", interactions: 90 },
+      { name: "Water", interactions: 70 },
+      { name: "Guide", interactions: 55 },
       { name: "Profile", interactions: 60 },
-      { name: "Settings", interactions: 80 },
-    ],
-  },
-  {
-    name: "Search Page",
-    url: "prototypes/search-page/",
-    status: "review",
-    desc: "Material 3 Expressive search with AniList/Extension source toggle, filter chips, expandable filter panel, collapsing header, and a functional settings screen.",
-    style: "m3",
-    tags: ["AniList", "Filters"],
-    palette: { bg: "#14111f", surface: "#221e33", surfaceAlt: "#332d4c", accent: "#d0bcff", text: "#ece6f5" },
-    screens: [
-      { name: "Search", interactions: 95 },
-      { name: "Settings", interactions: 60 },
     ],
   },
   {
@@ -313,6 +300,13 @@ export default function Page() {
                 <path d="M9 18c-4.51 2-5-2-7-2" />
               </svg>
               <span className="lbl">Repo</span>
+            </a>
+            <a className="navbtn" href="settings/" aria-label="Device settings">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                <circle cx="12" cy="12" r="3" />
+                <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+              </svg>
+              <span className="lbl">Settings</span>
             </a>
             <ThemeToggle />
           </nav>

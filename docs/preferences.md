@@ -77,7 +77,7 @@
   - Dark app theme → **soft light/platinum** frame (`#cfcfcf` bezel + `#a8a8a8` rim). NOT stark white — the user found pure `#ffffff` too glaring ("reduce its whiteness a bit but don't turn it into black"). A soft platinum reads as a refined light metal.
   - Light app theme → **dark** frame (`#0e0a17` bezel + `#1b1729` rim) for contrast against the light screen.
   - The inversion gives premium contrast in both themes: the frame always contrasts with the screen interior.
-- (Legacy search-page used a different warm palette: near-black `#1a1612` in light mode, medium-gray `#3a3530` in dark mode. The anime-app M3 purple palette uses the inversion approach above.)
+- (Legacy search-page (removed 2026-09-27) used a different warm palette: near-black `#1a1612` in light mode, medium-gray `#3a3530` in dark mode. The anime-app M3 purple palette uses the inversion approach above.)
 
 ### Status bar (left → center → right)
 1. **Time** (left) — 12-hour, tabular-nums, ~13px, live clock.
@@ -200,7 +200,7 @@ Both are the user's own creations — copy freely.
 
 ## 6. Material 3 Expressive design (for prototypes that use M3)
 
-When a prototype uses Material 3 (like the search-page), follow these rules:
+When a prototype uses Material 3 (like bloom or anime-app), follow these rules:
 
 ### Elevation = tonal surfaces, NOT heavy shadows
 - M3 dark theme uses **surface color tiers** for elevation: `surface-1` → `surface-2` → `surface-3` → `surface-4` → `surface-5`.

@@ -10,7 +10,7 @@
 - Read [`STARTUP.md`](../STARTUP.md), [`docs/tech-stack.md`](./tech-stack.md), and [`docs/template-rules.md`](./template-rules.md).
 - Confirm the prototype brief from the user: which screens, what interactions, what vibe.
 - Pick a `kebab-case` name that describes the app/flow. Example: `food-delivery-checkout`.
-- Skim the reference prototype: `app/prototypes/search-page/` + `src/prototypes/search-page/`.
+- Skim the reference prototype: `app/prototypes/bloom/` + `src/prototypes/bloom/`.
 
 ---
 
@@ -48,7 +48,7 @@ See [`docs/prototype-blueprint.md`](./prototype-blueprint.md) for the full step-
 
 1. Start from the proto-kit shell in `page.tsx` (`<DeviceThemeProvider>` → `<Stage>` → `<DeviceFrame>` → `<Screen>` + `<BottomNav>`).
 2. Implement each screen as **one file** in `src/prototypes/<your-name>/screens/`. Each screen is a self-contained React component with its own `.module.css`.
-3. Wire up navigation between screens with **hash routing** in `page.tsx` (`useState` + `popstate` listener + `history.pushState`). See `app/prototypes/search-page/page.tsx` for the pattern.
+3. Wire up navigation between screens with **hash routing** in `page.tsx` (`useState` + `popstate` listener + `history.pushState`). See `app/prototypes/bloom/page.tsx` for the pattern.
 4. Make it **interactive**: taps, transitions, form inputs, toggles, loading states. A static screen is not acceptable here.
 5. Respect [`design-standards.md`](./design-standards.md) and [`template-rules.md`](./template-rules.md): 44px touch targets, mobile type scale, theme scoped to `.device`, etc.
 6. Use the shared tokens (`var(--color-bg)`, `var(--sp-4)`, `var(--r-md)`, …) — never hardcode colors/spacing.

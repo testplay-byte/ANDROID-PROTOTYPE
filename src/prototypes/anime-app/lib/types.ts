@@ -1,9 +1,9 @@
 /**
  * anime-app / lib / types — shared types for the anime-app prototype.
  *
- * Extends the search-page type set with Library + History + Settings rows
- * and the few extra Anime fields the detail screen needs (bannerImage,
- * description, nextAiringEpisode).
+ * Shared types for the anime app: search results (AniList fields), plus
+ * Library + History + Settings rows and the extra Anime fields the detail
+ * screen needs (bannerImage, description, nextAiringEpisode).
  */
 
 export interface AnimeTitle {

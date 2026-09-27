@@ -19,7 +19,7 @@ Prototypes can be built in **11 design languages**: Material 3 (default), Apple 
 - **New to the repo?** Read [`STARTUP.md`](./STARTUP.md) first — it is the master context file.
 - **Want a 2-minute overview?** Read [`docs/agent-quickstart.md`](./docs/agent-quickstart.md).
 - **Looking for something specific?** Check [`navigation.md`](./navigation.md) or [`docs/repo-map.md`](./docs/repo-map.md).
-- **Want to build a prototype?** Read [`docs/prototype-blueprint.md`](./docs/prototype-blueprint.md) and study [`app/prototypes/search-page/`](./app/prototypes/search-page/) as the reference pattern.
+- **Want to build a prototype?** Read [`docs/prototype-blueprint.md`](./docs/prototype-blueprint.md) and study [`app/prototypes/bloom/`](./app/prototypes/bloom/) as the reference pattern.
 
 ---
 
@@ -31,7 +31,7 @@ Prototypes are deployed to GitHub Pages automatically on every push to `main`.
 - **A prototype:** `https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/<name>/`
 
 Current catalog (filterable on the dashboard by design language, in detailed or grid view):
-search-page, anime-app, setup-wizard, music-player, weather-app, streetwear-store,
+bloom, anime-app, setup-wizard, music-player, weather-app, streetwear-store,
 finance-hub, smart-home, fitness-tracker, wallet, kids-learning, chat-app, habit-tracker, gallery-app.
 
 A prototype at `app/prototypes/my-app/` is reachable at `https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/my-app/`.

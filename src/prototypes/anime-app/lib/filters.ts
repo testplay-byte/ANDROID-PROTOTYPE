@@ -2,8 +2,8 @@
  * anime-app / lib / filters — filter category definitions + helpers.
  *
  * All AniList enum values + display labels live here so the components
- * and the GraphQL client can share them. (Same content as search-page's
- * filters.ts — duplicated so each prototype is self-contained.)
+ * and the GraphQL client can share them. Self-contained per the
+ * no-cross-prototype-import rule.
  */
 import type { SortOption, Source, FilterState } from "./types";
 

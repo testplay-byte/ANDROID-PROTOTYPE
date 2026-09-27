@@ -4,7 +4,7 @@
 > These codify the look, feel, and interaction behavior the user has approved.
 > Read this before deviating from the shared components.
 >
-> **Reference prototype:** `app/prototypes/search-page/` + `src/prototypes/search-page/`. Study it as the canonical pattern. The shared frame/nav/stage/tokens live in `src/proto-kit/`.
+> **Reference prototype:** `app/prototypes/bloom/` + `src/prototypes/bloom/`. Study it as the canonical pattern. The shared frame/nav/stage/tokens live in `src/proto-kit/`.
 
 ---
 
@@ -181,4 +181,4 @@ The app's theme is **scoped to the `.device` element**, NOT set on `<html>`. Thi
 
 ---
 
-*Last updated: Next.js migration (Phase 4) — frame/nav/stage/tokens moved into `src/proto-kit/`; reference prototype is `app/prototypes/search-page/`. Frame now inverts by theme (platinum dark / dark light, per-theme widths).*
+*Last updated: Next.js migration (Phase 4) — frame/nav/stage/tokens moved into `src/proto-kit/`; reference prototype is `app/prototypes/bloom/`. Frame now inverts by theme (platinum dark / dark light, per-theme widths).*

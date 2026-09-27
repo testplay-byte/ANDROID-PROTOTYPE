@@ -18,41 +18,29 @@ const line = (c: string, w = "70%", h = 6, r = 4): React.CSSProperties => ({
 });
 
 const THUMBS: Record<string, (p: Palette) => ReactNode> = {
-  "Starter Template": (p) => (
+  "Bloom": (p) => (
     <>
+      {/* greeting line + due chip */}
+      <span style={line(p.text, "48%", 7, 4)} />
+      {/* 2-col plant-card grid: surface card + accent ring disc */}
       <div style={{ display: "flex", gap: 4 }}>
-        <span style={line(p.surfaceAlt, "50%", 10, 6)} />
-        <span style={{ ...line(p.accent, "22%", 10, 6), marginLeft: "auto" }} />
-      </div>
-      <div style={{ background: p.surface, borderRadius: 6, padding: 6, display: "flex", flexDirection: "column", gap: 4 }}>
-        <span style={line(p.accent, "34%", 8, 4)} />
-        <span style={line(p.surfaceAlt, "90%")} />
-        <span style={line(p.surfaceAlt, "60%")} />
-      </div>
-      <div style={{ display: "flex", gap: 4 }}>
-        <span style={{ ...line(p.surfaceAlt, "50%", 34, 6) }} />
-        <span style={{ ...line(p.surfaceAlt, "50%", 34, 6) }} />
-      </div>
-    </>
-  ),
-  "Search Page": (p) => (
-    <>
-      <span style={{ ...line(p.surface, "100%", 14, 999) }} />
-      <div style={{ display: "flex", gap: 4 }}>
-        <span style={line(p.accent, "46%", 10, 999)} />
-        <span style={line(p.surfaceAlt, "46%", 10, 999)} />
-      </div>
-      <div style={{ display: "flex", gap: 4 }}>
-        {[70, 46, 58].map((w, i) => (
-          <span key={i} style={{ flex: 1, aspectRatio: "2/3", borderRadius: 4, background: p.surface }} />
+        {[0, 1].map((i) => (
+          <div key={i} style={{ flex: 1, background: p.surface, borderRadius: 6, padding: 5, display: "flex", flexDirection: "column", gap: 4 }}>
+            <span style={{ width: 12, height: 12, borderRadius: 999, border: `2.5px solid ${i === 0 ? p.accent : p.surfaceAlt}`, alignSelf: "flex-end" }} />
+            <span style={line(p.surfaceAlt, "70%", 5, 3)} />
+          </div>
         ))}
       </div>
       <div style={{ display: "flex", gap: 4 }}>
-        {[52, 64].map((w, i) => (
-          <span key={i} style={{ flex: 1, aspectRatio: "2/3", borderRadius: 4, background: p.surface }} />
+        {[1, 0].map((i) => (
+          <div key={i} style={{ flex: 1, background: p.surface, borderRadius: 6, padding: 5, display: "flex", flexDirection: "column", gap: 4 }}>
+            <span style={{ width: 12, height: 12, borderRadius: 999, border: `2.5px solid ${i === 0 ? p.accent : p.surfaceAlt}`, alignSelf: "flex-end" }} />
+            <span style={line(p.surfaceAlt, "70%", 5, 3)} />
+          </div>
         ))}
-        <span style={{ flex: 1 }} />
       </div>
+      {/* FAB */}
+      <span style={{ width: 14, height: 14, borderRadius: 5, background: p.accent, alignSelf: "flex-end", marginTop: "auto" }} />
     </>
   ),
   "Anime App": (p) => (

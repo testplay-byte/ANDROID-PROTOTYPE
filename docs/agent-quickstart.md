@@ -12,7 +12,7 @@
 
 - **Repo:** https://github.com/testplay-byte/ANDROID-PROTOTYPE
 - **Live:** https://testplay-byte.github.io/ANDROID-PROTOTYPE/
-- **Reference prototype:** https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/search-page/ (study its code at `app/prototypes/search-page/` + `src/prototypes/search-page/`)
+- **Reference prototype:** https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/bloom/ (study its code at `app/prototypes/bloom/` + `src/prototypes/bloom/`)
 
 ---
 
@@ -31,8 +31,8 @@
 - **Colors:** 🟩 success · 🟥 error · 🟦 paused · 🟧 processing
 - Copy-paste command in [`docs/notification-protocol.md`](./notification-protocol.md)
 
-### 3. The reference prototype is `app/prototypes/search-page/` + `src/prototypes/search-page/`
-- To start a new prototype: scaffold `app/prototypes/<name>/` (`layout.tsx` + `page.tsx`) and `src/prototypes/<name>/` (`screens/`, `components/`, `hooks/`, `lib/`). Study `search-page` as the pattern — see [`docs/prototype-blueprint.md`](./prototype-blueprint.md).
+### 3. The reference prototype is `app/prototypes/bloom/` + `src/prototypes/bloom/`
+- To start a new prototype: scaffold `app/prototypes/<name>/` (`layout.tsx` + `page.tsx`) and `src/prototypes/<name>/` (`screens/`, `components/`, `hooks/`, `lib/`). Study `bloom` as the pattern — see [`docs/prototype-blueprint.md`](./prototype-blueprint.md).
 - It uses the shared design system in `src/proto-kit/`: `<DeviceFrame>` (32px corners, theme-inverting bezel — platinum in dark, dark in light, per-theme widths), `<StatusBar>` (time, Wi-Fi 2/3, signal 2/4 left-bright, portrait battery, battery%), `<BottomNav>` (floating pill, content-sized active item, 42px pill / 58px bar), `<Stage>` (side panels), `<DeviceThemeProvider>`.
 - **Theme is scoped to `.device`** — `data-theme` goes on the `.device` element, NOT `<html>`. The page never turns dark when the app toggle is pressed.
 - Tokens live in `src/proto-kit/tokens/tokens.css` (single source of truth). Import it once in the prototype's `layout.tsx`.
@@ -81,7 +81,7 @@ The `basePath: '/ANDROID-PROTOTYPE'` in `next.config.ts` keeps URLs identical to
 
 | You need to... | Do this |
 |---|---|
-| Build a new prototype | Scaffold `app/prototypes/<name>/` + `src/prototypes/<name>/`, study `search-page` as the pattern. See [`docs/prototype-blueprint.md`](./prototype-blueprint.md). |
+| Build a new prototype | Scaffold `app/prototypes/<name>/` + `src/prototypes/<name>/`, study `bloom` as the pattern. See [`docs/prototype-blueprint.md`](./prototype-blueprint.md). |
 | Understand the file structure | Read [`docs/repo-map.md`](./repo-map.md) |
 | Change a design preference | Update [`docs/preferences.md`](./preferences.md) + the relevant code |
 | Fix a bug in the shared frame/nav | Edit `src/proto-kit/`, rebuild, push, notify |

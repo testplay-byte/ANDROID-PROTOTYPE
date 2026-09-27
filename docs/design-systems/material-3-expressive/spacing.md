@@ -1,6 +1,6 @@
 # docs/design-systems/material-3-expressive/spacing.md
 
-> The 4px base grid and spacing tokens for the `search-page` prototype. Every value here is copied from `prototypes/search-page/styles.css`.
+> The 4px base grid and spacing tokens for the `search-page` prototype. Every value here is copied from `archive/legacy/search-page/styles.css`.
 
 ---
 

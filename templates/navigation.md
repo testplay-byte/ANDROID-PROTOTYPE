@@ -12,7 +12,7 @@
 | Subfolder | Holds |
 |-----------|-------|
 | `components/` | Atomic UI pieces (currently empty — use `src/proto-kit/` instead) |
-| `screens/` | Full-screen layouts (currently empty — study `app/prototypes/search-page/` as the reference) |
+| `screens/` | Full-screen layouts (currently empty — study `app/prototypes/bloom/` as the reference) |
 
 When proto-kit doesn't have what you need, add it to proto-kit (not here)
 so every prototype can reuse it.

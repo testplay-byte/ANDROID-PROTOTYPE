@@ -7,7 +7,7 @@
 
 ## 1. The design workflow
 
-Every prototype follows this workflow (refined through the search-page prototype):
+Every prototype follows this workflow (refined through the bloom prototype):
 
 ### Step 1: Research (before writing any code)
 1. Read [`basic-design/what-makes-good-ui.md`](./basic-design/what-makes-good-ui.md) — the 8 fundamental principles.
@@ -25,8 +25,8 @@ Every prototype follows this workflow (refined through the search-page prototype
 5. Plan motion — see [`material-3-expressive/motion.md`](./material-3-expressive/motion.md).
 
 ### Step 3: Build
-1. Copy `prototypes/_template/` → `prototypes/<your-name>/`.
-2. Override the design tokens in `styles.css` (keep the M3 structure, change the values).
+1. Scaffold `app/prototypes/<name>/` + `src/prototypes/<name>/` following [`docs/prototype-blueprint.md`](../prototype-blueprint.md) — study `app/prototypes/bloom/` as the canonical M3 reference.
+2. Use the shared tokens (`src/proto-kit/tokens/tokens.css`); override only what the app needs.
 3. Build components following [`material-3-expressive/components.md`](./material-3-expressive/components.md).
 4. Apply layout patterns from [`material-3-expressive/layout-patterns.md`](./material-3-expressive/layout-patterns.md).
 
@@ -74,7 +74,7 @@ From [`basic-design/ai-ui-mistakes.md`](./basic-design/ai-ui-mistakes.md):
 
 ## 4. The M3 token system
 
-All M3 prototypes use this token structure (from the search-page prototype):
+All M3 prototypes use this token structure (as used by the bloom prototype):
 
 ```css
 :root {
@@ -130,7 +130,7 @@ See [`material-3-expressive/color-system.md`](./material-3-expressive/color-syst
 
 ## 5. Layout patterns
 
-Key patterns from the search-page prototype (see [`material-3-expressive/layout-patterns.md`](./material-3-expressive/layout-patterns.md) for full specs):
+Key patterns from the bloom prototype (see [`material-3-expressive/layout-patterns.md`](./material-3-expressive/layout-patterns.md) for full specs):
 
 | Pattern | Description |
 |---------|-------------|

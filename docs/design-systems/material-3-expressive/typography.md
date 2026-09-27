@@ -1,6 +1,6 @@
 # docs/design-systems/material-3-expressive/typography.md
 
-> M3 type scale, font family, weights, line-heights, and letter-spacing rules used by the `search-page` prototype. Every value here is copied from `prototypes/search-page/styles.css`.
+> M3 type scale, font family, weights, line-heights, and letter-spacing rules used by the `search-page` prototype. Every value here is copied from `archive/legacy/search-page/styles.css`.
 
 ---
 
