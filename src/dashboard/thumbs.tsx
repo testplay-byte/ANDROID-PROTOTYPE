@@ -123,6 +123,31 @@ const THUMBS: Record<string, (p: Palette) => ReactNode> = {
       </div>
     </>
   ),
+  "Drift": (p) => (
+    <>
+      {/* header pill */}
+      <span style={{ ...line("rgba(255,255,255,.22)", "46%", 9, 999) }} />
+      {/* hero card — sunset cover fading into frosted veil + waveform */}
+      <div style={{ borderRadius: 9, overflow: "hidden", border: "1px solid rgba(255,255,255,.35)" }}>
+        <div style={{ height: 26, background: `linear-gradient(135deg, ${p.accent}, ${p.surface}, ${p.surfaceAlt})` }} />
+        <div style={{ background: "rgba(255,255,255,.14)", padding: 5, display: "flex", alignItems: "center", gap: 2, height: 18 }}>
+          {[8, 13, 6, 11, 15, 7, 12, 5, 9, 14].map((h, i) => (
+            <span key={i} style={{ width: 3, height: h, borderRadius: 2, background: "rgba(255,255,255,.75)" }} />
+          ))}
+        </div>
+      </div>
+      {/* continue card + mini player */}
+      <span style={{ ...line("rgba(255,255,255,.16)", "100%", 14, 8) }} />
+      <span style={{ ...line("rgba(255,255,255,.2)", "100%", 12, 999) }} />
+      {/* glass dock */}
+      <div style={{ display: "flex", gap: 3, padding: 3, borderRadius: 999, background: "rgba(255,255,255,.16)", border: "1px solid rgba(255,255,255,.35)", marginTop: "auto" }}>
+        <span style={{ flex: 1, height: 12, borderRadius: 999, background: "rgba(255,255,255,.55)" }} />
+        {[0, 1, 2].map((i) => (
+          <span key={i} style={{ flex: 1, height: 12, borderRadius: 999 }} />
+        ))}
+      </div>
+    </>
+  ),
   "Weather App": (p) => (
     <>
       {/* Aurora hero card — glass sheet with thin hero temp + sun glyph */}

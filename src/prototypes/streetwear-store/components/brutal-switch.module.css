@@ -19,7 +19,7 @@
 
 .track:active {
   transform: translate(2px, 2px);
-  box-shadow: none;
+  box-shadow: var(--shadow-inset);
 }
 
 .trackOn {

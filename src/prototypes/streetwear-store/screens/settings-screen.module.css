@@ -1,4 +1,5 @@
-/* SettingsScreen — brutalist groups: 2px borders, hard shadows, 0 radius. */
+/* SettingsScreen — slab header band, numbered group labels, bordered
+   groups with hard shadows, segmented ink buttons. 0 radius. */
 
 .root {
   position: absolute;
@@ -8,11 +9,47 @@
   background: var(--color-bg);
 }
 
+/* ---- Slab header: title block + ink tag (chrome varied vs. the hero TopBar) ---- */
+.header {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+  border-bottom: 3px solid var(--color-outline);
+  background: var(--color-bg);
+}
+
+.headerTitle {
+  font-family: var(--ss-display);
+  font-size: var(--fs-h1);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  border-bottom: 4px solid var(--color-secondary);
+}
+
+.headerTag {
+  margin-left: auto;
+  padding: 4px 10px 5px;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  box-shadow: var(--shadow-1);
+  font-size: var(--fs-label-s);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  transform: rotate(-2deg);
+}
+
+/* ---- Scroll content ---- */
 .content {
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  padding: var(--sp-4) var(--sp-4) 110px;
+  padding: var(--sp-4) var(--sp-4) 120px;
   scrollbar-width: none;
 }
 
@@ -20,8 +57,55 @@
   display: none;
 }
 
+/* ---- Stats strip ---- */
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0;
+  margin-bottom: var(--sp-6);
+  border: 3px solid var(--color-outline);
+  background: var(--color-surface-1);
+  box-shadow: var(--shadow-2);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--sp-4) var(--sp-2);
+  border-right: var(--border-w) solid var(--color-outline);
+}
+
+.stat:last-child {
+  border-right: none;
+}
+
+.statNum {
+  font-family: var(--ss-display);
+  font-size: var(--fs-h1);
+  font-weight: 900;
+  line-height: 1;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.stat:last-child .statNum {
+  color: var(--color-secondary);
+}
+
+.statLabel {
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  color: var(--color-text-muted);
+}
+
+/* ---- Group labels + groups ---- */
 .groupLabel {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
   font-size: var(--fs-label);
   font-weight: 900;
   letter-spacing: 0.14em;
@@ -30,12 +114,19 @@
   margin: 0 0 var(--sp-2) 2px;
 }
 
+.groupLabel::after {
+  content: "";
+  flex: 1 1 auto;
+  height: var(--border-w);
+  background: var(--color-outline-variant);
+}
+
 .group {
   border: var(--border-w) solid var(--color-outline);
   background: var(--color-surface-1);
   box-shadow: var(--shadow-1);
-  padding: var(--sp-3);
-  margin-bottom: var(--sp-5);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-6);
   display: flex;
   flex-direction: column;
   gap: var(--sp-3);
@@ -65,7 +156,8 @@
 
 .rowTitle {
   font-size: var(--fs-body);
-  font-weight: 800;
+  font-weight: 900;
+  letter-spacing: 0.02em;
   color: var(--color-text);
 }
 
@@ -74,7 +166,13 @@
   color: var(--color-text-muted);
 }
 
-/* ---- Segmented control (LIGHT/DARK, USD/EUR/GBP) ---- */
+.divider {
+  height: var(--border-w);
+  background: var(--color-outline);
+  opacity: 0.35;
+}
+
+/* ---- Segmented controls ---- */
 .segmented {
   display: flex;
   gap: var(--sp-2);
@@ -82,15 +180,15 @@
 
 .segmentBtn {
   flex: 1 1 0;
-  min-height: 44px;
+  min-height: 46px;
   border: var(--border-w) solid var(--color-outline);
   background: var(--color-surface-2);
   color: var(--color-text-muted);
+  box-shadow: var(--shadow-1);
   font-size: var(--fs-label);
   font-weight: 900;
   letter-spacing: 0.1em;
   cursor: pointer;
-  border-radius: 0;
   transition:
     background var(--dur-1) var(--ease-standard),
     color var(--dur-1) var(--ease-standard),
@@ -100,11 +198,81 @@
 
 .segmentBtn:active {
   transform: translate(2px, 2px);
-  box-shadow: none;
+  box-shadow: var(--shadow-inset);
 }
 
 .segmentBtnActive {
   background: var(--color-primary);
   color: var(--color-primary-fg);
+}
+
+/* ---- Reset buttons ---- */
+.dangerBtn {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 0 var(--sp-4);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-secondary);
+  color: var(--color-bg);
   box-shadow: var(--shadow-1);
+  font-size: var(--fs-label);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transition:
+    transform var(--dur-1) var(--ease-standard),
+    box-shadow var(--dur-1) var(--ease-standard);
+}
+
+.dangerBtn:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-inset);
+}
+
+.confirmBtn {
+  flex: 0 0 auto;
+  min-height: 40px;
+  padding: 0 var(--sp-4);
+  border: 3px solid var(--color-outline);
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  box-shadow: var(--shadow-2);
+  font-size: var(--fs-label);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  cursor: pointer;
+  transform: rotate(-2deg);
+}
+
+.confirmBtn:active {
+  transform: rotate(-2deg) translate(3px, 3px);
+  box-shadow: var(--shadow-inset);
+}
+
+/* ---- About block ---- */
+.about {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--sp-4);
+  border: var(--border-w) solid var(--color-outline);
+  border-left: 6px solid var(--color-secondary);
+  background: var(--color-surface-1);
+  box-shadow: var(--shadow-1);
+}
+
+.aboutName {
+  font-family: var(--ss-display);
+  font-size: var(--fs-h3);
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+.aboutMeta {
+  font-size: var(--fs-label-s);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
 }

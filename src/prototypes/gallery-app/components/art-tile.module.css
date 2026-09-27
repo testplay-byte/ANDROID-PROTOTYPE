@@ -1,0 +1,126 @@
+/* ArtTile — bordered tile: plate + caption body. 2px ink borders, zero
+   shadow, square corners, triad solids only. */
+
+.tile {
+  display: flex;
+  flex-direction: column;
+  border: var(--border-w) solid var(--color-outline);
+  border-radius: 0;
+  background: var(--color-surface-1);
+  animation: tileRise var(--dur-4) var(--ease-emphasized-decel) both;
+  animation-delay: var(--stagger, 0ms);
+}
+
+@keyframes tileRise {
+  0% {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---- plate (tap → full-screen PlateView) ---- */
+.plateBtn {
+  display: block;
+  position: relative;
+  width: 100%;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.art {
+  width: 100%;
+}
+
+.roomTag {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  padding: 3px 7px;
+  border-top: var(--border-w) solid var(--color-outline);
+  border-right: var(--border-w) solid var(--color-outline);
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+}
+
+/* ---- caption body ---- */
+.body {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-2) var(--sp-3);
+  border-top: var(--border-w) solid var(--color-outline);
+}
+
+.diamondBtn {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--border-w) solid var(--color-outline);
+  border-radius: var(--r-xs);
+  background: transparent;
+  cursor: pointer;
+}
+
+.diamond {
+  width: 12px;
+  height: 12px;
+  border: var(--border-w) solid var(--color-outline);
+  transform: rotate(45deg);
+  transition:
+    background var(--dur-2) var(--ease-standard),
+    border-color var(--dur-2) var(--ease-standard);
+}
+
+.diamondOn {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  animation: diamondPop var(--dur-3) var(--ease-emphasized-decel);
+}
+
+@keyframes diamondPop {
+  0% {
+    transform: rotate(45deg) scale(0.6);
+  }
+  60% {
+    transform: rotate(45deg) scale(1.25);
+  }
+  100% {
+    transform: rotate(45deg) scale(1);
+  }
+}
+
+.caption {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.title {
+  font-size: var(--fs-label);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.meta {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}

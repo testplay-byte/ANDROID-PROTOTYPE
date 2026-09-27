@@ -150,8 +150,13 @@ Guidance (the luminous rule): glass needs AIR, LIGHT and SEPARATION. Keep the da
 
 ## Demo prototype
 
-Demo prototype: the weather app at `app/prototypes/weather-app` (also the styles gallery at
-https://testplay-byte.github.io/ANDROID-PROTOTYPE/).
+Demo prototypes: the weather app at `app/prototypes/weather-app` (1:1 reference port) and
+**Drift** at `app/prototypes/drift` — a podcast/audio player built as the color-discipline
+showcase: glass fills are pure milky white alphas (0.10–0.22, never tinted), all hue comes
+from a vivid mesh backdrop that rotates per tab (dawn amber → sea teal → dusk magenta →
+forest green), and text contrast was computed (WCAG model over the scene geometry) rather
+than eyeballed. See its navigation.md for the method before building another glass app.
+Also the styles gallery at https://testplay-byte.github.io/ANDROID-PROTOTYPE/.
 
 > **Note (2026-09-27):** the weather app was rebuilt as a 1:1 port of the user's "Aurora
 > Weather" reference (`GLASS/DL/aurora-weather`), which runs its own recipe inside the

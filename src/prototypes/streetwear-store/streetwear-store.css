@@ -1,7 +1,11 @@
 /* streetwear-store.css — prototype-specific global styles.
    Imported once by app/prototypes/streetwear-store/layout.tsx so it only
    applies on the /prototypes/streetwear-store/* routes. Tokens come from
-   proto-kit/tokens/tokens.css + styles/index.css (brutalism layer). */
+   proto-kit/tokens/tokens.css + styles/index.css (brutalism layer).
+
+   Brutalism rules that matter here: ZERO border-radius on anything inside
+   the device, and even the page-level stage panels use square ink-edged
+   chrome so nothing contradicts the style. */
 
 body {
   font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
@@ -18,6 +22,12 @@ button {
   font: inherit;
 }
 
+/* Poster display stack — Arial Black / Impact are system-available,
+   giving oversized headline weight without any webfont import. */
+.device[data-style="brutalism"] {
+  --ss-display: "Arial Black", "Archivo Black", Impact, "Inter", sans-serif;
+}
+
 /* ---- No visible scrollbars anywhere in the device ---- */
 .device * {
   scrollbar-width: none;
@@ -27,7 +37,8 @@ button {
 }
 
 /* ---- Side-panel content (right panel mini-bars + kvlist + tags) ---- */
-/* These are not in proto-kit/Stage; defined here globally. */
+/* These are not in proto-kit/Stage; defined here globally. Square,
+   2px ink borders — brutalist stage chrome. */
 .tags {
   display: flex;
   flex-wrap: wrap;
@@ -35,12 +46,14 @@ button {
 }
 .tag {
   font-size: 10px;
-  font-weight: 600;
-  padding: 3px 8px;
-  border-radius: var(--r-pill);
-  background: var(--sb-muted);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 9px;
+  border-radius: 0;
+  background: var(--sb-bg);
   color: var(--sb-text);
-  border: 1px solid var(--sb-border);
+  border: 2px solid var(--sb-text);
 }
 
 .screeninfo {
@@ -69,20 +82,24 @@ button {
   gap: 8px;
 }
 .mini-bar-label {
-  width: 52px;
+  width: 64px;
   font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--sb-text-muted);
 }
 .mini-bar-track {
   flex: 1;
-  height: 4px;
-  border-radius: var(--r-pill);
-  background: var(--sb-muted);
+  height: 8px;
+  border-radius: 0;
+  border: 2px solid var(--sb-text);
+  background: transparent;
   overflow: hidden;
 }
 .mini-bar-fill {
   height: 100%;
-  border-radius: var(--r-pill);
+  border-radius: 0;
 }
 .mini-bar-num {
   width: 28px;

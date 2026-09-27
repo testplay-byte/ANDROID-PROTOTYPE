@@ -35,6 +35,9 @@
 }
 
 .btn:active:not(:disabled) {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  box-shadow: var(--shadow-inset);
   transform: translate(1px, 1px);
 }
 

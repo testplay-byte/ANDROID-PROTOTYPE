@@ -1,0 +1,209 @@
+/* bits — shared Bauhaus furniture. Borders + solid triad blocks only;
+   no shadows, no gradients. */
+
+/* ---- SectionLabel ---- */
+.sectionLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin: 0 0 var(--sp-3);
+}
+
+/* quarter-circle tick: one rounded corner, solid red */
+.labelTick {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  background: var(--color-primary);
+  border-bottom-right-radius: 100%;
+}
+
+.labelText {
+  font-size: var(--fs-label);
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+.labelTrailing {
+  margin-left: auto;
+  font-size: var(--fs-label-s);
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- DiagonalDivider: red bar with a clipped diagonal tip + disc ---- */
+.diagonal {
+  position: relative;
+  height: 22px;
+  margin: var(--sp-6) 0;
+}
+
+.diagonalBar {
+  position: absolute;
+  left: 0;
+  right: 26px;
+  top: 5px;
+  bottom: 5px;
+  background: var(--color-primary);
+  clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%);
+}
+
+.diagonalDisc {
+  position: absolute;
+  right: 0;
+  top: 1px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-tertiary);
+}
+
+/* ---- TriadRule ---- */
+.triadRule {
+  display: flex;
+  gap: var(--sp-2);
+  align-items: center;
+  margin: var(--sp-2) 0;
+}
+
+.triadRule span {
+  width: 10px;
+  height: 10px;
+  border: var(--border-w) solid var(--color-outline);
+}
+
+.triadRed {
+  background: var(--color-primary);
+}
+.triadBlue {
+  background: var(--color-secondary);
+}
+.triadYellow {
+  background: var(--color-tertiary);
+}
+
+/* ---- IndexStrip: bordered segmented index (replaces the TopBar on the
+   Collection screen) ---- */
+.indexStrip {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  border-bottom: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  flex: 0 0 auto;
+}
+
+.indexCell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  min-height: 64px;
+  border: none;
+  border-left: var(--border-w) solid var(--color-outline);
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background var(--dur-2) var(--ease-standard);
+}
+
+.indexCell:first-child {
+  border-left: none;
+}
+
+.indexCellOn {
+  background: var(--color-outline);
+  color: var(--color-bg);
+}
+
+.indexNum {
+  font-size: var(--fs-h2);
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.indexCellOn .indexNum {
+  color: var(--color-tertiary);
+}
+
+.indexLabel {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* ---- IconButton: square 2px-bordered icon button (TopBar slots) ---- */
+.iconBtn {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--border-w) solid var(--color-outline);
+  border-radius: var(--r-xs);
+  background: var(--color-surface-1);
+  color: var(--color-text);
+  cursor: pointer;
+  transition:
+    background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard);
+}
+
+.iconBtn:active {
+  background: var(--color-outline);
+  color: var(--color-bg);
+}
+
+/* ---- Segment: bordered segmented control, active = ink fill ---- */
+.segment {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  border: var(--border-w) solid var(--color-outline);
+  border-radius: var(--r-xs);
+  overflow: hidden;
+  background: var(--color-surface-1);
+}
+
+.segmentBtn {
+  min-height: 46px;
+  padding: 0 var(--sp-2);
+  border: none;
+  border-left: var(--border-w) solid var(--color-outline);
+  background: transparent;
+  color: var(--color-text);
+  font-size: var(--fs-label-s);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background var(--dur-2) var(--ease-standard),
+    color var(--dur-2) var(--ease-standard);
+}
+
+.segmentBtn:first-child {
+  border-left: none;
+}
+
+.segmentBtn:active {
+  background: var(--color-surface-3);
+}
+
+.segmentOn {
+  background: var(--color-outline);
+  color: var(--color-bg);
+}
+
+.segmentOn:active {
+  background: var(--color-outline);
+}

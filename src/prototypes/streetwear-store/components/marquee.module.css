@@ -1,0 +1,68 @@
+/* Marquee — hard-edged ticker band. No radius, no blur, ink borders. */
+
+.root {
+  flex: 0 0 auto;
+  overflow: hidden;
+  border-top: var(--border-w) solid var(--color-outline);
+  border-bottom: var(--border-w) solid var(--color-outline);
+  user-select: none;
+}
+
+.variantInk {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+.variantPaper {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+.variantFlame {
+  background: var(--color-secondary);
+  color: var(--color-bg);
+}
+
+.track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: ss-marquee 18s linear infinite;
+  will-change: transform;
+}
+
+.sequence {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+.item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-4);
+  padding: var(--sp-2) 0 var(--sp-2) var(--sp-4);
+  font-size: var(--fs-label);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Square ink bullet between items — rotated to a diamond, still 0 radius. */
+.dot {
+  width: 8px;
+  height: 8px;
+  background: currentColor;
+  transform: rotate(45deg);
+}
+
+@keyframes ss-marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track {
+    animation: none;
+  }
+}

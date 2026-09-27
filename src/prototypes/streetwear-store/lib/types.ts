@@ -18,6 +18,16 @@ export interface Product {
   /** Optional badge on the card ("NEW", "LAST PAIRS", ...). */
   tag?: string;
   tone: CoverTone;
+  /** Colorway options shown on the detail screen (at least 1). */
+  colorways: CoverTone[];
+  /** One-line product description on the detail screen. */
+  desc: string;
+  /** Spec rows on the detail screen (fabric / fit / weight ...). */
+  specs: { label: string; value: string }[];
+  /** Sizes that cannot be ordered (disabled chips). */
+  soldSizes?: Size[];
+  /** Whole product sold out — card shows SOLD OUT, no add. */
+  soldOut?: boolean;
 }
 
 /** One cart line — a product in a specific size at a specific quantity. */
@@ -25,4 +35,6 @@ export interface CartItem {
   productId: number;
   size: Size;
   qty: number;
+  /** Selected colorway for this line. */
+  tone: CoverTone;
 }

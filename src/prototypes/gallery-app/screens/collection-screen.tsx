@@ -1,108 +1,128 @@
 "use client";
 
 /**
- * CollectionScreen — filter chips (ALL / PAINTING / SCULPTURE / PRINT)
- * over a grid of geometric artworks. Tapping a card toggles its favorite
- * (filled / outline ink heart).
+ * CollectionScreen — permanent collection. Chrome experiment: instead of a
+ * TopBar, a bordered segmented INDEX STRIP acts as the category filter
+ * (00 ALL / 01 PAINTING / 02 SCULPTURE / 03 PRINT). Below it a count
+ * ledger, a "NUR SAMMLUNG" (favourites-only) ink toggle, and the artwork
+ * grid of generated plates. Favourites persist via gallery-context; the
+ * diamond toggles them, the plate opens the full-screen PlateView.
  */
 
 import { useState } from "react";
-import { TopBar } from "../../../proto-kit";
-import { GeometricArt } from "../components/geometric-art";
-import { ARTWORKS, CATEGORY_LABELS } from "../lib/data";
-import type { ArtCategory, Artwork } from "../lib/types";
+import { ArtTile } from "../components/art-tile";
+import { IndexStrip, SectionLabel, TriadRule } from "../components/bits";
+import { ARTWORKS, TRIAD_STUDY } from "../lib/data";
+import type { ArtCategory } from "../lib/types";
+import { useGallery } from "../state/gallery-context";
 import styles from "./collection-screen.module.css";
 
 type Filter = "all" | ArtCategory;
 
-const FILTERS: { id: Filter; label: string }[] = [
-  { id: "all", label: "ALL" },
-  { id: "painting", label: "PAINTING" },
-  { id: "sculpture", label: "SCULPTURE" },
-  { id: "print", label: "PRINT" },
+const FILTERS: { id: Filter; num: string; label: string }[] = [
+  { id: "all", num: "00", label: "Alle" },
+  { id: "painting", num: "01", label: "Gemälde" },
+  { id: "sculpture", num: "02", label: "Plastik" },
+  { id: "print", num: "03", label: "Grafik" },
 ];
 
-function Heart({ filled }: { filled: boolean }) {
-  return (
-    <svg
-      width="20"
-      height="20"
-      viewBox="0 0 24 24"
-      fill={filled ? "currentColor" : "none"}
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z" />
-    </svg>
-  );
-}
-
 export function CollectionScreen() {
+  const { favorites, clearFavorites, showToast } = useGallery();
   const [filter, setFilter] = useState<Filter>("all");
-  const [favs, setFavs] = useState<Record<number, boolean>>({});
+  const [onlyFavs, setOnlyFavs] = useState(false);
 
-  const shown: Artwork[] =
-    filter === "all" ? ARTWORKS : ARTWORKS.filter((a) => a.category === filter);
-
-  function toggleFav(id: number) {
-    setFavs((prev) => ({ ...prev, [id]: !prev[id] }));
-  }
+  const shown = ARTWORKS.filter(
+    (a) =>
+      (filter === "all" || a.category === filter) &&
+      (!onlyFavs || favorites.includes(a.id))
+  );
 
   return (
     <div className={styles.root}>
-      <TopBar variant="hero" title="Collection" subtitle="Permanent Works" />
+      {/* segmented index strip = the chrome (no TopBar here) */}
+      <div className={styles.stripHead}>
+        <span className={styles.masthead}>
+          <span className={styles.mastDisc} aria-hidden="true" />
+          Sammlung — Galerie Bauhaus
+        </span>
+        <IndexStrip items={FILTERS} activeId={filter} onSelect={(id) => setFilter(id as Filter)} />
+      </div>
 
       <div className={styles.content}>
-        {/* Filter chips */}
-        <div className={styles.chips} role="group" aria-label="Filter by category">
-          {FILTERS.map((f) => (
-            <button
-              key={f.id}
-              type="button"
-              aria-pressed={filter === f.id}
-              className={`${styles.chip} ${filter === f.id ? styles.chipActive : ""}`}
-              onClick={() => setFilter(f.id)}
-            >
-              {f.label}
-            </button>
-          ))}
+        {/* ledger: counts + favourites-only toggle */}
+        <div className={styles.ledger}>
+          <div className={styles.ledgerCell}>
+            <span className={styles.ledgerNum}>{shown.length}</span>
+            <span className={styles.ledgerLabel}>im Saal</span>
+          </div>
+          <div className={styles.ledgerCell}>
+            <span className={styles.ledgerNum}>{favorites.length}</span>
+            <span className={styles.ledgerLabel}>gesammelt</span>
+          </div>
+          <button
+            type="button"
+            className={`${styles.favToggle} ${onlyFavs ? styles.favToggleOn : ""}`}
+            aria-pressed={onlyFavs}
+            onClick={() => {
+              if (!onlyFavs && favorites.length === 0) {
+                showToast("NOCH KEINE SAMMLUNG — TIPPE AUF EIN DIAMANT", "yellow");
+                return;
+              }
+              setOnlyFavs(!onlyFavs);
+            }}
+          >
+            {onlyFavs ? "ALLE WERKE" : "NUR SAMMLUNG"}
+          </button>
         </div>
 
-        {/* Art grid */}
-        <div className={styles.grid}>
-          {shown.map((a) => {
-            const fav = !!favs[a.id];
-            return (
-              <button
-                key={a.id}
-                type="button"
-                className={styles.artCard}
-                aria-pressed={fav}
-                aria-label={`${fav ? "Unfavorite" : "Favorite"} ${a.title}`}
-                onClick={() => toggleFav(a.id)}
-              >
-                <div className={styles.artTop}>
-                  <GeometricArt motif={a.motif} accent={a.accent} />
-                  <span className={styles.heart} data-on={fav || undefined}>
-                    <Heart filled={fav} />
-                  </span>
-                </div>
-                <div className={styles.artBody}>
-                  <span className={styles.artTitle}>{a.title}</span>
-                  <span className={styles.artMeta}>
-                    {a.artist} · {a.year} · {CATEGORY_LABELS[a.category]}
-                  </span>
-                </div>
-              </button>
-            );
-          })}
+        <SectionLabel trailing={FILTERS.find((f) => f.id === filter)?.label.toUpperCase()}>
+          Werke
+        </SectionLabel>
+
+        {shown.length > 0 ? (
+          <div className={styles.grid}>
+            {shown.map((a, i) => (
+              <ArtTile key={a.id} art={a} index={i} />
+            ))}
+          </div>
+        ) : (
+          <div className={styles.empty}>
+            <span className={styles.emptyQuarter} aria-hidden="true" />
+            <p className={styles.emptyText}>
+              {onlyFavs ? "Deine Sammlung ist leer." : "Kein Werk in dieser Kategorie."}
+            </p>
+          </div>
+        )}
+
+        {/* triad footer rule — the collection in three colours */}
+        <div className={styles.footer}>
+          <TriadRule />
+          <div className={styles.footerChips}>
+            {TRIAD_STUDY.map((t) => (
+              <span key={t.id} className={styles.footerChip}>
+                <span className={styles.footerSwatch} style={{ background: `var(${t.token})` }} />
+                {t.label}
+              </span>
+            ))}
+          </div>
+          <p className={styles.footerNote}>
+            Ein Klick auf den Diamanten legt das Werk in deine Sammlung — sie bleibt
+            erhalten, auch nach dem Neuladen.
+          </p>
         </div>
 
-        {shown.length === 0 && (
-          <p className={styles.empty}>Nothing in this category.</p>
+        {/* one-click clearing of the favourites ledger */}
+        {favorites.length > 0 && (
+          <button
+            type="button"
+            className={styles.clearBtn}
+            onClick={() => {
+              clearFavorites();
+              showToast("SAMMLUNG GELEERT", "blue");
+            }}
+          >
+            SAMMLUNG LEEREN
+          </button>
         )}
       </div>
     </div>

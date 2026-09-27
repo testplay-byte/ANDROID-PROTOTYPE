@@ -11,11 +11,13 @@ export function QtyStepper({
   value,
   onChange,
   min = 1,
+  max = 99,
   label = "Quantity",
 }: {
   value: number;
   onChange: (v: number) => void;
   min?: number;
+  max?: number;
   label?: string;
 }) {
   return (
@@ -43,7 +45,8 @@ export function QtyStepper({
       <button
         type="button"
         className={styles.btn}
-        onClick={() => onChange(value + 1)}
+        onClick={() => onChange(Math.min(max, value + 1))}
+        disabled={value >= max}
         aria-label={`Increase ${label}`}
       >
         <svg

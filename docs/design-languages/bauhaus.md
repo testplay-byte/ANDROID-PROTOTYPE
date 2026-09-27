@@ -101,7 +101,12 @@ Light:
 
 ## Demo prototype
 
-Demo prototype: see the dashboard at https://testplay-byte.github.io/ANDROID-PROTOTYPE/ (styles gallery).
+Demo prototype: **Gallery App** at `app/prototypes/gallery-app` — a museum app built like
+a Bauhaus poster: generative CSS artwork (12 data-driven geometric compositions, no
+bitmaps), numbered exhibitions with detail pushes, a full-screen plate view whose triad
+color chips re-ink the artwork live, 2px ink borders on everything, zero shadows, and a
+chrome experiment where the Collection screen drops the top bar for a bordered segmented
+index strip. Also the styles gallery at https://testplay-byte.github.io/ANDROID-PROTOTYPE/.
 
 ## Wiring
 

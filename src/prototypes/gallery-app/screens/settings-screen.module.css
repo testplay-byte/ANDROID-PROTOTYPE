@@ -1,4 +1,6 @@
-/* SettingsScreen — sharp-cornered bordered groups with square toggles. */
+/* SettingsScreen — bordered groups, segmented theme control, square
+   switches, collection ledger. 2px ink borders, zero shadow, near-square
+   radius, triad solids. */
 
 .root {
   position: absolute;
@@ -20,7 +22,7 @@
   display: none;
 }
 
-/* ---- Sharp-cornered bordered group ---- */
+/* ---- bordered group ---- */
 .group {
   border: var(--border-w) solid var(--color-outline);
   background: var(--color-surface-1);
@@ -38,6 +40,14 @@
 
 .row + .row {
   border-top: var(--border-w) solid var(--color-outline);
+}
+
+/* theme row: caption above the segmented control */
+.rowStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
 }
 
 .rowMeta {
@@ -60,9 +70,50 @@
   color: var(--color-text-muted);
 }
 
-/* ---- Footer ---- */
+/* ---- collection ledger ---- */
+.ledger {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-8);
+}
+
+.ledgerNum {
+  font-size: 44px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-primary);
+}
+
+.ledgerText {
+  font-size: var(--fs-label);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+.ledgerDiamond {
+  margin-left: auto;
+  width: 14px;
+  height: 14px;
+  background: var(--color-tertiary);
+  border: var(--border-w) solid var(--color-outline);
+  transform: rotate(45deg);
+}
+
+/* ---- about ---- */
+.about {
+  margin-top: var(--sp-4);
+}
+
 .footer {
-  margin-top: var(--sp-10);
+  margin: var(--sp-3) 0 0;
   text-align: center;
   font-size: var(--fs-label-s);
   font-weight: 800;

@@ -4,13 +4,15 @@
  * streetwear-store / page — the prototype entry point.
  *
  * Renders the full shell:
- *   DeviceThemeProvider (light default, scoped to .device, persisted) →
- *   Stage (left/right info panels + device) →
+ *   KeyboardProvider → DeviceThemeProvider (light default, scoped to
+ *   .device, persisted) → Stage (left/right info panels + device) →
  *   DeviceFrame (style="brutalism") → Screen → view switch + BottomNav
- *   (variant="hard"; hidden when the product detail is open).
+ *   (variant="hard"; hidden when the product detail is open) + Keyboard
+ *   + toast layer.
  *
- * Cart state (product + size + qty lines) lives here and drives the
- * badge count appended to the Cart nav label ("Cart (3)").
+ * App state lives here and persists to localStorage under streetwear-*:
+ *   cart lines (product+size+qty+tone, drives the "Cart (n)" nav badge),
+ *   favorites, currency, default size, drop-alerts.
  *
  * Hash router:
  *   #shop / #cart / #settings → that view.
@@ -18,13 +20,15 @@
  *   the browser's back button closes it (popstate re-parses the hash).
  */
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   DeviceThemeProvider,
   DeviceFrame,
   Screen,
   Stage,
   BottomNav,
+  Keyboard,
+  KeyboardProvider,
   PanelBadge,
   PanelTitle,
   PanelDesc,
@@ -35,7 +39,9 @@ import { ShopScreen } from "../../../src/prototypes/streetwear-store/screens/sho
 import { CartScreen } from "../../../src/prototypes/streetwear-store/screens/cart-screen";
 import { SettingsScreen } from "../../../src/prototypes/streetwear-store/screens/settings-screen";
 import { ProductScreen } from "../../../src/prototypes/streetwear-store/screens/product-screen";
-import type { CartItem, Size } from "../../../src/prototypes/streetwear-store/lib/types";
+import { Toast } from "../../../src/prototypes/streetwear-store/components/toast";
+import { SIZES } from "../../../src/prototypes/streetwear-store/lib/types";
+import type { Product, CartItem, Size } from "../../../src/prototypes/streetwear-store/lib/types";
 import type { Currency } from "../../../src/prototypes/streetwear-store/lib/currency";
 
 type ViewId = "shop" | "cart" | "settings" | "product";
@@ -58,16 +64,61 @@ function parseHash(): HashState {
   return { view: "shop", productId: null };
 }
 
+/** Persisted localStorage state (streetwear-* keys, device-scoped). */
+function useStored<T>(key: string, fallback: T): [T, (v: T | ((p: T) => T)) => void] {
+  const [value, setValue] = useState<T>(() => {
+    if (typeof window === "undefined") return fallback;
+    try {
+      const raw = window.localStorage.getItem(`streetwear-${key}`);
+      return raw !== null ? (JSON.parse(raw) as T) : fallback;
+    } catch {
+      return fallback;
+    }
+  });
+  const set = useCallback(
+    (v: T | ((p: T) => T)) => {
+      setValue((prev) => {
+        const next = typeof v === "function" ? (v as (p: T) => T)(prev) : v;
+        try {
+          window.localStorage.setItem(`streetwear-${key}`, JSON.stringify(next));
+        } catch {
+          /* storage may be blocked — state still works in-session */
+        }
+        return next;
+      });
+    },
+    [key]
+  );
+  return [value, set];
+}
+
+const DEFAULT_CART: CartItem[] = [
+  { productId: 2, size: "M", qty: 1, tone: "secondary" },
+  { productId: 7, size: "S", qty: 2, tone: "primary" },
+];
+
+interface ToastMsg {
+  id: number;
+  text: string;
+  tone: "ink" | "flame";
+}
+
 export default function Page() {
   const [view, setView] = useState<ViewId>("shop");
   const [productId, setProductId] = useState<number | null>(null);
-  const [currency, setCurrency] = useState<Currency>("USD");
 
-  // Cart state lives here so the nav badge + all screens share it.
-  const [cart, setCart] = useState<CartItem[]>([
-    { productId: 2, size: "M", qty: 1 },
-    { productId: 7, size: "S", qty: 2 },
-  ]);
+  const [currency, setCurrency] = useStored<Currency>("currency", "USD");
+  const [defaultSize, setDefaultSize] = useStored<Size>("size", "M");
+  const [notifications, setNotifications] = useStored<boolean>("alerts", true);
+  const [favorites, setFavorites] = useStored<number[]>("favorites", [5]);
+  const [cart, setCart] = useStored<CartItem[]>("cart", DEFAULT_CART);
+
+  const [toast, setToast] = useState<ToastMsg | null>(null);
+  const notify = useCallback((text: string, tone: "ink" | "flame" = "ink") => {
+    setToast({ id: Date.now(), text, tone });
+  }, []);
+  const dismissToast = useCallback(() => setToast(null), []);
+
   const cartCount = cart.reduce((n, it) => n + it.qty, 0);
 
   // ── Hash routing ─────────────────────────────────────────────────────
@@ -123,18 +174,30 @@ export default function Page() {
   }
 
   // ── Cart operations ──────────────────────────────────────────────────
-  function addToCart(id: number, size: Size, qty: number) {
+  function addToCart(id: number, size: Size, qty: number, tone: CartItem["tone"]) {
     setCart((items) => {
       const idx = items.findIndex(
-        (it) => it.productId === id && it.size === size
+        (it) => it.productId === id && it.size === size && it.tone === tone
       );
       if (idx >= 0) {
         const next = [...items];
-        next[idx] = { ...next[idx], qty: next[idx].qty + qty };
+        next[idx] = { ...next[idx], qty: Math.min(9, next[idx].qty + qty) };
         return next;
       }
-      return [...items, { productId: id, size, qty }];
+      return [...items, { productId: id, size, qty, tone }];
     });
+  }
+
+  // Quick-add from a shop card: default size (or first available), first colorway.
+  function quickAdd(product: Product) {
+    if (product.soldOut) return;
+    const sold = product.soldSizes ?? [];
+    const size =
+      SIZES.find((s) => s === defaultSize && !sold.includes(s)) ??
+      SIZES.find((s) => !sold.includes(s));
+    if (!size) return;
+    addToCart(product.id, size, 1, product.colorways[0]);
+    notify(`+1 ${product.name.toUpperCase()} · ${size} → CART`);
   }
 
   function changeQty(id: number, size: Size, qty: number) {
@@ -153,6 +216,21 @@ export default function Page() {
 
   function checkout() {
     setCart([]);
+    notify("ORDER PLACED — GG", "flame");
+  }
+
+  function toggleFavorite(id: number) {
+    setFavorites((favs) =>
+      favs.includes(id) ? favs.filter((f) => f !== id) : [...favs, id]
+    );
+  }
+
+  function resetData() {
+    setCart([]);
+    setFavorites([]);
+    setCurrency("USD");
+    setDefaultSize("M");
+    setNotifications(true);
   }
 
   // ── Swipe gestures (proto-kit) ───────────────────────────────────────
@@ -178,19 +256,19 @@ export default function Page() {
   const SCREEN_INFO: Record<ViewId, { name: string; desc: string }> = {
     shop: {
       name: "Shop",
-      desc: "DROP 07 catalog — category chips filter a 2-col product grid. Tap a card for detail, ADD for a quick add.",
+      desc: "DROP 07 poster home — marquee ticker, featured block, category + SAVED chips filtering a numbered 2-col grid. Card heart = favorite (persisted), ADD = quick-add, tap = detail.",
     },
     cart: {
       name: "Cart",
-      desc: "Line items with qty steppers and remove, subtotal/shipping/total rows, checkout with confirmation state.",
+      desc: "Slab header with live count, free-shipping progress bar, qty steppers, promo codes (BRUTAL10 / DROP07), subtotal/discount/total rows, checkout with ORDER PLACED state.",
     },
     settings: {
       name: "Settings",
-      desc: "Light/dark theme, drop-alert toggle, and a USD/EUR/GBP currency switch that re-prices the whole store.",
+      desc: "Store stats strip, light/dark theme, drop alerts, default size, USD/EUR/GBP currency and a two-tap data reset. Everything persists to localStorage.",
     },
     product: {
       name: "Product detail",
-      desc: "Pushed view (no nav item) — big cover, size selector, quantity stepper, ADD TO CART. Browser back closes it.",
+      desc: "Pushed view (no nav item) — big cover, colorway picker, size grid with sold-out strikes, qty + ADD TO CART, spec table, related strip. Browser back closes it.",
     },
   };
 
@@ -232,107 +310,141 @@ export default function Page() {
   ];
 
   return (
-    <DeviceThemeProvider storageKey="streetwear-theme" initialTheme="light">
-      <Stage
-        leftPanel={
-          <>
-            <PanelBadge>prototype</PanelBadge>
-            <PanelTitle>Streetwear Store</PanelTitle>
-            <PanelDesc>
-              A neo-brutalist streetwear shop. Thick borders, hard offset
-              shadows, zero radius, unapologetic yellow. Shop DROP 07 with a
-              2-col grid, push into product detail, manage a cart with live
-              badge count, and re-price everything across three currencies.
-            </PanelDesc>
-            <div className="tags">
-              <span className="tag">Brutalism</span>
-              <span className="tag">Neo-brutal</span>
-              <span className="tag">4 views</span>
-            </div>
-          </>
-        }
-        rightPanel={
-          <>
-            <PanelHead>Screen info</PanelHead>
-            <div className="screeninfo">
-              <span className="screeninfo__name">{info.name}</span>
-              <span className="screeninfo__desc">{info.desc}</span>
-            </div>
+    <KeyboardProvider>
+      <DeviceThemeProvider storageKey="streetwear-theme" initialTheme="light">
+        <Stage
+          leftPanel={
+            <>
+              <PanelBadge>prototype</PanelBadge>
+              <PanelTitle>Streetwear Store</PanelTitle>
+              <PanelDesc>
+                A neo-brutalist streetwear shop. Thick borders, hard offset
+                shadows, zero radius, unapologetic yellow. Marquee ticker,
+                featured poster block, numbered grid with favorites, product
+                detail with colorways and sold-out sizes, cart with promo codes
+                and free-shipping progress — all persisted.
+              </PanelDesc>
+              <div className="tags">
+                <span className="tag">Brutalism</span>
+                <span className="tag">Neo-brutal</span>
+                <span className="tag">Shop</span>
+                <span className="tag">Cart</span>
+                <span className="tag">4 views</span>
+              </div>
+            </>
+          }
+          rightPanel={
+            <>
+              <PanelHead>Screen info</PanelHead>
+              <div className="screeninfo">
+                <span className="screeninfo__name">{info.name}</span>
+                <span className="screeninfo__desc">{info.desc}</span>
+              </div>
 
-            <PanelHead>Interactions</PanelHead>
-            <div className="mini-bars">
-              <MiniBar label="Add" width="100%" color="var(--color-primary)" />
-              <MiniBar label="Detail" width="85%" color="var(--color-secondary)" />
-              <MiniBar label="Sizes" width="70%" color="var(--color-tertiary)" />
-              <MiniBar label="Checkout" width="60%" color="var(--color-success)" />
-              <MiniBar label="Currency" width="45%" color="var(--color-warn)" />
-            </div>
+              <PanelHead>Interactions</PanelHead>
+              <div className="mini-bars">
+                <MiniBar label="Add" width="100%" color="#f0513d" />
+                <MiniBar label="Detail" width="90%" color="#ffd23f" />
+                <MiniBar label="Saved" width="75%" color="#141210" />
+                <MiniBar label="Promo" width="60%" color="#3d6a7f" />
+                <MiniBar label="Currency" width="45%" color="#5ad161" />
+              </div>
 
-            <PanelHead>Design</PanelHead>
-            <div className="kvlist">
-              <div className="kvlist__row">
-                <span>Style</span>
-                <b>Neo-brutalism</b>
+              <PanelHead>Design</PanelHead>
+              <div className="kvlist">
+                <div className="kvlist__row">
+                  <span>Style</span>
+                  <b>Neo-brutalism</b>
+                </div>
+                <div className="kvlist__row">
+                  <span>Borders</span>
+                  <b>2-3px + hard shadow</b>
+                </div>
+                <div className="kvlist__row">
+                  <span>Radius</span>
+                  <b>0px</b>
+                </div>
+                <div className="kvlist__row">
+                  <span>Primary</span>
+                  <b>#ffd23f</b>
+                </div>
               </div>
-              <div className="kvlist__row">
-                <span>Borders</span>
-                <b>2px + hard shadow</b>
-              </div>
-              <div className="kvlist__row">
-                <span>Radius</span>
-                <b>0px</b>
-              </div>
-              <div className="kvlist__row">
-                <span>Primary</span>
-                <b>#ffd23f</b>
-              </div>
-            </div>
-          </>
-        }
-      >
-        <DeviceFrame theme="light" style="brutalism">
-          <Screen>
-            {view === "shop" && (
-              <ShopScreen
-                currency={currency}
-                onOpenProduct={openProduct}
-                onQuickAdd={(id) => addToCart(id, "M", 1)}
+            </>
+          }
+        >
+          <DeviceFrame theme="light" style="brutalism">
+            <Screen>
+              {view === "shop" && (
+                <ShopScreen
+                  currency={currency}
+                  favorites={favorites}
+                  onToggleFavorite={toggleFavorite}
+                  onOpenProduct={openProduct}
+                  onQuickAdd={quickAdd}
+                />
+              )}
+              {view === "cart" && (
+                <CartScreen
+                  items={cart}
+                  currency={currency}
+                  onChangeQty={changeQty}
+                  onRemove={removeItem}
+                  onCheckout={checkout}
+                  onGoShop={() => handleNav("shop")}
+                  onNotify={notify}
+                />
+              )}
+              {view === "settings" && (
+                <SettingsScreen
+                  currency={currency}
+                  defaultSize={defaultSize}
+                  notifications={notifications}
+                  favoritesCount={favorites.length}
+                  cartCount={cartCount}
+                  onCurrency={setCurrency}
+                  onDefaultSize={setDefaultSize}
+                  onNotifications={setNotifications}
+                  onResetData={resetData}
+                  onNotify={notify}
+                />
+              )}
+              {view === "product" && productId !== null && (
+                <ProductScreen
+                  key={productId}
+                  productId={productId}
+                  currency={currency}
+                  defaultSize={defaultSize}
+                  favorites={favorites}
+                  onBack={closeProduct}
+                  onOpenProduct={openProduct}
+                  onToggleFavorite={toggleFavorite}
+                  onAddToCart={addToCart}
+                  onNotify={notify}
+                />
+              )}
+
+              {/* Toast layer — anchored inside the screen above the nav. */}
+              {toast && (
+                <Toast key={toast.id} message={toast.text} tone={toast.tone} onDone={dismissToast} />
+              )}
+            </Screen>
+
+            {/* Bottom nav — hidden when product detail is open. */}
+            {view !== "product" && (
+              <BottomNav
+                items={NAV_ITEMS}
+                activeId={view}
+                onSelect={handleNav}
+                variant="hard"
               />
             )}
-            {view === "cart" && (
-              <CartScreen
-                items={cart}
-                currency={currency}
-                onChangeQty={changeQty}
-                onRemove={removeItem}
-                onCheckout={checkout}
-              />
-            )}
-            {view === "settings" && (
-              <SettingsScreen currency={currency} onCurrency={setCurrency} />
-            )}
-            {view === "product" && productId !== null && (
-              <ProductScreen
-                productId={productId}
-                currency={currency}
-                onBack={closeProduct}
-                onAddToCart={addToCart}
-              />
-            )}
-          </Screen>
 
-          {/* Bottom nav — hidden when product detail is open. */}
-          {view !== "product" && (
-            <BottomNav
-              items={NAV_ITEMS}
-              activeId={view}
-              onSelect={handleNav}
-              variant="hard"
-            />
-          )}
-        </DeviceFrame>
-      </Stage>
-    </DeviceThemeProvider>
+            {/* Custom on-screen keyboard (replaces native soft keyboard) */}
+            <Keyboard />
+          </DeviceFrame>
+        </Stage>
+      </DeviceThemeProvider>
+    </KeyboardProvider>
   );
 }
 

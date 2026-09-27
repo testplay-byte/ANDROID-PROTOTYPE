@@ -1,4 +1,5 @@
-/* ExhibitionsScreen — geometric poster cards + TICKETS buttons. */
+/* ExhibitionsScreen — numbered exhibition list + pushed detail view.
+   2px ink borders, zero shadow, square corners, triad solids. */
 
 .root {
   position: absolute;
@@ -14,81 +15,299 @@
   overflow-y: auto;
   padding: 0 var(--sp-5) 90px;
   scrollbar-width: none;
+  animation: exhIn var(--dur-3) var(--ease-emphasized-decel) both;
 }
 
 .content::-webkit-scrollbar {
   display: none;
 }
 
-/* ---- Feature card ---- */
-.card {
-  display: flex;
-  flex-direction: column;
-  border: var(--border-w) solid var(--color-outline);
-  background: var(--color-surface-1);
-  margin-bottom: var(--sp-8);
+@keyframes exhIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }
 
-.body {
+/* ---- numbered exhibition list ---- */
+.list {
   display: flex;
   flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.row {
+  display: flex;
+  align-items: stretch;
   gap: var(--sp-3);
-  padding: var(--sp-4);
-  border-top: var(--border-w) solid var(--color-outline);
+  padding: var(--sp-3);
+  border: var(--border-w) solid var(--color-outline);
+  border-radius: 0;
+  background: var(--color-surface-1);
+  text-align: left;
+  cursor: pointer;
+  animation: rowRise var(--dur-4) var(--ease-emphasized-decel) both;
+  animation-delay: var(--stagger, 0ms);
+  transition: transform var(--dur-1) var(--ease-standard);
 }
 
-.title {
-  margin: 0;
-  font-size: var(--fs-h1);
+.row:active {
+  transform: translateY(2px);
+}
+
+@keyframes rowRise {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* huge display number */
+.num {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-primary);
+}
+
+.rowPoster {
+  flex: 0 0 auto;
+  width: 76px;
+}
+
+.rowPoster > div {
+  width: 100%;
+}
+
+.rowBody {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 3px;
+}
+
+.rowTitle {
+  font-size: var(--fs-h3);
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.01em;
+  line-height: 1.1;
   color: var(--color-text);
-  line-height: 1.05;
 }
 
-.metaRow {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: var(--sp-3);
-}
-
-.dates {
-  font-size: var(--fs-label);
+.rowDates {
+  font-size: var(--fs-label-s);
   color: var(--color-text-muted);
   font-variant-numeric: tabular-nums;
 }
 
-.price {
+.rowPrice {
   font-size: var(--fs-label);
-  font-weight: 800;
-  text-transform: uppercase;
+  font-weight: 900;
+  letter-spacing: 0.08em;
   color: var(--color-secondary);
   font-variant-numeric: tabular-nums;
 }
 
-/* ---- TICKETS button: 2px border, 0 radius, primary red ---- */
-.tickets {
-  min-height: 44px;
+/* quarter-circle "enter" tick */
+.rowArrow {
+  flex: 0 0 auto;
+  align-self: flex-end;
+  width: 16px;
+  height: 16px;
+  background: var(--color-outline);
+  border-top-left-radius: 100%;
+}
+
+/* ---- colour-study row ---- */
+.study {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-3);
+}
+
+.studyCell {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  border: var(--border-w) solid var(--color-outline);
+  border-radius: 0;
+  background: var(--color-surface-1);
+  padding: var(--sp-3);
+}
+
+.studyBlock {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border: var(--border-w) solid var(--color-outline);
+}
+
+.studyLabel {
+  font-size: var(--fs-label-s);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  text-align: center;
+}
+
+.listFooter {
+  margin-top: var(--sp-8);
+}
+
+.footerNote {
+  margin: var(--sp-2) 0 0;
+  font-size: var(--fs-label-s);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+/* ---- detail: back row (icon + text link) ---- */
+.backRow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-top: var(--sp-2);
+}
+
+.backText {
+  border: none;
+  background: none;
+  padding: 0;
+  font-size: var(--fs-label-s);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.backText:active {
+  color: var(--color-primary);
+}
+
+/* ---- detail: poster header — the 4:5 field, capped so it reads as a
+   printed poster, not a wall ---- */
+.detailPoster {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--sp-2);
+}
+
+.detailPoster > div {
+  width: 72%;
+}
+
+/* ---- facts row: bordered chips separated by ink ticks ---- */
+.factsRow {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+  padding: var(--sp-2) var(--sp-3);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.factsRow::-webkit-scrollbar {
+  display: none;
+}
+
+.fact {
+  flex: 0 0 auto;
+  font-size: var(--fs-label-s);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
+.factPrice {
+  flex: 0 0 auto;
+  font-size: var(--fs-label-s);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-primary);
+}
+
+.factDivider {
+  flex: 0 0 auto;
+  width: 8px;
+  height: 8px;
+  background: var(--color-tertiary);
+  border: var(--border-w) solid var(--color-outline);
+}
+
+.blurb {
+  margin: var(--sp-4) 0 0;
+  font-size: var(--fs-body);
+  line-height: 1.55;
+  color: var(--color-text);
+}
+
+/* thin triad strip under the blurb */
+.triadStrip {
+  display: flex;
+  margin-top: var(--sp-4);
+  border: var(--border-w) solid var(--color-outline);
+}
+
+.triadBlock {
+  height: 10px;
+}
+
+.triadBlock:nth-child(1) {
+  flex: 5;
+}
+.triadBlock:nth-child(2) {
+  flex: 3;
+}
+.triadBlock:nth-child(3) {
+  flex: 2;
+}
+
+/* ---- TICKETS slab ---- */
+.ticketsBtn {
+  width: 100%;
+  min-height: 52px;
+  margin-top: var(--sp-4);
   border: var(--border-w) solid var(--color-primary);
   border-radius: 0;
   background: var(--color-primary);
   color: var(--color-primary-fg);
-  font-size: var(--fs-label);
+  font-size: var(--fs-body);
   font-weight: 900;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   cursor: pointer;
-  transition:
-    background var(--dur-2) var(--ease-standard),
-    color var(--dur-2) var(--ease-standard);
+  transition: transform var(--dur-1) var(--ease-standard);
 }
 
-.tickets:active {
-  transform: translateY(1px);
+.ticketsBtn:active {
+  transform: translateY(2px);
 }
 
-.ticketsOn {
-  background: transparent;
-  color: var(--color-primary);
+/* ---- hung works grid ---- */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-4);
 }

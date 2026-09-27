@@ -1,0 +1,57 @@
+/* Toast — hard-shadow slab anchored above the bottom-nav (nav is ~72px). */
+
+.root {
+  position: absolute;
+  left: var(--sp-4);
+  right: var(--sp-4);
+  bottom: 96px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
+  border: var(--border-w) solid var(--color-outline);
+  box-shadow: var(--shadow-2);
+  font-size: var(--fs-label);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  animation: ss-toast-in var(--dur-3) var(--ease-emphasized-decel) both;
+}
+
+.toneInk {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+.toneFlame {
+  background: var(--color-secondary);
+  color: var(--color-bg);
+}
+
+.icon {
+  flex: 0 0 auto;
+  font-size: var(--fs-body-l);
+  line-height: 1;
+}
+
+.text {
+  min-width: 0;
+}
+
+@keyframes ss-toast-in {
+  from {
+    transform: translateY(16px) translateX(-4px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0) translateX(0);
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .root {
+    animation: none;
+  }
+}

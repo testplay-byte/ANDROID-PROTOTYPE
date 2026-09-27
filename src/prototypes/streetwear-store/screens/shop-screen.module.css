@@ -1,4 +1,6 @@
-/* ShopScreen — chips + 2-col brutalist product grid. */
+/* ShopScreen — poster composition: hero bar, ticker, featured block,
+   numbered 2-col grid. 0 radius, 2-3px ink borders, hard offset shadows,
+   every pressable sinks with a hard inset shadow. */
 
 .root {
   position: absolute;
@@ -12,7 +14,7 @@
   flex: 1 1 auto;
   min-height: 0;
   overflow-y: auto;
-  padding: var(--sp-4) var(--sp-4) 110px;
+  padding: var(--sp-4) var(--sp-4) 120px;
   scrollbar-width: none;
 }
 
@@ -20,13 +22,147 @@
   display: none;
 }
 
+/* ---- Saved button in the hero TopBar trailing slot ---- */
+.savedBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 44px;
+  padding: 0 var(--sp-3);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  color: var(--color-text);
+  box-shadow: var(--shadow-1);
+  font-weight: 900;
+  cursor: pointer;
+  transition:
+    transform var(--dur-1) var(--ease-standard),
+    box-shadow var(--dur-1) var(--ease-standard),
+    background var(--dur-1) var(--ease-standard);
+}
+
+.savedBtn:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-inset);
+}
+
+.savedCount {
+  font-size: var(--fs-label);
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.04em;
+}
+
+/* ---- Featured poster block ---- */
+.featured {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  width: 100%;
+  margin-bottom: var(--sp-5);
+  padding: var(--sp-5) var(--sp-5) var(--sp-6);
+  border: 3px solid var(--color-outline);
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  box-shadow: var(--shadow-2);
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    transform var(--dur-1) var(--ease-standard),
+    box-shadow var(--dur-1) var(--ease-standard);
+}
+
+.featured:active {
+  transform: translate(4px, 4px);
+  box-shadow: var(--shadow-inset);
+}
+
+.featuredOverline {
+  font-size: var(--fs-label-s);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+.featuredName {
+  font-family: var(--ss-display);
+  font-size: 34px;
+  font-weight: 900;
+  line-height: 0.95;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+}
+
+.featuredRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  width: 100%;
+  margin-top: var(--sp-1);
+}
+
+.featuredPrice {
+  font-size: var(--fs-h2);
+  font-weight: 900;
+  font-variant-numeric: tabular-nums;
+}
+
+.featuredCta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: var(--sp-2) var(--sp-4);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: var(--fs-label);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Rotated sticker square in the corner. */
+.featuredSticker {
+  position: absolute;
+  top: var(--sp-4);
+  right: -34px;
+  padding: var(--sp-2) 40px;
+  border-top: var(--border-w) solid var(--color-outline);
+  border-bottom: var(--border-w) solid var(--color-outline);
+  background: var(--color-secondary);
+  color: var(--color-bg);
+  font-size: var(--fs-label-s);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transform: rotate(35deg);
+}
+
+/* Outline diamond colliding with the bottom edge. */
+.featuredDiamond {
+  position: absolute;
+  right: 18%;
+  bottom: -22px;
+  width: 48px;
+  height: 48px;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-bg);
+  opacity: 0.25;
+  transform: rotate(45deg);
+}
+
 /* ---- Category chips ---- */
 .chips {
   display: flex;
-  gap: var(--sp-3);
-  margin-bottom: var(--sp-4);
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-5);
   overflow-x: auto;
   scrollbar-width: none;
+  padding-bottom: 4px;
 }
 
 .chips::-webkit-scrollbar {
@@ -36,17 +172,19 @@
 .chip {
   flex: 0 0 auto;
   min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
   padding: 0 var(--sp-4);
   border: var(--border-w) solid var(--color-outline);
   background: var(--color-surface-1);
   box-shadow: var(--shadow-1);
   color: var(--color-text);
   font-size: var(--fs-label);
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
-  border-radius: 0;
   transition:
     transform var(--dur-1) var(--ease-standard),
     box-shadow var(--dur-1) var(--ease-standard),
@@ -55,12 +193,84 @@
 
 .chip:active {
   transform: translate(2px, 2px);
-  box-shadow: none;
+  box-shadow: var(--shadow-inset);
+}
+
+.chipSaved {
+  background: var(--color-surface-2);
 }
 
 .chipActive {
   background: var(--color-primary);
   color: var(--color-primary-fg);
+}
+
+/* ---- Section banner (numbered slab) ---- */
+.banner {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-4);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-1);
+  overflow: hidden;
+}
+
+.bannerNum {
+  flex: 0 0 auto;
+  padding: var(--sp-2) var(--sp-3);
+  border-right: var(--border-w) solid var(--color-outline);
+  background: var(--color-secondary);
+  color: var(--color-bg);
+  font-family: var(--ss-display);
+  font-size: var(--fs-body-l);
+  font-weight: 900;
+}
+
+.bannerText {
+  flex: 1 1 auto;
+  font-size: var(--fs-label);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+.bannerCount {
+  flex: 0 0 auto;
+  padding-right: var(--sp-3);
+  font-size: var(--fs-label-s);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Empty saved state ---- */
+.emptySaved {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--sp-2);
+  border: 3px solid var(--color-outline);
+  background: var(--color-surface-1);
+  box-shadow: var(--shadow-2);
+  padding: var(--sp-6);
+}
+
+.emptySavedTitle {
+  font-family: var(--ss-display);
+  font-size: var(--fs-h1);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  color: var(--color-text);
+}
+
+.emptySavedDesc {
+  font-size: var(--fs-body-s);
+  color: var(--color-text-muted);
 }
 
 /* ---- Product grid ---- */
@@ -84,78 +294,110 @@
 
 .card:active {
   transform: translate(2px, 2px);
-  box-shadow: none;
+  box-shadow: var(--shadow-inset);
 }
 
-/* ---- Placeholder cover (solid token tone + geometric shapes) ---- */
+.cardSold {
+  opacity: 0.75;
+}
+
+/* Cover: 1:1 flat tone block, ink bottom border (art from <Cover/>). */
 .cover {
-  position: relative;
   aspect-ratio: 1 / 1;
-  overflow: hidden;
   border-bottom: var(--border-w) solid var(--color-outline);
 }
 
-.tonePrimary {
-  background: var(--color-primary);
+/* Numbered-row stencil in the cover's top-left. */
+.num {
+  position: absolute;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  padding: 3px 9px 4px;
+  border-right: var(--border-w) solid var(--color-outline);
+  border-bottom: var(--border-w) solid var(--color-outline);
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--ss-display);
+  font-size: var(--fs-body-l);
+  font-weight: 900;
+  line-height: 1;
 }
-.toneSecondary {
+
+/* ---- Heart favorite button ---- */
+.fav {
+  position: absolute;
+  top: var(--sp-2);
+  right: var(--sp-2);
+  z-index: 2;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-bg);
+  color: var(--color-text);
+  box-shadow: var(--shadow-1);
+  cursor: pointer;
+  transition:
+    transform var(--dur-1) var(--ease-standard),
+    box-shadow var(--dur-1) var(--ease-standard),
+    background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard);
+}
+
+.fav:active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--shadow-inset);
+}
+
+.favOn {
   background: var(--color-secondary);
-}
-.toneTertiary {
-  background: var(--color-tertiary);
-}
-.toneSuccess {
-  background: var(--color-success);
-}
-.toneSurface {
-  background: var(--color-surface-4);
+  color: var(--color-bg);
 }
 
-.shapeCircle {
+/* ---- Sticker badges (rotated -2deg, ink border, hard shadow) ---- */
+.sticker {
   position: absolute;
-  top: -18%;
-  right: -18%;
-  width: 60%;
-  aspect-ratio: 1 / 1;
-  border: var(--border-w) solid var(--color-outline);
-  border-radius: 50%;
-  background: var(--color-bg);
-  opacity: 0.5;
-}
-
-.shapeBar {
-  position: absolute;
-  left: -20%;
-  bottom: 16%;
-  width: 95%;
-  height: 12px;
-  background: var(--color-outline);
-  transform: rotate(-18deg);
-  opacity: 0.85;
-}
-
-.shapeDot {
-  position: absolute;
-  left: 10%;
-  top: 12%;
-  width: 14px;
-  height: 14px;
-  background: var(--color-bg);
-  border: var(--border-w) solid var(--color-outline);
-}
-
-.tag {
-  position: absolute;
-  right: 0;
-  bottom: 0;
+  left: var(--sp-2);
+  bottom: var(--sp-2);
+  z-index: 2;
   padding: 3px 8px;
+  border: var(--border-w) solid var(--color-outline);
   background: var(--color-bg);
-  border-top: var(--border-w) solid var(--color-outline);
-  border-left: var(--border-w) solid var(--color-outline);
+  color: var(--color-text);
+  box-shadow: var(--shadow-1);
   font-size: var(--fs-label-s);
   font-weight: 900;
   letter-spacing: 0.08em;
-  color: var(--color-text);
+  text-transform: uppercase;
+  transform: rotate(-2deg);
+}
+
+.stickerFlame {
+  background: var(--color-secondary);
+  color: var(--color-bg);
+}
+
+/* Full-width diagonal SOLD OUT band across the cover. */
+.soldBand {
+  position: absolute;
+  left: -8%;
+  right: -8%;
+  top: 42%;
+  z-index: 3;
+  padding: 4px 0;
+  border-top: var(--border-w) solid var(--color-outline);
+  border-bottom: var(--border-w) solid var(--color-outline);
+  background: var(--color-secondary);
+  color: var(--color-bg);
+  font-size: var(--fs-label);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  text-align: center;
+  transform: rotate(-8deg);
 }
 
 /* ---- Card body ---- */
@@ -172,8 +414,16 @@
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  color: var(--color-text);
   line-height: 1.3;
+  color: var(--color-text);
+}
+
+.cardFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  margin-top: var(--sp-1);
 }
 
 .price {
@@ -183,13 +433,13 @@
   color: var(--color-text);
 }
 
-/* Sale tag colors the price red via parent card having a -30% tag */
+.priceSale {
+  color: var(--color-secondary);
+}
+
 .add {
-  margin-top: var(--sp-1);
-  min-height: 44px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  min-height: 40px;
+  padding: 0 var(--sp-4);
   border: var(--border-w) solid var(--color-outline);
   background: var(--color-primary);
   color: var(--color-primary-fg);
@@ -197,14 +447,27 @@
   font-size: var(--fs-label);
   font-weight: 900;
   letter-spacing: 0.1em;
+  text-transform: uppercase;
   cursor: pointer;
-  border-radius: 0;
   transition:
     transform var(--dur-1) var(--ease-standard),
-    box-shadow var(--dur-1) var(--ease-standard);
+    box-shadow var(--dur-1) var(--ease-standard),
+    background var(--dur-1) var(--ease-standard);
 }
 
-.add:active {
+.add:hover:not(:disabled) {
+  background: var(--color-bg);
+  color: var(--color-text);
+}
+
+.add:active:not(:disabled) {
   transform: translate(2px, 2px);
+  box-shadow: var(--shadow-inset);
+}
+
+.add:disabled {
+  background: var(--color-surface-3);
+  color: var(--color-text-muted);
   box-shadow: none;
+  cursor: not-allowed;
 }

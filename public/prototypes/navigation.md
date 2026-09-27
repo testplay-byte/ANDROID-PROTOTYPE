@@ -16,6 +16,7 @@
 | `/prototypes/anime-app/` | Anime App | m3 | review | 6 |
 | `/prototypes/setup-wizard/` | Setup Wizard | m3 | review | 8 |
 | `/prototypes/music-player/` | Music Player | neumorph | review | 4 |
+| `/prototypes/drift/` | Drift | glass | review | 4 |
 | `/prototypes/weather-app/` | Weather App | glass | review | 4 |
 | `/prototypes/streetwear-store/` | Streetwear Store | brutalism | review | 3 + detail |
 | `/prototypes/finance-hub/` | Finance Hub | carbon | review | 4 |

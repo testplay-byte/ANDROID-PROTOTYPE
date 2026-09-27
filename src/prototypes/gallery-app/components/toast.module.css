@@ -1,0 +1,52 @@
+/* Toast — bordered ink slab above the nav. Zero shadow; hierarchy is the
+   2px border + a solid triad square. */
+
+.toast {
+  position: absolute;
+  left: var(--sp-5);
+  right: var(--sp-5);
+  bottom: 76px;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-3);
+  border: var(--border-w) solid var(--color-outline);
+  border-radius: var(--r-xs);
+  background: var(--color-surface-1);
+  opacity: 0;
+  transform: translateY(14px);
+  pointer-events: none;
+  transition:
+    opacity var(--dur-2) var(--ease-standard),
+    transform var(--dur-3) var(--ease-emphasized-decel);
+}
+
+.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.block {
+  flex: 0 0 auto;
+  width: 16px;
+  height: 16px;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-primary);
+}
+
+.toast[data-accent="blue"] .block {
+  background: var(--color-secondary);
+}
+
+.toast[data-accent="yellow"] .block {
+  background: var(--color-tertiary);
+}
+
+.msg {
+  font-size: var(--fs-label);
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}

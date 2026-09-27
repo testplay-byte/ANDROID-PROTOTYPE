@@ -1,0 +1,263 @@
+/* PlateView — full-screen artwork plate. Bordered everything, zero shadow,
+   near-square radius (0 here), triad solids. Sits above the nav slab. */
+
+.root {
+  position: absolute;
+  /* stop above the 56px hard-slab nav */
+  inset: 0 0 56px 0;
+  z-index: 40;
+  display: flex;
+  flex-direction: column;
+  background: var(--color-bg);
+  animation: plateIn var(--dur-3) var(--ease-emphasized-decel) both;
+}
+
+@keyframes plateIn {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---- top row ---- */
+.topRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--sp-3) var(--sp-5);
+  border-bottom: var(--border-w) solid var(--color-outline);
+  flex: 0 0 auto;
+}
+
+.closeBtn {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: 40px;
+  padding: 0 var(--sp-3);
+  border: var(--border-w) solid var(--color-outline);
+  border-radius: var(--r-xs);
+  background: var(--color-surface-1);
+  color: var(--color-text);
+  font-size: var(--fs-label-s);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  transition:
+    background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard);
+}
+
+.closeBtn:active {
+  background: var(--color-outline);
+  color: var(--color-bg);
+}
+
+.closeGlyph {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+}
+
+.roomTag {
+  padding: 6px var(--sp-3);
+  border: var(--border-w) solid var(--color-outline);
+  border-radius: var(--r-xs);
+  background: var(--color-tertiary);
+  color: var(--color-text);
+  font-size: var(--fs-label-s);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+}
+
+/* ---- plate area ---- */
+.plateWrap {
+  flex: 1 1 auto;
+  min-height: 0;
+  container-type: size;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-4) var(--sp-5);
+  overflow: hidden;
+}
+
+/* the museum mat: a bordered white frame around the composition.
+   Width = the smaller of the available width and height, so the square
+   plate always fits the plate area without clipping. */
+.mat {
+  width: min(100%, 300px);
+  width: min(100%, 300px, calc(100cqh - 32px - var(--border-w) * 2));
+  max-width: 100%;
+  padding: var(--sp-3);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+}
+
+.plateArt {
+  width: 100%;
+}
+
+/* ---- caption ---- */
+.caption {
+  flex: 0 0 auto;
+  padding: var(--sp-4) var(--sp-5) var(--sp-5);
+  border-top: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+}
+
+.captionTop {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+}
+
+.captionMeta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.title {
+  margin: 0;
+  font-size: var(--fs-h2);
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  line-height: 1.05;
+  color: var(--color-text);
+}
+
+.artist {
+  margin: 0;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-primary);
+}
+
+.tech {
+  margin: 0;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.note {
+  margin: var(--sp-1) 0 0;
+  font-size: var(--fs-body-s);
+  line-height: 1.45;
+  color: var(--color-text);
+}
+
+/* ---- favourite: diamond, not heart — bauhaus geometry ---- */
+.favBtn {
+  flex: 0 0 auto;
+  width: 52px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: var(--border-w) solid var(--color-outline);
+  border-radius: var(--r-xs);
+  background: transparent;
+  cursor: pointer;
+}
+
+.diamond {
+  width: 18px;
+  height: 18px;
+  border: var(--border-w) solid var(--color-outline);
+  background: transparent;
+  transform: rotate(45deg);
+  transition:
+    background var(--dur-2) var(--ease-standard),
+    transform var(--dur-2) var(--ease-emphasized-decel);
+}
+
+.diamondOn {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  transform: rotate(45deg) scale(1.15);
+  animation: diamondPop var(--dur-3) var(--ease-emphasized-decel);
+}
+
+@keyframes diamondPop {
+  0% {
+    transform: rotate(45deg) scale(0.6);
+  }
+  60% {
+    transform: rotate(45deg) scale(1.3);
+  }
+  100% {
+    transform: rotate(45deg) scale(1.15);
+  }
+}
+
+/* ---- triad chips ---- */
+.chipsRow {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-2);
+}
+
+.chip {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-2);
+  min-height: 42px;
+  padding: 0;
+  border: var(--border-w) solid var(--color-outline);
+  border-radius: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: var(--fs-label-s);
+  font-weight: 900;
+  letter-spacing: 0.12em;
+  cursor: pointer;
+  transition:
+    background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard);
+}
+
+.chip:active {
+  transform: translateY(1px);
+}
+
+.chipSwatch {
+  width: 14px;
+  height: 14px;
+  border: var(--border-w) solid var(--color-outline);
+}
+
+.chip[data-accent="red"] .chipSwatch {
+  background: var(--color-primary);
+}
+.chip[data-accent="blue"] .chipSwatch {
+  background: var(--color-secondary);
+}
+.chip[data-accent="yellow"] .chipSwatch {
+  background: var(--color-tertiary);
+}
+
+.chip[data-on="true"] {
+  background: var(--color-outline);
+  color: var(--color-bg);
+}
+
+.chip[data-on="true"] .chipSwatch {
+  border-color: var(--color-bg);
+}

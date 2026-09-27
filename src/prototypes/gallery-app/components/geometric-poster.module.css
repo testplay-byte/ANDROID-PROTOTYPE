@@ -1,98 +1,123 @@
-/* GeometricPoster — pure CSS geometry on a 2px ink-bordered field.
-   Triad only, solid blocks, never gradients. No shadows. */
+/* GeometricPoster — printed-poster compositions on a portrait ink-bordered
+   field. Triad solids only, no gradients, no shadows. Percentage geometry
+   so the poster scales between list rows and the detail header. */
 
 .field {
   position: relative;
-  height: 148px;
+  aspect-ratio: 4 / 5;
   border: var(--border-w) solid var(--color-outline);
-  border-bottom: none;
   background: var(--color-surface-1);
   overflow: hidden;
 }
 
-/* ---- Primitive shapes ---- */
+/* ---- primitives ---- */
 .disc {
   position: absolute;
   border-radius: 50%;
 }
 
-.discRed {
-  width: 96px;
-  height: 96px;
-  left: 18px;
-  top: 16px;
-  background: var(--color-primary);
-}
-
-.discBlue {
-  width: 72px;
-  height: 72px;
-  right: 20px;
-  top: 40px;
-  background: var(--color-secondary);
-}
-
-/* Quarter circle (one rounded corner only). */
 .quarter {
   position: absolute;
-  width: 104px;
-  height: 104px;
 }
 
-.quarterBlue {
-  right: -2px;
-  bottom: -2px;
-  background: var(--color-secondary);
-  border-top-left-radius: 100%;
-}
-
-/* Triangle via CSS borders. */
 .tri {
   position: absolute;
-  width: 0;
-  height: 0;
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
 }
 
-.triYellow {
-  left: 16px;
-  top: 34px;
-  border-left: 46px solid transparent;
-  border-right: 46px solid transparent;
-  border-bottom: 80px solid var(--color-tertiary);
-}
-
-/* Solid bars. */
 .bar {
   position: absolute;
 }
 
-.barYellow {
-  left: 0;
-  top: 8px;
-  width: 100%;
-  height: 12px;
-  background: var(--color-tertiary);
+.ring {
+  position: absolute;
+  border-radius: 50%;
 }
 
-.barRed {
-  left: 24px;
-  bottom: -2px;
-  width: 22px;
-  height: 96px;
-  background: var(--color-primary);
-}
-
-/* Thin ink rule cutting the composition. */
-.inkLine {
+/* thin ink rule cutting the composition */
+.rule {
   position: absolute;
   left: 0;
   right: 0;
-  top: 104px;
+  top: 71%;
   height: var(--border-w);
   background: var(--color-outline);
 }
 
-/* ---- posterB overrides ---- */
-.fieldB {
-  background: var(--color-surface-1);
+/* ---- poster A: red disc, blue quarter bottom-right, yellow top strip ---- */
+.barTopYellow {
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 8%;
+  background: var(--color-tertiary);
+}
+.discRedA {
+  width: 44%;
+  height: 35.2%; /* square in a 4:5 field: 44% * (4/5) */
+  left: 10%;
+  top: 16%;
+  background: var(--color-primary);
+}
+.quarterBlueA {
+  width: 48%;
+  height: 38.4%;
+  right: 0;
+  bottom: 0;
+  background: var(--color-secondary);
+  border-top-left-radius: 100%;
+}
+
+/* ---- poster B: yellow triangle, blue disc, red vertical bar ---- */
+.triYellowB {
+  left: 8%;
+  top: 14%;
+  width: 40%;
+  height: 34%;
+  background: var(--color-tertiary);
+}
+.discBlueB {
+  width: 34%;
+  height: 27.2%;
+  right: 10%;
+  top: 34%;
+  background: var(--color-secondary);
+}
+.barRedB {
+  left: 16%;
+  bottom: 0;
+  width: 12%;
+  height: 42%;
+  background: var(--color-primary);
+}
+
+/* ---- poster C: red ring, yellow disc, blue quarter top-right + left bar ---- */
+.ringRedC {
+  width: 46%;
+  height: 36.8%;
+  border: 8px solid var(--color-primary);
+  left: 27%;
+  top: 24%;
+}
+.discYellowC {
+  width: 18%;
+  height: 14.4%;
+  left: 10%;
+  bottom: 12%;
+  background: var(--color-tertiary);
+}
+.quarterBlueC {
+  width: 34%;
+  height: 27.2%;
+  right: 0;
+  top: 0;
+  background: var(--color-secondary);
+  border-bottom-left-radius: 100%;
+}
+.barBlueC {
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 7%;
+  background: var(--color-secondary);
 }

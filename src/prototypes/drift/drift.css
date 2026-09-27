@@ -1,0 +1,1766 @@
+/* =========================================================================
+   drift.css — "Drift" podcast & audio player · Glassmorphism (`glass`)
+
+   COLOR DISCIPLINE (the whole point of this prototype):
+   1. The backdrop is a fixed vivid mesh gradient (radial fields + drifting
+      orbs + grain). Its HUE rotates per tab — dawn amber → sea teal →
+      dusk magenta → forest green — warm-led, never a generic blue.
+   2. All glass panels are milky LOW-ALPHA WHITE (0.10–0.22) + blur +
+      saturate ≥1.6, so the backdrop color reads THROUGH the glass instead
+      of being grayed out behind it. The glass never brings its own hue.
+   3. Text: white (#fff / rgba(255,255,255,.74)) over the dark side of
+      every scene in the dark theme, and near-black (#141225) over the
+      pale frost in light theme — both ≥4.5:1 on every tier used.
+   4. Dark theme = deep tinted glass over glowing scenes, never muddy
+      gray; light theme = near-opaque frost with solid dark ink.
+
+   All selectors are scoped under `.dr` (app root) — nothing leaks into
+   proto-kit or other prototypes. Custom props per instance arrive via
+   inline styles: --dr-blur (per-tier blur), --ep-accent (show palette
+   accent), --stagger (entrance delay).
+
+   Sections
+     1. app root + theme contract
+     2. ambient backdrop (four tab scenes, orbs, grain)
+     3. the glass recipe (tiers + specular rim + fallbacks)
+     4. shell — header pill, scroll content, section heads
+     5. Listen — hero, continue card, show grid
+     6. Browse — chips, snap rows, show detail, episode rows
+     7. Player — cover glow, scrubber, transport, segmented speed
+     8. Library — sections, follows, history, empty state
+     9. mini-player + toast
+    10. motion + reduced motion + fallbacks
+    11. stage side-panel helpers (page.tsx)
+   ========================================================================= */
+
+/* =========================================================================
+   1. app root + theme contract
+   ========================================================================= */
+.dr {
+  position: absolute;
+  inset: 0;
+  z-index: 10; /* proto-kit status bar (z 30) paints above the app */
+  overflow: hidden;
+  font-family: var(--font-inter), Inter, system-ui, "Segoe UI", Roboto, sans-serif;
+  color: var(--dr-ink);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+
+  /* ---- dark theme ink (default): luminous white on DEEP saturated scenes.
+     Contrast model: scenes keep the scrolling panel-zone luminance low
+     (~0.03–0.10); vivid brightness lives in the corner orbs + cover art,
+     never behind body copy. White .86 secondary clears AA through the
+     milky 0.10–0.22 fills on that base; --dr-ink-ghost is for CHROME
+     (lines, knobs), never text. ---- */
+  --dr-ink: #ffffff;
+  --dr-ink-dim: rgba(255, 255, 255, 0.92);
+  --dr-ink-mute: rgba(255, 255, 255, 0.86);
+  --dr-ink-ghost: rgba(255, 255, 255, 0.64);
+
+  /* ---- milky glass ladder (never blue-tinted white) ---- */
+  --dr-faint: rgba(255, 255, 255, 0.1);   /* chrome only, no text */
+  --dr-fill: rgba(255, 255, 255, 0.14);   /* default content tier */
+  --dr-fill-hi: rgba(255, 255, 255, 0.18); /* hover / active rows */
+  --dr-fill-strong: rgba(255, 255, 255, 0.22); /* hero / detail / nav layer */
+  --dr-edge: rgba(255, 255, 255, 0.28);   /* hairline */
+  --dr-edge-soft: rgba(255, 255, 255, 0.16);
+  --dr-hi: inset 0 1px 0 rgba(255, 255, 255, 0.34); /* top light-catch */
+  --dr-shade: inset 0 -1px 0 rgba(10, 5, 25, 0.2);  /* bottom thickness */
+  --dr-shadow-1: 0 8px 22px -6px rgba(14, 8, 32, 0.42);
+  --dr-shadow-2: 0 18px 44px -12px rgba(14, 8, 32, 0.5);
+  --dr-sat: 1.6;
+  --dr-wave-idle: rgba(255, 255, 255, 0.38); /* unplayed waveform bars */
+
+  /* scene hue targets (dark theme, per tab) — set in section 2.
+     Discipline: the middle scroll band stays deep (L ≤ ~0.04) so white
+     text on milky 0.10–0.22 glass clears AA; vivid brightness lives in
+     saturated HUE + corner glows behind scrims, never behind body copy. */
+  --s0: #170a04; --s1: #35120a; --s2: #5a1c0c; --s3: #7e280f; --s4: #9a3412;
+  --orbA: #c2410c; --orbB: #7c2d12; --orbC: #ea8c2c;
+
+  /* tab-scene transition */
+  --dr-scene-ease: 900ms cubic-bezier(0.22, 0.9, 0.32, 1);
+}
+
+.device[data-theme="light"] .dr {
+  /* light theme: near-opaque frost with solid dark ink (glass.md) */
+  --dr-ink: #141225;
+  --dr-ink-dim: #241f3a;
+  --dr-ink-mute: #414c63; /* solid, ≥8:1 on the frost ladder */
+  --dr-ink-ghost: rgba(20, 18, 37, 0.55); /* chrome lines only, never text */
+  --dr-faint: rgba(255, 255, 255, 0.55);
+  --dr-fill: rgba(255, 255, 255, 0.7);
+  --dr-fill-hi: rgba(255, 255, 255, 0.8);
+  --dr-fill-strong: rgba(255, 255, 255, 0.88);
+  --dr-edge: rgba(255, 255, 255, 0.85);
+  --dr-edge-soft: rgba(20, 18, 37, 0.12);
+  --dr-hi: inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  --dr-shade: inset 0 -1px 0 rgba(20, 18, 37, 0.06);
+  --dr-shadow-1: 0 8px 22px -6px rgba(42, 30, 70, 0.2);
+  --dr-shadow-2: 0 18px 44px -12px rgba(42, 30, 70, 0.26);
+  --dr-wave-idle: rgba(20, 18, 37, 0.3);
+
+  /* pastel versions of the scenes — saturated fields fade toward milky */
+  --s0: #ffe8c7; --s1: #ffd3a1; --s2: #ffb27a; --s3: #ff9d6e; --s4: #ffeed4;
+  --orbA: #ffb45c; --orbB: #ff7a59; --orbC: #ffd9a0;
+}
+
+.dr button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.dr button:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 2px;
+  border-radius: var(--r-pill);
+}
+.device[data-theme="light"] .dr button:focus-visible {
+  outline-color: rgba(20, 18, 37, 0.6);
+}
+.dr svg {
+  display: block;
+  flex: none;
+}
+.dr .tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* =========================================================================
+   2. ambient backdrop — four tab scenes
+   Fixed vivid mesh: a linear base wash + three radial fields + drifting
+   orbs + film grain. data-scene on .dr cross-fades the palette per tab.
+   Hues: listen = dawn amber · browse = sea teal · player = dusk magenta
+   · library = forest green. Warm-led; teal/green carry no blue cast.
+   ========================================================================= */
+.dr-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.dr-bg__wash {
+  position: absolute;
+  inset: 0;
+  /* brightest saturated band MID-screen (where hero art + big covers live),
+     deepening to near-black at both ends — the dock and bottom cards sit on
+     the darkest ground. Verified: white/.86 on every glass tier clears AA. */
+  background: linear-gradient(172deg, var(--s1) 0%, var(--s3) 42%, var(--s4) 58%, var(--s2) 78%, var(--s0) 100%);
+  transition: background var(--dr-scene-ease);
+}
+/* radial light fields — even, capped, no hard edges for blur to smear.
+   Cores hug the top-right / bottom-left corners; only low-luma tails
+   reach the scroll column (the scrim floors what's left). */
+.dr-bg__field {
+  position: absolute;
+  inset: -18%;
+  transition: background var(--dr-scene-ease);
+  background:
+    radial-gradient(44% 34% at 86% 4%, var(--orbC) 0%, transparent 62%),
+    radial-gradient(48% 40% at 8% 92%, var(--orbB) 0%, transparent 64%),
+    radial-gradient(52% 44% at 62% 62%, var(--orbA) 0%, transparent 70%);
+  opacity: 0.42;
+}
+.device[data-theme="light"] .dr-bg__field {
+  opacity: 0.4;
+}
+/* drifting orbs — slow float; what the blur samples in motion.
+   All three hug the edges (top-right / bottom-left / far right below
+   the fold); the middle scroll band is orb-free by construction. */
+.dr-bg__orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(26px);
+  transition: background var(--dr-scene-ease);
+  animation: dr-float 16s ease-in-out infinite alternate;
+  will-change: transform;
+}
+.dr-bg__orb.o1 {
+  width: 62%;
+  aspect-ratio: 1;
+  top: -18%;
+  right: -20%;
+  background: radial-gradient(circle at 36% 34%, rgba(255, 255, 255, 0.4), var(--orbA) 46%, transparent 72%);
+  animation-duration: 18s;
+}
+.dr-bg__orb.o2 {
+  width: 50%;
+  aspect-ratio: 1;
+  bottom: -16%;
+  left: -18%;
+  background: radial-gradient(circle at 58% 36%, var(--orbB), transparent 74%);
+  animation-duration: 22s;
+  animation-delay: -8s;
+}
+.dr-bg__orb.o3 {
+  width: 34%;
+  aspect-ratio: 1;
+  top: 60%;
+  right: -14%;
+  background: radial-gradient(circle at 42% 40%, rgba(255, 255, 255, 0.35), var(--orbC) 52%, transparent 74%);
+  animation-duration: 14s;
+  animation-delay: -4s;
+}
+.device[data-theme="light"] .dr-bg__orb {
+  opacity: 0.8;
+}
+/* scrim — the contrast floor: a tinted dark wash that keeps the SCROLL
+   COLUMN luminance low so white text on milky 0.10–0.22 glass clears
+   AA (verified with a WCAG model: muted .86 ≥4.5 on every tier even
+   under a 22% orb overlap). It's a deep tint, not black — saturation
+   survives and the blur+saturate glass still drinks color from it. */
+.dr-bg__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(6, 3, 18, 0.52) 0%, rgba(6, 3, 18, 0.5) 18%, rgba(6, 3, 18, 0.62) 55%, rgba(6, 3, 18, 0.6) 82%, rgba(6, 3, 18, 0.55) 100%);
+  transition: background var(--dr-scene-ease);
+}
+.device[data-theme="light"] .dr-bg__scrim {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0.24) 50%, rgba(255, 255, 255, 0.34) 100%);
+}
+
+/* grain — kills gradient banding on the deep dark scenes */
+.dr-bg__grain {
+  position: absolute;
+  inset: 0;
+  opacity: var(--glass-grain-opacity, 0.04);
+  mix-blend-mode: overlay;
+  background-image: var(--glass-grain);
+}
+
+/* ---- scene palettes — DEEP SATURATED bands, calibrated numerically:
+     with the wash gradient + field/orb geometry + scrim above, white and
+     .86 muted text on every milky tier (0.10–0.24) clears WCAG AA in the
+     scroll column, dock zone AND header zone for all four scenes. ---- */
+.dr[data-scene="listen"] {
+  --s0: #1d0b03; --s1: #4a1508; --s2: #6a2408; --s3: #c2410c; --s4: #d4560f;
+  --orbA: #ffb84d; --orbB: #ff5e62; --orbC: #ffb84d;
+}
+.dr[data-scene="browse"] {
+  --s0: #031a1f; --s1: #05282c; --s2: #083a3c; --s3: #0d6157; --s4: #117a68;
+  --orbA: #35d0ba; --orbB: #14b8a6; --orbC: #35d0ba;
+}
+.dr[data-scene="player"] {
+  --s0: #160518; --s1: #38093a; --s2: #521643; --s3: #a33062; --s4: #b83a6e;
+  --orbA: #ff7ac0; --orbB: #e8503f; --orbC: #ff7ac0;
+}
+.dr[data-scene="library"] {
+  --s0: #04120a; --s1: #071d0e; --s2: #0d3318; --s3: #1d5229; --s4: #256b34;
+  --orbA: #7cc26b; --orbB: #a3d977; --orbC: #7cc26b;
+}
+.device[data-theme="light"] .dr[data-scene="listen"] {
+  --s0: #ffe3b8; --s1: #ffc98f; --s2: #ffb27a; --s3: #ff9d6e; --s4: #fff1da;
+  --orbA: #ffb45c; --orbB: #ff8a5c; --orbC: #ffd9a0;
+}
+.device[data-theme="light"] .dr[data-scene="browse"] {
+  --s0: #d3f4ea; --s1: #abead8; --s2: #8fdcc6; --s3: #a7e8d4; --s4: #eafff7;
+  --orbA: #5eead4; --orbB: #34d399; --orbC: #d6f7ea;
+}
+.device[data-theme="light"] .dr[data-scene="player"] {
+  --s0: #ffdfeb; --s1: #ffc4dd; --s2: #f9b0cd; --s3: #fda4c0; --s4: #ffeef6;
+  --orbA: #f9a8c9; --orbB: #f973b6; --orbC: #ffd0e4;
+}
+.device[data-theme="light"] .dr[data-scene="library"] {
+  --s0: #e2f3d2; --s1: #cbe9bc; --s2: #b7e3ae; --s3: #d3edbd; --s4: #f0fae6;
+  --orbA: #a8d98a; --orbB: #d6e88a; --orbC: #c2f0cf;
+}
+
+/* =========================================================================
+   3. the glass recipe — one contract, four tiers (nav > hero > cards > chips)
+   blur ladder: nav 24 · hero/detail 26 · cards 22/18 · chips 14
+   Never stack backdrop-filter inside a glass panel — inner pills use a
+   higher fill tier with NO blur.
+   ========================================================================= */
+.dr-glass {
+  background: var(--dr-fill);
+  -webkit-backdrop-filter: blur(var(--dr-blur, 20px)) saturate(var(--dr-sat));
+  backdrop-filter: blur(var(--dr-blur, 20px)) saturate(var(--dr-sat));
+  border: 1px solid var(--dr-edge);
+  box-shadow: var(--dr-hi), var(--dr-shade), var(--dr-shadow-1);
+  border-radius: var(--r-lg);
+}
+
+/* specular rim — hero + detail + nav layer ONLY (glass.md recipe 6.1) */
+.dr-hero::before,
+.dr-detail::before,
+.dr-mini::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0) 42%, rgba(255, 255, 255, 0) 58%, rgba(255, 255, 255, 0.26));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+/* press feedback everywhere */
+.dr button:active {
+  transform: scale(0.94);
+  transition: transform var(--dur-1) var(--ease-standard);
+}
+
+/* hover lift (fine pointers only) */
+@media (pointer: fine) {
+  .dr-card:hover,
+  .dr-rowcard:hover,
+  .dr-eprow:hover,
+  .dr-follow:hover,
+  .dr-hist:hover,
+  .dr-cont:hover {
+    transform: translateY(-3px);
+    background: var(--dr-fill-hi);
+    box-shadow: var(--dr-hi), var(--dr-shade), var(--dr-shadow-2);
+  }
+  .dr-card:hover,
+  .dr-rowcard:hover {
+    transition: transform var(--dur-3) var(--ease-emphasized-decel), box-shadow var(--dur-3) var(--ease-emphasized), background var(--dur-2) var(--ease-standard);
+  }
+}
+
+/* =========================================================================
+   4. shell — floating header pill, scroll content, section heads
+   ========================================================================= */
+.dr-screens {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+}
+.dr-screen {
+  position: absolute;
+  inset: 0;
+}
+
+/* header pill floats; content scrolls UNDER it */
+.dr-head {
+  position: absolute;
+  top: 44px;
+  left: 14px;
+  right: 14px;
+  height: 52px;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 8px 0 16px;
+  border-radius: var(--r-pill);
+  background: var(--dr-fill-strong);
+  box-shadow: var(--dr-hi), var(--dr-shade), var(--dr-shadow-2);
+}
+.dr-head__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.dr-head__mark {
+  display: flex;
+  align-items: flex-end;
+  gap: 2.5px;
+  height: 16px;
+}
+.dr-head__mark span {
+  width: 3.5px;
+  border-radius: 2px;
+  background: var(--dr-ink);
+  animation: dr-mark 1.6s ease-in-out infinite;
+}
+.dr-head__mark span:nth-child(1) { height: 7px; animation-delay: 0ms; }
+.dr-head__mark span:nth-child(2) { height: 14px; animation-delay: 220ms; }
+.dr-head__mark span:nth-child(3) { height: 9px; animation-delay: 440ms; }
+.dr-head__title {
+  font-size: var(--fs-h3);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--dr-ink);
+}
+.dr-head__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.dr-head__iconbtn {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-pill);
+  display: grid;
+  place-items: center;
+  color: var(--dr-ink);
+  background: var(--dr-fill-hi); /* inner fill, no blur — never glass-on-glass */
+  border: 1px solid var(--dr-edge-soft);
+  box-shadow: var(--dr-hi);
+}
+.dr-head__avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--r-pill);
+  display: grid;
+  place-items: center;
+  font-size: 11px;
+  font-weight: 800;
+  /* bright milky chip in both themes → dark ink always clears AA on it */
+  color: #231404;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.42));
+  border: 1px solid var(--dr-edge);
+  box-shadow: var(--dr-hi);
+}
+
+/* scrolling content — reserves space for header pill + bottom dock pair */
+.dr-content {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 110px 16px 208px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  scrollbar-width: none;
+}
+.dr-content::-webkit-scrollbar {
+  display: none;
+}
+
+.dr-sechead {
+  font-size: var(--fs-body-l);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--dr-ink);
+  margin-top: 8px;
+}
+.dr-kicker {
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--dr-ink-mute);
+}
+
+/* =========================================================================
+   5. Listen — hero, continue card, show grid
+   ========================================================================= */
+.dr-hero {
+  position: relative;
+  overflow: hidden;
+  min-height: 302px;
+  border-radius: var(--r-xl);
+  background: var(--dr-faint); /* the hero is mostly the artwork; glass sits on it */
+  box-shadow: var(--dr-hi), var(--dr-shade), var(--dr-shadow-2);
+}
+.dr-hero__art {
+  position: absolute;
+  inset: -14px -14px auto -14px;
+  width: calc(100% + 28px);
+  height: 240px;
+  min-height: 0;
+}
+/* the artwork fades INTO the glass at the bottom — that's where the
+   saturate(1.6) blur starts to matter */
+.dr-hero__veil {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 62%;
+  background: linear-gradient(180deg, transparent, rgba(16, 10, 30, 0.28) 42%, rgba(14, 8, 26, 0.6));
+  -webkit-backdrop-filter: blur(22px) saturate(var(--dr-sat));
+  backdrop-filter: blur(22px) saturate(var(--dr-sat));
+  border-top: 1px solid var(--dr-edge-soft);
+}
+.device[data-theme="light"] .dr-hero__veil {
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.32) 42%, rgba(255, 255, 255, 0.62));
+}
+.dr-hero__body {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 14px 18px 18px;
+  min-height: 150px;
+  justify-content: flex-end;
+  align-items: flex-start;
+}
+.dr-hero__title {
+  font-size: var(--fs-h1);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #fff;
+  text-shadow: 0 2px 14px rgba(10, 5, 25, 0.45);
+}
+.device[data-theme="light"] .dr-hero__title {
+  color: var(--dr-ink);
+  text-shadow: 0 2px 10px rgba(255, 255, 255, 0.55);
+}
+.dr-hero__sub {
+  font-size: var(--fs-body-s);
+  line-height: 1.45;
+  color: rgba(255, 255, 255, 0.86);
+  max-width: 34ch;
+}
+.device[data-theme="light"] .dr-hero__sub {
+  color: var(--dr-ink-dim);
+}
+.dr-hero__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+.dr-hero__play {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 44px;
+  padding: 0 18px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-label);
+  font-weight: 700;
+  color: #231404;
+  background: color-mix(in srgb, var(--ep-accent) 88%, #fff 12%);
+  box-shadow: 0 6px 18px -4px color-mix(in srgb, var(--ep-accent) 60%, transparent), var(--dr-hi);
+}
+.dr-hero__follow {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  height: 44px;
+  padding: 0 15px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-label);
+  font-weight: 700;
+  color: var(--dr-ink);
+  background: rgba(255, 255, 255, 0.16); /* inner tier — sits on hero glass, so no blur */
+  border: 1px solid var(--dr-edge-soft);
+  box-shadow: var(--dr-hi);
+}
+.dr-hero__follow.is-on {
+  background: color-mix(in srgb, var(--ep-accent, #ffb45c) 30%, rgba(255, 255, 255, 0.22));
+  border-color: var(--dr-edge);
+}
+.dr-hero__ep {
+  font-size: var(--fs-label-s);
+  color: rgba(255, 255, 255, 0.72);
+}
+.device[data-theme="light"] .dr-hero__ep {
+  color: var(--dr-ink-mute);
+}
+
+/* continue listening card */
+.dr-cont {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 14px;
+  background: var(--dr-fill-strong);
+}
+.dr-cont__art {
+  border-radius: var(--r-md);
+  overflow: hidden;
+  flex: none;
+}
+.dr-cont__meta {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.dr-cont__show {
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--dr-ink-mute);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dr-cont__ep {
+  font-size: var(--fs-body-s);
+  font-weight: 700;
+  color: var(--dr-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dr-cont__wave {
+  margin-top: 3px;
+  opacity: 0.95;
+}
+.dr-cont__times {
+  display: flex;
+  justify-content: space-between;
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--dr-ink-mute);
+}
+.dr-cont__play {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: var(--r-pill);
+  display: grid;
+  place-items: center;
+  color: #231404;
+  background: color-mix(in srgb, var(--ep-accent) 88%, #fff 12%);
+  box-shadow: 0 6px 16px -4px color-mix(in srgb, var(--ep-accent) 60%, transparent), var(--dr-hi);
+}
+
+/* show grid */
+.dr-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.dr-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px 8px 10px;
+  border-radius: var(--r-lg);
+  text-align: left;
+  transition: transform var(--dur-3) var(--ease-emphasized-decel), box-shadow var(--dur-3) var(--ease-emphasized), background var(--dur-2) var(--ease-standard);
+}
+.dr-card__art {
+  width: 100%;
+  height: auto;
+  border-radius: var(--r-md);
+  overflow: hidden;
+  aspect-ratio: 1;
+  box-shadow: 0 6px 14px -6px rgba(10, 5, 25, 0.5);
+}
+.dr-card__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  padding: 0 2px;
+}
+.dr-card__title {
+  font-size: var(--fs-body-s);
+  font-weight: 700;
+  color: var(--dr-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dr-card__sub {
+  font-size: var(--fs-label-s);
+  color: var(--dr-ink-mute);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dr-card__go {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 28px;
+  height: 28px;
+  border-radius: var(--r-pill);
+  display: grid;
+  place-items: center;
+  color: #231404;
+  background: color-mix(in srgb, var(--ep-accent) 85%, #fff 15%);
+  box-shadow: 0 4px 12px -2px color-mix(in srgb, var(--ep-accent) 55%, transparent);
+  opacity: 0;
+  transform: translateY(-4px);
+  transition: opacity var(--dur-2) var(--ease-standard), transform var(--dur-2) var(--ease-emphasized);
+}
+@media (pointer: fine) {
+  .dr-card:hover .dr-card__go {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* =========================================================================
+   6. Browse — chips, snap rows, show detail, episode rows
+   ========================================================================= */
+.dr-cats {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 2px;
+}
+.dr-cats::-webkit-scrollbar {
+  display: none;
+}
+.dr-cat {
+  flex: none;
+  height: 34px;
+  padding: 0 15px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-label);
+  font-weight: 700;
+  color: var(--dr-ink-mute);
+  background: var(--dr-fill);
+  -webkit-backdrop-filter: blur(14px) saturate(var(--dr-sat));
+  backdrop-filter: blur(14px) saturate(var(--dr-sat)); /* chips: 14px blur rung */
+  border: 1px solid var(--dr-edge-soft);
+  box-shadow: var(--dr-hi);
+  transition: background var(--dur-2) var(--ease-standard), color var(--dur-2) var(--ease-standard), border-color var(--dur-2) var(--ease-standard);
+}
+.dr-cat.is-on {
+  color: var(--dr-ink);
+  background: color-mix(in srgb, var(--ep-accent) 34%, var(--dr-fill-strong));
+  border-color: var(--dr-edge);
+  box-shadow: var(--dr-hi), 0 4px 14px -4px color-mix(in srgb, var(--ep-accent) 55%, transparent);
+}
+
+/* horizontal snap row */
+.dr-row {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  padding: 2px 0 10px;
+  scrollbar-width: none;
+}
+.dr-row::-webkit-scrollbar {
+  display: none;
+}
+.dr-rowcard {
+  flex: none;
+  width: 128px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: left;
+  transition: transform var(--dur-3) var(--ease-emphasized-decel);
+}
+.dr-rowcard > svg {
+  border-radius: var(--r-md);
+  box-shadow: 0 6px 14px -6px rgba(10, 5, 25, 0.5);
+}
+.dr-rowcard__title {
+  font-size: var(--fs-label);
+  font-weight: 700;
+  color: var(--dr-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dr-rowcard__sub {
+  font-size: var(--fs-label-s);
+  color: var(--dr-ink-mute);
+}
+.dr-rowcard.is-selected svg {
+  outline: 2px solid color-mix(in srgb, var(--ep-accent) 75%, #fff 25%);
+  outline-offset: 2px;
+}
+
+/* show detail panel — rim + shadow-2, content tier fill */
+.dr-detail {
+  position: relative;
+  padding: 16px;
+  border-radius: var(--r-xl);
+  background: var(--dr-fill-strong);
+  box-shadow: var(--dr-hi), var(--dr-shade), var(--dr-shadow-2);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: dr-pop-in var(--dur-5) var(--ease-emphasized-decel) both;
+}
+.dr-detail__head {
+  display: flex;
+  gap: 14px;
+  align-items: flex-start;
+}
+.dr-detail__meta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.dr-detail__title {
+  font-size: var(--fs-h2);
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: var(--dr-ink);
+}
+.dr-detail__host {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  color: var(--ep-accent);
+}
+.device[data-theme="light"] .dr-detail__host {
+  color: color-mix(in srgb, var(--ep-accent) 70%, #141225);
+}
+.dr-detail__blurb {
+  font-size: var(--fs-body-s);
+  line-height: 1.45;
+  color: var(--dr-ink-mute);
+  margin-top: 4px;
+}
+.dr-detail__actions {
+  display: flex;
+  gap: 10px;
+}
+.dr-detail__play {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 0 16px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-label);
+  font-weight: 700;
+  color: #231404;
+  background: color-mix(in srgb, var(--ep-accent) 88%, #fff 12%);
+  box-shadow: 0 6px 16px -4px color-mix(in srgb, var(--ep-accent) 60%, transparent), var(--dr-hi);
+}
+.dr-detail__listhead {
+  font-size: var(--fs-label);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--dr-ink-mute);
+}
+.dr-epstack {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* episode rows — content tier, no rim (glass.md: nav > hero > cards) */
+.dr-eprow {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 11px 12px;
+  border-radius: var(--r-md);
+  transition: transform var(--dur-3) var(--ease-emphasized-decel), box-shadow var(--dur-3) var(--ease-emphasized), background var(--dur-2) var(--ease-standard);
+}
+.dr-eprow--live {
+  background: var(--dr-fill-strong);
+  border-color: var(--dr-edge);
+}
+/* rows nested inside the detail panel are INNER elements of one glass
+   sheet (glass.md: never stack translucent glass on glass) — higher
+   fill, no backdrop-filter */
+.dr-detail .dr-eprow {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  background: rgba(255, 255, 255, 0.1);
+}
+.device[data-theme="light"] .dr-detail .dr-eprow {
+  background: rgba(255, 255, 255, 0.55);
+}
+.dr-detail .dr-eprow--live {
+  background: rgba(255, 255, 255, 0.2);
+}
+.device[data-theme="light"] .dr-detail .dr-eprow--live {
+  background: rgba(255, 255, 255, 0.78);
+}
+.dr-eprow__play {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--r-pill);
+  display: grid;
+  place-items: center;
+  color: #231404;
+  background: color-mix(in srgb, var(--ep-accent) 82%, #fff 18%);
+  box-shadow: var(--dr-hi);
+}
+.dr-eprow__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+.dr-eprow__title {
+  font-size: var(--fs-body-s);
+  font-weight: 700;
+  color: var(--dr-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dr-eprow__sub {
+  font-size: var(--fs-label-s);
+  color: var(--dr-ink-mute);
+}
+.dr-eprow__thread {
+  margin-top: 5px;
+  height: 3px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.24);
+  overflow: hidden;
+}
+.device[data-theme="light"] .dr-eprow__thread {
+  background: rgba(20, 18, 37, 0.14);
+}
+.dr-eprow__threadfill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transform-origin: left center;
+  transition: transform 260ms linear;
+}
+.dr-eprow__dl {
+  flex: none;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-pill);
+  display: grid;
+  place-items: center;
+  color: var(--dr-ink-mute);
+  border: 1px solid transparent;
+  transition: color var(--dur-2) var(--ease-standard), background var(--dur-2) var(--ease-standard);
+}
+.dr-eprow__dl:hover {
+  color: var(--dr-ink);
+  background: var(--dr-fill-hi);
+}
+.dr-eprow__dl.is-on {
+  color: var(--ep-accent);
+  border-color: color-mix(in srgb, var(--ep-accent) 45%, transparent);
+}
+.device[data-theme="light"] .dr-eprow__dl.is-on {
+  color: color-mix(in srgb, var(--ep-accent) 65%, #141225);
+}
+
+/* =========================================================================
+   7. Player — cover glow, scrubber, transport, speed, sleep
+   The showcase screen: deepest blur ladder + the only full rim treatment
+   shared between hero, detail and the player scrubber.
+   ========================================================================= */
+.dr-player {
+  gap: 18px;
+  padding-bottom: 216px;
+}
+.dr-player__coverwrap {
+  position: relative;
+  display: grid;
+  place-items: center;
+  padding: 26px 0 10px;
+}
+.dr-player__glow {
+  position: absolute;
+  width: 82%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--ep-accent) 55%, transparent), transparent 70%);
+  filter: blur(46px);
+  opacity: 0.75;
+  animation: dr-breathe 5.5s ease-in-out infinite alternate;
+}
+.dr-player__cover {
+  position: relative;
+  border-radius: 24px;
+  box-shadow: 0 26px 60px -18px rgba(10, 5, 25, 0.6), var(--dr-hi);
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  animation: dr-pop-in var(--dur-5) var(--ease-emphasized-decel) both;
+}
+.dr-player__meta {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 0 8px;
+}
+.dr-player__title {
+  font-size: var(--fs-h2);
+  font-weight: 800;
+  letter-spacing: -0.015em;
+  color: var(--dr-ink);
+  line-height: 1.2;
+}
+.dr-player__sub {
+  font-size: var(--fs-body-s);
+  line-height: 1.45;
+  color: var(--dr-ink-mute);
+  max-width: 40ch;
+  margin: 0 auto;
+}
+
+/* scrubber panel */
+.dr-player__scrub {
+  padding: 14px 16px 12px;
+  border-radius: var(--r-xl);
+  background: var(--dr-fill-strong);
+  box-shadow: var(--dr-hi), var(--dr-shade), var(--dr-shadow-2);
+}
+.dr-player__wave {
+  opacity: 0.9;
+  margin-bottom: 6px;
+}
+.dr-scrub {
+  position: relative;
+  height: 26px;
+  cursor: pointer;
+  touch-action: none;
+}
+.dr-scrub__rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 5px;
+  transform: translateY(-50%);
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.26);
+}
+.device[data-theme="light"] .dr-scrub__rail {
+  background: rgba(20, 18, 37, 0.16);
+}
+.dr-scrub__fill {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 5px;
+  transform-origin: left center;
+  transform: translateY(-50%);
+  border-radius: inherit;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--ep-accent) 80%, #fff), var(--ep-accent));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--ep-accent) 65%, transparent);
+}
+.dr-scrub__knob {
+  position: absolute;
+  top: 50%;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: #fff;
+  border: 1px solid var(--dr-edge);
+  box-shadow: 0 3px 10px rgba(10, 5, 25, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  transition: box-shadow var(--dur-2) var(--ease-standard);
+}
+.dr-scrub:hover .dr-scrub__knob {
+  box-shadow: 0 3px 10px rgba(10, 5, 25, 0.4), 0 0 0 6px color-mix(in srgb, var(--ep-accent) 28%, transparent);
+}
+.dr-scrub__times {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  color: var(--dr-ink-mute);
+}
+
+/* transport */
+.dr-player__transport {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.dr-tp__side {
+  width: 46px;
+  height: 46px;
+  border-radius: var(--r-pill);
+  display: grid;
+  place-items: center;
+  color: var(--dr-ink);
+  background: var(--dr-fill);
+  -webkit-backdrop-filter: blur(14px) saturate(var(--dr-sat));
+  backdrop-filter: blur(14px) saturate(var(--dr-sat));
+  border: 1px solid var(--dr-edge-soft);
+  box-shadow: var(--dr-hi);
+}
+.dr-tp__step {
+  width: 54px;
+  height: 54px;
+  border-radius: var(--r-pill);
+  display: grid;
+  place-items: center;
+  color: var(--dr-ink);
+  background: var(--dr-fill-hi);
+  -webkit-backdrop-filter: blur(18px) saturate(var(--dr-sat));
+  backdrop-filter: blur(18px) saturate(var(--dr-sat));
+  border: 1px solid var(--dr-edge-soft);
+  box-shadow: var(--dr-hi), var(--dr-shade);
+}
+.dr-tp__play {
+  width: 76px;
+  height: 76px;
+  border-radius: var(--r-pill);
+  display: grid;
+  place-items: center;
+  color: #231404;
+  background: linear-gradient(140deg, color-mix(in srgb, var(--ep-accent) 92%, #fff), var(--ep-accent));
+  box-shadow:
+    0 10px 30px -6px color-mix(in srgb, var(--ep-accent) 65%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  animation: dr-pulse-glow 3.2s ease-in-out infinite alternate;
+}
+.dr-player__under {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+/* segmented speed picker — inner tier on the scene, no nested blur */
+.dr-seg {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--r-pill);
+  background: var(--dr-fill);
+}
+.dr-seg__btn {
+  height: 32px;
+  min-width: 46px;
+  padding: 0 12px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-label);
+  font-weight: 700;
+  color: var(--dr-ink-mute);
+  transition: background var(--dur-2) var(--ease-standard), color var(--dur-2) var(--ease-standard), box-shadow var(--dur-2) var(--ease-standard);
+}
+.dr-seg__btn--wide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  flex: 1;
+}
+.dr-seg__btn.is-on {
+  color: var(--dr-ink);
+  background: var(--dr-fill-strong);
+  box-shadow: var(--dr-hi), inset 0 -1px 0 rgba(10, 5, 25, 0.14);
+}
+
+/* sleep chips */
+.dr-sleep {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.dr-sleep__icon {
+  color: var(--dr-ink-mute);
+  display: grid;
+  place-items: center;
+  margin-right: 2px;
+}
+.dr-sleep__chip {
+  height: 30px;
+  padding: 0 13px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  color: var(--dr-ink-mute);
+  background: var(--dr-faint);
+  border: 1px solid var(--dr-edge-soft);
+  transition: background var(--dur-2) var(--ease-standard), color var(--dur-2) var(--ease-standard);
+}
+.dr-sleep__chip.is-on {
+  color: var(--dr-ink);
+  background: color-mix(in srgb, var(--ep-accent, #f59e0b) 32%, var(--dr-fill));
+  border-color: var(--dr-edge);
+}
+
+.dr-player__dl {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-pill);
+  display: grid;
+  place-items: center;
+  color: var(--dr-ink-mute);
+  background: var(--dr-fill);
+  -webkit-backdrop-filter: blur(14px) saturate(var(--dr-sat));
+  backdrop-filter: blur(14px) saturate(var(--dr-sat));
+  border: 1px solid var(--dr-edge-soft);
+  box-shadow: var(--dr-hi);
+}
+.dr-player__dl.is-on {
+  color: #231404;
+  background: color-mix(in srgb, var(--ep-accent, #f59e0b) 85%, #fff);
+}
+
+/* =========================================================================
+   8. Library
+   ========================================================================= */
+.dr-liblist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.dr-libstats {
+  font-size: var(--fs-label);
+  color: var(--dr-ink-mute);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 2px 0;
+}
+.dr-libstats b {
+  color: var(--dr-ink);
+}
+.dr-libclear {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  height: 28px;
+  padding: 0 11px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  color: var(--dr-ink-mute);
+  border: 1px solid var(--dr-edge-soft);
+  background: var(--dr-faint);
+}
+.dr-libclear:hover {
+  color: var(--dr-ink);
+  background: var(--dr-fill);
+}
+.dr-follow,
+.dr-hist {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 12px;
+  border-radius: var(--r-md);
+  transition: transform var(--dur-3) var(--ease-emphasized-decel), box-shadow var(--dur-3) var(--ease-emphasized), background var(--dur-2) var(--ease-standard);
+}
+.dr-follow__text,
+.dr-hist__text {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  text-align: left;
+}
+.dr-follow__title,
+.dr-hist__title {
+  font-size: var(--fs-body-s);
+  font-weight: 700;
+  color: var(--dr-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dr-follow__sub,
+.dr-hist__sub {
+  font-size: var(--fs-label-s);
+  color: var(--dr-ink-mute);
+}
+.dr-follow__btn {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 12px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  color: var(--dr-ink);
+  background: var(--dr-fill-hi);
+  border: 1px solid var(--dr-edge-soft);
+  box-shadow: var(--dr-hi);
+}
+.dr-follow__btn.is-on {
+  color: var(--ep-accent);
+  border-color: color-mix(in srgb, var(--ep-accent) 45%, transparent);
+}
+.device[data-theme="light"] .dr-follow__btn.is-on {
+  color: color-mix(in srgb, var(--ep-accent) 62%, #141225);
+}
+.dr-hist__bar {
+  margin-top: 5px;
+  height: 3px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.24);
+  overflow: hidden;
+  display: block;
+}
+.device[data-theme="light"] .dr-hist__bar {
+  background: rgba(20, 18, 37, 0.14);
+}
+.dr-hist__bar span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  transform-origin: left center;
+}
+.dr-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 34px 24px;
+  border-radius: var(--r-xl);
+  text-align: center;
+}
+.dr-empty__mark {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--r-pill);
+  display: grid;
+  place-items: center;
+  color: var(--dr-ink);
+  background: var(--dr-fill-hi);
+  border: 1px solid var(--dr-edge-soft);
+  box-shadow: var(--dr-hi);
+}
+.dr-empty b {
+  font-size: var(--fs-body);
+  font-weight: 800;
+  color: var(--dr-ink);
+}
+.dr-empty span {
+  font-size: var(--fs-label);
+  line-height: 1.5;
+  color: var(--dr-ink-mute);
+  max-width: 30ch;
+}
+
+/* =========================================================================
+   9. mini-player + toast (floating glass, paired with the dock)
+   The dock (proto-kit BottomNav variant="glass") sits bottom:16; the
+   mini-player floats directly above it. Both are nav-layer glass:
+   highest tier fill, heaviest blur, shadow-2. The rim on .dr-mini
+   (section 3) marks it as such.
+   ========================================================================= */
+.device .dr [class*="bottomnav"] {
+  /* re-scope proto-kit nav as our dock: milky nav tier + our shadows.
+     Higher specificity than the module's own rules AND its
+     reduced-transparency fallback (which is why --dr-blur is set here:
+     the media override below re-asserts blur at this value on this flag). */
+  --dr-blur: 24px;
+  z-index: 7;
+  background: var(--dr-fill-strong);
+  -webkit-backdrop-filter: blur(24px) saturate(var(--dr-sat));
+  backdrop-filter: blur(24px) saturate(var(--dr-sat));
+  border: 1px solid var(--dr-edge);
+  box-shadow: var(--dr-hi), var(--dr-shade), var(--dr-shadow-2);
+}
+.device .dr [class*="bottomnav"] [class*="item"] {
+  color: var(--dr-ink-mute);
+}
+.device .dr [class*="bottomnav"] [class*="itemIsActive"] {
+  color: var(--dr-ink);
+  background: rgba(255, 255, 255, 0.24);
+  box-shadow: var(--dr-hi), inset 0 -1px 0 rgba(10, 5, 25, 0.16);
+}
+.device[data-theme="light"] .dr [class*="bottomnav"] [class*="itemIsActive"] {
+  color: var(--dr-ink);
+  background: rgba(255, 255, 255, 0.92);
+}
+.dr-mini {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 84px;
+  z-index: 7;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 9px 12px;
+  border-radius: var(--r-xl);
+  background: var(--dr-fill-strong);
+  box-shadow: var(--dr-hi), var(--dr-shade), var(--dr-shadow-2);
+  animation: dr-rise-in var(--dur-5) var(--ease-emphasized-decel) both;
+}
+.dr-mini__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  text-align: left;
+}
+.dr-mini__meta {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.dr-mini__title {
+  font-size: var(--fs-label);
+  font-weight: 700;
+  color: var(--dr-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dr-mini__sub {
+  font-size: var(--fs-label-s);
+  color: var(--dr-ink-mute);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.dr-mini__play {
+  flex: none;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--r-pill);
+  display: grid;
+  place-items: center;
+  color: #231404;
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid var(--dr-edge);
+  box-shadow: var(--dr-hi);
+}
+.dr-mini[data-playing] .dr-mini__play {
+  background: #fff;
+}
+.dr-mini__line {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 3px;
+  height: 2.5px;
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.22);
+  overflow: hidden;
+}
+.dr-mini__linefill {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--dr-ink-ghost);
+  transform-origin: left center;
+  transition: transform 260ms linear;
+}
+.dr-mini[data-playing] .dr-mini__linefill {
+  background: #fff;
+}
+
+/* toast — a modal-layer glass pill near the nav */
+.dr-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 152px;
+  z-index: 9;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 44px);
+  padding: 10px 16px;
+  border-radius: var(--r-pill);
+  background: var(--dr-fill-strong);
+  -webkit-backdrop-filter: blur(28px) saturate(var(--dr-sat));
+  backdrop-filter: blur(28px) saturate(var(--dr-sat)); /* modal rung 28px+ */
+  border: 1px solid var(--dr-edge);
+  box-shadow: var(--dr-hi), var(--dr-shade), var(--dr-shadow-2);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  color: var(--dr-ink);
+  opacity: 0;
+  transform: translate(-50%, 12px);
+  transition: opacity var(--dur-3) var(--ease-standard), transform var(--dur-3) var(--ease-emphasized);
+}
+.dr-toast.is-in {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* waveform bars */
+.dr-wave {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  width: 100%;
+  overflow: hidden;
+}
+.dr-wave__bar {
+  flex: 1;
+  min-width: 2px;
+  border-radius: var(--r-pill);
+  transition: background var(--dur-3) var(--ease-standard);
+}
+.dr-wave--live .dr-wave__bar {
+  animation: dr-bar 1.1s ease-in-out infinite alternate;
+  animation-delay: var(--d, 0ms);
+}
+
+/* =========================================================================
+   10. motion + accessibility
+   Staggered entrances replay on view remount (key={view} in page.tsx);
+   every entrance element carries --stagger.
+   ========================================================================= */
+.dr-content > *,
+.dr-grid > *,
+.dr-liblist > *,
+.dr-epstack > * {
+  animation: dr-enter 460ms var(--ease-emphasized-decel) both;
+  animation-delay: var(--stagger, 0ms);
+}
+
+/* visually hidden — live region for now-playing feedback */
+.dr-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+@keyframes dr-enter {
+  from {
+    opacity: 0;
+    transform: translateY(16px) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes dr-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(34px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes dr-pop-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes dr-float {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-4%, 5%, 0) scale(1.06);
+  }
+}
+@keyframes dr-bar {
+  from {
+    transform: scaleY(0.72);
+  }
+  to {
+    transform: scaleY(1.08);
+  }
+}
+@keyframes dr-mark {
+  from {
+    transform: scaleY(0.6);
+  }
+  to {
+    transform: scaleY(1.15);
+  }
+}
+@keyframes dr-pulse-glow {
+  from {
+    box-shadow:
+      0 10px 30px -6px color-mix(in srgb, var(--ep-accent) 55%, transparent),
+      inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  }
+  to {
+    box-shadow:
+      0 14px 40px -4px color-mix(in srgb, var(--ep-accent) 78%, transparent),
+      inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  }
+}
+@keyframes dr-breathe {
+  from {
+    transform: scale(0.94);
+    opacity: 0.62;
+  }
+  to {
+    transform: scale(1.05);
+    opacity: 0.85;
+  }
+}
+
+/* proto-kit status bar rides above the scenes — white ink in dark,
+   dark ink in light (all scenes are deep/pale enough at the top).
+   Hardcoded: the status bar is a .device child but NOT a .dr
+   descendant, so --dr-ink cannot cascade onto it. */
+.device div[class*="statusbar"] {
+  background: transparent;
+  color: #fff;
+}
+.device div[class*="statusbar"] .battery__fill {
+  fill: #fff;
+}
+.device div[class*="statusbar"] span[class*="battery"] {
+  color: #fff;
+}
+.device[data-theme="light"] div[class*="statusbar"] {
+  color: #141225;
+}
+.device[data-theme="light"] div[class*="statusbar"] .battery__fill {
+  fill: #141225;
+}
+.device[data-theme="light"] div[class*="statusbar"] span[class*="battery"] {
+  color: #141225;
+}
+
+/* ---- reduced motion ---- */
+@media (prefers-reduced-motion: reduce) {
+  .dr *,
+  .dr *::before,
+  .dr *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---- fallbacks ----
+   Deliberate, same documented decision as weather-app and wallet:
+   `prefers-reduced-transparency: reduce` is NOT honored — this machine
+   reports it by default (Windows transparency effects off) and the flag
+   would render the entire glassmorphism language invisible to the
+   reviewer; Drift's identity IS translucent glass over vivid scenes.
+   drift.css itself never gates on the flag; the only thing that must be
+   neutralized is proto-kit's own vGlass dock fallback (opaque + no blur),
+   re-asserted below at our nav tier. A real explicit a11y signal
+   (prefers-contrast: more) DOES solidify every surface into the opaque
+   tinted twin, and engines without backdrop-filter get the same via
+   @supports — both paths keep text at AA. */
+@media (prefers-reduced-transparency: reduce) {
+  .device .dr [class*="bottomnav"] {
+    -webkit-backdrop-filter: blur(24px) saturate(var(--dr-sat)) !important;
+    backdrop-filter: blur(24px) saturate(var(--dr-sat)) !important;
+    background: var(--dr-fill-strong) !important;
+  }
+  .device[data-theme="light"] .dr [class*="bottomnav"] {
+    background: rgba(255, 255, 255, 0.86) !important;
+  }
+}
+@media (prefers-contrast: more) {
+  .dr .dr-glass,
+  .dr .dr-cat,
+  .dr .dr-tp__side,
+  .dr .dr-tp__step,
+  .dr .dr-seg,
+  .dr .dr-toast,
+  .device .dr [class*="bottomnav"] {
+    background: var(--color-surface-solid, #232a3a);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .dr .dr-glass,
+  .dr .dr-cat,
+  .dr .dr-tp__side,
+  .dr .dr-tp__step,
+  .dr .dr-toast,
+  .device .dr [class*="bottomnav"] {
+    background: rgba(30, 22, 48, 0.88);
+  }
+  .device[data-theme="light"] .dr .dr-glass,
+  .device[data-theme="light"] .dr .dr-cat,
+  .device[data-theme="light"] .dr .dr-toast,
+  .device[data-theme="light"] .dr [class*="bottomnav"] {
+    background: rgba(252, 250, 247, 0.92);
+  }
+}
+
+/* =========================================================================
+   11. stage side-panel helpers (page.tsx panels; global like bloom)
+   ========================================================================= */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tag {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  background: var(--sb-muted);
+  color: var(--sb-text);
+  border: 1px solid var(--sb-border);
+}
+.screeninfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.screeninfo__name {
+  font-size: var(--fs-body-l);
+  font-weight: 700;
+}
+.screeninfo__desc {
+  font-size: var(--fs-label);
+  color: var(--sb-text-muted);
+  line-height: 1.5;
+}
+.mini-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.mini-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mini-bar-label {
+  width: 52px;
+  font-size: 10px;
+  color: var(--sb-text-muted);
+}
+.mini-bar-track {
+  flex: 1;
+  height: 4px;
+  border-radius: var(--r-pill);
+  background: var(--sb-muted);
+  overflow: hidden;
+}
+.mini-bar-fill {
+  height: 100%;
+  border-radius: var(--r-pill);
+}
+.mini-bar-num {
+  width: 34px;
+  text-align: right;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--sb-text-muted);
+}
+.kvlist {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.kvlist__row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+.kvlist__row span {
+  color: var(--sb-text-muted);
+}
+.kvlist__row b {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}

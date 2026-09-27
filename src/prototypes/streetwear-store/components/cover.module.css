@@ -1,0 +1,60 @@
+/* Cover — flat tone block with hard geometric art. 0 radius everywhere. */
+
+.cover {
+  position: relative;
+  overflow: hidden;
+}
+
+.tonePrimary {
+  background: var(--color-primary);
+}
+.toneSecondary {
+  background: var(--color-secondary);
+}
+.toneTertiary {
+  background: var(--color-tertiary);
+}
+.toneSuccess {
+  background: var(--color-success);
+}
+.toneSurface {
+  background: var(--color-surface-4);
+}
+
+/* Rotated square (diamond) — outline-only, collides with the edge. */
+.diamond {
+  position: absolute;
+  top: 14%;
+  right: 14%;
+  width: 44%;
+  aspect-ratio: 1 / 1;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-bg);
+  opacity: 0.35;
+  transform: rotate(45deg);
+}
+
+/* Thick ink bar cutting across the lower third. */
+.bar {
+  position: absolute;
+  left: -12%;
+  bottom: 14%;
+  width: 100%;
+  height: 10px;
+  background: var(--color-outline);
+  transform: rotate(-12deg);
+  opacity: 0.9;
+}
+
+/* Small square dot for tiny swatches. */
+.dot {
+  position: absolute;
+  top: -30%;
+  right: -30%;
+  width: 70%;
+  aspect-ratio: 1 / 1;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-bg);
+  opacity: 0.4;
+  transform: rotate(45deg);
+}

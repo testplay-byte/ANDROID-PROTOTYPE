@@ -1,4 +1,6 @@
-/* VisitScreen — hours, address, ticket steppers, booking + stamp. */
+/* VisitScreen — hours ledger, address block, ticket planner (date chips,
+   time slots, steppers), hard summary + ADMITTED stamp. 2px ink borders,
+   zero shadow, square corners, triad solids. */
 
 .root {
   position: absolute;
@@ -20,33 +22,16 @@
   display: none;
 }
 
-/* ---- Sharp-cornered bordered groups ---- */
-.group {
+/* ---- opening hours: ink-ruled ledger rows ---- */
+.hoursTable {
   border: var(--border-w) solid var(--color-outline);
   background: var(--color-surface-1);
-  padding: var(--sp-4);
-  margin-bottom: var(--sp-6);
-}
-
-.groupLabel {
-  margin: 0 0 var(--sp-3);
-  font-size: var(--fs-label);
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.14em;
-  color: var(--color-text);
-}
-
-/* ---- Opening hours: hairline rows ---- */
-.hoursTable {
-  display: flex;
-  flex-direction: column;
 }
 
 .hoursRow {
   display: flex;
   justify-content: space-between;
-  padding: var(--sp-2) 0;
+  padding: var(--sp-2) var(--sp-3);
   border-bottom: var(--border-w) solid var(--color-outline-variant);
   font-size: var(--fs-label);
   font-variant-numeric: tabular-nums;
@@ -65,12 +50,26 @@
   color: var(--color-text);
 }
 
+.hoursClosed {
+  background: var(--color-surface-2);
+}
+
 .hoursClosed .hoursDay,
 .hoursClosed .hoursTime {
   color: var(--color-text-subtle);
 }
 
-/* ---- Address ---- */
+/* ---- address + quarter motif ---- */
+.addressBlock {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-4);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  padding: var(--sp-4);
+}
+
 .address {
   font-style: normal;
   font-size: var(--fs-body);
@@ -79,20 +78,163 @@
   color: var(--color-text);
 }
 
+/* red disc + blue quarter-circle, ink-outlined */
+.addressQuarter {
+  position: relative;
+  flex: 0 0 auto;
+  width: 64px;
+  height: 64px;
+}
+
+.addressDisc {
+  position: absolute;
+  left: 0;
+  top: 4px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--color-primary);
+}
+
+.addressPie {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  width: 40px;
+  height: 40px;
+  background: var(--color-secondary);
+  border-top-left-radius: 100%;
+  border-left: var(--border-w) solid var(--color-outline);
+  border-bottom: var(--border-w) solid var(--color-outline);
+}
+
 .addressNote {
   margin: var(--sp-2) 0 0;
   font-size: var(--fs-label-s);
   color: var(--color-text-muted);
 }
 
-/* ---- Ticket rows + square steppers ---- */
+/* ---- planner labels ---- */
+.plannerLabel {
+  display: block;
+  margin: var(--sp-4) 0 var(--sp-2);
+  font-size: var(--fs-label-s);
+  font-weight: 900;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+/* ---- date chips: bordered, square, weekday / day / month stack ---- */
+.dayChips {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-2);
+}
+
+.dayChip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: var(--sp-2) 0;
+  border: var(--border-w) solid var(--color-outline);
+  border-radius: 0;
+  background: var(--color-surface-1);
+  color: var(--color-text);
+  cursor: pointer;
+  transition:
+    background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard);
+}
+
+.dayChip:active:not(:disabled) {
+  transform: translateY(1px);
+}
+
+.dayChip:disabled {
+  opacity: 0.3;
+  cursor: default;
+}
+
+.dayChipWd {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+}
+
+.dayChipNum {
+  font-size: var(--fs-h3);
+  font-weight: 900;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.dayChipMo {
+  font-size: 9px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: var(--color-text-muted);
+}
+
+.dayChipOn {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+.dayChipOn .dayChipMo {
+  color: var(--color-primary-fg);
+}
+
+/* ---- time-slot chips: equal width ---- */
+.slotChips {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--sp-2);
+}
+
+.slotChip {
+  min-height: 44px;
+  border: var(--border-w) solid var(--color-outline);
+  border-radius: 0;
+  background: var(--color-surface-1);
+  color: var(--color-text);
+  font-size: var(--fs-label);
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  font-variant-numeric: tabular-nums;
+  cursor: pointer;
+  transition:
+    background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard);
+}
+
+.slotChip:active {
+  transform: translateY(1px);
+}
+
+.slotChipOn {
+  background: var(--color-outline);
+  color: var(--color-bg);
+}
+
+/* ---- steppers in one bordered block ---- */
+.plannerBlock {
+  margin-top: var(--sp-4);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+}
+
 .ticketRow {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: var(--sp-3);
-  padding: var(--sp-3) 0;
-  border-bottom: var(--border-w) solid var(--color-outline-variant);
+  padding: var(--sp-3) var(--sp-4);
+}
+
+.ticketRowBorder {
+  border-top: var(--border-w) solid var(--color-outline);
 }
 
 .ticketMeta {
@@ -154,18 +296,44 @@
   color: var(--color-text);
 }
 
-/* ---- Total ---- */
-.totalRow {
+/* ---- hard summary slab ---- */
+.summary {
+  margin-top: var(--sp-4);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-2);
+}
+
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  padding: var(--sp-2) var(--sp-4);
+  border-bottom: var(--border-w) solid var(--color-outline-variant);
+  font-size: var(--fs-label-s);
+}
+
+.summaryRow span {
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  color: var(--color-text-muted);
+}
+
+.summaryRow b {
+  font-weight: 800;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
+.summaryTotal {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  padding: var(--sp-4) 0 var(--sp-3);
+  padding: var(--sp-3) var(--sp-4);
 }
 
 .totalLabel {
   font-size: var(--fs-label);
   font-weight: 900;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   color: var(--color-text);
 }
 
@@ -173,13 +341,14 @@
   font-size: var(--fs-h1);
   font-weight: 900;
   font-variant-numeric: tabular-nums;
-  color: var(--color-secondary);
+  color: var(--color-primary);
 }
 
-/* ---- BOOK button: primary red slab ---- */
+/* ---- BOOK slab: primary red ---- */
 .bookBtn {
   width: 100%;
   min-height: 52px;
+  margin-top: var(--sp-4);
   border: var(--border-w) solid var(--color-primary);
   border-radius: 0;
   background: var(--color-primary);
@@ -200,7 +369,7 @@
   cursor: default;
 }
 
-/* ---- Booked confirmation + geometric stamp ---- */
+/* ---- booked confirmation + geometric stamp ---- */
 .confirmation {
   display: flex;
   flex-direction: column;
@@ -221,7 +390,6 @@
   }
 }
 
-/* The stamp: bordered square, rotated, built from triad geometry. */
 .stamp {
   position: relative;
   width: 132px;
@@ -270,7 +438,6 @@
   font-weight: 900;
   letter-spacing: 0.2em;
   color: var(--color-text);
-  text-shadow: none;
 }
 
 .confirmTitle {
@@ -281,10 +448,51 @@
   color: var(--color-text);
 }
 
+.confirmFacts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: var(--sp-2);
+}
+
+.confirmFacts span {
+  padding: 5px var(--sp-3);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  font-size: var(--fs-label-s);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+
 .confirmMeta {
   margin: 0;
   font-size: var(--fs-label);
   font-variant-numeric: tabular-nums;
   color: var(--color-text-muted);
   text-align: center;
+}
+
+.resetBtn {
+  width: 100%;
+  min-height: 48px;
+  margin-top: var(--sp-2);
+  border: var(--border-w) solid var(--color-outline);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-text);
+  font-size: var(--fs-label);
+  font-weight: 900;
+  letter-spacing: 0.14em;
+  cursor: pointer;
+  transition:
+    background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard);
+}
+
+.resetBtn:active {
+  background: var(--color-outline);
+  color: var(--color-bg);
 }

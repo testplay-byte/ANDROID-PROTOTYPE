@@ -7,6 +7,44 @@
 
 ## [Unreleased]
 
+### 2026-09-27 — prototype expansion batch 1: streetwear-store + gallery-app overhauls, Drift (glass) added
+
+Three sub-agents built in parallel; coordinator integrated + built centrally.
+
+**Streetwear Store (brutalism) — reworked to spec.** The old demo was thin (111 CSS
+lines) and violated its own style (rounded corners). Now: 0px radius everywhere
+(grep-audited), 2-3px ink borders on every container (66×), hard zero-blur offset
+shadows (62×) + inset pressed states with translate, poster composition (Arial-Black
+display type, numbered sections, marquee ticker, rotated -2° sticker badges, diagonal
+SOLD OUT bands), colorway picker, promo codes (BRUTAL10/DROP07) wired to the proto-kit
+on-screen Keyboard, favorites/cart/currency/default-size all persisted, cart slab with
+free-shipping progress + checkout flow. 26 files, ~2.1k CSS lines.
+
+**Gallery App (bauhaus) — reworked to spec.** Now: 3 exhibitions + 12 artworks with
+data-driven generative CSS geometry (12 clip-path/ring motifs, no bitmaps), numbered
+exhibition list → detail push → full-screen **plate view** whose triad chips re-ink the
+artwork live, date-chip ticket booking with live EUR summary + ADMITTED stamp, persisted
+favourites, German-localised chrome. Spec discipline verified: red primary on every
+action, ZERO box-shadow anywhere, 2px ink borders throughout, near-square radius scale.
+Chrome experiment: the Collection screen drops the TopBar for a bordered segmented
+index strip. 31 files, ~2.4k CSS lines.
+
+**Drift (glass) — NEW podcast/audio prototype.** The glass color-discipline showcase:
+glass fills are pure milky white alphas (0.10–0.22) — all hue comes from a vivid mesh
+backdrop that rotates per tab (dawn amber → sea teal → dusk magenta → forest green,
+zero blue-purple defaults), text contrast computed via a WCAG model over the scene
+geometry (≥4.5:1 all tiers, both themes). 4 tabs (Listen/Browse/Player/Library):
+generative cover art, live waveform + draggable scrubber, speed + sleep chips,
+mini-player docked above the glass nav, persisted downloads/subscriptions/history.
+Reduced-transparency deliberately not honored (same documented call as weather/wallet);
+prefers-contrast + no-backdrop-filter get opaque AA twins. 16 files.
+
+**Coordinator fixes:** gallery-app page imported `../../../proto-kit` (wrong depth —
+build error) → corrected to `../../../src/proto-kit`. Registered Drift in the gallery
+(entry + custom thumb), prototypes index, README catalog; refreshed streetwear/gallery
+gallery copy; demo sections added to brutalism.md, bauhaus.md, glass.md.
+`tsc --noEmit` + `npm run build` clean (19 routes).
+
 ### 2026-09-27 — prototypes: PC back-to-dashboard button
 
 `<Stage>` (proto-kit) now renders a fixed top-left **Dashboard** pill on
