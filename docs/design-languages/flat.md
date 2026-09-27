@@ -102,7 +102,13 @@ Success (`#66bb6a` / `#43a047`) shares green territory with teal — prefer teal
 
 ## Demo prototype
 
-Demo prototype: see the dashboard at https://testplay-byte.github.io/ANDROID-PROTOTYPE/ (styles gallery).
+Demo prototypes: the chat app at `app/prototypes/chat-app` and **Hop** at
+`app/prototypes/hop` — a food-delivery app built on solid cuisine colour planes: screens
+OPEN on a full-bleed flat block (no title bar), the tab bar is four edge-to-edge segments
+where the active one is an inverted color block, and a coral dot travels a 1px rail in
+the live order tracker. Zero box-shadow/gradient/backdrop anywhere (grep-audited);
+active states swap colors instead of depressing.
+Also the styles gallery at https://testplay-byte.github.io/ANDROID-PROTOTYPE/.
 
 ## Wiring
 

@@ -7,6 +7,34 @@
 
 ## [Unreleased]
 
+### 2026-09-28 — prototype expansion batch 3: Nook (minimal), Atlas (bento), Hop (flat)
+
+Three sub-agents (relaunched with finish/repair briefs after a network failure killed the
+first dispatch mid-build — they continued around the partial files on disk). Completes the
+expansion program: every non-M3/HIG style now has two prototypes.
+
+**Nook (minimal)** — typographic reading journal: pure monochrome (ink-as-primary, zero
+color), serif title treatments, 1px hairline progress rules, a real reader with
+scroll-driven progress + immersive tap-to-hide chrome + paragraph highlighting, a
+hairline goal ring, and a TEXT-ONLY bottom tab row (no pill, no large title — the
+chrome-variety mandate taken to its minimal extreme).
+
+**Atlas (bento)** — travel trip planner: tile sizes encode frequency of use, generative
+CSS landscape art per destination (procedural ridges + sun), tap-any-tile full-screen
+morph, per-trip packing bento with accent-fill cells, header-as-tile + equal-cell nav row
+(chrome grows from the grid instead of the floating pill).
+
+**Hop (flat)** — food delivery, Flat Design 2.0: screens open ON solid cuisine colour
+planes, four edge-to-edge tab segments with an inverted active block, coral dot traveling
+a 1px rail through the live order stepper, flying-square cart adds, block-stepper
+checkout; grep-audited zero box-shadow/gradient/backdrop.
+
+Coordinator fixes during integration: Hop search screen spread `kb.inputProps` (the
+`useKeyboardInput` hook returns the props directly) → `{...kb}`; two copy/logic nits the
+Hop agent fixed in the pre-existing partial files. Registered all three in the gallery
+(entries + custom thumbs), prototypes index, README catalog; demo sections added to
+minimal.md, bento.md, flat.md. `tsc --noEmit` + `npm run build` clean (25 routes).
+
 ### 2026-09-28 — prototype expansion batch 2: Pulse (carbon), Still (neumorph), Simmer (clay)
 
 Three sub-agents built in parallel (efficiency-briefed: read once, write in big passes,

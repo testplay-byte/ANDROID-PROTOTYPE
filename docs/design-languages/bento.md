@@ -103,7 +103,12 @@ Keep the palette content-first: most tiles are neutral; orange (and sky/lime in 
 
 ## Demo prototype
 
-Demo prototype: see the dashboard at https://testplay-byte.github.io/ANDROID-PROTOTYPE/ (styles gallery).
+Demo prototypes: the smart home dashboard at `app/prototypes/smart-home` and **Atlas** at
+`app/prototypes/atlas` — a travel planner where tile sizes encode frequency of use, each
+destination gets generative CSS landscape art, and tapping any tile morphs it full-screen
+(the signature bento motion). Its chrome grows from the grid: header-as-tile + a nav row
+of equal rounded cells instead of the floating pill.
+Also the styles gallery at https://testplay-byte.github.io/ANDROID-PROTOTYPE/.
 
 ## Wiring
 

@@ -100,7 +100,12 @@ Success (`#46a758` / `#2f7d3b`) and warn (`#f5a623` / `#b45309`) exist but are f
 
 ## Demo prototype
 
-Demo prototype: see the dashboard at https://testplay-byte.github.io/ANDROID-PROTOTYPE/ (styles gallery).
+Demo prototypes: the habit tracker at `app/prototypes/habit-tracker` and **Nook** at
+`app/prototypes/nook` — a typographic reading journal that pushes the language to its
+purest: no color at all (ink-as-primary), serif title treatments, 1px hairline progress
+rules, an immersive tap-to-hide reader, and a TEXT-ONLY bottom tab row (no pill nav, no
+large title — documented as the intentional break from the floating-BottomNav default).
+Also the styles gallery at https://testplay-byte.github.io/ANDROID-PROTOTYPE/.
 
 ## Wiring
 

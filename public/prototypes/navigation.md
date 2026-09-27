@@ -23,12 +23,15 @@
 | `/prototypes/finance-hub/` | Finance Hub | carbon | review | 4 |
 | `/prototypes/pulse/` | Pulse | carbon | review | 4 |
 | `/prototypes/smart-home/` | Smart Home | bento | review | 4 |
+| `/prototypes/atlas/` | Atlas | bento | review | 4 |
 | `/prototypes/fitness-tracker/` | Fitness Tracker | hig | review | 4 |
 | `/prototypes/wallet/` | Wallet | hig (iOS 26/27 Liquid Glass) | review | 4 |
 | `/prototypes/kids-learning/` | Kids Learning | clay | review | 4 |
 | `/prototypes/simmer/` | Simmer | clay | review | 4 + detail |
 | `/prototypes/chat-app/` | Chat App | flat | review | 3 + detail |
+| `/prototypes/hop/` | Hop | flat | review | 4 + menu |
 | `/prototypes/habit-tracker/` | Habit Tracker | minimal | review | 4 |
+| `/prototypes/nook/` | Nook | minimal | review | 4 |
 | `/prototypes/gallery-app/` | Gallery App | bauhaus | review | 4 |
 
 All 11 design languages are supported by the style system (`src/proto-kit/styles/`) —
@@ -41,4 +44,4 @@ from `public/` on 2026-09-27. Pre-Next.js snapshots live in `archive/legacy/`.
 
 ---
 
-*Last updated: 2026-09-28 — batch 2: added Still (neumorph), Pulse (carbon), Simmer (clay); batch 1: Drift (glass), streetwear/gallery reworks.*
+*Last updated: 2026-09-28 — batch 3: added Nook (minimal), Atlas (bento), Hop (flat); batch 2: Still, Pulse, Simmer; batch 1: Drift + streetwear/gallery reworks.*

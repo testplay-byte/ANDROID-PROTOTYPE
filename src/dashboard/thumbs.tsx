@@ -274,6 +274,102 @@ const THUMBS: Record<string, (p: Palette) => ReactNode> = {
       </div>
     </>
   ),
+  "Atlas": (p) => (
+    <>
+      {/* hero tile — generative sunset landscape */}
+      <div style={{ borderRadius: 9, overflow: "hidden", position: "relative", height: 40, background: "linear-gradient(180deg, #7a5aa8 0%, #ffb45c 100%)" }}>
+        <span style={{ position: "absolute", right: 10, top: 7, width: 9, height: 9, borderRadius: "50%", background: "#ffe9c9" }} />
+        <span style={{ position: "absolute", left: 0, right: 0, bottom: 0, height: 14, background: p.bg, clipPath: "polygon(0 100%, 0 40%, 18% 10%, 36% 55%, 55% 20%, 74% 60%, 100% 30%, 100% 100%)" }} />
+        <span style={{ position: "absolute", left: 6, bottom: 5, ...line("#ffffff", "34%", 5, 3) }} />
+      </div>
+      {/* weather bars + countdown numeral row */}
+      <div style={{ display: "flex", gap: 4 }}>
+        <div style={{ flex: 1, background: p.surface, borderRadius: 8, padding: 4, display: "flex", alignItems: "flex-end", gap: 2, height: 24 }}>
+          {[6, 10, 7, 12, 8].map((h, i) => (
+            <span key={i} style={{ flex: 1, height: h, borderRadius: 2, background: i === 1 ? p.accent : i === 3 ? "#7ec8ff" : p.surfaceAlt }} />
+          ))}
+        </div>
+        <div style={{ width: 30, background: p.surface, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center" }}>
+          <span style={{ fontSize: 13, fontWeight: 800, color: p.accent }}>6</span>
+        </div>
+      </div>
+      {/* small tiles row */}
+      <div style={{ display: "flex", gap: 4 }}>
+        <span style={{ flex: 1, height: 14, borderRadius: 7, background: p.surface }} />
+        <span style={{ flex: 1, height: 14, borderRadius: 7, background: p.surface }} />
+      </div>
+      {/* bento nav cells */}
+      <div style={{ display: "flex", gap: 4, marginTop: "auto" }}>
+        {[0, 1, 2, 3].map((i) => (
+          <span key={i} style={{ flex: 1, height: 12, borderRadius: 7, background: i === 0 ? p.accent : p.surface }} />
+        ))}
+      </div>
+    </>
+  ),
+  "Nook": (p) => (
+    <>
+      {/* currently-reading hairline block */}
+      <div style={{ border: `1px solid ${p.surfaceAlt}`, padding: 6, display: "flex", flexDirection: "column", gap: 4 }}>
+        <span style={line(p.text, "72%", 7, 0)} />
+        <span style={line(p.text, "40%", 4, 0)} />
+        <span style={{ height: 1, background: p.surfaceAlt, position: "relative" }}>
+          <span style={{ position: "absolute", inset: "0 38% 0 0", background: p.text }} />
+        </span>
+      </div>
+      {/* three quiet reading rows with 1px progress rules */}
+      {[62, 24, 100].map((w, i) => (
+        <div key={i} style={{ display: "flex", flexDirection: "column", gap: 3, borderTop: `1px solid ${p.surfaceAlt}`, paddingTop: 4 }}>
+          <span style={line(p.text, `${58 - i * 8}%`, 4, 0)} />
+          <span style={line(p.text, "30%", 3, 0)} />
+          <span style={{ height: 1, background: p.surfaceAlt, position: "relative" }}>
+            <span style={{ position: "absolute", inset: "0 0 0 0", width: `${w}%`, background: p.text }} />
+          </span>
+        </div>
+      ))}
+      {/* text-only tab row: first word white + underline tick */}
+      <div style={{ display: "flex", justifyContent: "space-between", marginTop: "auto", paddingTop: 4 }}>
+        {[0, 1, 2, 3].map((i) => (
+          <span key={i} style={{ width: 12, height: 3, background: i === 0 ? p.text : p.surfaceAlt, position: "relative" }}>
+            {i === 0 && <span style={{ position: "absolute", left: 0, right: 0, top: 6, height: 2, background: p.text }} />}
+          </span>
+        ))}
+      </div>
+    </>
+  ),
+  "Hop": (p) => (
+    <>
+      {/* solid teal hero plane with pizza slice + dots */}
+      <div style={{ height: 42, background: p.accent, position: "relative", display: "flex", justifyContent: "center", alignItems: "center" }}>
+        <span style={{ width: 0, height: 0, borderLeft: "11px solid transparent", borderRight: "11px solid transparent", borderBottom: "18px solid #ff8a50" }} />
+        <span style={{ position: "absolute", right: 8, top: 8, width: 5, height: 5, background: "#fff" }} />
+        <span style={{ position: "absolute", right: 16, top: 8, width: 5, height: 5, background: "#fff", opacity: 0.4 }} />
+      </div>
+      {/* category squares */}
+      <div style={{ display: "flex", gap: 4 }}>
+        {["#ff8a50", p.accent, "#4caf50", "#ffc049"].map((c, i) => (
+          <span key={i} style={{ width: 12, height: 12, background: c }} />
+        ))}
+      </div>
+      {/* two rows */}
+      {[0, 1].map((i) => (
+        <div key={i} style={{ display: "flex", gap: 4, alignItems: "center", background: p.surface, padding: 4 }}>
+          <span style={{ width: 12, height: 12, background: i === 0 ? "#ffc049" : "#4caf50" }} />
+          <div style={{ display: "flex", flexDirection: "column", gap: 3, flex: 1 }}>
+            <span style={line(p.text, "60%", 3, 0)} />
+            <span style={line(p.text, "35%", 3, 0)} />
+          </div>
+        </div>
+      ))}
+      {/* edge-to-edge tab bar, 3rd segment inverted with count */}
+      <div style={{ display: "flex", marginTop: "auto", borderTop: `1px solid ${p.surfaceAlt}` }}>
+        {[0, 1, 2, 3].map((i) => (
+          <span key={i} style={{ flex: 1, height: 14, background: i === 2 ? p.accent : "transparent", position: "relative" }}>
+            {i === 2 && <span style={{ position: "absolute", right: 3, top: 2, width: 5, height: 5, background: "#ff8a50" }} />}
+          </span>
+        ))}
+      </div>
+    </>
+  ),
   "Smart Home": (p) => (
     <>
       <span style={{ ...line(p.text, "52%", 10, 4) }} />
