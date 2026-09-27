@@ -32,6 +32,10 @@
     border-radius: 0;
     box-shadow: none;
   }
+  /* nudge the status row down a touch so it clears the OS edge */
+  .statusbar {
+    padding-top: 6px;
+  }
 }
 
 /* ---- Status bar ----
@@ -98,10 +102,13 @@
   width: 72px;
 }
 .statusbar__cutout--pill.statusbar__cutout--left {
-  top: 50%;
-  width: 52px;
-  height: 18px;
-  border-radius: 10px;
+  /* left island: ~2-3 punch holes wide, tucked in from the edge, sitting a
+     touch lower so it reads as placed rather than flush */
+  top: calc(50% + 2px);
+  left: 38px;
+  width: 30px;
+  height: 16px;
+  border-radius: 9px;
 }
 /* notch — classic iPhone tab hanging from the top edge. Center only (the
    store forces punch when position = left). Kept narrow enough that the
@@ -126,6 +133,10 @@
 }
 :global(.device[data-cutout-pos="left"]) .statusbar__time {
   margin-left: 30px;
+}
+/* the left pill is wider than a punch dot — give the clock more clearance */
+:global(.device[data-cutout="pill"][data-cutout-pos="left"]) .statusbar__time {
+  margin-left: 44px;
 }
 /* notch keeps the right-side icons clear of its rounded corners */
 :global(.device[data-cutout="notch"]) .statusbar__icons {

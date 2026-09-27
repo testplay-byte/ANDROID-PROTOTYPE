@@ -118,7 +118,7 @@ export function SettingsPanel() {
                   </svg>
                   <span className="sp-batt">87%</span>
                 </span>
-                <span className={`sp-cutout sp-cutout--${settings.cutout} ${settings.position === "left" ? "sp-cutout--left" : ""} ${settings.cutout === "pill" && settings.position === "center" && settings.pillSize === "compact" ? "sp-cutout--compact" : ""} ${settings.cutout === "punch" && settings.position === "center" && settings.punchSize === "large" ? "sp-cutout--large" : ""}`} aria-hidden="true" />
+                <span className={`sp-cutout sp-cutout--${settings.cutout} ${settings.position === "left" ? "sp-cutout--left" : ""} ${settings.cutout === "pill" && settings.position === "center" && settings.pillSize === "compact" ? "sp-cutout--compact" : ""} ${settings.cutout === "punch" && settings.punchSize === "large" ? "sp-cutout--large" : ""}`} aria-hidden="true" />
               </div>
               <div className="sp-screen">
                 <div className="sp-appbar">Wallet</div>
@@ -181,45 +181,49 @@ export function SettingsPanel() {
               ))}
             </fieldset>
 
-            <fieldset className="settings__group" disabled={settings.cutout !== "pill" || settings.position === "left"}>
-              <legend>Pill size {settings.cutout !== "pill" ? <small>(only for the pill cutout)</small> : settings.position === "left" ? <small>(left pills are always small)</small> : null}</legend>
-              {PILL_SIZES.map((s) => (
-                <label key={s.id} className={`settings__opt ${settings.pillSize === s.id ? "on" : ""}`}>
-                  <input
-                    type="radio"
-                    name="pillsize"
-                    checked={settings.pillSize === s.id}
-                    disabled={settings.cutout !== "pill" || settings.position === "left"}
-                    onChange={() => update({ pillSize: s.id })}
-                  />
-                  <span className="settings__opt-dot" aria-hidden="true" />
-                  <span className="settings__opt-text">
-                    <span className="settings__opt-label">{s.label}</span>
-                    <span className="settings__opt-hint">{s.hint}</span>
-                  </span>
-                </label>
-              ))}
-            </fieldset>
+            {/* One size group at a time — pill size for the (center) pill,
+                punch size for the punch hole; nothing for notch / left pill. */}
+            {settings.cutout === "pill" && settings.position === "center" && (
+              <fieldset className="settings__group">
+                <legend>Pill size</legend>
+                {PILL_SIZES.map((s) => (
+                  <label key={s.id} className={`settings__opt ${settings.pillSize === s.id ? "on" : ""}`}>
+                    <input
+                      type="radio"
+                      name="pillsize"
+                      checked={settings.pillSize === s.id}
+                      onChange={() => update({ pillSize: s.id })}
+                    />
+                    <span className="settings__opt-dot" aria-hidden="true" />
+                    <span className="settings__opt-text">
+                      <span className="settings__opt-label">{s.label}</span>
+                      <span className="settings__opt-hint">{s.hint}</span>
+                    </span>
+                  </label>
+                ))}
+              </fieldset>
+            )}
 
-            <fieldset className="settings__group" disabled={settings.cutout !== "punch" || settings.position === "left"}>
-              <legend>Punch hole size {settings.cutout !== "punch" ? <small>(only for the punch hole cutout)</small> : settings.position === "left" ? <small>(left punches keep the normal size)</small> : null}</legend>
-              {PUNCH_SIZES.map((s) => (
-                <label key={s.id} className={`settings__opt ${settings.punchSize === s.id ? "on" : ""}`}>
-                  <input
-                    type="radio"
-                    name="punchsize"
-                    checked={settings.punchSize === s.id}
-                    disabled={settings.cutout !== "punch" || settings.position === "left"}
-                    onChange={() => update({ punchSize: s.id })}
-                  />
-                  <span className="settings__opt-dot" aria-hidden="true" />
-                  <span className="settings__opt-text">
-                    <span className="settings__opt-label">{s.label}</span>
-                    <span className="settings__opt-hint">{s.hint}</span>
-                  </span>
-                </label>
-              ))}
-            </fieldset>
+            {settings.cutout === "punch" && (
+              <fieldset className="settings__group">
+                <legend>Punch hole size</legend>
+                {PUNCH_SIZES.map((s) => (
+                  <label key={s.id} className={`settings__opt ${settings.punchSize === s.id ? "on" : ""}`}>
+                    <input
+                      type="radio"
+                      name="punchsize"
+                      checked={settings.punchSize === s.id}
+                      onChange={() => update({ punchSize: s.id })}
+                    />
+                    <span className="settings__opt-dot" aria-hidden="true" />
+                    <span className="settings__opt-text">
+                      <span className="settings__opt-label">{s.label}</span>
+                      <span className="settings__opt-hint">{s.hint}</span>
+                    </span>
+                  </label>
+                ))}
+              </fieldset>
+            )}
           </section>
         </div>
       </main>

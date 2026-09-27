@@ -72,7 +72,7 @@ export function StatusBar() {
           cutout === "pill" && position === "center" && pillSize === "compact"
             ? styles["statusbar__cutout--compact"]
             : ""
-        } ${cutout === "punch" && position === "center" && punchSize === "large" ? styles["statusbar__cutout--large"] : ""}`}
+        } ${cutout === "punch" && punchSize === "large" ? styles["statusbar__cutout--large"] : ""}`}
         aria-hidden="true"
       />
       <span className={styles.statusbar__icons} aria-hidden="true">

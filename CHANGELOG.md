@@ -7,6 +7,21 @@
 
 ## [Unreleased]
 
+### 2026-09-27 — device settings refinements (user feedback pass)
+
+- **Punch size works in both positions** (center and left) — the large dot
+  is no longer center-only.
+- **One size group at a time:** the settings page now shows pill size only
+  for the center pill and punch size only for the punch hole — no more
+  grayed-out pairs.
+- **Left pill reworked:** much narrower (30×16, ~2-3 punch holes), tucked
+  in from the edge and sitting slightly lower; the clock gets extra
+  clearance so it no longer hugs the left edge.
+- **Mobile status row nudged down** 6px in fullscreen (≤480px) so the time
+  + icons clear the OS edge.
+- **Live preview on mobile crops to the device's top section** (the part
+  the settings affect); PC keeps the full preview.
+
 ### 2026-09-27 — system pass: device settings page, fullscreen status bar, dashboard fonts, Bloom reference prototype, search-page + template removal
 
 Four coordinated improvements across the whole system:

@@ -59,9 +59,9 @@ The frame + background transition smoothly when toggling themes.
 
 The dashboard's **Settings page** (`app/settings/`, body in `src/dashboard/settings-panel.tsx`) lets the user configure the phone chrome that every prototype's `<StatusBar>` renders:
 
-- **Cutout type:** `punch` (13px dot, Android default) · `pill` (Dynamic Island, 100×24 wide / 72×24 compact — height fixed, width-only change) · `notch` (132×26 tab hanging from the top edge, center only).
-- **Position:** `center` · `left` (clock shifts right to clear it). Left + pill = a much smaller island (52×18); left + notch falls back to punch.
-- **Punch size:** `normal` (13px) · `large` (17px).
+- **Cutout:** `punch` (13px dot, Android default; `large` = 17px — in BOTH positions) · `pill` (Dynamic Island, 100×24 wide / 72×24 compact — height fixed, width-only change; on the left it becomes a small 30×16 island) · `notch` (132×26 tab hanging from the top edge, center only).
+- **Position:** `center` · `left` (the clock shifts right to clear it; left+notch falls back to punch).
+- The settings page shows **one size group at a time** (pill size only for the center pill, punch size only for the punch hole — never grayed-out pairs). On mobile the live preview crops to the device's top section; on PC it shows fully.
 
 Mechanics: `device-settings/store.ts` is a module-level observable store (localStorage `proto-kit-device-settings-v1` + custom event + cross-tab `storage` sync). `<StatusBar>` reads it via `useDeviceSettings()`, applies variant classes, and mirrors `data-cutout` / `data-cutout-pos` / `data-pill-size` / `data-punch-size` onto `.device` so prototype CSS can react. The morph transition only enables after the first settings application (`--anim` class), so opening a prototype snaps straight to the saved cutout. Prototypes need **no wiring** — it's automatic via DeviceFrame.
 

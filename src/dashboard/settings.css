@@ -50,6 +50,9 @@
 }
 @media (max-width: 780px) {
   .settings__preview { position: static; }
+  /* on mobile show only the top of the device (status bar + first rows) —
+     that's all the cutout settings affect; PC keeps the full preview */
+  .sp-device { height: 118px; }
 }
 .settings__hint {
   margin: 0;
@@ -88,6 +91,7 @@
 [data-theme="light"] .sp-statusbar { color: #1e1a13; }
 .sp-time { font-variant-numeric: tabular-nums; transition: margin-left 0.2s ease; }
 .sp-device[data-cutout-pos="left"] .sp-time { margin-left: 26px; }
+.sp-device[data-cutout="pill"][data-cutout-pos="left"] .sp-time { margin-left: 38px; }
 .sp-icons { display: inline-flex; align-items: center; gap: 5px; }
 .sp-batt { font-size: 10px; font-weight: 700; font-variant-numeric: tabular-nums; }
 
@@ -113,10 +117,11 @@
   width: 56px;
 }
 .sp-cutout--pill.sp-cutout--left {
-  top: 50%;
-  width: 40px;
-  height: 14px;
-  border-radius: 8px;
+  top: calc(50% + 1.5px);
+  left: 29px;
+  width: 23px;
+  height: 12px;
+  border-radius: 7px;
 }
 .sp-cutout--notch {
   top: 0;
