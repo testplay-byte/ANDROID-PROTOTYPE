@@ -7,6 +7,36 @@
 
 ## [Unreleased]
 
+### 2026-09-27 — wallet: finalized the Liquid Glass prototype (finish + docs pass)
+
+Completed the in-progress Wallet prototype (Apple Wallet–style passes &
+payments in the iOS 26/27 Liquid Glass language on the `hig` style) and
+finalized it for review:
+
+- **Fix — glass was invisible on this machine:** the a11y fallback keyed on
+  `prefers-reduced-transparency: reduce` forced every glass surface opaque
+  (Windows transparency effects off ⇒ the flag is on here), erasing the
+  whole design language for the reviewer. The fallback now honors only
+  `prefers-contrast: more` — the same deliberate call weather-app made for
+  its glass rebuild. Verified live: the tab bar computes
+  `blur(28px) saturate(1.8)` with translucent fill again.
+- **Polish:** side-panel "Pass" mini-bar now shows the active pass name
+  (was a duplicate of the Glass value).
+- **Verified end-to-end in the browser:** pass stack tap-to-front (front
+  card + balance + recent-activity follow), pay flow (keypad → "Pay
+  $12.50" → Face ID processing → toast → txn appended to Activity on the
+  right pass), activity search (filter + empty state), Clear ↔ Tinted
+  density + Dark/Light (both persisted; `wallet-prefs-v1` / `wallet-theme`),
+  Default Card → Passes nav, switches, nav-bar collapse on scroll, swipe
+  tabs; light + dark themes screenshot-checked.
+- **Docs:** new `app/prototypes/wallet/navigation.md` (screens,
+  interactions, files, non-obvious decisions — incl. why Liquid Glass is
+  prototype-scoped and the reduced-transparency call) + `README.md`;
+  registered in the `public/prototypes/navigation.md` index, the README
+  catalog and `docs/design-languages/hig.md` demo section. Dashboard
+  gallery entry + mini thumb (fanned pass stack) finalized.
+- `npm run build` + `tsc --noEmit` clean; wallet route exports.
+
 ### 2026-09-27 — weather-app: polished dock — sliding active pill + nav-layer glass
 
 - The active pill is now one element (`.dock-ind`) that **slides** under the 4 tabs with a

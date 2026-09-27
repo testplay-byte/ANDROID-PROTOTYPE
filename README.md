@@ -32,7 +32,7 @@ Prototypes are deployed to GitHub Pages automatically on every push to `main`.
 
 Current catalog (filterable on the dashboard by design language, in detailed or grid view):
 search-page, anime-app, setup-wizard, music-player, weather-app, streetwear-store,
-finance-hub, smart-home, fitness-tracker, kids-learning, chat-app, habit-tracker, gallery-app.
+finance-hub, smart-home, fitness-tracker, wallet, kids-learning, chat-app, habit-tracker, gallery-app.
 
 A prototype at `app/prototypes/my-app/` is reachable at `https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/my-app/`.
 

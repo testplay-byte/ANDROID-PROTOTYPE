@@ -105,6 +105,21 @@ const PROTOTYPES: GalleryItem[] = [
     ],
   },
   {
+    name: "Wallet",
+    url: "prototypes/wallet/",
+    status: "review",
+    desc: "Apple Wallet–style passes & payments in the iOS 26/27 Liquid Glass language — floating glass tab bar and nav bar, pass stack with tap-to-front, glass keypad Apple Pay flow and the iOS 27 Clear ↔ Tinted glass setting.",
+    style: "hig",
+    tags: ["HIG", "iOS", "Liquid Glass"],
+    palette: { bg: "#000000", surface: "#1c1c1e", surfaceAlt: "#2c2c2e", accent: "#0a84ff", text: "#f2f2f7" },
+    screens: [
+      { name: "Passes", interactions: 85 },
+      { name: "Activity", interactions: 55 },
+      { name: "Pay", interactions: 75 },
+      { name: "Settings", interactions: 50 },
+    ],
+  },
+  {
     name: "Streetwear Store",
     url: "prototypes/streetwear-store/",
     status: "review",

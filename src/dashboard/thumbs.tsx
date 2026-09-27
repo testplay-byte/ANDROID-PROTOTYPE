@@ -104,6 +104,37 @@ const THUMBS: Record<string, (p: Palette) => ReactNode> = {
       </div>
     </>
   ),
+  "Wallet": (p) => (
+    <>
+      {/* fanned pass stack — front card in the accent gradient */}
+      <div style={{ position: "relative", height: 64, marginBottom: 3 }}>
+        {[0, 1, 2].map((i) => (
+          <span
+            key={i}
+            style={{
+              position: "absolute",
+              left: i === 0 ? 0 : 10,
+              right: i === 0 ? 0 : 10,
+              top: i * 14,
+              height: 44,
+              borderRadius: 9,
+              background: i === 0 ? `linear-gradient(140deg, ${p.accent}, ${p.surfaceAlt})` : p.surface,
+              border: "1px solid rgba(255,255,255,.28)",
+              boxShadow: i === 0 ? "0 4px 10px rgba(0,0,0,.35)" : "none",
+              zIndex: 3 - i,
+            }}
+          />
+        ))}
+      </div>
+      <span style={{ ...line(p.text, "60%", 4, 0) }} />
+      {/* floating glass tab bar */}
+      <div style={{ display: "flex", gap: 3, padding: 3, borderRadius: 999, background: p.surfaceAlt, border: "1px solid rgba(255,255,255,.14)", marginTop: 6 }}>
+        {[0, 1, 2, 3].map((i) => (
+          <span key={i} style={{ flex: 1, height: 13, borderRadius: 999, background: i === 0 ? p.accent : "transparent" }} />
+        ))}
+      </div>
+    </>
+  ),
   "Weather App": (p) => (
     <>
       {/* Aurora hero card — glass sheet with thin hero temp + sun glyph */}

@@ -161,7 +161,13 @@ Every top-level tab screen uses the iOS large-title pattern (implemented by `Ios
 
 ## Demo prototype
 
-Demo prototype: see the dashboard at https://testplay-byte.github.io/ANDROID-PROTOTYPE/ (styles gallery).
+Demo prototypes: the fitness tracker at `app/prototypes/fitness-tracker` (classic HIG)
+and **Wallet** at `app/prototypes/wallet` — the latter layers Apple's iOS 26/27
+**Liquid Glass** material on top of this style (floating glass tab/nav bars, the
+Clear ↔ Tinted density setting, glass keypad). The glass recipe is prototype-scoped
+in `src/prototypes/wallet/wallet.css` under `.wl` (see its navigation.md for why it
+is not in proto-kit). Also see the dashboard styles gallery at
+https://testplay-byte.github.io/ANDROID-PROTOTYPE/.
 
 ## Wiring
 

@@ -22,6 +22,7 @@
 | `/prototypes/finance-hub/` | Finance Hub | carbon | review | 4 |
 | `/prototypes/smart-home/` | Smart Home | bento | review | 4 |
 | `/prototypes/fitness-tracker/` | Fitness Tracker | hig | review | 4 |
+| `/prototypes/wallet/` | Wallet | hig (iOS 26/27 Liquid Glass) | review | 4 |
 | `/prototypes/kids-learning/` | Kids Learning | clay | review | 4 |
 | `/prototypes/chat-app/` | Chat App | flat | review | 3 + detail |
 | `/prototypes/habit-tracker/` | Habit Tracker | minimal | review | 4 |
@@ -40,4 +41,4 @@ Old static versions of search-page + anime-app are in `archive/legacy/`.
 
 ---
 
-*Last updated: multi-design-language expansion (2026-09-26) — 10 new style-showcase prototypes added (one per new design language).*
+*Last updated: 2026-09-27 — added Wallet (hig · iOS 26/27 Liquid Glass).*

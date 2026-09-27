@@ -1,0 +1,922 @@
+/* ============================================================
+   wallet.css — "Wallet" prototype (HIG · iOS 26/27 Liquid Glass)
+
+   Base design language: `hig` (iOS system palette, SF type scale,
+   grouped lists, hairlines) — tokens from src/proto-kit/styles/hig.css.
+   This file adds the iOS 26 "Liquid Glass" material and its iOS 27
+   refinements, scoped under `.wl`:
+
+     - Floating glass tab bar + collapsing glass nav bar (content
+       scrolls beneath both).
+     - data-glass="clear"   → ultra-translucent iOS 26 material
+       data-glass="tinted"  → the iOS 27 density slider (more opaque)
+     - Dark glass is slightly LIGHTER than the surface (iOS 27 change)
+       and the luminous hairline edge is part of every glass surface.
+
+   All selectors are prefixed `.wl` so nothing leaks into other routes.
+   ============================================================ */
+
+/* ---------- scope root + tokens ---------- */
+.wl {
+  /* iOS type scale (SF Pro sizes) — larger than the M3 scale */
+  --ios-large-title: 34px;
+  --ios-title1: 28px;
+  --ios-title2: 22px;
+  --ios-title3: 20px;
+  --ios-headline: 17px;
+  --ios-body: 17px;
+  --ios-callout: 16px;
+  --ios-subhead: 15px;
+  --ios-footnote: 13px;
+  --ios-caption: 12px;
+
+  /* iOS motion — 250–350ms, no bounce */
+  --ios-ease: cubic-bezier(0.25, 0.1, 0.25, 1);
+  --ios-sheet: cubic-bezier(0.32, 0.72, 0, 1);
+  --ios-dur-fast: 250ms;
+  --ios-dur: 320ms;
+
+  /* iOS system colors without token equivalents */
+  --ios-indigo: #5856d6;
+  --ios-teal: #32ade6;
+
+  /* Liquid Glass — iOS 26 "clear" density (default) */
+  --glass-fill: rgba(70, 70, 76, 0.5);
+  --glass-fill-strong: rgba(70, 70, 76, 0.62);
+  --glass-edge: rgba(255, 255, 255, 0.16);
+  --glass-hi: inset 0 1px 0 rgba(255, 255, 255, 0.22);
+  --glass-blur: 28px;
+
+  position: absolute;
+  inset: 0;
+  z-index: 10; /* the proto-kit status bar (z 30) paints above the app */
+  overflow: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, sans-serif;
+  color: var(--color-text);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+}
+
+.wl[data-glass="tinted"] {
+  /* iOS 27 density slider → fully tinted glass */
+  --glass-fill: rgba(50, 50, 54, 0.8);
+  --glass-fill-strong: rgba(50, 50, 54, 0.88);
+  --glass-edge: rgba(255, 255, 255, 0.2);
+}
+
+.device[data-theme="light"] .wl {
+  --glass-fill: rgba(255, 255, 255, 0.58);
+  --glass-fill-strong: rgba(255, 255, 255, 0.72);
+  --glass-edge: rgba(255, 255, 255, 0.75);
+  --glass-hi: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+.device[data-theme="light"] .wl[data-glass="tinted"] {
+  --glass-fill: rgba(255, 255, 255, 0.88);
+  --glass-fill-strong: rgba(255, 255, 255, 0.94);
+}
+
+/* Liquid Glass surface primitive */
+.wl .glass {
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.8);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.8);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-hi), 0 8px 32px rgba(0, 0, 0, 0.22);
+}
+
+.wl button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.wl button:focus-visible,
+.wl input:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ---------- collapsing nav bar (large title → glass inline) ---------- */
+.wl .wl-navbar {
+  position: absolute;
+  top: 36px; /* below the proto-kit status bar — never overlap it */
+  left: 0;
+  right: 0;
+  z-index: 30;
+  transition: background var(--ios-dur) var(--ios-ease), box-shadow var(--ios-dur) var(--ios-ease);
+}
+/* when collapsed, the glass also extends up behind the status bar so
+   scrolled content never peeks through under the clock */
+.wl .wl-navbar.is-collapsed::before {
+  content: "";
+  position: absolute;
+  top: -36px;
+  left: 0;
+  right: 0;
+  height: 36px;
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.8);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.8);
+  pointer-events: none;
+}
+.wl .wl-navbar__inline {
+  display: flex;
+  align-items: center;
+  height: 44px;
+  padding: 0 10px 0 16px;
+}
+.wl .wl-navbar__inline-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: var(--ios-headline);
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity var(--ios-dur) var(--ios-ease);
+  white-space: nowrap;
+}
+.wl .wl-navbar__side {
+  display: flex;
+  gap: 6px;
+  min-width: 0;
+}
+.wl .wl-navbar__side--right {
+  margin-left: auto;
+}
+.wl .wl-navbar__large {
+  max-height: 54px; /* 34px title line + padding — never clip descenders */
+  overflow: hidden;
+  transition: max-height var(--ios-dur) var(--ios-ease), opacity var(--ios-dur) var(--ios-ease);
+}
+.wl .wl-navbar__large-title {
+  margin: 0; /* UA default h1 margin would push the title out of the clipped row */
+  font-size: var(--ios-large-title);
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  line-height: 1.15;
+  padding: 1px 16px 5px;
+  opacity: 1;
+  transition: opacity var(--ios-dur-fast) var(--ios-ease);
+}
+/* collapsed: glass slab fades in behind the inline row */
+.wl .wl-navbar.is-collapsed {
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.8);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.8);
+  border-bottom: 0.5px solid var(--glass-edge);
+  box-shadow: var(--glass-hi);
+}
+.wl .wl-navbar.is-collapsed .wl-navbar__inline-title {
+  opacity: 1;
+}
+.wl .wl-navbar.is-collapsed .wl-navbar__large {
+  max-height: 0;
+  opacity: 0;
+}
+.wl .wl-navbar.is-inline-only .wl-navbar__large {
+  display: none;
+}
+/* iOS 26 toolbar buttons — glass capsules, 34px visual / 44px touch feel */
+.wl .wl-nav-btn {
+  height: 34px;
+  min-width: 34px;
+  padding: 0 11px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border-radius: 999px;
+  color: var(--color-primary);
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: blur(16px) saturate(1.8);
+  backdrop-filter: blur(16px) saturate(1.8);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-hi);
+  font-size: var(--ios-subhead);
+  font-weight: 600;
+  transition: transform var(--ios-dur-fast) var(--ios-ease), background var(--ios-dur) var(--ios-ease);
+}
+.wl .wl-nav-btn:active {
+  transform: scale(0.92);
+  background: var(--glass-fill-strong);
+}
+
+/* ---------- scroll content ---------- */
+.wl .wl-screens {
+  position: absolute;
+  inset: 0;
+}
+.wl .wl-content {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  padding: 134px 16px 110px;
+}
+.wl .wl-content::-webkit-scrollbar {
+  display: none;
+}
+.wl .wl-content > * + * {
+  margin-top: 12px;
+}
+
+/* ---------- inset-grouped lists (HIG geometry) ---------- */
+.wl .wl-group {
+  background: var(--color-surface-1);
+  border-radius: 10px;
+}
+.wl .wl-group-head {
+  font-size: var(--ios-footnote);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--color-text-muted);
+  margin: 18px 16px 6px;
+}
+.wl .wl-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 50px;
+  padding: 8px 16px;
+  width: 100%;
+  text-align: left;
+  font-size: var(--ios-body);
+}
+.wl .wl-row--btn:active {
+  background: color-mix(in srgb, var(--color-text) 6%, transparent);
+}
+.wl .wl-row.sep {
+  position: relative;
+}
+.wl .wl-row.sep::after {
+  content: "";
+  position: absolute;
+  left: 57px;
+  right: 0;
+  bottom: 0;
+  height: 0.5px;
+  background: var(--color-outline-variant);
+  transform: scaleY(0.5);
+}
+.wl .wl-row__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.wl .wl-row__title {
+  font-size: var(--ios-body);
+}
+.wl .wl-row__sub {
+  font-size: var(--ios-footnote);
+  color: var(--color-text-muted);
+}
+.wl .wl-row__amt {
+  font-size: var(--ios-body);
+  font-variant-numeric: tabular-nums;
+}
+.wl .wl-row__amt.neg {
+  color: var(--color-text);
+}
+.wl .wl-row__amt.pos {
+  color: var(--color-success);
+}
+.wl .wl-chev {
+  color: color-mix(in srgb, var(--color-text-muted) 70%, transparent);
+  flex: none;
+}
+.wl .wl-disc {
+  width: 29px;
+  height: 29px;
+  flex: none;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+.wl .tint-blue { background: rgba(10, 132, 255, 0.16); color: var(--color-primary); }
+.wl .tint-green { background: rgba(48, 209, 88, 0.16); color: var(--color-success); }
+.wl .tint-orange { background: rgba(255, 159, 10, 0.16); color: var(--color-tertiary); }
+.wl .tint-indigo { background: rgba(94, 92, 230, 0.16); color: var(--ios-indigo); }
+.wl .tint-teal { background: rgba(100, 210, 255, 0.16); color: var(--ios-teal); }
+.device[data-theme="light"] .wl .tint-blue { color: #007aff; }
+.device[data-theme="light"] .wl .tint-green { color: #34c759; }
+.device[data-theme="light"] .wl .tint-orange { color: #ff9500; }
+.device[data-theme="light"] .wl .tint-indigo { color: #5856d6; }
+.device[data-theme="light"] .wl .tint-teal { color: #32ade6; }
+
+.wl .wl-footnote {
+  font-size: var(--ios-footnote);
+  color: var(--color-text-muted);
+  margin: 6px 16px 0;
+  line-height: 1.45;
+}
+.wl .wl-link {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 12px;
+  font-size: var(--ios-subhead);
+  color: var(--color-primary);
+}
+
+/* ---------- Liquid Glass controls ---------- */
+.wl .wl-actions {
+  display: flex;
+  gap: 9px;
+  margin-top: 16px;
+}
+.wl .wl-gbtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 44px;
+  border-radius: 16px;
+  font-size: var(--ios-subhead);
+  font-weight: 600;
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.8);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.8);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-hi);
+  transition: transform var(--ios-dur-fast) var(--ios-ease), background var(--ios-dur) var(--ios-ease);
+}
+.wl .wl-gbtn:active {
+  transform: scale(0.96);
+}
+.wl .wl-gbtn.primary {
+  background: color-mix(in srgb, var(--color-primary) 78%, transparent);
+  border-color: color-mix(in srgb, var(--color-primary) 45%, var(--glass-edge));
+  color: #fff;
+}
+
+.wl .wl-search {
+  position: relative;
+  margin-bottom: 4px;
+}
+.wl .wl-search svg {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 15px;
+  height: 15px;
+  color: var(--color-text-muted);
+  pointer-events: none;
+}
+.wl .wl-search input {
+  width: 100%;
+  height: 40px;
+  padding: 0 16px 0 38px;
+  font: inherit;
+  font-size: var(--ios-subhead);
+  color: var(--color-text);
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: blur(16px) saturate(1.8);
+  backdrop-filter: blur(16px) saturate(1.8);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-hi);
+  border-radius: 999px;
+  outline: none;
+  transition: background var(--ios-dur) var(--ios-ease), border-color var(--ios-dur) var(--ios-ease);
+}
+.wl .wl-search input::placeholder {
+  color: var(--color-text-muted);
+}
+.wl .wl-search input::-webkit-search-cancel-button,
+.wl .wl-search input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+.wl .wl-search input:focus {
+  background: var(--glass-fill-strong);
+  border-color: color-mix(in srgb, var(--color-primary) 55%, var(--glass-edge));
+}
+
+/* iOS switch — 51×31, white knob, green when on */
+.wl .wl-switch {
+  position: relative;
+  width: 51px;
+  height: 31px;
+  flex: none;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--color-text) 16%, transparent);
+  transition: background var(--ios-dur) var(--ios-ease);
+}
+.wl .wl-switch i {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 27px;
+  height: 27px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.28);
+  transition: transform var(--ios-dur) var(--ios-sheet);
+}
+.wl .wl-switch.on {
+  background: var(--color-success);
+}
+.wl .wl-switch.on i {
+  transform: translateX(20px);
+}
+
+/* iOS segmented control */
+.wl .wl-seg {
+  display: flex;
+  padding: 2px;
+  gap: 2px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+}
+.wl .wl-seg__btn {
+  padding: 5px 13px;
+  border-radius: 7px;
+  font-size: var(--ios-footnote);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  transition: background var(--ios-dur-fast) var(--ios-ease), color var(--ios-dur-fast) var(--ios-ease);
+}
+.wl .wl-seg__btn.on {
+  background: var(--color-surface-1);
+  color: var(--color-text);
+  font-weight: 600;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.22);
+}
+.device[data-theme="light"] .wl .wl-seg__btn.on {
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+}
+
+/* ---------- pass stack ---------- */
+.wl .wl-stack {
+  position: relative;
+  margin-top: 4px;
+}
+.wl .wl-stack__item {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: block;
+  height: 210px;
+  border-radius: 22px;
+  transition: transform 0.45s var(--ios-sheet), box-shadow var(--ios-dur) var(--ios-ease);
+}
+.wl .wl-stack__item.front {
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.4);
+}
+.wl .wl-stack__item:not(.front):active {
+  transform-origin: center;
+}
+
+.wl .wl-pass {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 22px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  overflow: hidden;
+  text-align: left;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+}
+.wl .wl-pass__sheen {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.06) 38%, rgba(255, 255, 255, 0) 60%);
+  pointer-events: none;
+}
+.wl .wl-pass__grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)' opacity='.9'/%3E%3C/svg%3E");
+}
+.wl .wl-pass__top {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.wl .wl-pass__glyph {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 9px;
+  background: rgba(255, 255, 255, 0.24);
+}
+.wl .wl-pass__glyph svg {
+  width: 18px;
+  height: 18px;
+}
+.wl .wl-pass__name {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--ios-subhead);
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wl .wl-pass__num {
+  font-size: var(--ios-footnote);
+  opacity: 0.8;
+  font-variant-numeric: tabular-nums;
+}
+.wl .wl-pass__bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+.wl .wl-pass__holder {
+  font-size: var(--ios-caption);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  opacity: 0.78;
+}
+.wl .wl-pass__balance {
+  margin-top: 3px;
+  font-size: var(--ios-title2);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.3px;
+}
+.wl .wl-pass__balance small {
+  font-size: var(--ios-footnote);
+  font-weight: 400;
+  opacity: 0.75;
+  letter-spacing: 0;
+}
+
+/* ---------- pay screen ---------- */
+.wl .wl-pay {
+  padding-top: 88px;
+  display: flex;
+  flex-direction: column;
+}
+.wl .wl-pay .wl-group-head {
+  margin: 14px 0 8px;
+}
+.wl .wl-contacts {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  padding: 4px 0 2px;
+}
+.wl .wl-contact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.wl .wl-contact__avatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: var(--ios-body);
+  font-weight: 600;
+  color: #fff;
+  background: var(--color-surface-3);
+  border: 2.5px solid transparent;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transition: border-color var(--ios-dur-fast) var(--ios-ease), transform var(--ios-dur-fast) var(--ios-ease), background var(--ios-dur) var(--ios-ease);
+}
+.wl .wl-contact.on .wl-contact__avatar {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  transform: scale(1.06);
+}
+.wl .wl-contact__name {
+  font-size: var(--ios-caption);
+  color: var(--color-text-muted);
+}
+.wl .wl-contact.on .wl-contact__name {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+.wl .wl-amount {
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  gap: 2px;
+  margin-top: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.wl .wl-amount__cur {
+  font-size: var(--ios-title2);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.wl .wl-amount__int {
+  font-size: 56px;
+  font-weight: 700;
+  letter-spacing: -1.5px;
+  line-height: 1;
+}
+.wl .wl-amount__int.empty {
+  color: color-mix(in srgb, var(--color-text) 30%, transparent);
+}
+.wl .wl-amount__frac {
+  font-size: var(--ios-title2);
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+.wl .wl-pay-sub {
+  text-align: center;
+  font-size: var(--ios-footnote);
+  color: var(--color-text-muted);
+  margin-top: 8px;
+}
+
+/* round Liquid Glass keypad (Apple Cash style) */
+.wl .wl-keypad {
+  display: grid;
+  grid-template-columns: repeat(3, 66px);
+  gap: 12px 18px;
+  justify-content: center;
+  margin: 18px auto 16px;
+}
+.wl .wl-key {
+  width: 66px;
+  height: 66px;
+  border-radius: 50%;
+  font-size: 27px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  display: grid;
+  place-items: center;
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.8);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.8);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-hi);
+  transition: transform 120ms var(--ios-ease), background var(--ios-dur) var(--ios-ease);
+}
+.wl .wl-key:active {
+  transform: scale(0.9);
+  background: var(--glass-fill-strong);
+}
+.wl .wl-key:disabled {
+  opacity: 0.5;
+}
+
+/* Request (ghost glass) + Pay (system blue) */
+.wl .wl-pay-actions {
+  display: flex;
+  gap: 10px;
+}
+.wl .wl-paybtn {
+  flex: 1.6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  height: 50px;
+  border-radius: 16px;
+  font-size: var(--ios-headline);
+  font-weight: 600;
+  color: #fff;
+  background: var(--color-primary);
+  transition: transform var(--ios-dur-fast) var(--ios-ease), opacity var(--ios-dur-fast) var(--ios-ease);
+}
+.wl .wl-paybtn:active {
+  transform: scale(0.97);
+}
+.wl .wl-paybtn.disabled {
+  opacity: 0.4;
+}
+.wl .wl-request {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 50px;
+  border-radius: 16px;
+  font-size: var(--ios-headline);
+  font-weight: 600;
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.8);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.8);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-hi);
+  transition: transform var(--ios-dur-fast) var(--ios-ease), background var(--ios-dur) var(--ios-ease);
+}
+.wl .wl-request:active {
+  transform: scale(0.97);
+  background: var(--glass-fill-strong);
+}
+.wl .wl-request:disabled,
+.wl .wl-paybtn.disabled {
+  pointer-events: none;
+}
+.wl .wl-spin {
+  animation: wl-spin 0.9s linear infinite;
+}
+@keyframes wl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- floating glass tab bar (iOS 26) ---------- */
+.wl .wl-tabbar {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 16px;
+  z-index: 50;
+  height: 64px;
+  display: flex;
+  align-items: stretch;
+  padding: 6px;
+  border-radius: 999px;
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.8);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.8);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-hi), 0 12px 36px rgba(0, 0, 0, 0.3);
+}
+.wl .wl-tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border-radius: 999px;
+  color: var(--color-text-muted);
+  transition: color var(--ios-dur-fast) var(--ios-ease), transform var(--ios-dur-fast) var(--ios-ease);
+}
+.wl .wl-tab svg {
+  width: 24px;
+  height: 24px;
+}
+.wl .wl-tab span {
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.1px;
+}
+.wl .wl-tab.on {
+  color: var(--color-primary);
+}
+.wl .wl-tab.on span {
+  font-weight: 600;
+}
+.wl .wl-tab:active {
+  transform: scale(0.92);
+}
+
+/* ---------- toast ---------- */
+.wl .wl-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 96px;
+  transform: translate(-50%, 14px);
+  z-index: 85;
+  max-width: 85%;
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: var(--ios-footnote);
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  pointer-events: none;
+  background: var(--glass-fill-strong);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(1.8);
+  backdrop-filter: blur(var(--glass-blur)) saturate(1.8);
+  border: 1px solid var(--glass-edge);
+  box-shadow: var(--glass-hi), 0 10px 28px rgba(0, 0, 0, 0.3);
+  transition: opacity var(--ios-dur) var(--ios-ease), transform var(--ios-dur) var(--ios-ease);
+}
+.wl .wl-toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ---------- accessibility fallback (bars/controls go solid) ----------
+   Only `prefers-contrast: more` (an explicit user a11y signal) solidifies
+   the glass. `prefers-reduced-transparency: reduce` is deliberately NOT
+   honored: this machine reports it by default (Windows transparency
+   effects off), and the flag would render the entire Liquid Glass design
+   language invisible to the reviewer — the same deliberate decision
+   weather-app made for its glass rebuild (see its navigation.md). */
+@media (prefers-contrast: more) {
+  .wl .glass,
+  .wl .wl-navbar.is-collapsed,
+  .wl .wl-tabbar,
+  .wl .wl-gbtn,
+  .wl .wl-key,
+  .wl .wl-toast {
+    background: var(--color-surface-1);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .wl *,
+  .wl *::before,
+  .wl *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ---------- stage side-panel helpers (page.tsx panels) ---------- */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.tag {
+  font-size: 10px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: var(--r-pill);
+  background: var(--sb-muted);
+  color: var(--sb-text);
+  border: 1px solid var(--sb-border);
+}
+.screeninfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.screeninfo__name {
+  font-size: var(--fs-body-l);
+  font-weight: 700;
+}
+.screeninfo__desc {
+  font-size: var(--fs-label);
+  color: var(--sb-text-muted);
+  line-height: 1.5;
+}
+.mini-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.mini-bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.mini-bar-label {
+  width: 52px;
+  font-size: 10px;
+  color: var(--sb-text-muted);
+}
+.mini-bar-track {
+  flex: 1;
+  height: 4px;
+  border-radius: var(--r-pill);
+  background: var(--sb-muted);
+  overflow: hidden;
+}
+.mini-bar-fill {
+  height: 100%;
+  border-radius: var(--r-pill);
+}
+.mini-bar-num {
+  width: 34px;
+  text-align: right;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  color: var(--sb-text-muted);
+}
+.kvlist {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.kvlist__row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+}
+.kvlist__row span {
+  color: var(--sb-text-muted);
+}
+.kvlist__row b {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+}
