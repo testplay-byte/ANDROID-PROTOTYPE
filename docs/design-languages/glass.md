@@ -150,7 +150,16 @@ Guidance (the luminous rule): glass needs AIR, LIGHT and SEPARATION. Keep the da
 
 ## Demo prototype
 
-Demo prototype: the weather app at `app/prototypes/weather-app` (also the styles gallery at https://testplay-byte.github.io/ANDROID-PROTOTYPE/).
+Demo prototype: the weather app at `app/prototypes/weather-app` (also the styles gallery at
+https://testplay-byte.github.io/ANDROID-PROTOTYPE/).
+
+> **Note (2026-09-27):** the weather app was rebuilt as a 1:1 port of the user's "Aurora
+> Weather" reference (`GLASS/DL/aurora-weather`), which runs its own recipe inside the
+> prototype: milky white fills 0.08/0.14/0.22, blur 26px (user-adjustable 8–40) + saturate 1.6,
+> iridescent rim, and four full-scene sky themes (dawn/day/dusk/night) instead of the shared
+> token ladder above. This file still defines the shared `glass` style for other prototypes;
+> the weather app's own values live in `src/prototypes/weather-app/weather-app.css` (scoped
+> under `.wa`) and must stay in sync with the reference, not with this token ladder.
 
 ## Wiring
 

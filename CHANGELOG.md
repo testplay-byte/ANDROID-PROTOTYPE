@@ -7,6 +7,34 @@
 
 ## [Unreleased]
 
+### 2026-09-27 — weather-app: full rebuild as "Aurora Weather" (1:1 port of the user's reference)
+
+**User direction:** scrap the previous weather-app implementation entirely and recreate the
+reference project at `C:\Users\khurr\Desktop\GLASS\DL\aurora-weather` exactly — same look,
+animations and functionality; only the shell complies with repo standards.
+
+**What replaced what:** every old file under `src/prototypes/weather-app/` (screens, CSS,
+lib, icons) was deleted; the route was rebuilt as a React port of the reference's ES-module
+app. Structure is documented in `app/prototypes/weather-app/navigation.md` (read its
+"Non-obvious decisions" before touching this prototype):
+- 4 backdrop themes (dawn/day/dusk/night, night = device dark mode) painted on `.wa[data-sky]`.
+- Deterministic seeded weather engine (12 cities, current + 24h + 7d, cached per city/day).
+- Splash → app boot, staggered screen entrances, count-up hero temperature, sun-arc card,
+  24h chart (temp/pp/wind), day-detail modal, toast, error simulation, glass blur slider,
+  reduce motion, parallax floaters, city search/favorites — all reference behavior kept.
+- App-level glass topbar + dock (exact reference ports, incl. white active pill); proto-kit
+  provides DeviceFrame/StatusBar/Stage/swipe. Outfit loaded via `next/font`.
+- `weather-app.css` deliberately **neutralizes glass.css's `prefers-reduced-transparency`
+  fallback** (this machine reports reduced transparency; the reference ignores the flag) —
+  do not remove that override.
+
+**Dashboard:** weather-app palette/desc/screens updated to the new design; mini thumb redrawn
+(glass hero + white dock pill).
+
+**Verification:** `npm run build` clean; previewed at the basePath copy; home/forecast/cities/
+settings + night-mode flip + prefs persistence verified by screenshot and live DOM inspection
+against the reference served on :8094.
+
 ### 2026-09-26 — Grid view: shared family sheets with dense horizontal packing (user feedback)
 
 **User feedback on the sectioned grid:** the style header on top and the single row of items below were right, but (a) each prototype had its own individual card background instead of one shared surface, (b) the section grid stretched full-width with dead space at the end of the row, and (c) a wrapped item should fill the end of the previous line (closest to its sibling), not start the next line.

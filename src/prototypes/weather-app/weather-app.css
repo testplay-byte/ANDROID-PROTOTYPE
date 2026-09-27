@@ -1,193 +1,2259 @@
-/* =========================================================================
-   weather-app.css — prototype-wide styles (glassmorphism).
-   Imported once by app/prototypes/weather-app/layout.tsx.
-   Tokens come from proto-kit/tokens/tokens.css + styles/glass.css.
-   Recipes: docs/design-languages/glass-research.md §6.
+/* ============================================================
+   weather-app.css — "Aurora Weather" glassmorphism prototype
 
-   Glass surfaces MUST use the full edge stack:
-     background: var(--color-surface-2)+        (never the faintest tier under text)
-     backdrop-filter: blur(var(--glass-blur)) saturate(var(--glass-saturate, 1.6));
-     border: var(--border-w) solid var(--glass-border);
-     box-shadow: var(--shadow-inset), var(--shadow-1 | --shadow-2);
-   Content cards use lighter glass; the strongest glass belongs on the
-   floating nav layer. Never stack translucent glass on translucent glass.
-   ========================================================================= */
+   1:1 port of the reference project's css/ (tokens, components,
+   layout, animations), scoped under the `.wa` app root so it
+   cannot collide with proto-kit or the dashboard:
 
-body {
-  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI",
-    Roboto, sans-serif;
-  background: var(--stage-bg);
-  color: var(--sb-text);
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+     reference                      here
+     ─────────────────────────────  ─────────────────────────────
+     body[data-theme=x]        →    .wa[data-sky=x]
+     .bg (ambient)             →    .wa-bg
+     #screens / .screen        →    .wa-screens / .wa-screen
+     #loading #splash #toast   →    .loading .splash .wa-toast
+     #modal-root               →    .modal-root
+     #screen-error             →    .error-wrap
+     @keyframes <name>         →    @keyframes wa-<name>
 
-input,
-select,
-button {
-  font: inherit;
-}
+   The device chrome (frame/status bar) is proto-kit; the two
+   overrides at the bottom integrate it with the sky. The glass
+   blur amount is user-settable: .glass uses var(--wa-blur, 26px).
+   Source reference: C:/Users/khurr/Desktop/GLASS/DL/aurora-weather
+   ============================================================ */
 
-.device button {
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  color: inherit;
-  cursor: pointer;
-  -webkit-tap-highlight-color: transparent;
-  font: inherit;
-}
+/* ---------------- tokens (reference tokens.css) ---------------- */
+.wa {
+  --font: var(--font-outfit), system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 
-.device input {
-  border: none;
-  outline: none;
-  background: none;
-  color: inherit;
-}
+  /* glass recipe */
+  --glass-fill: rgba(255, 255, 255, 0.14);
+  --glass-fill-strong: rgba(255, 255, 255, 0.22);
+  --glass-fill-soft: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.32);
+  --glass-border-soft: rgba(255, 255, 255, 0.18);
+  --glass-shadow: 0 18px 44px -12px rgba(20, 10, 60, 0.45);
+  --glass-shadow-sm: 0 8px 22px -8px rgba(20, 10, 60, 0.4);
+  --inner-hi: inset 0 1px 0 rgba(255, 255, 255, 0.42), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
+  --iridescent: linear-gradient(135deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0.1) 35%, rgba(190, 225, 255, 0.16) 60%, rgba(255, 190, 230, 0.2));
 
-/* ---- Ambient scene (inside the screen, behind everything) ----------------
-   Recipe 6.4 (research doc): the SCENE is painted as three full-bleed
-   radial gradients on the base — even color fields for the glass panels'
-   backdrop-filter to sample, no hard blob edges, no hotspots in the text
-   column (fixes the 2.91:1 amber-hotspot contrast failure). Hue mix caps:
-   violet 34% / cyan 30% / amber 22% (hot cores de-emphasized per §3.1).
-   Three oversized, low-mix light fields drift over the scene
-   (transform-only, retimed to 24–36s so motion reads as ambient), and an
-   feTurbulence grain overlay kills gradient banding on the dark theme.
-   Uses style tokens only (--color-primary violet, --color-tertiary cyan,
-   --color-warn amber). */
-.ambient {
+  --txt: #ffffff;
+  --txt-dim: rgba(255, 255, 255, 0.74);
+  --txt-faint: rgba(255, 255, 255, 0.52);
+  --pill-ink: #453a75;
+  --gold: #ffd97e;
+
+  --r-lg: 32px;
+  --r-md: 24px;
+  --r-sm: 16px;
+  --sp-1: 6px;
+  --sp-2: 10px;
+  --sp-3: 14px;
+  --sp-4: 18px;
+  --sp-5: 24px;
+  --ease: cubic-bezier(0.22, 0.9, 0.32, 1);
+  --spring: cubic-bezier(0.34, 1.45, 0.44, 1);
+
+  /* ---------- backdrop themes (Night = dark mode) ---------- */
+  --bg0: #2f4394;
+  --bg1: #5a55c0;
+  --bg2: #a86fd4;
+  --bg3: #ef8fb8;
+  --bg4: #ffb46e;
+  --orb1: #6a7fe8;
+  --orb2: #c86fd8;
+  --orb3: #ff9a8a;
+  --orb4: #ffd08a;
+  --orb5: #7ae0ff;
+
   position: absolute;
   inset: 0;
+  z-index: 10;
+  overflow: hidden;
+  font-family: var(--font);
+  color: var(--txt);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.wa[data-sky="day"] {
+  --bg0: #1f6fd0;
+  --bg1: #4a8fe8;
+  --bg2: #7db6f0;
+  --bg3: #a8d4f5;
+  --bg4: #e8f4fc;
+  --orb1: #8ecbff;
+  --orb2: #5ca8f0;
+  --orb3: #bfe6ff;
+  --orb4: #ffe08a;
+  --orb5: #ffffff;
+}
+.wa[data-sky="dusk"] {
+  --bg0: #1c1546;
+  --bg1: #4b2a72;
+  --bg2: #a03d75;
+  --bg3: #e56a4e;
+  --bg4: #ffab6e;
+  --orb1: #8a5cd8;
+  --orb2: #e05a8a;
+  --orb3: #ff8a5c;
+  --orb4: #ffc46b;
+  --orb5: #5c8ae0;
+}
+.wa[data-sky="night"] {
+  --bg0: #0a0f35;
+  --bg1: #1b2358;
+  --bg2: #33306e;
+  --bg3: #4d3a7d;
+  --bg4: #6a4a9e;
+  --orb1: #3a4ad0;
+  --orb2: #7a4ae0;
+  --orb3: #2a3a9e;
+  --orb4: #c45cf0;
+  --orb5: #3956c9;
+
+  --glass-fill: rgba(255, 255, 255, 0.11);
+  --glass-fill-strong: rgba(255, 255, 255, 0.17);
+  --glass-fill-soft: rgba(255, 255, 255, 0.06);
+  --glass-border: rgba(255, 255, 255, 0.26);
+  --glass-border-soft: rgba(255, 255, 255, 0.14);
+  --glass-shadow: 0 18px 44px -12px rgba(0, 0, 15, 0.6);
+}
+
+.wa button {
+  font-family: var(--font);
+  color: inherit;
+}
+.wa button:focus-visible,
+.wa input:focus-visible {
+  outline: 2px solid rgba(255, 255, 255, 0.85);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+.wa input:focus-visible {
+  border-radius: 999px;
+}
+.wa svg {
+  display: block;
+}
+
+/* ---------------- ambient scene (reference layout.css .bg) ---------------- */
+.wa .wa-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
   overflow: hidden;
   pointer-events: none;
-  z-index: 0;
-  background:
-    radial-gradient(
-      120% 90% at 20% 0%,
-      color-mix(in srgb, var(--color-primary) 34%, transparent),
-      transparent 70%
-    ),
-    radial-gradient(
-      110% 80% at 95% 35%,
-      color-mix(in srgb, var(--color-tertiary) 30%, transparent),
-      transparent 70%
-    ),
-    radial-gradient(
-      130% 90% at 15% 100%,
-      color-mix(in srgb, var(--color-warn) 22%, transparent),
-      transparent 72%
-    ),
-    var(--color-bg);
+  background: linear-gradient(165deg, var(--bg0) 0%, var(--bg1) 34%, var(--bg2) 62%, var(--bg3) 82%, var(--bg4) 100%);
+  transition: background 1s var(--ease);
 }
-
-/* Grain overlay — banding killer (research §2.4). Opacity ≤ 0.06 or it
-   reads as dirt. Sits above the scene, below all panels. */
-.ambient::after {
+.wa .wa-bg.fade::after {
   content: "";
   position: absolute;
   inset: 0;
-  background-image: var(--glass-grain);
-  opacity: var(--glass-grain-opacity, 0.04);
-  mix-blend-mode: overlay;
+  background: rgba(255, 255, 255, 0.18);
+  animation: wa-bgflash 0.8s var(--ease) forwards;
 }
 
-/* Drifting light fields — oversized so their soft edges never enter the
-   frame even at max drift; mixes capped well below hotspot level. */
-.ambient__blob {
+.wa .orb {
   position: absolute;
-  inset: -20%;
-  filter: none;
-  border-radius: 0;
+  border-radius: 50%;
+  opacity: 0.8;
+  will-change: transform;
+  transition: background 1s var(--ease), opacity 1s var(--ease);
+}
+.wa .orb.b1 {
+  width: 64%;
+  aspect-ratio: 1;
+  top: -16%;
+  right: -18%;
+  background: radial-gradient(circle at 32% 30%, rgba(255, 255, 255, 0.55), var(--orb1) 45%, transparent 72%);
+  filter: blur(10px);
+  box-shadow: inset 0 0 60px rgba(255, 255, 255, 0.3);
+}
+.wa .orb.b2 {
+  width: 54%;
+  aspect-ratio: 1;
+  bottom: -12%;
+  left: -20%;
+  background: radial-gradient(circle at 60% 35%, var(--orb4), var(--orb3) 55%, transparent 76%);
+  filter: blur(14px);
+}
+.wa .orb.b3 {
+  width: 36%;
+  aspect-ratio: 1;
+  top: 38%;
+  left: 54%;
+  background: radial-gradient(circle at 40% 40%, rgba(255, 255, 255, 0.5), var(--orb2) 50%, transparent 74%);
+  filter: blur(12px);
+}
+.wa .orb.b4 {
+  width: 22%;
+  aspect-ratio: 1;
+  top: 8%;
+  left: 5%;
+  background: radial-gradient(circle at 45% 40%, var(--orb5), transparent 70%);
+  filter: blur(8px);
+}
+.wa[data-sky="night"] .orb {
+  opacity: 0.34;
 }
 
-.ambient__blob--violet {
-  background: radial-gradient(
-    38% 34% at 32% 14%,
-    color-mix(in srgb, var(--color-primary) 22%, transparent),
-    transparent 70%
-  );
+/* frosted glass spheres */
+.wa .sphere {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  will-change: transform;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.05) 55%, rgba(255, 255, 255, 0.25));
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  box-shadow:
+    inset 0 -18px 36px rgba(255, 255, 255, 0.22),
+    inset 0 12px 26px rgba(255, 255, 255, 0.45),
+    0 30px 70px rgba(20, 10, 60, 0.25);
+}
+.wa[data-sky="night"] .sphere {
+  opacity: 0.38;
+}
+.wa .sp1 {
+  width: 280px;
+  height: 280px;
+  top: -80px;
+  right: -70px;
+}
+.wa .sp2 {
+  width: 170px;
+  height: 170px;
+  bottom: 26%;
+  left: -64px;
+}
+.wa .sp3 {
+  width: 104px;
+  height: 104px;
+  top: 44%;
+  right: 7%;
 }
 
-.ambient__blob--cyan {
-  background: radial-gradient(
-    34% 30% at 78% 42%,
-    color-mix(in srgb, var(--color-tertiary) 18%, transparent),
-    transparent 70%
-  );
+.wa .grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.9'/%3E%3C/svg%3E");
 }
 
-.ambient__blob--amber {
-  background: radial-gradient(
-    34% 30% at 24% 82%,
-    color-mix(in srgb, var(--color-warn) 12%, transparent),
-    transparent 72%
-  );
+/* top chrome scrim */
+.wa .chrome-fade {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 138px;
+  z-index: 20;
+  pointer-events: none;
+  background: linear-gradient(180deg, rgba(15, 12, 50, 0.55) 0%, rgba(15, 12, 50, 0.25) 52%, transparent 100%);
+  transition: background 1s var(--ease);
+}
+@supports (background: color-mix(in srgb, red 50%, transparent)) {
+  .wa .chrome-fade {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--bg0) 85%, transparent) 0%, color-mix(in srgb, var(--bg0) 40%, transparent) 52%, transparent 100%);
+  }
 }
 
-/* Gentle drift so the glass blur reads as alive (ambient, not busy). */
-.ambient__blob--violet { animation: blob-drift 28s ease-in-out infinite alternate; }
-.ambient__blob--cyan   { animation: blob-drift 32s ease-in-out infinite alternate-reverse; }
-.ambient__blob--amber  { animation: blob-drift 36s ease-in-out infinite alternate; }
-
-@keyframes blob-drift {
-  from { transform: translate(0, 0) scale(1); }
-  to   { transform: translate(2.5%, 2%) scale(1.06); }
+/* ---------------- glass primitives (reference components.css) ---------------- */
+.wa .glass {
+  position: relative;
+  background: var(--glass-fill);
+  -webkit-backdrop-filter: blur(var(--wa-blur, 26px)) saturate(1.6);
+  backdrop-filter: blur(var(--wa-blur, 26px)) saturate(1.6);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--r-md);
+  box-shadow: var(--glass-shadow), var(--inner-hi);
+}
+.wa .glass.soft {
+  background: var(--glass-fill-soft);
+  border-color: var(--glass-border-soft);
+  box-shadow: var(--glass-shadow-sm), var(--inner-hi);
+}
+.wa .rim {
+  position: relative;
+  overflow: hidden;
+}
+.wa .rim::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--iridescent);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  opacity: 0.75;
 }
 
-/* ---- .glass--rim — specular ring utility (research §6.1 / §7 P1 #8) ----
-   1px masked gradient ring, bright top-left falling to bottom-right.
-   Apply to the hero card and active/floating elements ONLY — never
-   app-wide. (TodayScreen's hero implements the identical ring in
-   today-screen.module.css; this utility is the shared recipe for any
-   element outside a module that needs the same rim.) */
-.glass--rim {
+.wa .icon-btn {
+  width: 41px;
+  height: 41px;
+  flex: none;
+  display: grid;
+  place-items: center;
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--txt);
+  background: var(--glass-fill-soft);
+  border: 1px solid var(--glass-border-soft);
+  box-shadow: var(--inner-hi);
+  -webkit-backdrop-filter: blur(14px);
+  backdrop-filter: blur(14px);
+  transition: transform 0.22s var(--spring), background 0.25s;
+}
+.wa .icon-btn:hover {
+  background: var(--glass-fill);
+}
+.wa .icon-btn:active {
+  transform: scale(0.9);
+}
+.wa .icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+.wa .icon-btn.spinning svg {
+  animation: wa-spin 0.9s linear;
+}
+
+.wa .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border-radius: 999px;
+  background: var(--glass-fill-soft);
+  border: 1px solid var(--glass-border-soft);
+  box-shadow: var(--inner-hi);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+/* ---------------- hero ---------------- */
+.wa .hero {
+  border-radius: var(--r-lg);
+  padding: 24px 22px 26px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 5px;
+}
+.wa .hero-city {
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: 2.6px;
+  text-transform: uppercase;
+  color: var(--txt-dim);
+}
+.wa .hero-temp {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  font-size: clamp(84px, 24vw, 104px);
+  font-weight: 300;
+  line-height: 1.04;
+  letter-spacing: -2.5px;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 8px 34px rgba(20, 10, 60, 0.25);
+}
+.wa .hero-temp .deg {
+  font-size: 0.36em;
+  font-weight: 300;
+  margin-top: 0.38em;
+  letter-spacing: 0;
+  color: var(--txt-dim);
+}
+.wa .hero-icon {
+  width: 106px;
+  height: 106px;
+  margin: 2px 0 -4px;
+  filter: drop-shadow(0 12px 26px rgba(25, 12, 70, 0.35));
+  animation: wa-bob 5.5s ease-in-out infinite;
+}
+.wa .hero-icon svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  animation: wa-iconIn 0.55s var(--spring) both;
+}
+.wa .hero-cond {
+  font-size: 19.5px;
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+.wa .hero-feels {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--txt-dim);
+}
+.wa .hero-range {
+  margin-top: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.wa .hero-range .chip {
+  padding: 6.5px 13px;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--txt-dim);
+}
+.wa .hero-range .chip b {
+  font-weight: 600;
+  color: var(--txt);
+}
+.wa .hero-upd {
+  margin-top: 10px;
+  font-size: 11px;
+  color: var(--txt-faint);
+  font-weight: 400;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ---------------- metrics (glass-in-glass) ---------------- */
+.wa .metrics {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+.wa .metric {
+  border-radius: var(--r-md);
+  padding: 14px 16px 13px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  contain: layout style;
+  transition: transform 0.3s var(--ease), background 0.3s;
+}
+.wa .metric:hover {
+  transform: translateY(-3px);
+  background: var(--glass-fill);
+}
+.wa .metric.wide {
+  grid-column: span 2;
+}
+.wa .m-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--txt-faint);
+}
+.wa .m-head .m-ic {
+  width: 29px;
+  height: 29px;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+.wa .m-head .m-ic svg {
+  width: 14px;
+  height: 14px;
+}
+.wa .m-val {
+  font-size: 25px;
+  font-weight: 400;
+  letter-spacing: -0.3px;
+  font-variant-numeric: tabular-nums;
+}
+.wa .m-val small {
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--txt-faint);
+  margin-left: 3px;
+  letter-spacing: 0;
+}
+.wa .m-sub {
+  font-size: 11.5px;
+  color: var(--txt-faint);
+  font-weight: 400;
+}
+.wa .uv-bar {
+  height: 7px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.16);
+  overflow: hidden;
+  margin-top: 2px;
+}
+.wa .uv-bar i {
+  display: block;
+  height: 100%;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #7ef29d, #ffe66b, #ff9a5c, #ff5e8a);
+  width: 40%;
+}
+.wa .wind-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.wa .compass {
+  width: 46px;
+  height: 46px;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.08);
+  position: relative;
+  display: grid;
+  place-items: center;
+}
+.wa .compass .needle {
+  position: absolute;
+  inset: 7px;
+  transition: transform 0.9s var(--spring);
+}
+.wa .compass .needle::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+  border-left: 4.5px solid transparent;
+  border-right: 4.5px solid transparent;
+  border-bottom: 12px solid #fff;
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.3));
+}
+.wa .compass .needle::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  border-left: 4.5px solid transparent;
+  border-right: 4.5px solid transparent;
+  border-top: 12px solid rgba(255, 255, 255, 0.38);
+}
+
+/* ---------------- sun arc card ---------------- */
+.wa .suncard {
+  border-radius: var(--r-lg);
+  padding: 16px 20px 14px;
+}
+.wa .sun-arc {
+  position: relative;
+  height: 86px;
+  margin: 4px auto 0;
+  max-width: 300px;
+}
+.wa .a-track {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.25);
+  stroke-width: 2;
+  stroke-dasharray: 1 6;
+  stroke-linecap: round;
+}
+.wa .a-fill {
+  fill: none;
+  stroke: #ffd98a;
+  stroke-width: 2.6;
+  stroke-linecap: round;
+  filter: drop-shadow(0 0 6px rgba(255, 210, 130, 0.8));
+}
+.wa .a-horizon {
+  stroke: rgba(255, 255, 255, 0.35);
+  stroke-width: 1.4;
+}
+.wa .a-dot {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff, #ffcf7a 60%, #ff9d5c);
+  box-shadow: 0 0 14px 4px rgba(255, 200, 110, 0.7);
+  transform: translate(-50%, -50%);
+}
+.wa .sun-labels {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+}
+.wa .sun-labels .lbl {
+  font-size: 10.5px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--txt-faint);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.wa .sun-labels .lbl svg {
+  width: 13px;
+  height: 13px;
+}
+.wa .sun-labels .val {
+  font-size: 15.5px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
+  display: block;
+}
+.wa .sun-note {
+  text-align: center;
+  margin-top: 8px;
+  font-size: 11.5px;
+  color: var(--txt-faint);
+  font-weight: 400;
+}
+
+/* ---------------- hourly ---------------- */
+.wa .hourly-card {
+  border-radius: var(--r-lg);
+  padding: 16px 10px 12px;
+}
+.wa .hgrid {
+  display: flex;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding: 2px 4px 4px;
+}
+.wa .hgrid::-webkit-scrollbar {
+  display: none;
+}
+.wa .hour {
+  flex: none;
+  width: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+  padding: 12px 0 11px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  margin-right: 8px;
+  transition: transform 0.25s var(--ease), background 0.25s, border-color 0.25s;
+}
+.wa .hour:last-child {
+  margin-right: 2px;
+}
+.wa .hour:hover {
+  transform: translateY(-3px);
+}
+.wa .hour:active {
+  transform: scale(0.96);
+}
+.wa .hour.now {
+  background: var(--glass-fill-strong);
+  border-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 8px 20px -6px rgba(20, 10, 60, 0.4);
+}
+.wa .hour .h-t {
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--txt-faint);
+  font-variant-numeric: tabular-nums;
+}
+.wa .hour.now .h-t {
+  color: var(--txt);
+  font-weight: 600;
+}
+.wa .hour .h-i {
+  width: 30px;
+  height: 30px;
+}
+.wa .hour .h-i svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.wa .hour .h-v {
+  font-size: 15px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.wa .hour .h-pp {
+  font-size: 10px;
+  font-weight: 500;
+  color: #aee2ff;
+  min-height: 13px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.wa .hour .h-pp svg {
+  width: 8px;
+  height: 8px;
+}
+
+/* ---------------- daily rows ---------------- */
+.wa .daily-card {
+  border-radius: var(--r-lg);
+  padding: 8px 8px 6px;
+}
+.wa .day-row {
+  display: grid;
+  grid-template-columns: 52px 30px 38px 1fr 64px;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 11px 10px;
+  border: none;
+  background: none;
+  border-radius: 16px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--txt);
+  font: inherit;
+  transition: background 0.25s;
+}
+.wa .day-row:hover {
+  background: rgba(255, 255, 255, 0.09);
+}
+.wa .day-row .d-name {
+  font-size: 14px;
+  font-weight: 500;
+}
+.wa .day-row .d-ic {
+  width: 27px;
+  height: 27px;
+  transition: transform 0.25s var(--spring);
+}
+.wa .day-row .d-ic svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.wa .day-row:hover .d-ic {
+  transform: scale(1.14);
+}
+.wa .day-row .d-pp {
+  font-size: 10.5px;
+  font-weight: 500;
+  color: #aee2ff;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+.wa .day-row .d-pp svg {
+  width: 8px;
+  height: 8px;
+}
+.wa .day-row .d-bar {
+  height: 6.5px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.14);
+  position: relative;
+  overflow: hidden;
+  box-shadow: inset 0 1px 2px rgba(20, 10, 60, 0.25);
+}
+.wa .day-row .d-bar i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-radius: 99px;
+  background: linear-gradient(90deg, #9be8ff, #ffd97e, #ff9a6b);
+  box-shadow: 0 0 8px rgba(255, 220, 140, 0.5);
+}
+.wa .day-row .d-temps {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  font-size: 13.5px;
+  font-variant-numeric: tabular-nums;
+}
+.wa .day-row .d-temps .lo {
+  color: var(--txt-faint);
+  font-weight: 400;
+}
+.wa .day-row .d-temps .hi {
+  font-weight: 600;
+}
+
+/* ---------------- cities ---------------- */
+.wa .search-wrap {
   position: relative;
 }
-
-.glass--rim::before {
-  content: "";
+.wa .search-wrap .s-ic {
   position: absolute;
-  inset: 0;
-  padding: 1px;
-  border-radius: inherit;
-  background: linear-gradient(
-    135deg,
-    var(--glass-highlight, rgba(255, 255, 255, 0.45)),
-    rgba(255, 255, 255, 0) 40%,
-    rgba(255, 255, 255, 0) 60%,
-    rgba(255, 255, 255, 0.25)
-  );
-  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  -webkit-mask-composite: xor;
+  left: 17px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 17px;
+  height: 17px;
+  stroke: var(--txt-faint);
+  fill: none;
+  stroke-width: 2;
+  stroke-linecap: round;
   pointer-events: none;
 }
+.wa .search-input {
+  width: 100%;
+  padding: 15px 46px 15px 46px;
+  font: inherit;
+  font-size: 15px;
+  font-weight: 400;
+  color: var(--txt);
+  background: var(--glass-fill-soft);
+  border: 1px solid var(--glass-border-soft);
+  border-radius: 999px;
+  outline: none;
+  box-shadow: var(--inner-hi);
+  -webkit-backdrop-filter: blur(20px);
+  backdrop-filter: blur(20px);
+  transition: background 0.3s, border-color 0.3s, box-shadow 0.3s;
+}
+.wa .search-input::placeholder {
+  color: var(--txt-faint);
+}
+.wa .search-input::-webkit-search-cancel-button,
+.wa .search-input::-webkit-search-decoration {
+  -webkit-appearance: none;
+  appearance: none;
+}
+.wa .search-input:focus {
+  background: var(--glass-fill);
+  border-color: var(--glass-border);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.08), var(--inner-hi);
+}
+.wa .search-clear {
+  position: absolute;
+  right: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  border: none;
+  color: var(--txt-dim);
+  cursor: pointer;
+}
+.wa .search-clear:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+.wa .search-clear svg {
+  width: 13px;
+  height: 13px;
+}
 
-/* ---- Global fallbacks (research §3.2 accessibility path) ----
-   Reduced transparency / high contrast / no backdrop-filter support →
-   every glass surface goes opaque (--color-surface-solid twin), no blur.
-   The screens carry per-module fallbacks for their hashed class names
-   (hero/hourCard/tile/row/addRow/card); this global block catches
-   everything else riding the glass convention — the .glass--rim
-   utility, proto-kit's .vGlass nav, any future [class*="glass"]. */
+.wa .results {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.wa .result-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 18px;
+  cursor: pointer;
+  text-align: left;
+  color: var(--txt);
+  font: inherit;
+  background: var(--glass-fill-soft);
+  border: 1px solid var(--glass-border-soft);
+  box-shadow: var(--inner-hi);
+  transition: background 0.25s, transform 0.2s var(--ease);
+}
+.wa .result-row:hover {
+  background: var(--glass-fill);
+  transform: translateY(-2px);
+}
+.wa .result-row .r-ic {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+.wa .result-row .r-ic svg {
+  width: 14px;
+  height: 14px;
+}
+.wa .result-row .r-name {
+  font-size: 14.5px;
+  font-weight: 500;
+}
+.wa .result-row .r-country {
+  font-size: 11.5px;
+  color: var(--txt-faint);
+  font-weight: 400;
+}
+.wa .result-row .r-temp {
+  margin-left: auto;
+  font-size: 19px;
+  font-weight: 300;
+  font-variant-numeric: tabular-nums;
+}
+.wa .result-row .r-add {
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  background: rgba(255, 255, 255, 0.16);
+  display: grid;
+  place-items: center;
+  color: var(--txt);
+  transition: transform 0.2s var(--spring), background 0.2s;
+}
+.wa .result-row:hover .r-add {
+  background: rgba(255, 255, 255, 0.3);
+}
+.wa .result-row .r-add svg {
+  width: 14px;
+  height: 14px;
+}
+
+.wa .city-card {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  width: 100%;
+  padding: 16px 16px;
+  text-align: left;
+  color: var(--txt);
+  font: inherit;
+  border-radius: var(--r-md);
+  cursor: pointer;
+  overflow: hidden;
+  background: var(--glass-fill-soft);
+  border: 1px solid var(--glass-border-soft);
+  box-shadow: var(--glass-shadow-sm), var(--inner-hi);
+  -webkit-backdrop-filter: blur(20px) saturate(1.5);
+  backdrop-filter: blur(20px) saturate(1.5);
+  transition: transform 0.3s var(--ease), background 0.3s, border-color 0.3s;
+}
+.wa .city-card:hover {
+  transform: translateY(-3px);
+  background: var(--glass-fill);
+}
+.wa .city-card:active {
+  transform: scale(0.985);
+}
+.wa .city-card.current {
+  border-color: rgba(255, 255, 255, 0.55);
+  background: var(--glass-fill-strong);
+}
+.wa .city-card .c-info {
+  flex: 1;
+  min-width: 0;
+}
+.wa .city-card .c-name {
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.wa .city-card .c-name .star {
+  width: 14px;
+  height: 14px;
+  flex: none;
+  color: var(--gold);
+}
+.wa .city-card .c-name .star svg {
+  width: 100%;
+  height: 100%;
+}
+.wa .city-card .c-country {
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--txt-faint);
+  margin-top: 1px;
+  display: block;
+}
+.wa .city-card .c-cond {
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--txt-dim);
+  margin-top: 7px;
+  display: block;
+}
+.wa .city-card .c-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+.wa .city-card .c-temp {
+  font-size: 31px;
+  font-weight: 300;
+  line-height: 1;
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+}
+.wa .city-card .c-hl {
+  font-size: 11px;
+  color: var(--txt-faint);
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+}
+.wa .city-card .c-ic {
+  width: 37px;
+  height: 37px;
+  flex: none;
+  filter: drop-shadow(0 4px 10px rgba(20, 10, 60, 0.3));
+}
+.wa .city-card .c-ic svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.wa .badge-now {
+  font-size: 8px;
+  font-weight: 600;
+  letter-spacing: 1.6px;
+  color: var(--txt-dim);
+  text-transform: uppercase;
+}
+.wa .c-del {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.65);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity 0.2s, background 0.2s, color 0.2s;
+}
+.wa .c-del svg {
+  width: 12px;
+  height: 12px;
+}
+.wa .city-card:hover .c-del,
+.wa .c-del:focus-visible {
+  opacity: 1;
+}
+.wa .c-del:hover {
+  background: rgba(255, 90, 90, 0.45);
+  color: #fff;
+}
+
+.wa .empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: 32px 20px;
+  text-align: center;
+  border-radius: var(--r-md);
+  background: var(--glass-fill-soft);
+  border: 1px dashed var(--glass-border-soft);
+}
+.wa .empty .e-ic {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--txt-dim);
+}
+.wa .empty b {
+  font-size: 14.5px;
+  font-weight: 600;
+}
+.wa .empty span {
+  font-size: 12px;
+  color: var(--txt-faint);
+  max-width: 230px;
+  line-height: 1.55;
+  font-weight: 400;
+}
+
+/* ---------------- forecast ---------------- */
+.wa .seg-chips {
+  display: flex;
+  gap: 8px;
+}
+.wa .fchip {
+  padding: 9px 17px;
+  border-radius: 999px;
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--txt-dim);
+  cursor: pointer;
+  background: var(--glass-fill-soft);
+  border: 1px solid var(--glass-border-soft);
+  box-shadow: var(--inner-hi);
+  transition: all 0.25s var(--ease);
+}
+.wa .fchip:hover {
+  background: var(--glass-fill);
+}
+.wa .fchip:active {
+  transform: scale(0.96);
+}
+.wa .fchip.on {
+  background: #fff;
+  color: var(--pill-ink);
+  border-color: #fff;
+  font-weight: 600;
+  box-shadow: 0 6px 16px -4px rgba(20, 10, 60, 0.45);
+}
+.wa .chart-card {
+  border-radius: var(--r-lg);
+  padding: 18px 14px 14px;
+  overflow: hidden;
+}
+.wa .chart-scroll {
+  overflow-x: auto;
+  scrollbar-width: none;
+  margin: 0 -4px;
+  padding: 0 4px;
+}
+.wa .chart-scroll::-webkit-scrollbar {
+  display: none;
+}
+.wa .chart-svg {
+  display: block;
+}
+.wa .chart-svg .c-line {
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 2px 8px rgba(255, 255, 255, 0.35));
+}
+.wa .chart-svg .c-dot {
+  fill: #fff;
+}
+.wa .chart-svg .c-lab {
+  fill: rgba(255, 255, 255, 0.92);
+  font-size: 10.5px;
+  font-weight: 600;
+  font-family: var(--font);
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: rgba(30, 15, 70, 0.35);
+  stroke-width: 2.5px;
+}
+.wa .chart-svg .c-bar {
+  fill: url(#gRainV);
+}
+.wa .chart-svg .w-bar {
+  fill: url(#gWindV);
+}
+.wa .chart-svg .c-axis {
+  stroke: rgba(255, 255, 255, 0.3);
+  stroke-width: 1.2;
+}
+.wa .hgrid.inset .hour {
+  background: rgba(255, 255, 255, 0.05);
+}
+.wa .detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.wa .detail-tile {
+  border-radius: 18px;
+  padding: 13px 13px 11px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.wa .dt-label {
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--txt-faint);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.wa .dt-label svg {
+  width: 12px;
+  height: 12px;
+}
+.wa .dt-value {
+  font-size: 17.5px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+  font-variant-numeric: tabular-nums;
+}
+.wa .dt-value small {
+  font-size: 10.5px;
+  font-weight: 400;
+  color: var(--txt-faint);
+  margin-left: 2px;
+}
+
+/* ---------------- settings ---------------- */
+.wa .set-group {
+  border-radius: var(--r-md);
+}
+.wa .set-group .g-pad {
+  padding: 4px 18px;
+}
+.wa .g-title {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 1.8px;
+  text-transform: uppercase;
+  color: var(--txt-faint);
+  margin: 16px 8px 8px;
+}
+.wa .set-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+.wa .g-pad .set-row:last-child {
+  border-bottom: none;
+}
+.wa .set-row.block {
+  display: block;
+}
+.wa .set-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.wa .set-label .sr-ic {
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3);
+}
+.wa .set-label .sr-ic svg {
+  width: 14px;
+  height: 14px;
+}
+.wa .set-name {
+  font-size: 14.5px;
+  font-weight: 500;
+}
+.wa .set-desc {
+  font-size: 11.5px;
+  color: var(--txt-faint);
+  margin-top: 1px;
+  font-weight: 400;
+}
+.wa .seg {
+  display: flex;
+  padding: 3px;
+  gap: 2px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid var(--glass-border-soft);
+}
+.wa .seg button {
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: none;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--txt-dim);
+  background: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.25s var(--ease);
+}
+.wa .seg button.on {
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--pill-ink);
+  font-weight: 600;
+  box-shadow: 0 3px 10px -2px rgba(20, 10, 60, 0.4);
+}
+
+.wa .themes {
+  display: flex;
+  gap: 12px;
+  padding: 14px 2px 16px;
+  justify-content: space-between;
+}
+.wa .theme-swatch {
+  flex: 1;
+  max-width: 78px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: center;
+  padding: 0;
+}
+.wa .theme-swatch .sw {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 22px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  display: block;
+  box-shadow: var(--glass-shadow-sm), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  transition: transform 0.25s var(--spring), border-color 0.25s, box-shadow 0.25s;
+}
+.wa .theme-swatch:hover .sw {
+  transform: translateY(-3px);
+}
+.wa .theme-swatch.on .sw {
+  border-color: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.32), var(--glass-shadow-sm);
+}
+.wa .theme-swatch .sw-l {
+  font-size: 10.5px;
+  color: var(--txt-faint);
+  margin-top: 7px;
+  font-weight: 500;
+  display: block;
+}
+.wa .theme-swatch.on .sw-l {
+  color: var(--txt);
+  font-weight: 600;
+}
+.wa .sw-dawn {
+  background: linear-gradient(160deg, #3a49a5, #8a63cf 50%, #ffab6e);
+}
+.wa .sw-day {
+  background: linear-gradient(160deg, #1f6fd0, #7db6f0 60%, #dff0fb);
+}
+.wa .sw-dusk {
+  background: linear-gradient(160deg, #1c1546, #a03d75 60%, #e56a4e);
+}
+.wa .sw-night {
+  background: linear-gradient(160deg, #0a0f35, #33306e 65%, #4d3a7d);
+}
+
+.wa .switch {
+  position: relative;
+  width: 50px;
+  height: 29px;
+  border-radius: 99px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.14);
+  cursor: pointer;
+  transition: background 0.3s var(--ease);
+  flex: none;
+}
+.wa .switch i {
+  position: absolute;
+  top: 2.5px;
+  left: 3px;
+  width: 21px;
+  height: 21px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 6px rgba(20, 10, 60, 0.35);
+  transition: transform 0.3s var(--spring), background 0.3s;
+}
+.wa .switch.on {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(255, 255, 255, 0.55);
+}
+.wa .switch.on i {
+  transform: translateX(21px);
+  background: #5a47b8;
+}
+
+.wa .slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 132px;
+  height: 5px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.22);
+  outline: none;
+}
+.wa .slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(20, 10, 60, 0.4), 0 0 0 4px rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+}
+.wa .slider::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #fff;
+  border: none;
+  cursor: pointer;
+}
+
+.wa .reset-btn {
+  width: 100%;
+  margin-top: 12px;
+  padding: 12.5px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 120, 120, 0.4);
+  background: rgba(255, 100, 100, 0.14);
+  color: #ffd9d9;
+  font: inherit;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.25s;
+}
+.wa .reset-btn:hover {
+  background: rgba(255, 100, 100, 0.26);
+}
+
+.wa .about-card {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 17px;
+  border-radius: var(--r-md);
+}
+.wa .a-logo {
+  width: 46px;
+  height: 46px;
+  flex: none;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.1));
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: var(--inner-hi);
+}
+.wa .a-logo svg {
+  width: 28px;
+  height: 28px;
+  overflow: visible;
+}
+.wa .about-card b {
+  font-size: 14.5px;
+  font-weight: 600;
+  display: block;
+}
+.wa .about-card span {
+  font-size: 11.5px;
+  color: var(--txt-faint);
+  line-height: 1.5;
+  display: block;
+  margin-top: 2px;
+  font-weight: 400;
+}
+.wa .version {
+  font-size: 10px;
+  color: var(--txt-dim);
+  padding: 3px 9px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.12);
+  margin-left: auto;
+  flex: none;
+}
+
+/* ---------------- error ---------------- */
+.wa .error-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  padding-bottom: 60px;
+}
+.wa .error-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  text-align: center;
+  padding: 36px 26px;
+  border-radius: var(--r-lg);
+  max-width: 320px;
+}
+.wa .e-cloud {
+  width: 96px;
+  height: 96px;
+  margin-bottom: 2px;
+  filter: drop-shadow(0 10px 24px rgba(20, 10, 60, 0.4));
+}
+.wa .error-card h2 {
+  font-size: 19.5px;
+  font-weight: 600;
+}
+.wa .error-card p {
+  font-size: 12.5px;
+  color: var(--txt-dim);
+  line-height: 1.6;
+  font-weight: 400;
+}
+.wa .btn-pill {
+  margin-top: 10px;
+  padding: 13px 30px;
+  border-radius: 999px;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--pill-ink);
+  background: #fff;
+  box-shadow: 0 10px 26px -6px rgba(20, 10, 60, 0.5);
+  transition: transform 0.22s var(--spring), box-shadow 0.25s;
+}
+.wa .btn-pill:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 32px -6px rgba(20, 10, 60, 0.55);
+}
+.wa .btn-pill:active {
+  transform: scale(0.95);
+}
+.wa .btn-ghost {
+  padding: 11px 24px;
+  border-radius: 999px;
+  border: 1px solid var(--glass-border);
+  background: var(--glass-fill-soft);
+  color: var(--txt);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.25s;
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+.wa .btn-ghost:hover {
+  background: var(--glass-fill);
+}
+
+/* ---------------- screens container (reference layout.css) ---------------- */
+.wa .wa-screens {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+}
+.wa .wa-screen {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 132px 14px 124px;
+  scrollbar-width: none;
+  contain: layout style;
+  opacity: 1;
+  transform: none;
+}
+.wa .wa-screen::-webkit-scrollbar {
+  display: none;
+}
+.wa .wa-screen > * + * {
+  margin-top: 14px;
+}
+
+/* section heads */
+.wa .sec-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 12px 6px 2px;
+}
+.wa .sec-head.in-card {
+  margin: 0 6px 12px;
+}
+.wa .sec-head.flush {
+  margin: 2px 2px 0;
+}
+.wa .sec-title {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 1.6px;
+  text-transform: uppercase;
+  color: var(--txt-dim);
+}
+.wa .sec-sub {
+  font-size: 11.5px;
+  color: var(--txt-faint);
+  font-weight: 400;
+}
+.wa .link-btn {
+  background: none;
+  border: none;
+  color: var(--txt);
+  font: inherit;
+  font-size: 12px;
+  font-weight: 500;
+  opacity: 0.85;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 4px 2px;
+  border-radius: 8px;
+}
+.wa .link-btn:hover {
+  opacity: 1;
+}
+.wa .stack-12 {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ---------------- dock nav — 4 tabs ---------------- */
+.wa .dock {
+  position: absolute;
+  left: 14px;
+  right: 14px;
+  bottom: 16px;
+  z-index: 50;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 8px 10px;
+  border-radius: 999px;
+}
+.wa .dock .tab {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 100%;
+  border: none;
+  background: none;
+  border-radius: 999px;
+  cursor: pointer;
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  transition: color 0.25s, background 0.3s var(--ease), transform 0.2s var(--spring), box-shadow 0.3s;
+}
+.wa .dock .tab svg {
+  width: 21px;
+  height: 21px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.7;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.wa .dock .tab:hover {
+  color: var(--txt);
+}
+.wa .dock .tab:active {
+  transform: scale(0.93);
+}
+.wa .dock .tab.on {
+  background: #fff;
+  color: var(--pill-ink);
+  font-weight: 600;
+  box-shadow: 0 8px 22px -6px rgba(20, 10, 60, 0.5), inset 0 1px 0 #fff;
+}
+.wa .dock .tab.on svg {
+  stroke-width: 1.9;
+  animation: wa-navBump 0.45s var(--spring);
+}
+
+/* ---------------- top bar ---------------- */
+.wa .topbar {
+  position: absolute;
+  top: 46px;
+  left: 14px;
+  right: 14px;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 10px 9px 16px;
+  border-radius: 999px;
+}
+.wa .tb-title {
+  flex: 1;
+  min-width: 0;
+}
+.wa .tb-title .t1 {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 16.5px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wa .tb-title .t2 {
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--txt-faint);
+  margin-top: 1px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wa .tb-actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* ---------------- loading overlay ---------------- */
+.wa .loading {
+  position: absolute;
+  inset: 0;
+  z-index: 70;
+  display: grid;
+  place-items: center;
+  background: rgba(15, 8, 45, 0.28);
+  -webkit-backdrop-filter: blur(9px);
+  backdrop-filter: blur(9px);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.wa .loading.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+.wa .loading-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  padding: 30px 46px;
+  border-radius: var(--r-lg);
+}
+.wa .loading-sun {
+  width: 60px;
+  height: 60px;
+}
+.wa .loading-sun svg {
+  width: 100%;
+  height: 100%;
+  fill: none;
+  stroke: #fff;
+  stroke-width: 2.3;
+  stroke-linecap: round;
+  animation: wa-spin 2.2s linear infinite;
+}
+.wa .loading-sun .sun-core {
+  fill: rgba(255, 255, 255, 0.9);
+}
+.wa .loading-title {
+  font-size: 15.5px;
+  font-weight: 600;
+}
+.wa .loading-sub {
+  font-size: 12px;
+  color: var(--txt-faint);
+  font-weight: 400;
+}
+
+/* ---------------- splash ---------------- */
+.wa .splash {
+  position: absolute;
+  inset: 0;
+  z-index: 90;
+  display: grid;
+  place-items: center;
+  background: linear-gradient(165deg, var(--bg0), var(--bg1) 45%, var(--bg2) 75%, var(--bg3));
+  transition: opacity 0.65s var(--ease), visibility 0.65s;
+}
+.wa .splash.hide {
+  opacity: 0;
+  visibility: hidden;
+}
+.wa .splash-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 36px 40px;
+  border-radius: var(--r-lg);
+}
+.wa .splash-sun {
+  position: relative;
+  width: 74px;
+  height: 74px;
+}
+.wa .splash-sun .core {
+  position: absolute;
+  inset: 15px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff8e8, #ffd27a 55%, #ff9d5c);
+  box-shadow: 0 0 34px 8px rgba(255, 200, 110, 0.55), inset 0 2px 6px rgba(255, 255, 255, 0.9);
+  animation: wa-pulse 2.4s ease-in-out infinite;
+}
+.wa .splash-sun .ring {
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  border: 1.5px dashed rgba(255, 240, 200, 0.65);
+  animation: wa-spin 22s linear infinite;
+}
+.wa .splash-word {
+  font-size: 23px;
+  font-weight: 300;
+  letter-spacing: 0.4px;
+  margin-top: 14px;
+  white-space: nowrap;
+}
+.wa .splash-word b {
+  font-weight: 600;
+}
+.wa .splash-sub {
+  font-size: 10.5px;
+  letter-spacing: 2.6px;
+  text-transform: uppercase;
+  color: var(--txt-dim);
+  margin-top: 5px;
+  font-weight: 400;
+}
+.wa .splash-bar {
+  width: 130px;
+  height: 4.5px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  margin-top: 20px;
+}
+.wa .splash-bar i {
+  display: block;
+  height: 100%;
+  width: 0;
+  border-radius: 99px;
+  background: #fff;
+  box-shadow: 0 0 10px #fff;
+  animation: wa-sload 1.5s var(--ease) forwards;
+}
+
+/* ---------------- modal sheet ---------------- */
+.wa .modal-root {
+  position: absolute;
+  inset: 0;
+  z-index: 80;
+  pointer-events: none;
+}
+.wa .modal-root.open {
+  pointer-events: auto;
+}
+.wa .modal-veil {
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 6, 30, 0.44);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  opacity: 0;
+  transition: opacity 0.32s var(--ease);
+}
+.wa .modal-root.open .modal-veil {
+  opacity: 1;
+}
+.wa .modal-sheet {
+  position: absolute;
+  left: 10px;
+  right: 10px;
+  bottom: 10px;
+  max-height: 76%;
+  overflow-y: auto;
+  scrollbar-width: none;
+  border-radius: 34px;
+  padding: 14px 22px 26px;
+  background: var(--glass-fill-strong);
+  -webkit-backdrop-filter: blur(34px) saturate(1.7);
+  backdrop-filter: blur(34px) saturate(1.7);
+  border: 1px solid rgba(255, 255, 255, 0.5);
+  box-shadow: 0 -12px 60px rgba(10, 5, 40, 0.4), var(--inner-hi);
+  transform: translateY(106%);
+  transition: transform 0.46s var(--spring);
+}
+.wa .modal-sheet::-webkit-scrollbar {
+  display: none;
+}
+.wa .modal-root.open .modal-sheet {
+  transform: none;
+}
+.wa .modal-grab {
+  width: 42px;
+  height: 5px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.4);
+  margin: 2px auto 14px;
+}
+.wa .modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.wa .modal-head .m-day {
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.2px;
+}
+.wa .modal-head .m-date {
+  font-size: 12px;
+  color: var(--txt-faint);
+  margin-top: 2px;
+  font-weight: 400;
+}
+.wa .modal-big {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 14px;
+}
+.wa .modal-big .mb-ic {
+  width: 66px;
+  height: 66px;
+  flex: none;
+  filter: drop-shadow(0 8px 18px rgba(20, 10, 60, 0.35));
+}
+.wa .modal-big .mb-ic svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.wa .modal-big .mb-temp {
+  font-size: 40px;
+  font-weight: 300;
+  letter-spacing: -1.5px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.wa .modal-big .mb-temp small {
+  font-size: 17px;
+  font-weight: 400;
+  color: var(--txt-faint);
+  letter-spacing: 0;
+}
+.wa .modal-big .mb-cond {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--txt-dim);
+  margin-top: 4px;
+}
+.wa .modal-mini {
+  margin-top: 14px;
+  border-radius: 18px;
+  padding: 12px 10px 8px;
+}
+.wa .modal-mini .mm-title {
+  font-size: 10px;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+  color: var(--txt-faint);
+  font-weight: 600;
+  margin: 0 6px 4px;
+}
+.wa .modal-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+/* ---------------- toast ---------------- */
+.wa .wa-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 100px;
+  transform: translate(-50%, 20px);
+  z-index: 85;
+  padding: 11px 22px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  background: rgba(25, 16, 60, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.32);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow: var(--glass-shadow-sm), var(--inner-hi);
+  transition: all 0.4s var(--ease);
+}
+.wa .wa-toast.show {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ---------------- animations (reference animations.css) ---------------- */
+@keyframes wa-drift1 {
+  to {
+    transform: translate(-7%, 6%) scale(1.08);
+  }
+}
+@keyframes wa-drift2 {
+  to {
+    transform: translate(8%, -5%) scale(0.94);
+  }
+}
+.wa .orb.b1 {
+  animation: wa-drift1 26s ease-in-out infinite alternate;
+}
+.wa .orb.b2 {
+  animation: wa-drift2 32s ease-in-out infinite alternate;
+}
+.wa .orb.b3 {
+  animation: wa-drift1 22s 3s ease-in-out infinite alternate-reverse;
+}
+.wa .orb.b4 {
+  animation: wa-drift2 18s 1s ease-in-out infinite alternate;
+}
+.wa .sphere {
+  animation: wa-drift2 30s ease-in-out infinite alternate;
+}
+.wa .sp2 {
+  animation-delay: -9s;
+}
+.wa .sp3 {
+  animation-delay: -16s;
+}
+
+@keyframes wa-bgflash {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes wa-bob {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+@keyframes wa-iconIn {
+  from {
+    opacity: 0;
+    transform: scale(0.55) rotate(-8deg);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes wa-rays {
+  to {
+    transform: rotate(360deg);
+  }
+}
+.wa .hero-icon .ic-rays {
+  transform-origin: 12px 12px;
+  animation: wa-rays 30s linear infinite;
+}
+@keyframes wa-rainfall {
+  0% {
+    transform: translateY(-2.5px);
+    opacity: 0;
+  }
+  30% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(4.5px);
+    opacity: 0;
+  }
+}
+.wa .wx-drop {
+  animation: wa-rainfall 1.15s linear infinite;
+}
+.wa .wx-drop:nth-of-type(2) {
+  animation-delay: 0.3s;
+}
+.wa .wx-drop:nth-of-type(3) {
+  animation-delay: 0.6s;
+}
+@keyframes wa-twinkle {
+  0%,
+  100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+.wa .wx-flake {
+  animation: wa-twinkle 2.6s ease-in-out infinite;
+}
+@keyframes wa-flash {
+  0%,
+  86%,
+  100% {
+    opacity: 1;
+  }
+  91% {
+    opacity: 0.3;
+  }
+  95% {
+    opacity: 1;
+  }
+}
+.wa .wx-bolt {
+  animation: wa-flash 3s ease-in-out infinite;
+}
+
+/* screen entrances (staggered) */
+@keyframes wa-fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.wa .wa-screen.enter > * {
+  animation: wa-fadeUp 0.5s var(--ease) both;
+}
+.wa .wa-screen.enter > *:nth-child(1) {
+  animation-delay: 0s;
+}
+.wa .wa-screen.enter > *:nth-child(2) {
+  animation-delay: 0.05s;
+}
+.wa .wa-screen.enter > *:nth-child(3) {
+  animation-delay: 0.1s;
+}
+.wa .wa-screen.enter > *:nth-child(4) {
+  animation-delay: 0.15s;
+}
+.wa .wa-screen.enter > *:nth-child(5) {
+  animation-delay: 0.2s;
+}
+.wa .wa-screen.enter > *:nth-child(6) {
+  animation-delay: 0.25s;
+}
+.wa .wa-screen.enter > *:nth-child(7) {
+  animation-delay: 0.3s;
+}
+.wa .wa-screen.enter > *:nth-child(8) {
+  animation-delay: 0.35s;
+}
+.wa .wa-screen.enter > *:nth-child(9) {
+  animation-delay: 0.4s;
+}
+.wa .wa-screen.enter > *:nth-child(10) {
+  animation-delay: 0.45s;
+}
+
+@keyframes wa-navBump {
+  0% {
+    transform: scale(0.72);
+  }
+  60% {
+    transform: scale(1.18);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+@keyframes wa-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes wa-pulse {
+  50% {
+    transform: scale(1.07);
+  }
+}
+@keyframes wa-sload {
+  to {
+    width: 100%;
+  }
+}
+
+/* ---------------- motion opt-outs ---------------- */
+@media (prefers-reduced-motion: reduce) {
+  .wa *,
+  .wa *::before,
+  .wa *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+.wa.wa-rm *,
+.wa.wa-rm *::before,
+.wa.wa-rm *::after {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* ---------------- proto-kit chrome integration ----------------
+   The device status bar sits above the sky (z-index 30) and must
+   read as white over every backdrop theme (all four skies are deep
+   enough at the top). The hashed module class is matched by suffix. */
+.device div[class*="statusbar"] {
+  background: transparent;
+  color: #fff;
+}
+.device div[class*="statusbar"] .battery__fill {
+  fill: #fff;
+}
+.device div[class*="statusbar"] span[class*="battery"] {
+  color: #fff;
+}
+
+/* ---------------- glass.css fallback neutralization ----------------
+   The shared glass style (styles/glass.css) forces every [class*="glass"]
+   surface opaque + unblurred under prefers-reduced-transparency /
+   prefers-contrast (and on engines without backdrop-filter). This
+   machine reports reduced-transparency, and the Aurora reference does
+   NOT honor those flags — so to keep the 1:1 glassy look the recipe is
+   re-asserted here with equal specificity and later source order. */
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
-  .device[data-style="glass"] [class*="glass" i] {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-    background: var(--color-surface-solid, #232a3a) !important;
+  .device .wa .glass {
+    -webkit-backdrop-filter: blur(var(--wa-blur, 26px)) saturate(1.6) !important;
+    backdrop-filter: blur(var(--wa-blur, 26px)) saturate(1.6) !important;
+    background: var(--glass-fill) !important;
+  }
+  .device .wa .glass.soft {
+    background: var(--glass-fill-soft) !important;
+    border-color: var(--glass-border-soft);
+    box-shadow: var(--glass-shadow-sm), var(--inner-hi);
   }
 }
-
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .device[data-style="glass"] [class*="glass" i] {
-    background: var(--color-surface-solid, #232a3a);
+  .device .wa .glass {
+    background: var(--glass-fill);
+  }
+  .device .wa .glass.soft {
+    background: var(--glass-fill-soft);
   }
 }
 
-/* ---- Side-panel helpers (Stage right/left panel content) ---- */
+/* ---------------- stage side-panel helpers (page.tsx panels) ---------------- */
 .tags {
   display: flex;
   flex-wrap: wrap;
@@ -270,63 +2336,27 @@ button {
   font-weight: 600;
 }
 
-/* ---- View switch (one screen mounted at a time; fade/rise on enter) ---- */
-.view {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  z-index: 1;
-  animation: view-in var(--dur-3) var(--ease-emphasized-decel) both;
-}
-
-@keyframes view-in {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
+/* ---------------- responsive (reference) ---------------- */
+@media (max-width: 380px) {
+  .wa .detail-grid {
+    grid-template-columns: 1fr 1fr;
   }
-  to {
-    opacity: 1;
-    transform: none;
+  .wa .hero-temp {
+    font-size: 78px;
+  }
+  .wa .dock .tab span {
+    font-size: 9.5px;
   }
 }
-
-/* ---- Card-list stagger (40ms per item) ---- */
-.stagger {
-  animation: stagger-in var(--dur-3) var(--ease-emphasized-decel) both;
-  animation-delay: calc(var(--stagger-i, 0) * 40ms);
-}
-
-@keyframes stagger-in {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
+@media (max-height: 700px) {
+  .wa .hero-temp {
+    font-size: 74px;
   }
-  to {
-    opacity: 1;
-    transform: none;
+  .wa .hero-icon {
+    width: 86px;
+    height: 86px;
   }
-}
-
-/* ---- Hidden scrollbars on every scroll container ---- */
-.device [class*="content"]::-webkit-scrollbar,
-.device [class*="list"]::-webkit-scrollbar,
-.device [class*="scroll"]::-webkit-scrollbar,
-.device [class*="strip"]::-webkit-scrollbar {
-  display: none;
-}
-.device [class*="content"],
-.device [class*="list"],
-.device [class*="scroll"],
-.device [class*="strip"] {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .view,
-  .stagger,
-  .ambient__blob {
-    animation: none !important;
+  .wa .wa-screen {
+    padding-bottom: 116px;
   }
 }

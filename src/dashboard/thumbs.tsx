@@ -106,22 +106,41 @@ const THUMBS: Record<string, (p: Palette) => ReactNode> = {
   ),
   "Weather App": (p) => (
     <>
-      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 3, padding: "6px 0" }}>
-        <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke={p.accent} strokeWidth="2" strokeLinecap="round">
-          <circle cx="12" cy="12" r="4" fill={p.accent} stroke="none" />
-          <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+      {/* Aurora hero card — glass sheet with thin hero temp + sun glyph */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          gap: 3,
+          padding: "8px 4px 7px",
+          borderRadius: 10,
+          background: "rgba(255,255,255,.16)",
+          border: "1px solid rgba(255,255,255,.45)",
+          boxShadow: "inset 0 1px 0 rgba(255,255,255,.5), 0 4px 10px rgba(20,10,60,.3)",
+        }}
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
+          <circle cx="12" cy="12" r="4.6" fill="#FFD470" />
+          <g stroke="#FFD470" strokeWidth="1.9" strokeLinecap="round">
+            <path d="M12 2.4v2.6M12 19v2.6M2.4 12h2.6M19 12h2.6M5.2 5.2l1.9 1.9M16.9 16.9l1.9 1.9M18.8 5.2l-1.9 1.9M7.1 16.9l-1.9 1.9" />
+          </g>
         </svg>
-        <span style={{ fontSize: 24, fontWeight: 800, color: p.text, lineHeight: 1 }}>22°</span>
+        <span style={{ fontSize: 22, fontWeight: 300, color: p.text, lineHeight: 1 }}>13°</span>
         <span style={{ ...line(p.text, "34%", 5, 4), opacity: 0.7 }} />
       </div>
-      <div style={{ display: "flex", gap: 4 }}>
-        {[0, 1, 2, 3].map((i) => (
-          <span key={i} style={{ flex: 1, height: 30, borderRadius: 8, background: p.surface, border: `1px solid ${p.surfaceAlt}` }} />
+      {/* metric tiles (glass-in-glass) */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
+        {[0, 1].map((i) => (
+          <span key={i} style={{ height: 20, borderRadius: 8, background: "rgba(255,255,255,.12)", border: "1px solid rgba(255,255,255,.3)" }} />
         ))}
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 4 }}>
-        <span style={{ height: 20, borderRadius: 8, background: p.surface, border: `1px solid ${p.surfaceAlt}` }} />
-        <span style={{ height: 20, borderRadius: 8, background: p.surface, border: `1px solid ${p.surfaceAlt}` }} />
+      {/* dock — white active pill + 3 ghost tabs */}
+      <div style={{ display: "flex", gap: 3, padding: 3, borderRadius: 999, background: "rgba(255,255,255,.16)", border: "1px solid rgba(255,255,255,.35)" }}>
+        <span style={{ flex: 1, height: 16, borderRadius: 999, background: "#fff" }} />
+        {[0, 1, 2].map((i) => (
+          <span key={i} style={{ flex: 1, height: 16, borderRadius: 999 }} />
+        ))}
       </div>
     </>
   ),

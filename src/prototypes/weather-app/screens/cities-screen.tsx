@@ -1,154 +1,159 @@
 "use client";
 
-/**
- * Cities screen — glass list of saved cities with current temps.
- *
- * Tapping a city row makes it the active city (shared page state —
- * Today + Forecast follow it). The add-city row appends a new
- * prototype city (React state; not persisted). The add button gives
- * immediate visual feedback (check flash / shake on duplicate) even
- * though nothing is stored.
- */
+/* cities screen — search, add/open results, saved city cards
+   (exact port of the reference screens/cities.js) */
 
-import { useRef, useState } from "react";
-import { TopBar } from "../../../proto-kit";
-import {
-  formatTemp,
-  type CityWeather,
-  type Unit,
-} from "../lib/weather";
-import {
-  ConditionIcon,
-  MapPinIcon,
-  SearchIcon,
-  PlusIcon,
-  CheckIcon,
-  ChevronRightIcon,
-} from "../components/icons";
-import styles from "./cities-screen.module.css";
+import { useState } from "react";
+import { CITIES, CITY_BY_ID, COND_LABEL } from "../lib/data";
+import { deg } from "../lib/prefs";
+import { cityWeather } from "../lib/engine";
+import { UiIcon, WxIcon } from "../components/icons";
+import { useWeather } from "../state/weather-context";
 
-export interface CitiesScreenProps {
-  cities: CityWeather[];
-  activeCityId: string;
-  unit: Unit;
-  onSelectCity: (id: string) => void;
-  /** Returns false when the city is already in the list. */
-  onAddCity: (name: string) => boolean;
-}
+export function CitiesScreen() {
+  const { prefs, addFavorite, removeFavorite, selectCity } = useWeather();
+  const [query, setQuery] = useState("");
 
-type AddState = "idle" | "added" | "duplicate";
-
-export function CitiesScreen({
-  cities,
-  activeCityId,
-  unit,
-  onSelectCity,
-  onAddCity,
-}: CitiesScreenProps) {
-  const [draft, setDraft] = useState("");
-  const [addState, setAddState] = useState<AddState>("idle");
-  const flashTimer = useRef<number | null>(null);
-
-  function handleAdd() {
-    const name = draft.trim();
-    if (!name) {
-      // Empty input — nudge the row so the button still answers.
-      setAddState("duplicate");
-      if (flashTimer.current) window.clearTimeout(flashTimer.current);
-      flashTimer.current = window.setTimeout(() => setAddState("idle"), 700);
-      return;
-    }
-    const ok = onAddCity(name);
-    if (ok) {
-      setDraft("");
-      setAddState("added");
-    } else {
-      setAddState("duplicate");
-    }
-    if (flashTimer.current) window.clearTimeout(flashTimer.current);
-    flashTimer.current = window.setTimeout(() => setAddState("idle"), 900);
-  }
+  const saved = prefs.favorites.map((id) => CITY_BY_ID[id]).filter(Boolean);
+  const q = query.trim().toLowerCase();
+  const hits = q
+    ? CITIES.filter((c) => c.name.toLowerCase().includes(q) || c.country.toLowerCase().includes(q))
+    : [];
 
   return (
-    <div className={styles.root}>
-      <TopBar
-        variant="center"
-        title="Cities"
-        leading={<MapPinIcon size={18} />}
-      />
-
-      <div className={styles.content}>
-        <div className={styles.list}>
-          {cities.map((c, i) => {
-            const isActive = c.id === activeCityId;
-            return (
-              <button
-                type="button"
-                key={c.id}
-                className={`${styles.row} ${isActive ? styles.rowActive : ""} stagger`}
-                style={{ ["--stagger-i" as string]: i } as React.CSSProperties}
-                onClick={() => onSelectCity(c.id)}
-                aria-label={`Set ${c.name} as active city`}
-                aria-pressed={isActive}
-              >
-                <span className={styles.icon}>
-                  <ConditionIcon condition={c.condition} size={24} />
-                </span>
-                <span className={styles.rowText}>
-                  <span className={styles.rowName}>{c.name}</span>
-                  <span className={styles.rowCountry}>{c.country}</span>
-                </span>
-                <span className={styles.rowTemp}>
-                  {formatTemp(c.tempC, unit)}
-                </span>
-                {isActive ? (
-                  <span className={styles.activeDot} aria-hidden="true" />
-                ) : (
-                  <span className={styles.chevron}>
-                    <ChevronRightIcon size={16} />
-                  </span>
-                )}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Add-city row */}
-        <div
-          className={`${styles.addRow} ${addState === "duplicate" ? styles.addRowShake : ""} stagger`}
-          style={{ ["--stagger-i" as string]: cities.length } as React.CSSProperties}
-        >
-          <span className={styles.addRowIcon}>
-            {addState === "added" ? <CheckIcon size={18} /> : <SearchIcon size={18} />}
-          </span>
-          <input
-            className={styles.input}
-            type="text"
-            placeholder="Add a city…"
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") handleAdd();
-            }}
-            aria-label="City name"
-          />
-          <button
-            type="button"
-            className={`${styles.addBtn} ${addState === "added" ? styles.addBtnAdded : ""}`}
-            onClick={handleAdd}
-            aria-label="Add city"
-          >
-            {addState === "added" ? <CheckIcon size={20} /> : <PlusIcon size={20} />}
+    <>
+      <div className="search-wrap">
+        <svg className="s-ic" viewBox="0 0 24 24" aria-hidden="true">
+          <circle cx="11" cy="11" r="6.4" />
+          <path d="M15.8 15.8 20.4 20.4" />
+        </svg>
+        <input
+          className="search-input wa-search"
+          type="search"
+          placeholder="Search city or country…"
+          autoComplete="off"
+          aria-label="Search cities"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key !== "Enter") return;
+            const first = hits[0];
+            if (!first) return;
+            if (prefs.favorites.includes(first.id)) selectCity(first.id);
+            else {
+              addFavorite(first.id);
+              setQuery("");
+            }
+          }}
+        />
+        {query && (
+          <button className="search-clear show" aria-label="Clear search" onClick={() => setQuery("")}>
+            <UiIcon name="x" size={13} />
           </button>
-        </div>
-        <p className={styles.addNote} aria-live="polite">
-          {addState === "added"
-            ? "City added — it is now the active city (demo data, not persisted)."
-            : addState === "duplicate"
-              ? "Already in your list."
-              : "Added cities use demo data and reset on reload."}
-        </p>
+        )}
       </div>
-    </div>
+
+      <div className="results">
+        {q &&
+          (hits.length ? (
+            hits.map((c) => {
+              const wxc = cityWeather(c);
+              const isSaved = prefs.favorites.includes(c.id);
+              return (
+                <button
+                  key={c.id}
+                  className="result-row"
+                  onClick={() => {
+                    if (isSaved) selectCity(c.id);
+                    else {
+                      addFavorite(c.id);
+                      setQuery("");
+                    }
+                  }}
+                >
+                  <span className="r-ic" style={isSaved ? { color: "var(--gold)" } : undefined}>
+                    <UiIcon name={isSaved ? "star" : "pin"} size={14} />
+                  </span>
+                  <span>
+                    <span className="r-name">{c.name}</span>
+                    <br />
+                    <span className="r-country">
+                      {c.country} · {isSaved ? "saved — tap to open" : COND_LABEL[wxc.current.code]}
+                    </span>
+                  </span>
+                  <span className="r-temp">{deg(wxc.current.temp, prefs.unit)}</span>
+                  <span className="r-add">
+                    <UiIcon name={isSaved ? "check" : "plus"} size={14} />
+                  </span>
+                </button>
+              );
+            })
+          ) : (
+            <div className="empty">
+              <span className="e-ic">
+                <UiIcon name="search" size={20} />
+              </span>
+              <b>No cities found</b>
+              <span>
+                Try{" "}
+                {CITIES.filter((c) => !prefs.favorites.includes(c.id))
+                  .slice(0, 2)
+                  .map((c) => `“${c.name}”`)
+                  .join(" or ")}{" "}
+                — or search by country name.
+              </span>
+            </div>
+          ))}
+      </div>
+
+      <div className="sec-head">
+        <span className="sec-title">Saved cities</span>
+        <span className="sec-sub">{saved.length} places</span>
+      </div>
+      <div className="stack-12">
+        {saved.map((c) => {
+          const wxc = cityWeather(c);
+          const cur = prefs.city === c.id;
+          return (
+            <button key={c.id} className={"city-card" + (cur ? " current" : "")} aria-label={`Open ${c.name} weather`} onClick={() => selectCity(c.id)}>
+              <span className="c-info">
+                <span className="c-name">
+                  <span className="star">
+                    <UiIcon name="star" size={14} />
+                  </span>
+                  {c.name} {cur && <span className="badge-now">Current</span>}
+                </span>
+                <span className="c-country">
+                  {c.country} · {wxc.localTime} local
+                </span>
+                <span className="c-cond">
+                  {COND_LABEL[wxc.current.code]} · Humidity {c.rh}%
+                </span>
+              </span>
+              <span className="c-right">
+                <span className="c-temp">{deg(wxc.current.temp, prefs.unit)}</span>
+                <span className="c-hl">
+                  H:{deg(wxc.daily[0].hi, prefs.unit)} L:{deg(wxc.daily[0].lo, prefs.unit)}
+                </span>
+              </span>
+              <span className="c-ic">
+                <WxIcon code={wxc.current.code} isDay={wxc.current.isDay} size={37} />
+              </span>
+              <span
+                className="c-del"
+                role="button"
+                aria-label={`Remove ${c.name}`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  removeFavorite(c.id);
+                }}
+              >
+                <UiIcon name="trash" size={12} />
+              </span>
+            </button>
+          );
+        })}
+      </div>
+    </>
   );
 }

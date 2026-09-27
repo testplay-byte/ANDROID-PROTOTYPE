@@ -1,77 +1,92 @@
 "use client";
 
-/**
- * Forecast screen — 7-day glass list for the active city.
- * Each row: day label, condition icon, lo temp, range bar (lo→hi within
- * the week's span), hi temp. Range bar fill uses the primary→tertiary
- * gradient so warm days read longer/warmer.
- */
+/* forecast screen — 24h chart card (temp/pp/wind), detail grid, 7-day
+   (exact port of the reference screens/forecast.js) */
 
-import { TopBar } from "../../../proto-kit";
-import {
-  formatTemp,
-  toUnit,
-  type CityWeather,
-  type Unit,
-} from "../lib/weather";
-import { ConditionIcon, CalendarIcon } from "../components/icons";
-import styles from "./forecast-screen.module.css";
+import { useState } from "react";
+import { deg } from "../lib/prefs";
+import { UiIcon } from "../components/icons";
+import { ChartSvg } from "../components/charts";
+import { DailyRows, HourlyStrip } from "./home-screen";
+import { useWeather } from "../state/weather-context";
 
-export interface ForecastScreenProps {
-  city: CityWeather;
-  unit: Unit;
-}
+const MODES: [string, string][] = [
+  ["temp", "Temperature"],
+  ["pp", "Precipitation"],
+  ["wind", "Wind"],
+];
 
-export function ForecastScreen({ city, unit }: ForecastScreenProps) {
-  const weekLo = Math.min(...city.daily.map((d) => d.loC));
-  const weekHi = Math.max(...city.daily.map((d) => d.hiC));
-  const span = Math.max(1, weekHi - weekLo);
+const MODE_NAME: Record<string, string> = {
+  temp: "Temperature curve",
+  pp: "Chance of precipitation",
+  wind: "Wind speed",
+};
+
+export function ForecastScreen() {
+  const { city, wx, prefs } = useWeather();
+  const [chartMode, setChartMode] = useState("temp");
+
+  const grid = [
+    { ic: "gauge", l: "Pressure", v: city.pres, u: "hPa" },
+    { ic: "eye", l: "Visibility", v: city.vis, u: "km" },
+    { ic: "drop", l: "Dew point", v: deg(city.dew, prefs.unit), u: "" },
+    { ic: "layers", l: "Cloud cover", v: wx.daily[0].cloud, u: "%" },
+    { ic: "sunrise", l: "Sunrise", v: city.rise, u: "" },
+    { ic: "sunset", l: "Sunset", v: city.set, u: "" },
+  ];
 
   return (
-    <div className={styles.root}>
-      <TopBar
-        variant="center"
-        title={`${city.daily.length}-Day Forecast`}
-        leading={<CalendarIcon size={18} />}
-      />
-
-      <div className={styles.content}>
-        <p className={styles.cityNote}>
-          {city.name} · H {formatTemp(city.hiC, unit)} / L {formatTemp(city.loC, unit)} today
-        </p>
-
-        <div className={styles.list}>
-          {city.daily.map((d, i) => {
-            const leftPct = ((d.loC - weekLo) / span) * 100;
-            const widthPct = Math.max(6, ((d.hiC - d.loC) / span) * 100);
-            return (
-              <div
-                key={d.day}
-                className={`${styles.row} stagger`}
-                style={{ ["--stagger-i" as string]: i } as React.CSSProperties}
-              >
-                <span className={styles.day}>{d.day}</span>
-                <span className={styles.icon}>
-                  <ConditionIcon condition={d.condition} size={22} />
-                </span>
-                <span className={styles.lo}>{formatTemp(d.loC, unit)}</span>
-                <span className={styles.barTrack}>
-                  <span
-                    className={styles.barFill}
-                    style={{ left: `${leftPct}%`, width: `${widthPct}%` }}
-                  />
-                </span>
-                <span className={styles.hi}>{formatTemp(d.hiC, unit)}</span>
-              </div>
-            );
-          })}
-        </div>
-
-        <p className={styles.rangeNote}>
-          Week range {formatTemp(weekLo, unit)} – {formatTemp(weekHi, unit)} ({unit.toUpperCase()})
-          · scale {toUnit(span, unit)}°
-        </p>
+    <>
+      <div className="seg-chips" role="tablist" aria-label="Chart type">
+        {MODES.map(([id, lab]) => (
+          <button
+            key={id}
+            className={"fchip" + (chartMode === id ? " on" : "")}
+            data-mode={id}
+            role="tab"
+            aria-selected={chartMode === id}
+            onClick={() => setChartMode(id)}
+          >
+            {lab}
+          </button>
+        ))}
       </div>
-    </div>
+
+      <div className="chart-card glass rim">
+        <div className="sec-head in-card">
+          <span className="sec-title">Next 24 hours · {city.name}</span>
+          <span className="sec-sub">{MODE_NAME[chartMode]}</span>
+        </div>
+        <div className="chart-scroll">
+          <ChartSvg mode={chartMode} wx={wx} unit={prefs.unit} windU={prefs.windU} />
+        </div>
+        <div className="hgrid inset" style={{ marginTop: 12 }}>
+          <HourlyStrip wx={wx} />
+        </div>
+      </div>
+
+      <div className="detail-grid">
+        {grid.map((g) => (
+          <div key={g.l} className="detail-tile glass soft">
+            <span className="dt-label">
+              <UiIcon name={g.ic} size={12} />
+              {g.l}
+            </span>
+            <span className="dt-value">
+              {g.v}
+              <small>{g.u}</small>
+            </span>
+          </div>
+        ))}
+      </div>
+
+      <div className="sec-head">
+        <span className="sec-title">7-day outlook</span>
+        <span className="sec-sub">Tap a day for details</span>
+      </div>
+      <div className="daily-card glass">
+        <DailyRows wx={wx} />
+      </div>
+    </>
   );
 }
