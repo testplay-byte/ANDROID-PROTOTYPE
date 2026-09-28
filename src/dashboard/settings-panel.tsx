@@ -15,9 +15,16 @@ import {
   saveDeviceSettings,
   useDeviceSettings,
 } from "../proto-kit/device-settings/store";
+import {
+  CUSTOM_SIZE_BOUNDS,
+  PHONE_SIZE_PRESETS,
+  resolveDeviceSize,
+} from "../proto-kit/device-settings/types";
 import type {
   CutoutPosition,
   CutoutType,
+  DeviceSettings,
+  PhoneSizePreset,
   PillSize,
   PunchSize,
 } from "../proto-kit/device-settings/types";
@@ -44,11 +51,16 @@ const PUNCH_SIZES: { id: PunchSize; label: string; hint: string }[] = [
   { id: "large", label: "Large", hint: "A slightly bigger dot" },
 ];
 
+const SIZES: PhoneSizePreset[] = ["compact", "standard", "large"];
+
 export function SettingsPanel() {
   const settings = useDeviceSettings();
   const [saved, setSaved] = useState(false);
+  const [draftW, setDraftW] = useState("");
+  const [draftH, setDraftH] = useState("");
+  const size = resolveDeviceSize(settings);
 
-  function update(next: Partial<typeof settings>) {
+  function update(next: Partial<DeviceSettings>) {
     saveDeviceSettings(next);
     setSaved(true);
     window.setTimeout(() => setSaved(false), 1400);
@@ -87,7 +99,7 @@ export function SettingsPanel() {
         <section className="settings__head">
           <h1 className="settings__title">Device settings</h1>
           <p className="settings__sub">
-            Configure the phone chrome used by <b>every prototype</b>: the camera
+            Configure the phone used by <b>every prototype</b>: its size, the camera
             cutout, its position, and the clock. Changes save instantly and apply
             when you open any prototype.
           </p>
@@ -101,6 +113,7 @@ export function SettingsPanel() {
               data-cutout={settings.cutout}
               data-cutout-pos={settings.position}
               data-pill-size={settings.pillSize}
+              style={{ aspectRatio: `${size.w} / ${size.h}` }}
             >
               <div className="sp-statusbar">
                 <span className="sp-time">9:41</span>
@@ -139,6 +152,88 @@ export function SettingsPanel() {
 
           {/* ---- Controls ---- */}
           <section className="settings__controls">
+            <fieldset className="settings__group">
+              <legend>Device size</legend>
+              {SIZES.map((id) => {
+                const p = PHONE_SIZE_PRESETS[id];
+                return (
+                  <label key={id} className={`settings__opt ${settings.size === id ? "on" : ""}`}>
+                    <input
+                      type="radio"
+                      name="size"
+                      checked={settings.size === id}
+                      onChange={() => update({ size: id })}
+                    />
+                    <span className="settings__opt-dot" aria-hidden="true" />
+                    <span className="settings__opt-text">
+                      <span className="settings__opt-label">{p.label}</span>
+                      <span className="settings__opt-hint">{p.hint}</span>
+                    </span>
+                  </label>
+                );
+              })}
+              <label className={`settings__opt ${settings.size === "custom" ? "on" : ""}`}>
+                <input
+                  type="radio"
+                  name="size"
+                  checked={settings.size === "custom"}
+                  onChange={() =>
+                    update({
+                      size: "custom",
+                      customW: settings.customW ?? size.w,
+                      customH: settings.customH ?? size.h,
+                    })
+                  }
+                />
+                <span className="settings__opt-dot" aria-hidden="true" />
+                <span className="settings__opt-text">
+                  <span className="settings__opt-label">Custom</span>
+                  <span className="settings__opt-hint">
+                    Your own width × height ({CUSTOM_SIZE_BOUNDS.minW}-{CUSTOM_SIZE_BOUNDS.maxW} × {CUSTOM_SIZE_BOUNDS.minH}-{CUSTOM_SIZE_BOUNDS.maxH}px)
+                  </span>
+                </span>
+              </label>
+              {settings.size === "custom" && (
+                <div className="settings__sizefields">
+                  <label>
+                    <span>Width</span>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={CUSTOM_SIZE_BOUNDS.minW}
+                      max={CUSTOM_SIZE_BOUNDS.maxW}
+                      value={draftW || String(size.w)}
+                      onChange={(e) => setDraftW(e.target.value)}
+                      onBlur={() => {
+                        update({ customW: Number(draftW || size.w) });
+                        setDraftW("");
+                      }}
+                    />
+                  </label>
+                  <span className="settings__sizecross" aria-hidden="true">x</span>
+                  <label>
+                    <span>Height</span>
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={CUSTOM_SIZE_BOUNDS.minH}
+                      max={CUSTOM_SIZE_BOUNDS.maxH}
+                      value={draftH || String(size.h)}
+                      onChange={(e) => setDraftH(e.target.value)}
+                      onBlur={() => {
+                        update({ customH: Number(draftH || size.h) });
+                        setDraftH("");
+                      }}
+                    />
+                  </label>
+                  <p className="settings__sizenote">
+                    Applies to every phone prototype instantly. On a short window the
+                    frame scales down to fit instead of clipping.
+                  </p>
+                </div>
+              )}
+            </fieldset>
+
             <fieldset className="settings__group">
               <legend>Camera cutout</legend>
               {CUTOUTS.map((c) => {

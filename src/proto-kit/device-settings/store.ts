@@ -18,17 +18,31 @@
 
 import { useEffect, useState } from "react";
 import {
+  CUSTOM_SIZE_BOUNDS,
   DEFAULT_DEVICE_SETTINGS,
   DEVICE_SETTINGS_KEY,
   type CutoutPosition,
   type CutoutType,
   type DeviceSettings,
+  type PhoneSizePreset,
 } from "./types";
 
 export type { DeviceSettings };
-export { DEVICE_SETTINGS_KEY, DEFAULT_DEVICE_SETTINGS };
+export { DEVICE_SETTINGS_KEY, DEFAULT_DEVICE_SETTINGS, CUSTOM_SIZE_BOUNDS };
+export {
+  PHONE_SIZE_PRESETS,
+  resolveDeviceSize,
+  type PhoneSizePreset,
+} from "./types";
 
 const CHANGE_EVENT = "proto-kit-device-settings";
+
+function clampInt(v: unknown, min: number, max: number): number | null {
+  if (v === null || v === undefined || v === "") return null;
+  const n = typeof v === "number" ? v : Number(v);
+  if (!Number.isFinite(n)) return null;
+  return Math.min(max, Math.max(min, Math.round(n)));
+}
 
 function sanitize(raw: unknown): DeviceSettings {
   const d = DEFAULT_DEVICE_SETTINGS;
@@ -39,11 +53,16 @@ function sanitize(raw: unknown): DeviceSettings {
     s.cutout === "pill" || s.cutout === "notch" ? s.cutout : d.cutout;
   // notch is a center-only chrome (a left notch would collide with the clock)
   if (position === "left" && cutout === "notch") cutout = "punch";
+  const size: DeviceSettings["size"] =
+    s.size === "compact" || s.size === "large" || s.size === "custom" ? s.size : d.size;
   return {
     cutout,
     position,
     pillSize: s.pillSize === "wide" ? "wide" : d.pillSize,
     punchSize: s.punchSize === "large" ? "large" : d.punchSize,
+    size,
+    customW: clampInt(s.customW, CUSTOM_SIZE_BOUNDS.minW, CUSTOM_SIZE_BOUNDS.maxW),
+    customH: clampInt(s.customH, CUSTOM_SIZE_BOUNDS.minH, CUSTOM_SIZE_BOUNDS.maxH),
   };
 }
 

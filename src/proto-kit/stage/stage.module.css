@@ -2,6 +2,7 @@
    On mobile (<=1024px) the side panels hide; on <=480px the device fills the viewport. */
 
 .stage {
+  /* a Large (932px) frame can exceed a short window — scroll instead of clip */
   min-height: 100dvh;
   display: flex;
   align-items: center;

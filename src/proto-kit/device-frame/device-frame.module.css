@@ -4,8 +4,10 @@
 
 .device {
   position: relative;
-  width: 390px;
-  height: 844px;
+  /* size comes from the user's device-size setting (see device-settings) —
+     DeviceFrame sets --device-w/--device-h on this element */
+  width: var(--device-w, 390px);
+  height: var(--device-h, 844px);
   background: var(--color-bg);
   border-radius: var(--device-radius, 32px);
   box-shadow:
