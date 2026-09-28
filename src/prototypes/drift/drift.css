@@ -343,7 +343,7 @@
 /* header pill floats; content scrolls UNDER it */
 .dr-head {
   position: absolute;
-  top: 40px;
+  top: 12px;
   left: 14px;
   right: 14px;
   height: 50px;
@@ -420,7 +420,7 @@
   inset: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 102px 16px 208px;
+  padding: 74px 16px 208px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -522,7 +522,8 @@
   justify-content: center;
   gap: 8px;
   height: 44px;
-  padding: 0 22px;
+  padding: 0 28px;
+  min-width: 148px;
   white-space: nowrap;
   border-radius: var(--r-pill);
   font-size: var(--fs-label);
@@ -537,7 +538,8 @@
   justify-content: center;
   gap: 7px;
   height: 44px;
-  padding: 0 18px;
+  padding: 0 24px;
+  min-width: 122px;
   white-space: nowrap;
   border-radius: var(--r-pill);
   font-size: var(--fs-label);
@@ -694,10 +696,8 @@
    ========================================================================= */
 .dr-cats {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-bottom: 2px;
 }
 .dr-cats::-webkit-scrollbar {
   display: none;
@@ -856,7 +856,8 @@
   justify-content: center;
   gap: 8px;
   height: 42px;
-  padding: 0 20px;
+  padding: 0 26px;
+  min-width: 142px;
   white-space: nowrap;
   border-radius: var(--r-pill);
   font-size: var(--fs-label);
@@ -986,7 +987,7 @@
    ========================================================================= */
 .dr-player {
   gap: 14px;
-  padding: 96px 16px 196px;
+  padding: 22px 16px 196px;
   display: flex;
   flex-direction: column;
 }
@@ -994,14 +995,13 @@
   position: relative;
   display: grid;
   place-items: center;
-  flex: 1 1 auto;
-  min-height: 0;
-  padding: 8px 0 4px;
+  padding: 10px 0 6px;
 }
-/* the cover scales down to whatever the column can spare — transport
-   never gets pushed below the fold (failure-mode #7) */
+/* fixed px — vh/vw reference the BROWSER viewport, not the device
+   frame, so they must never size in-device content */
 .dr-player__coverwrap > .dr-player__cover {
-  max-width: min(232px, 46vh);
+  max-width: 218px;
+  max-height: 218px;
 }
 .dr-player__glow {
   position: absolute;
@@ -1215,8 +1215,9 @@
   margin-right: 2px;
 }
 .dr-sleep__chip {
-  height: 30px;
-  padding: 0 13px;
+  height: 32px;
+  min-width: 52px;
+  padding: 0 16px;
   border-radius: var(--r-pill);
   font-size: var(--fs-label-s);
   font-weight: 700;
@@ -1484,19 +1485,17 @@
 }
 .dr-mini__line {
   position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 3px;
-  height: 2.5px;
-  border-radius: var(--r-pill);
-  background: rgba(255, 255, 255, 0.22);
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: rgba(255, 255, 255, 0.14);
   overflow: hidden;
 }
 .dr-mini__linefill {
   display: block;
   height: 100%;
-  border-radius: inherit;
-  background: var(--dr-ink-ghost);
+  background: var(--ep-accent, #ffb45c);
   transform-origin: left center;
   transition: transform 260ms linear;
 }

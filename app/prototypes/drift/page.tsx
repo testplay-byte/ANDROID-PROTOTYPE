@@ -211,7 +211,7 @@ function Shell() {
               <span className="dr-bg__grain" />
             </div>
 
-            <DrHeader view={view} onSearch={openSearch} />
+            {view !== "player" && <DrHeader view={view} onSearch={openSearch} />}
 
             <div className="dr-screens" key={view}>
               {view === "listen" && <ListenScreen onOpenShow={openShow} />}

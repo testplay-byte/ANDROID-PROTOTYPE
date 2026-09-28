@@ -62,7 +62,7 @@ export function DrMiniPlayer({ onOpen }: { onOpen: () => void }) {
   const played = Math.min(1, now.progress / duration);
 
   return (
-    <div className="dr-glass dr-mini" style={{ ["--dr-blur" as string]: "24px" } as CSSProperties} data-playing={now.playing || undefined}>
+    <div className="dr-glass dr-mini" style={{ ["--dr-blur" as string]: "24px", ["--ep-accent" as string]: show.accent } as CSSProperties} data-playing={now.playing || undefined}>
       <button className="dr-mini__body" onClick={onOpen} type="button" aria-label="Open player">
         <CoverArt show={show} size={40} minimal />
         <span className="dr-mini__meta">

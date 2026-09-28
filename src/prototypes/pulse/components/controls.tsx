@@ -29,7 +29,7 @@ export function CarbonSwitch({
     >
       <span className="plu-switch__thumb">
         {checked ? (
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary-fg)" strokeWidth="3" strokeLinecap="square" aria-hidden="true">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="3" strokeLinecap="square" aria-hidden="true">
             <path d="m4 12 6 6L20 6" />
           </svg>
         ) : null}

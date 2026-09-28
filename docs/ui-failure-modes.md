@@ -131,6 +131,51 @@ check track-on-surface contrast, not just text.
 A visible search button (or any control) that does nothing. If it renders as
 interactive, it must be wired — or it must not render.
 
+
+## 16. vh/vw inside the device frame
+
+`vh`/`vw` reference the **browser viewport**, not the mock device — so
+`max-width: 46vh` on content inside a 390×844 frame resolves against a
+~900px browser window and blows the layout into overlaps. Size in-device
+content in px (or % of the device container). Caught when the Drift
+player's cover sized itself off the real viewport.
+
+## 17. Floating chrome clearance
+
+A floating header/pill positioned below the status bar must sit ~12px
+under it (the in-app root starts *below* the status bar, so `top: 12px`,
+never 40px+), and scroll content must pad to `top + height + gap`. If a
+screen is a focus mode (player, breathe), hide the chrome entirely rather
+than pushing content down. Also: never let a decorative scrim/pseudo-element
+paint over sibling content — a `::after` with `inset: 0` will cover whatever
+follows it in paint order.
+
+## 18. Toggle states need per-state, per-theme contrast
+
+A switch isn't "done" when the thumb moves. Check all four combinations —
+on/off × light/dark — against the surface the control sits on: OFF track on
+light cards, ON track on dark cards, thumb against track in both. Give the
+ON track a saturated fill plus an outer ring (`box-shadow: 0 0 0 2px
+var(--color-bg)`) so it separates from any background, and make any check
+icon contrast with the thumb (dark check on white thumb — not
+`--color-primary-fg` on itself).
+
+## 19. Segmented controls must read as N distinct choices
+
+A connected strip where cells share one border and only the fill changes
+reads as "a single button with a colored end." Use separated cells: gap +
+individual borders per option, uppercase labels, min-width per cell sized
+to its longest label. (Carbon/enterprise styles may keep connected strips —
+but then the active cell needs strong fill + divider contrast.)
+
+## 20. Wrap-prone UI copy gets reserved space
+
+Header rows like `Title … flag-phrase` break mid-phrase when the title is
+long. Give the head `flex-wrap: wrap` and the flag `margin-left: auto;
+white-space: nowrap`, so the phrase drops to its own full line instead of
+splitting ("…more this / week"). Same discipline as failure-mode #2,
+applied to inline metadata.
+
 ## Self-review checklist (run before you finish ANY prototype)
 
 1. Grep your stylesheet for fixed `width` on anything containing text — justify each one.
@@ -143,3 +188,7 @@ interactive, it must be wired — or it must not render.
 8. Number+unit pairs nowrap'd; table columns sized to widest value?
 9. Selection rings can't be clipped?
 10. ≥8px from any glyph to any corner?
+11. No vh/vw anywhere inside the device frame?
+12. Every switch: 4 states checked (on/off × light/dark) against its surface?
+13. Floating chrome 12px under the status bar; content padded to clear it?
+14. Segmented controls: distinct cells with per-cell borders?

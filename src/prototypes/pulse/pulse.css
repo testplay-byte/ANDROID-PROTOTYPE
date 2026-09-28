@@ -455,11 +455,12 @@ button {
 /* Carbon toggle switch: bordered track, square thumb slides 0→100% */
 .plu-switch {
   position: relative;
-  width: 48px;
-  height: 24px;
+  width: 50px;
+  height: 26px;
   flex: none;
-  border: 1.5px solid var(--color-text-muted);
-  background: var(--color-surface-3);
+  border: 1.5px solid var(--color-outline);
+  background: var(--color-surface-4);
+  box-shadow: 0 0 0 2px var(--color-bg);
   transition: background 120ms var(--ease-standard),
     border-color 120ms var(--ease-standard);
 }
@@ -469,18 +470,18 @@ button {
 }
 .plu-switch__thumb {
   position: absolute;
-  top: 3px;
-  left: 3px;
-  width: 16px;
-  height: 16px;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
   display: grid;
   place-items: center;
   background: var(--color-text);
   transition: left 120ms var(--ease-standard), background 120ms var(--ease-standard);
 }
 .plu-switch--on .plu-switch__thumb {
-  left: 27px;
-  background: var(--color-primary-fg);
+  left: 26px;
+  background: #ffffff;
 }
 .plu-switch:active .plu-switch__thumb {
   transform: scale(0.88);
@@ -489,23 +490,27 @@ button {
 /* segmented control — 1px bordered strip, active cell blue-filled */
 .plu-seg {
   display: inline-flex;
-  border: 1px solid var(--color-outline);
-  background: var(--color-bg);
+  gap: 6px;
+  background: none;
+  border: none;
 }
 .plu-seg__opt {
-  height: 36px;
-  padding: 0 15px;
-  min-width: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  min-width: 76px;
+  padding: 0 16px;
+  border: 1.5px solid var(--color-outline);
+  background: var(--color-surface-2);
   font-size: var(--fs-label-s);
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--color-text-muted);
-  border-right: 1px solid var(--color-outline);
   transition: background 110ms var(--ease-standard),
-    color 110ms var(--ease-standard);
-}
-.plu-seg__opt:last-child {
-  border-right: none;
+    color 110ms var(--ease-standard),
+    border-color 110ms var(--ease-standard);
 }
 .plu-seg__opt:hover {
   color: var(--color-text);
