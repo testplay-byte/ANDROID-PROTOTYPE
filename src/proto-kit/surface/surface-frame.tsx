@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import { SURFACE_PRESETS, type Surface } from "./types";
 import styles from "./surface-frame.module.css";
@@ -15,9 +14,10 @@ import styles from "./surface-frame.module.css";
  * looks like the same family.
  *
  * Sizing: defaults come from SURFACE_PRESETS; `width` / `height` (or
- * `orientation="landscape"` for tablet) override per prototype. Like the
- * phone frame, the window auto-fits the stage with `zoom` so a 1280px
- * desktop is fully visible on a laptop screen.
+ * `orientation="landscape"` for tablet) override per prototype. Unlike the
+ * phone frame (a fixed device that is scaled to fit), a desktop window
+ * SHRINKS to the stage — and because the window is a query container,
+ * `@container surface (max-width: …)` reflows the layout for real.
  *
  * There is NO status bar and NO bottom nav here by design: desktop
  * navigation is a sidebar, a rail or a top bar (<DesktopSidebar>,
@@ -70,36 +70,13 @@ export function SurfaceFrame({
     height ??
     (surface === "tablet" && orientation === "landscape" ? preset.w : preset.h);
 
-  // Auto-fit the stage (same trick as the phone frame): zoom, not transform,
-  // so the stage still lays out around the scaled window.
-  const [fit, setFit] = useState(1);
-  useEffect(() => {
-    const compute = () => {
-      if (window.innerWidth <= 480) {
-        setFit(1);
-        return;
-      }
-      const pad = 48;
-      setFit(Math.min(1, (window.innerHeight - pad) / h, (window.innerWidth - pad) / w));
-    };
-    compute();
-    window.addEventListener("resize", compute);
-    return () => window.removeEventListener("resize", compute);
-  }, [w, h]);
-
   return (
     <div
       className={`${styles.surface} surface`}
       data-surface={surface}
       data-style={style}
       data-theme={theme}
-      style={
-        {
-          "--surface-w": `${w}px`,
-          "--surface-h": `${h}px`,
-          ...(fit < 1 ? { zoom: fit } : {}),
-        } as CSSProperties
-      }
+      style={{ "--surface-w": `${w}px`, "--surface-h": `${h}px` } as CSSProperties}
     >
       {windowChrome && (
         <div className={styles.winbar} aria-hidden="true">

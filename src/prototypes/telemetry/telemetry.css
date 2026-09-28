@@ -1,0 +1,1801 @@
+/* =========================================================================
+   telemetry / telemetry.css — "Telemetry" infra & ops console (IBM Carbon).
+   =========================================================================
+   STYLE INDEX (keep in sync when a selector moves — same convention as
+   meridian.css and pulse.css):
+     1.  shell ............ .tel, .tel-main, .tel-view, .tel-split
+     2.  shared atoms ..... .tel-btn, .tel-iconbtn, .tel-chip, .tel-tag,
+                            .tel-sq, .tel-kbd, .tel-seg, .tel-stepper,
+                            .tel-switch, .tel-avatar, .tel-micro
+     3.  top bar tools .... .tel-cmd, .tel-readout, .tel-density
+     4.  fleet summary .... .tel-strip, .tel-strip__cell
+     5.  fleet table ...... .tel-toolbar, .tel-search, .tel-bulkbar,
+                            .tel-table, .tel-th, .tel-tablefoot
+     6.  fleet tiles ...... .tel-tiles, .tel-tile, .tel-uptime
+     7.  side panel ....... .tel-panel, .tel-facts, .tel-meter, .tel-timeline
+     8.  incidents ........ .tel-inc, .tel-inc__head, .tel-tl
+     9.  metrics .......... .tel-charts, .tel-chartcard, .tel-axis,
+                            .tel-ministat
+     10. settings ......... .tel-settings, .tel-setrow, .tel-shortcuts
+     11. overlays ......... .tel-palette, .tel-toast
+     12. motion + adaptivity
+   Every value below is a token — no hardcoded colors, no hex, no radius
+   (Carbon is 0px through --r-*), no shadows (--shadow-* is `none` in this
+   style). The design language arrives through `data-style` on the surface;
+   this file only adds prototype-scoped structure.
+   ========================================================================= */
+
+/* ---------- 1. shell ---------- */
+.tel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: "IBM Plex Sans", var(--font-inter, "Inter"), -apple-system,
+    BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-size: var(--fs-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* density: two CSS variables flip every row, tile and row in the app */
+.tel {
+  --tel-row-py: 11px;
+  --tel-tile-py: 10px;
+  --tel-card-py: 14px;
+}
+.tel[data-density="compact"] {
+  --tel-row-py: 5px;
+  --tel-tile-py: 7px;
+  --tel-card-py: 11px;
+}
+
+.tel :where(button) {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+.tel button:focus-visible,
+.tel input:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+.tel input[type="checkbox"] {
+  accent-color: var(--color-primary);
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  cursor: pointer;
+}
+.tel :where(input) {
+  font: inherit;
+}
+
+/* every figure that changes gets tabular numerals */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.tel-view {
+  padding: 16px 20px 26px;
+  min-height: 100%;
+}
+.tel-split {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+.tel-split > *:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ---------- 2. shared atoms ---------- */
+.tel-micro {
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+.tel-micro--muted {
+  color: var(--color-text-muted);
+}
+
+/* Carbon button: 32px, square, 1px border, blue only for the primary */
+.tel-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid var(--color-outline);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background var(--dur-1) var(--ease-standard),
+    border-color var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard);
+}
+.tel-btn:hover {
+  background: var(--color-surface-3);
+  border-color: var(--color-text-subtle);
+}
+.tel-btn--primary {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+.tel-btn--primary:hover {
+  background: color-mix(in srgb, var(--color-primary) 82%, var(--color-text));
+  border-color: color-mix(in srgb, var(--color-primary) 82%, var(--color-text));
+}
+.tel-btn--ghost {
+  background: transparent;
+  border-color: transparent;
+  color: var(--color-primary);
+}
+.tel-btn--ghost:hover {
+  background: var(--color-surface-2);
+  border-color: var(--color-outline);
+}
+.tel-btn--danger {
+  background: transparent;
+  border-color: var(--color-error);
+  color: var(--color-error);
+}
+.tel-btn--danger:hover {
+  background: var(--color-error);
+  color: var(--color-bg);
+}
+.tel-btn[disabled] {
+  opacity: 0.4;
+  cursor: default;
+}
+.tel-btn--sm {
+  height: 26px;
+  padding: 0 10px;
+  font-size: var(--fs-label-s);
+}
+
+.tel-iconbtn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border: 1px solid transparent;
+  color: var(--color-text-muted);
+  transition: background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard);
+}
+.tel-iconbtn:hover {
+  background: var(--color-surface-2);
+  border-color: var(--color-outline-variant);
+  color: var(--color-text);
+}
+.tel-dot {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 6px;
+  height: 6px;
+  background: var(--color-error);
+}
+
+/* status square — the atom of the whole console */
+.tel-sq {
+  width: 10px;
+  height: 10px;
+  flex: none;
+  border: 1px solid;
+}
+.tel-sq--sm {
+  width: 7px;
+  height: 7px;
+}
+.tel-sq--healthy {
+  background: var(--color-tertiary);
+  border-color: var(--color-tertiary);
+}
+.tel-sq--degraded {
+  background: var(--color-warn);
+  border-color: var(--color-warn);
+}
+.tel-sq--down {
+  background: var(--color-error);
+  border-color: var(--color-error);
+  animation: tel-blink 1.3s step-end infinite;
+}
+
+/* bordered uppercase tag */
+.tel-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  height: 20px;
+  padding: 0 7px;
+  border: 1px solid;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.tel-tag--red {
+  color: var(--color-error);
+  border-color: color-mix(in srgb, var(--color-error) 55%, transparent);
+}
+.tel-tag--amber {
+  color: var(--color-warn);
+  border-color: color-mix(in srgb, var(--color-warn) 55%, transparent);
+}
+.tel-tag--green {
+  color: var(--color-tertiary);
+  border-color: color-mix(in srgb, var(--color-tertiary) 55%, transparent);
+}
+.tel-tag--blue {
+  color: var(--color-primary);
+  border-color: color-mix(in srgb, var(--color-primary) 60%, transparent);
+}
+.tel-tag--gray {
+  color: var(--color-text-muted);
+  border-color: var(--color-outline-variant);
+}
+/* warn yellow is unreadable on white — mix it toward the text color so the
+   amber tag stays legible in the light theme without a hardcoded hex. */
+.surface[data-theme="light"] .tel-tag--amber {
+  color: color-mix(in srgb, var(--color-warn) 45%, var(--color-text));
+  border-color: color-mix(in srgb, var(--color-warn) 70%, var(--color-text));
+}
+
+.tel-kbd {
+  display: inline-block;
+  padding: 2px 6px;
+  border: 1px solid var(--color-outline);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: 10px;
+  font-weight: 600;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+/* filter chip */
+.tel-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 11px;
+  border: 1px solid var(--color-outline);
+  background: transparent;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard),
+    border-color var(--dur-1) var(--ease-standard);
+}
+.tel-chip:hover {
+  color: var(--color-text);
+  border-color: var(--color-text-subtle);
+}
+.tel-chip.is-on {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+.tel-chip.is-on .tel-chip__n {
+  color: var(--color-primary-fg);
+  opacity: 0.75;
+}
+.tel-chip__n {
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-subtle);
+}
+
+/* segmented control (range, theme, density) */
+.tel-seg {
+  display: inline-flex;
+}
+.tel-seg__btn {
+  min-width: 62px;
+  height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--color-outline);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard);
+}
+.tel-seg__btn + .tel-seg__btn {
+  border-left: none;
+}
+.tel-seg__btn:hover {
+  color: var(--color-text);
+  background: var(--color-surface-3);
+}
+.tel-seg__btn.is-on {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+/* stepper */
+.tel-stepper {
+  display: inline-flex;
+  align-items: stretch;
+  height: 30px;
+  border: 1px solid var(--color-outline);
+}
+.tel-stepper__btn {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  color: var(--color-text-muted);
+  transition: background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard);
+}
+.tel-stepper__btn:hover:not([disabled]) {
+  background: var(--color-surface-3);
+  color: var(--color-text);
+}
+.tel-stepper__btn[disabled] {
+  opacity: 0.35;
+  cursor: default;
+}
+.tel-stepper__val {
+  min-width: 68px;
+  display: grid;
+  place-items: center;
+  padding: 0 8px;
+  border-left: 1px solid var(--color-outline-variant);
+  border-right: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-1);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Carbon toggle — the OFF state must read in BOTH themes, so the track is a
+   bordered gray-40 layer with a visible light thumb and an explicit OFF
+   label, not just a missing fill. */
+.tel-switch {
+  position: relative;
+  width: 48px;
+  height: 24px;
+  flex: none;
+  border: 1px solid var(--color-outline);
+  background: var(--color-surface-4);
+  transition: background var(--dur-1) var(--ease-standard),
+    border-color var(--dur-1) var(--ease-standard);
+}
+.tel-switch.is-on {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.tel-switch__thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  background: var(--color-text);
+  transition: left var(--dur-1) var(--ease-standard),
+    background var(--dur-1) var(--ease-standard);
+}
+.tel-switch.is-on .tel-switch__thumb {
+  left: 26px;
+  background: var(--color-primary-fg);
+}
+.tel-switch__state {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  color: var(--color-text-subtle);
+}
+.tel-switch.is-on ~ .tel-switch__state {
+  color: var(--color-primary);
+}
+
+.tel-avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  flex: none;
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-3);
+  color: var(--color-text);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+.tel-avatar--sm {
+  width: 20px;
+  height: 20px;
+  font-size: 9px;
+}
+
+/* bordered section card */
+.tel-card {
+  padding: var(--tel-card-py) 16px;
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-1);
+}
+.tel-card__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+.tel-card__head h2 {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+.tel-card__head p {
+  margin: 2px 0 0;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+}
+.tel-card__meta {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+  font-variant-numeric: tabular-nums;
+}
+.tel-empty {
+  padding: 22px 14px;
+  border: 1px dashed var(--color-outline-variant);
+  text-align: center;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label);
+}
+.tel-link {
+  color: var(--color-primary);
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+}
+.tel-link:hover {
+  text-decoration: underline;
+}
+
+/* ---------- 3. top bar tools ---------- */
+.tel-cmd {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--color-outline);
+  background: var(--color-surface-2);
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label);
+  white-space: nowrap;
+  transition: border-color var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard);
+}
+.tel-cmd:hover {
+  border-color: var(--color-text-subtle);
+  color: var(--color-text);
+}
+/* the command field grows into the flexible gap of the top bar */
+.tel-cmd--wide {
+  flex: 1 1 240px;
+  min-width: 190px;
+  max-width: 420px;
+  justify-content: flex-start;
+}
+.tel-cmd--wide span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: left;
+}
+
+.tel-readout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 0 2px;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+}
+.tel-readout b {
+  color: var(--color-text);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.tel-readout__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.tel-density {
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--color-outline);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background var(--dur-1) var(--ease-standard),
+    color var(--dur-1) var(--ease-standard);
+}
+.tel-density:hover {
+  color: var(--color-text);
+  background: var(--color-surface-3);
+}
+
+/* ---------- 4. fleet summary strip ---------- */
+.tel-strip {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-1);
+  margin-bottom: 14px;
+}
+.tel-strip__cell {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 9px 14px;
+  border-right: 1px solid var(--color-outline-variant);
+  min-width: 0;
+}
+.tel-strip__cell:last-child {
+  border-right: none;
+}
+.tel-strip__num {
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.tel-strip__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.tel-strip__text b {
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+.tel-strip__text span {
+  font-size: 10px;
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tel-strip__cell[data-tone="bad"] .tel-strip__num {
+  color: var(--color-error);
+}
+.tel-strip__cell[data-tone="warn"] .tel-strip__num {
+  color: var(--color-warn);
+}
+.surface[data-theme="light"] .tel-strip__cell[data-tone="warn"] .tel-strip__num {
+  color: color-mix(in srgb, var(--color-warn) 45%, var(--color-text));
+}
+.tel-strip__cell[data-tone="ok"] .tel-strip__num {
+  color: var(--color-tertiary);
+}
+
+/* ---------- 5. fleet table ---------- */
+.tel-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+.tel-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 260px;
+  min-width: 200px;
+  max-width: 380px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--color-outline);
+  background: var(--color-surface-2);
+  color: var(--color-text-subtle);
+}
+.tel-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  outline: none;
+  color: var(--color-text);
+  font-size: var(--fs-label);
+}
+.tel-search input::placeholder {
+  color: var(--color-text-subtle);
+}
+.tel-toolbar__chips {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.tel-toolbar__count {
+  margin-left: auto;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.tel-bulkbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 7px 12px;
+  margin-bottom: 8px;
+  border-left: 3px solid var(--color-primary);
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  font-size: var(--fs-label);
+}
+.tel-bulkbar b {
+  font-variant-numeric: tabular-nums;
+}
+.tel-bulkbar__sep {
+  flex: 1;
+}
+.tel-bulkbar button {
+  border-bottom: 1px solid currentColor;
+  color: inherit;
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.tel-bulkbar button:hover {
+  background: color-mix(in srgb, var(--color-on-primary-container) 16%, transparent);
+}
+.tel-bulkbar__clear {
+  opacity: 0.8;
+}
+
+.tel-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  border-top: 1px solid var(--color-outline-variant);
+}
+.tel-table col.tel-c-check {
+  width: 34px;
+}
+.tel-table col.tel-c-tier {
+  width: 74px;
+}
+.tel-table col.tel-c-state {
+  width: 96px;
+}
+.tel-table col.tel-c-num {
+  width: 68px;
+}
+.tel-table col.tel-c-up {
+  width: 80px;
+}
+.tel-table col.tel-c-load {
+  width: 76px;
+}
+.tel-table th {
+  padding: 0 8px 7px;
+  text-align: left;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+  border-bottom: 1px solid var(--color-outline);
+  white-space: nowrap;
+  overflow: hidden;
+}
+.tel-table th.is-num {
+  text-align: right;
+}
+.tel-th {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 100%;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  color: inherit;
+}
+.tel-th.is-num {
+  margin-left: auto;
+}
+.tel-th:hover {
+  color: var(--color-text);
+}
+.tel-th.is-sorted {
+  color: var(--color-primary);
+}
+.tel-sort {
+  display: inline-grid;
+  place-items: center;
+  opacity: 0;
+  color: var(--color-primary);
+  flex: none;
+  rotate: 0deg;
+  transition: rotate var(--dur-1) var(--ease-standard);
+}
+.tel-th.is-sorted .tel-sort {
+  opacity: 1;
+}
+.tel-th.is-sorted[data-dir="desc"] .tel-sort {
+  rotate: 180deg;
+}
+.tel-table td {
+  padding: var(--tel-row-py) 8px;
+  border-bottom: 1px solid var(--color-outline-variant);
+  font-size: var(--fs-label);
+  vertical-align: middle;
+  overflow: hidden;
+}
+.tel-table td.is-num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.tel-table tbody tr {
+  cursor: pointer;
+  transition: background var(--dur-1) var(--ease-standard);
+}
+.tel-table tbody tr:hover {
+  background: var(--color-surface-2);
+}
+.tel-table tbody tr[data-selected] {
+  background: var(--color-primary-container);
+}
+.tel-table tbody tr[data-selected] .tel-td__sub {
+  color: var(--color-on-primary-container);
+  opacity: 0.8;
+}
+.tel-table tbody tr[data-checked] {
+  box-shadow: inset 3px 0 0 var(--color-primary);
+}
+.tel-td__name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.tel-td__name b {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tel-td__sub {
+  font-size: 10px;
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tel-td__who {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+.tel-td__who span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tel-table__empty {
+  padding: 26px 10px;
+  text-align: center;
+  color: var(--color-text-subtle);
+}
+.tel-tablefoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 9px;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+  font-variant-numeric: tabular-nums;
+}
+.tel-tablefoot span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+/* ---------- 6. fleet tiles ---------- */
+.tel-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(148px, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.tel-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: var(--tel-tile-py) 10px;
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-1);
+  text-align: left;
+  min-width: 0;
+  transition: background var(--dur-1) var(--ease-standard),
+    border-color var(--dur-1) var(--ease-standard);
+}
+.tel-tile:hover {
+  background: var(--color-surface-2);
+  border-color: var(--color-outline);
+}
+.tel-tile[data-selected] {
+  border-color: var(--color-primary);
+  background: var(--color-primary-container);
+}
+.tel-tile[data-state="degraded"] {
+  border-color: color-mix(in srgb, var(--color-warn) 50%, var(--color-outline-variant));
+}
+.tel-tile[data-state="down"] {
+  border-color: color-mix(in srgb, var(--color-error) 55%, var(--color-outline-variant));
+}
+.tel-tile__top {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+.tel-tile__name {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+.tel-tile__meta {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+  min-width: 0;
+}
+.tel-tile__region {
+  font-size: 10px;
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tel-tile__pct {
+  font-size: 10px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+/* 30-day uptime bar strip — 30 hairline columns, no radius */
+.tel-uptime {
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+  height: 16px;
+}
+.tel-uptime i {
+  flex: 1;
+  min-width: 0;
+  background: var(--color-tertiary);
+  opacity: 0.32;
+}
+.tel-uptime i[data-dip="1"] {
+  opacity: 0.72;
+}
+.tel-uptime i[data-dip="2"] {
+  opacity: 1;
+  background: var(--color-warn);
+}
+.tel-uptime i[data-dip="3"] {
+  opacity: 1;
+  background: var(--color-error);
+}
+
+/* ---------- 7. side panel ---------- */
+.tel-panel {
+  flex: none;
+  width: 316px;
+  position: sticky;
+  top: 0;
+  max-height: 100%;
+  overflow-y: auto;
+  scrollbar-width: none;
+  padding: 14px 16px 18px;
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-1);
+}
+.tel-panel::-webkit-scrollbar {
+  display: none;
+}
+.tel-panel__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+.tel-panel__head h2 {
+  margin: 0;
+  font-size: var(--fs-body-l);
+  font-weight: 600;
+  line-height: 1.2;
+}
+.tel-panel__head p {
+  margin: 3px 0 0;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+}
+.tel-panel__section {
+  margin: 16px 0 8px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+.tel-panel__spark {
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-bg);
+  padding: 4px 2px;
+}
+.tel-panel__spark svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.tel-panel__uptime {
+  padding: 2px 0 8px;
+}
+.tel-panel__uptime .tel-uptime {
+  height: 20px;
+}
+.tel-panel__note {
+  margin: 0;
+  font-size: var(--fs-label-s);
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+.tel-panel__note--tight {
+  margin-top: 6px;
+  color: var(--color-text-subtle);
+}
+.tel-panel__note b {
+  color: var(--color-text);
+  font-weight: 600;
+}
+.tel-panel__incs {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.tel-panel__incs li {
+  padding: 8px 10px 9px;
+  border: 1px solid var(--color-outline-variant);
+  border-left: 3px solid var(--color-error);
+  background: var(--color-surface-2);
+}
+.tel-panel__incs li[data-state="acknowledged"] {
+  border-left-color: var(--color-primary);
+}
+.tel-panel__incs li[data-state="resolved"] {
+  border-left-color: var(--color-tertiary);
+  opacity: 0.72;
+}
+.tel-panel__inc-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
+.tel-panel__inc-head b {
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+}
+.tel-panel__inc-age {
+  margin-left: auto;
+  font-size: 10px;
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+}
+.tel-panel__incs p {
+  margin: 0;
+  font-size: var(--fs-label-s);
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+.tel-panel__inc-actions {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+.tel-panel__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+.tel-facts {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+.tel-facts > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+.tel-facts > div:last-child {
+  border-bottom: none;
+}
+.tel-facts dt {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.tel-facts dd {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.tel-meter {
+  width: 100%;
+  height: 6px;
+  background: var(--color-surface-3);
+  overflow: hidden;
+}
+.tel-meter i {
+  display: block;
+  height: 100%;
+  background: var(--color-tertiary);
+}
+.tel-meter[data-state="degraded"] i {
+  background: var(--color-warn);
+}
+.tel-meter[data-state="down"] i {
+  background: var(--color-error);
+}
+
+/* event timeline (incident expansion + panel) */
+.tel-timeline {
+  list-style: none;
+  margin: 0;
+  padding: 0 0 0 11px;
+  border-left: 1px solid var(--color-outline-variant);
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.tel-tl {
+  position: relative;
+  padding: 1px 0 1px 11px;
+  font-size: var(--fs-label-s);
+  line-height: 1.45;
+  color: var(--color-text-muted);
+}
+.tel-tl::before {
+  content: "";
+  position: absolute;
+  left: -4px;
+  top: 6px;
+  width: 7px;
+  height: 7px;
+  background: var(--color-surface-4);
+  border: 1px solid var(--color-outline-variant);
+}
+.tel-tl:first-child::before {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.tel-tl[data-pending]::before {
+  background: var(--color-bg);
+  border-color: var(--color-outline);
+  animation: tel-blink 1.3s step-end infinite;
+}
+.tel-tl__time {
+  display: inline-block;
+  min-width: 62px;
+  margin-right: 8px;
+  color: var(--color-text-subtle);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- 8. incidents ---------- */
+.tel-inc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.tel-inc {
+  border: 1px solid var(--color-outline-variant);
+  border-left: 3px solid var(--color-outline-variant);
+  background: var(--color-surface-1);
+  transition: border-color var(--dur-1) var(--ease-standard);
+}
+.tel-inc[data-state="open"] {
+  border-left-color: var(--color-error);
+}
+.tel-inc[data-state="acknowledged"] {
+  border-left-color: var(--color-primary);
+}
+.tel-inc[data-state="resolved"] {
+  border-left-color: var(--color-tertiary);
+  opacity: 0.72;
+}
+.tel-inc:hover {
+  opacity: 1;
+}
+.tel-inc__head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: var(--tel-row-py) 12px;
+  text-align: left;
+  transition: background var(--dur-1) var(--ease-standard);
+}
+.tel-inc__head:hover {
+  background: var(--color-surface-2);
+}
+.tel-inc__main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.tel-inc__title {
+  font-size: var(--fs-body-s);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tel-inc__meta {
+  font-size: 10px;
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-variant-numeric: tabular-nums;
+}
+.tel-inc__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: none;
+}
+.tel-inc__summary {
+  margin: 0 0 10px;
+  font-size: var(--fs-label-s);
+  line-height: 1.55;
+  color: var(--color-text-muted);
+}
+.tel-inc__age {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  min-width: 96px;
+  text-align: right;
+}
+.tel-inc__chev {
+  display: grid;
+  place-items: center;
+  color: var(--color-text-subtle);
+  transition: transform var(--dur-1) var(--ease-standard);
+}
+.tel-inc__chev.is-up {
+  transform: rotate(180deg);
+}
+.tel-inc__panel {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--dur-2) var(--ease-standard);
+}
+.tel-inc.is-open .tel-inc__panel {
+  grid-template-rows: 1fr;
+}
+.tel-inc__panel-inner {
+  min-height: 0;
+  overflow: hidden;
+}
+.tel-inc__body {
+  display: flex;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 2px 12px 12px 16px;
+}
+.tel-inc__body > *:first-child {
+  flex: 1;
+  min-width: 0;
+}
+.tel-inc__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  flex: none;
+  width: 188px;
+  justify-content: flex-end;
+}
+
+/* on-call roster rail */
+.tel-incbar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.tel-incbar > .tel-btn {
+  margin-left: auto;
+}
+.tel-rostercard {
+  flex: none;
+  width: 316px;
+  padding: 4px 16px 16px;
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-1);
+}
+.tel-rostercard .tel-panel__section {
+  margin-top: 12px;
+}
+.tel-roster {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.tel-roster li {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+.tel-roster li:last-child {
+  border-bottom: none;
+}
+.tel-roster__who {
+  flex: 1;
+  min-width: 0;
+}
+.tel-roster__who b {
+  display: block;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tel-roster__who span {
+  font-size: 10px;
+  color: var(--color-text-subtle);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+.tel-roster__pages {
+  flex: none;
+  font-size: 10px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+
+/* ---------- 9. metrics ---------- */
+.tel-charts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.tel-chartcard {
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-surface-1);
+  padding: var(--tel-card-py) 16px 16px;
+  min-width: 0;
+}
+.tel-chartcard--wide {
+  grid-column: 1 / -1;
+}
+.tel-chartcard__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+.tel-chartcard__head h2 {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 600;
+}
+.tel-chartcard__head p {
+  margin: 2px 0 0;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+}
+.tel-chartcard__now {
+  text-align: right;
+  flex: none;
+}
+.tel-chartcard__now b {
+  display: block;
+  font-size: var(--fs-h3);
+  font-weight: 600;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+.tel-chartcard__now span {
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+.tel-chartcard__plot {
+  border: 1px solid var(--color-outline-variant);
+  background: var(--color-bg);
+  padding: 4px 2px 2px;
+  animation: tel-rescale var(--dur-2) var(--ease-standard) both;
+}
+.tel-chart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.tel-axis {
+  font-family: inherit;
+  font-size: 9px;
+  fill: var(--color-text-subtle);
+  font-variant-numeric: tabular-nums;
+}
+.tel-ministats {
+  display: flex;
+  border: 1px solid var(--color-outline-variant);
+  border-top: none;
+}
+.tel-ministat {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 10px;
+  border-right: 1px solid var(--color-outline-variant);
+}
+.tel-ministat:last-child {
+  border-right: none;
+}
+.tel-ministat b {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+.tel-ministat span {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.tel-ministat[data-peak] span {
+  color: var(--color-primary);
+}
+.tel-metricbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+.tel-metricbar__note {
+  margin: 0;
+  margin-left: auto;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+}
+.tel-foot-note {
+  margin: 12px 0 0;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+}
+.tel-blue {
+  color: var(--color-primary);
+  font-weight: 600;
+}
+
+/* ---------- 10. settings ---------- */
+.tel-settings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+.tel-field {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.tel-field + .tel-field {
+  margin-top: 16px;
+}
+.tel-field > label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-subtle);
+}
+.tel-field__hint {
+  margin: 0;
+  font-size: var(--fs-label-s);
+  line-height: 1.5;
+  color: var(--color-text-subtle);
+}
+.tel-field__hint--gap {
+  margin-top: 12px;
+}
+.tel-field__hint .tel-kbd {
+  margin: 0 4px;
+}
+.tel-setgroup {
+  display: flex;
+  flex-direction: column;
+}
+.tel-setrow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+.tel-setgroup .tel-setrow:last-child {
+  border-bottom: none;
+}
+.tel-setrow__text {
+  min-width: 0;
+}
+.tel-setrow__text b {
+  display: block;
+  font-size: var(--fs-label);
+  font-weight: 600;
+}
+.tel-setrow__text span {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+}
+.tel-setrow__ctrl {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  flex: none;
+}
+.tel-shortcuts {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+.tel-shortcuts > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--color-outline-variant);
+}
+.tel-shortcuts > div:last-child {
+  border-bottom: none;
+}
+.tel-shortcuts dt {
+  flex: none;
+  width: 118px;
+}
+.tel-shortcuts dd {
+  margin: 0;
+  font-size: var(--fs-label);
+  color: var(--color-text-muted);
+}
+.tel-resetrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+/* ---------- 11. overlays ---------- */
+.tel-palette {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  /* px, not vh: the window is a fixed 1280×800 surface that only gets
+     zoomed, so a viewport unit would not track the surface. */
+  padding-top: 72px;
+  background: color-mix(in srgb, var(--color-bg) 62%, transparent);
+}
+.tel-palette__box {
+  width: min(560px, 86%);
+  height: fit-content;
+  border: 1px solid var(--color-outline);
+  background: var(--color-surface-2);
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+}
+.tel-palette__input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--color-outline-variant);
+  color: var(--color-text-subtle);
+}
+.tel-palette__input input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  outline: none;
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--fs-body);
+}
+.tel-palette__list {
+  list-style: none;
+  margin: 0;
+  padding: 5px;
+  max-height: 320px;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+.tel-palette__list::-webkit-scrollbar {
+  display: none;
+}
+.tel-palette__list button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  text-align: left;
+  color: var(--color-text);
+  font-size: var(--fs-label);
+}
+.tel-palette__list button.is-cursor {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+.tel-palette__list button b {
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.tel-palette__kind {
+  flex: none;
+  padding: 1px 6px;
+  border: 1px solid var(--color-outline-variant);
+  color: var(--color-text-subtle);
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.tel-palette__hint {
+  margin-left: auto;
+  flex: none;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+}
+.tel-palette__empty {
+  padding: 14px;
+  font-size: var(--fs-label);
+  color: var(--color-text-subtle);
+}
+
+.tel-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 20px;
+  translate: -50% 0;
+  z-index: 45;
+  max-width: 70%;
+  padding: 8px 16px;
+  border: 1px solid var(--color-outline);
+  border-left: 3px solid var(--color-primary);
+  background: var(--color-surface-3);
+  color: var(--color-text);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  animation: tel-rise var(--dur-2) var(--ease-standard) both;
+}
+.tel-toast[data-kind="success"] {
+  border-left-color: var(--color-tertiary);
+}
+.tel-toast[data-kind="warning"] {
+  border-left-color: var(--color-warn);
+}
+
+/* ---------- 12. motion + adaptivity ---------- */
+@keyframes tel-blink {
+  50% {
+    opacity: 0.4;
+  }
+}
+@keyframes tel-rise {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes tel-rescale {
+  from {
+    opacity: 0.3;
+    transform: scaleY(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tel *,
+  .tel {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* The window can be resized freely: grids collapse, the side panel stacks
+   under the data, and low-priority table columns drop out. */
+@container surface (max-width: 1120px) {
+  .tel-charts {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .tel-strip {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  .tel-strip__cell:nth-child(3) {
+    border-right: none;
+  }
+  .tel-strip__cell:nth-child(n + 4) {
+    border-top: 1px solid var(--color-outline-variant);
+  }
+}
+@container surface (max-width: 1000px) {
+  .tel-split {
+    flex-direction: column;
+  }
+  .tel-panel {
+    position: static;
+    width: 100%;
+  }
+  .tel-settings {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .tel-cmd--wide {
+    max-width: none;
+  }
+}
+@container surface (max-width: 860px) {
+  /* drop the load sparkline + tier column — the table stays readable */
+  .tel-table col.tel-c-load,
+  .tel-table th.tel-col-load,
+  .tel-table td.tel-col-load {
+    display: none;
+  }
+  .tel-inc__body {
+    flex-direction: column;
+    gap: 12px;
+  }
+  .tel-inc__actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+}
+@container surface (max-width: 760px) {
+  .tel-view {
+    padding: 14px 14px 24px;
+  }
+  .tel-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .tel-strip__cell:nth-child(3) {
+    border-right: 1px solid var(--color-outline-variant);
+  }
+  .tel-strip__cell:nth-child(2n) {
+    border-right: none;
+  }
+  .tel-strip__cell:nth-child(n + 3) {
+    border-top: 1px solid var(--color-outline-variant);
+  }
+  .tel-table col.tel-c-tier,
+  .tel-table th.tel-col-tier,
+  .tel-table td.tel-col-tier {
+    display: none;
+  }
+  .tel-inc__age {
+    display: none;
+  }
+  .tel-toolbar__count {
+    margin-left: 0;
+  }
+}

@@ -7,8 +7,14 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  width: var(--surface-w, 1280px);
-  height: var(--surface-h, 800px);
+  /* A desktop window RESIZES: it shrinks to the stage instead of being
+     scaled like a phone frame. Its own width is also the query container,
+     so `@container surface (max-width: …)` reflows the layout for real. */
+  width: min(var(--surface-w, 1280px), 100%);
+  height: min(var(--surface-h, 800px), calc(100dvh - 48px));
+  max-width: 100%;
+  container-type: inline-size;
+  container-name: surface;
   overflow: hidden;
   border-radius: var(--device-radius, 18px);
   background: var(--color-bg);

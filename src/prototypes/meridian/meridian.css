@@ -695,17 +695,17 @@
 }
 
 /* ---------- adaptivity: the window can be resized freely ---------- */
-@media (max-width: 1120px) {
+@container surface (max-width: 1120px) {
   .mrd-band { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .mrd-kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
-@media (max-width: 1000px) {
+@container surface (max-width: 1000px) {
   .mrd-view--split { flex-direction: column; }
   .mrd-inspector { position: static; width: 100%; }
   .mrd-board { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .mrd-settings__grid { grid-template-columns: 1fr; }
 }
-@media (max-width: 720px) {
+@container surface (max-width: 720px) {
   .mrd-view { padding: 16px 14px 24px; }
   .mrd-band { grid-template-columns: 1fr; }
   .mrd-table td:nth-child(4), .mrd-table th:nth-child(4),
