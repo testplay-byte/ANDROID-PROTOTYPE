@@ -105,7 +105,7 @@
   --orbA: #ffb45c; --orbB: #ff7a59; --orbC: #ffd9a0;
 }
 
-.dr button {
+.dr :where(button) {
   font: inherit;
   color: inherit;
   background: none;
@@ -697,7 +697,7 @@
 .dr-cats {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 .dr-cats::-webkit-scrollbar {
   display: none;
@@ -734,8 +734,9 @@
 
 .dr-cat {
   flex: none;
-  height: 36px;
-  padding: 0 17px;
+  height: 38px;
+  padding: 0 21px;
+  min-width: 76px;
   white-space: nowrap;
   border-radius: var(--r-pill);
   font-size: var(--fs-label);
@@ -1483,15 +1484,8 @@
 .dr-mini[data-playing] .dr-mini__play {
   background: #fff;
 }
-.dr-mini__line {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  height: 2px;
-  background: rgba(255, 255, 255, 0.14);
-  overflow: hidden;
-}
+/* mini-player progress line removed (user call) — the mini bar is
+   navigation, not a scrubber; progress lives on the player screen */
 .dr-mini__linefill {
   display: block;
   height: 100%;

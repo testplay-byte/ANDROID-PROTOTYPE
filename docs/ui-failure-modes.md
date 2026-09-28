@@ -176,6 +176,62 @@ white-space: nowrap`, so the phrase drops to its own full line instead of
 splitting ("…more this / week"). Same discipline as failure-mode #2,
 applied to inline metadata.
 
+## 21. Centered stage + overflowing device clips BOTH sides
+
+`.stage { justify-content: center }` is safe only while the device fits the
+viewport. One wide subtree (a long nowrap row, a fixed-width grid track)
+pushes the device's min-content width past the screen, and centering then
+clips the LEFT edge too — text loses its first characters on both sides
+(Still's intention line, Atlas tile headings, Pulse uptime all showed this).
+
+Fix (proto-kit, already applied — never undo it):
+- `stage.module.css` @≤480px: `.stage { justify-content: flex-start }` so
+  overflow can only clip the right, never the left.
+- `device-frame.module.css` @≤480px: `.device { min-width: 0; max-width: 100% }`
+  so a subtree's min-content can't widen the frame; the frame clips inside.
+
+Corollary: at mobile widths the device is the viewport. Verify every screen
+at ~390px, not just desktop — a centered 430px device in a 390px window is
+exactly this bug and is invisible on a wide monitor.
+
+## 22. Empty "add" slots need an affordance, not just less style
+
+An unfilled slot rendered as a tinted box with a small "Choose" label reads
+as disabled content, not a button. Empty add-slots should look like an
+action: dashed outline, a plus chip, primary-colored verb ("Add a recipe"),
+`box-shadow: none` so the inset doesn't read as a sunken display well.
+
+## 23. Sticky headers inside scrolling tiles
+
+`position: sticky` on a tile that lives INSIDE the scrolling screen pins a
+content block over the grid while everything else scrolls — it reads as a
+rendering glitch, not chrome. Only prototype-level top bars (outside the
+scroll container) may stick. Atlas's greeting tile was the offender; rule:
+nothing inside `.at-screen`/screen scroll containers gets sticky.
+
+## 24. Root-scope button resets silently zero class padding
+
+A reset like `.at button { padding: 0; ... }` has specificity (0,1,1) — it
+BEATS every single-class rule such as `.at-tile { padding: 14px }` (0,1,0).
+Result: every button, tile and chip in the prototype renders with no
+padding at all — text sits flush at the tile edge, "looks clipped on the
+left", chips read squished — while the CSS source looks perfectly correct.
+Atlas shipped like this for weeks; the flush-left tile rows users kept
+reporting were this bug.
+
+Rule: root resets MUST be zero-specificity — use `:where()`:
+
+```css
+.at :where(button) { font: inherit; color: inherit; background: none;
+  border: none; padding: 0; cursor: pointer; }
+```
+
+Applies to every prototype (`X :where(button)`), and to any reset that
+fights component classes (lists, headings, inputs — same trap). Never
+"fix" the victims by adding `!important` or doubling specificity; fix the
+reset. When a class rule's padding computes to 0 in devtools, check for a
+higher-specificity reset BEFORE touching the component rule.
+
 ## Self-review checklist (run before you finish ANY prototype)
 
 1. Grep your stylesheet for fixed `width` on anything containing text — justify each one.
@@ -192,3 +248,7 @@ applied to inline metadata.
 12. Every switch: 4 states checked (on/off × light/dark) against its surface?
 13. Floating chrome 12px under the status bar; content padded to clear it?
 14. Segmented controls: distinct cells with per-cell borders?
+15. Verified at ~390px viewport, not just desktop width?
+16. Any `position: sticky` inside a screen's scroll container? Remove it.
+17. Buttons with class padding: computed padding in devtools actually non-zero
+    (i.e. no root `X button` reset is beating it)?

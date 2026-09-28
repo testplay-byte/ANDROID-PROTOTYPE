@@ -144,7 +144,7 @@ button {
   font-variant-numeric: tabular-nums;
 }
 
-.hp button {
+.hp :where(button) {
   border: none;
   background: none;
   color: inherit;
@@ -279,6 +279,13 @@ button {
 }
 .hp-section__title svg {
   color: var(--color-primary);
+}
+/* long titles wrap into two balanced lines instead of squeezing the flag */
+.hp-section__title--wrap {
+  max-width: 9ch;
+  white-space: normal;
+  text-wrap: balance;
+  line-height: 1.15;
 }
 .hp-section__flag {
   display: inline-flex;
@@ -1807,7 +1814,7 @@ button {
   position: relative;
   width: 46px;
   height: 26px;
-  background: var(--color-surface-4);
+  background: color-mix(in srgb, var(--color-text) 26%, var(--color-surface-2));
   transition: background var(--dur-2) var(--ease-standard);
 }
 .hp-switch__knob {
@@ -1816,7 +1823,8 @@ button {
   left: 3px;
   width: 20px;
   height: 20px;
-  background: var(--color-surface-1);
+  background: #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   transition: transform var(--dur-2) var(--ease-emphasized-decel);
 }
 .hp-switch--on {

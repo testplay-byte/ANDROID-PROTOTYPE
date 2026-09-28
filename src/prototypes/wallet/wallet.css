@@ -84,7 +84,7 @@
   box-shadow: var(--glass-hi), 0 8px 32px rgba(0, 0, 0, 0.22);
 }
 
-.wl button {
+.wl :where(button) {
   font: inherit;
   color: inherit;
   background: none;

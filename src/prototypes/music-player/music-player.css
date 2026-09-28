@@ -23,7 +23,7 @@ button {
 }
 
 /* Bare-button reset — neumorphic buttons are shaped by shadows only. */
-.device button {
+.device :where(button) {
   background: none;
   border: none;
   padding: 0;

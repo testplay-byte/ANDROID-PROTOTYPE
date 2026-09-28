@@ -76,7 +76,10 @@ button {
   --wx-part: #ca8a04;
 }
 
-.at button {
+/* :where() keeps the reset at ZERO specificity so component classes
+   like .at-tile / .at-seg-b always win their padding back — a plain
+   ".at button" (0,1,1) silently zeroed every button's class padding. */
+.at :where(button) {
   font: inherit;
   color: inherit;
   background: none;
@@ -117,6 +120,11 @@ button {
 }
 .at-screen::-webkit-scrollbar {
   display: none;
+}
+/* the trip header is a single text line — exempt its row from the 96px
+   auto-row minimum so the greeting tile stays slim */
+.at-screen-trip {
+  grid-template-rows: minmax(0, auto);
 }
 
 @keyframes at-fade {
@@ -255,13 +263,9 @@ button.at-tile:active {
 .at-head-tile {
   grid-column: span 2;
   min-height: 0;
-  padding: 12px 14px;
-  position: sticky;
-  top: 0;
-  z-index: 6;
-  background: color-mix(in srgb, var(--color-surface-1) 78%, transparent);
-  backdrop-filter: blur(18px) saturate(1.4);
-  -webkit-backdrop-filter: blur(18px) saturate(1.4);
+  padding: 10px 16px;
+  justify-content: center; /* one greeting line, vertically centered in its row */
+  gap: 2px;
 }
 .at-head {
   display: flex;
@@ -993,8 +997,8 @@ button.at-tile:active {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  min-height: 44px;
-  padding: 10px 0;
+  min-height: 38px;
+  padding: 7px 0;
 }
 .at-tog-label {
   min-width: 0;

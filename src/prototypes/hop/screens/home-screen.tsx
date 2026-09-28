@@ -121,7 +121,7 @@ export function HomeScreen({ onOpenRestaurant, onGoTab }: HomeScreenProps) {
       {/* ---- back by demand ---- */}
       <section className="hp-section">
         <header className="hp-section__head">
-          <h2 className="hp-section__title">Back by demand</h2>
+          <h2 className="hp-section__title hp-section__title--wrap">Back by demand</h2>
           <span className="hp-section__flag">
             <FlameIcon size={13} /> re-ordered 40% more this week
           </span>

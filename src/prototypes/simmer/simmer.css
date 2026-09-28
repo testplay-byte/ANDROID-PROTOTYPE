@@ -144,7 +144,7 @@ button {
     color var(--dur-3) var(--ease-standard);
 }
 
-.sm button {
+.sm :where(button) {
   font: inherit;
   color: inherit;
   background: none;
@@ -285,6 +285,7 @@ button {
 
 /* ---------- 3. shared clay bits ---------- */
 .sm-chip {
+  flex: 0 0 auto;
   white-space: nowrap;
   display: inline-flex;
   align-items: center;
@@ -1222,8 +1223,12 @@ button {
   box-shadow: var(--shadow-inset);
 }
 .sm-slot--empty {
-  background: var(--color-surface-1);
-  box-shadow: var(--shadow-inset);
+  background: transparent;
+  box-shadow: none;
+  border: 1.5px dashed var(--color-outline);
+}
+.sm-slot--empty .sm-slot-txt b {
+  color: var(--color-primary);
 }
 .sm-slot-art {
   flex: none;
@@ -1378,7 +1383,11 @@ button {
   text-decoration-thickness: 2px;
 }
 .sm-line-qty {
-  font-size: var(--fs-label);
+  flex: none;
+  max-width: 40%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--fs-label-s);
   font-weight: 700;
   color: var(--color-text-muted);
   white-space: nowrap;

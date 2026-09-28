@@ -82,7 +82,7 @@ export function PlanScreen() {
                         </span>
                         <span className="sm-slot-txt">
                           <small>{SLOT_LABEL[slot]}</small>
-                          <b>Choose</b>
+                          <b>Add a recipe</b>
                         </span>
                       </>
                     )}

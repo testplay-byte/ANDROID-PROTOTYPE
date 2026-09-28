@@ -59,7 +59,6 @@ export function DrHeader({ view, onSearch }: { view: string; onSearch: () => voi
 
 export function DrMiniPlayer({ onOpen }: { onOpen: () => void }) {
   const { now, show, episode, duration, togglePlay } = useDrift();
-  const played = Math.min(1, now.progress / duration);
 
   return (
     <div className="dr-glass dr-mini" style={{ ["--dr-blur" as string]: "24px", ["--ep-accent" as string]: show.accent } as CSSProperties} data-playing={now.playing || undefined}>
@@ -78,9 +77,6 @@ export function DrMiniPlayer({ onOpen }: { onOpen: () => void }) {
       >
         {now.playing ? <PauseIcon size={17} /> : <PlayIcon size={17} />}
       </button>
-      <span className="dr-mini__line" aria-hidden="true">
-        <span className="dr-mini__linefill" style={{ transform: `scaleX(${played.toFixed(4)})` }} />
-      </span>
     </div>
   );
 }

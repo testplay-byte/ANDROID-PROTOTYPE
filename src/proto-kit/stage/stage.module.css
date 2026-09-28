@@ -124,5 +124,8 @@
 @media (max-width: 480px) {
   .stage {
     padding: 0;
+    /* safe centering: justify-content:center + an overflowing child clips
+       BOTH sides of the device — align start so it can only clip right */
+    justify-content: flex-start;
   }
 }

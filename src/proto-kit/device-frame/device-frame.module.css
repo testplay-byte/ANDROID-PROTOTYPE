@@ -31,6 +31,10 @@
     height: 100dvh;
     border-radius: 0;
     box-shadow: none;
+    /* a subtree's min-content width must never push the device past the
+       screen — overflow-hidden clips inside instead of center-shifting */
+    min-width: 0;
+    max-width: 100%;
   }
   /* nudge the status row down a touch so it clears the OS edge */
   .statusbar {

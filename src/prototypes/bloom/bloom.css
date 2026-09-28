@@ -87,7 +87,7 @@ button {
   --bl-thirst-parched: #b3261e;
 }
 
-.bl button {
+.bl :where(button) {
   font: inherit;
   color: inherit;
   background: none;

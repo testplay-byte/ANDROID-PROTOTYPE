@@ -146,7 +146,7 @@ button {
     color var(--dur-2) var(--ease-standard);
 }
 
-.no button {
+.no :where(button) {
   font: inherit;
   color: inherit;
   background: none;

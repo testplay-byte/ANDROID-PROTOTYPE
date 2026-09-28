@@ -28,7 +28,7 @@ button {
 }
 
 /* Bare-button reset — neumorphic controls are shaped by shadows only. */
-.device button {
+.device :where(button) {
   background: none;
   border: none;
   padding: 0;
@@ -638,7 +638,7 @@ button {
 }
 
 .st-finish {
-  margin-top: 14px;
+  margin-top: 26px;
   min-width: 132px;
   padding: 13px 28px;
   border-radius: var(--r-pill);

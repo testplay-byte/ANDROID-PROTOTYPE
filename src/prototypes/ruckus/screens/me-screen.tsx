@@ -57,14 +57,14 @@ export function MeScreen() {
           <div className="rk-row rk-row--btn">
             <span className="rk-row__main">
               <b className="rk-row__band">New gig alerts</b>
-              <span className="rk-row__meta">Ping when a band you follow books a date</span>
+              <span className="rk-row__meta"><span>Ping when a band you follow books a date</span></span>
             </span>
             <Switch on={prefs.alertsNewGigs} onChange={(v) => setPrefs({ alertsNewGigs: v })} label="New gig alerts" />
           </div>
           <div className="rk-row rk-row--btn">
             <span className="rk-row__main">
               <b className="rk-row__band">Sell-out alerts</b>
-              <span className="rk-row__meta">When a date you're watching sells out</span>
+              <span className="rk-row__meta"><span>When a date you're watching sells out</span></span>
             </span>
             <Switch on={prefs.alertsSellOut} onChange={(v) => setPrefs({ alertsSellOut: v })} label="Sell-out alerts" />
           </div>
@@ -74,7 +74,7 @@ export function MeScreen() {
           <div className="rk-row">
             <span className="rk-row__main">
               <b className="rk-row__band">Appearance</b>
-              <span className="rk-row__meta">Ink on paper or paper on ink</span>
+              <span className="rk-row__meta"><span>Ink on paper or paper on ink</span></span>
             </span>
             <div className="rk-seg" role="radiogroup" aria-label="Theme">
               {(["dark", "light"] as const).map((t) => (
