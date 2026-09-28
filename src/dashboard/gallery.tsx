@@ -30,9 +30,15 @@ export interface GalleryScreen {
   interactions: number;
 }
 
+export type Surface = "phone" | "tablet" | "desktop";
+
 export interface GalleryItem {
   name: string;
   url: string;
+  /** which surfaces this prototype exists on (drives the surface switcher) */
+  surfaces: Surface[];
+  /** desktop prototypes deep-link to a view */
+  hash?: string;
   status: "reference" | "review" | "approved" | "in-progress";
   desc: string;
   style: DeviceStyle;
@@ -65,6 +71,12 @@ const STYLE_ORDER: DeviceStyle[] = [
 
 const VIEW_KEY = "gallery-view";
 
+const SURFACES: { id: Surface; label: string; hint: string }[] = [
+  { id: "phone", label: "Phone", hint: "390×844 and 360/430 presets" },
+  { id: "tablet", label: "Tablet", hint: "834×1112 — the desktop layout at tablet size" },
+  { id: "desktop", label: "Desktop", hint: "1280×800 windows — sidebar, tables, ⌘K" },
+];
+
 function StyleChip({
   style,
   count,
@@ -92,7 +104,67 @@ function StyleChip({
  *  prototype's custom thumb (real home-screen preview) or a generic fallback.
  *  With link=false the phone renders as a <span> (the wrapping cell owns the
  *  link) — required inside the grid view's nowrap lead. */
-function Silhouette({ item, mini = false, link = true }: { item: GalleryItem; mini?: boolean; link?: boolean }) {
+function WindowThumb({ item, surface }: { item: GalleryItem; surface: Surface }) {
+  /* A desktop/tablet card previews the app the way it actually is: a
+     window with a title bar, a sidebar rail and content blocks — not a
+     phone silhouette. Same palette, same family. */
+  const p = item.palette;
+  const cls = `win${surface === "tablet" ? " win--tablet" : ""}`;
+  return (
+    <span className={cls} style={{ borderColor: p.text, background: p.surface }}>
+      <span className="win__bar" style={{ background: p.surfaceAlt }}>
+        <i style={{ background: p.text }} />
+        <i style={{ background: p.text }} />
+        <i style={{ background: p.text }} />
+      </span>
+      <span className="win__body" style={{ background: p.bg }}>
+        <span className="win__side" style={{ background: p.surface }}>
+          <i style={{ background: p.accent }} />
+          <i style={{ background: p.surfaceAlt }} />
+          <i style={{ background: p.surfaceAlt }} />
+          <i style={{ background: p.surfaceAlt }} />
+        </span>
+        <span className="win__main">
+          <span className="win__head" style={{ background: p.surfaceAlt }} />
+          <span className="win__cards">
+            <span className="win__card" style={{ background: p.surface }} />
+            <span className="win__card" style={{ background: p.surface }} />
+            <span className="win__card" style={{ background: p.surface }} />
+          </span>
+          <span className="win__rows">
+            {[0, 1, 2].map((i) => (
+              <span key={i} className="win__row" style={{ background: p.surface }}>
+                <i style={{ background: p.accent, width: i === 0 ? "18%" : "10%" }} />
+                <i style={{ background: p.surfaceAlt, flex: 1 }} />
+                <i style={{ background: p.surfaceAlt, width: "14%" }} />
+              </span>
+            ))}
+          </span>
+        </span>
+      </span>
+    </span>
+  );
+}
+
+function Silhouette({
+  item,
+  mini = false,
+  link = true,
+  surface = "phone",
+}: {
+  item: GalleryItem;
+  mini?: boolean;
+  link?: boolean;
+  surface?: Surface;
+}) {
+  if (surface !== "phone") {
+    if (!link) return <WindowThumb item={item} surface={surface} />;
+    return (
+      <a className="winlink" href={item.url} aria-label={`Open ${item.name} prototype`}>
+        <WindowThumb item={item} surface={surface} />
+      </a>
+    );
+  }
   const p = item.palette;
   const bar = (w?: string): React.CSSProperties => ({
     height: 7,
@@ -250,6 +322,7 @@ function placeCells(groups: { style: DeviceStyle; items: GalleryItem[] }[], cols
 export function Gallery({ items }: { items: GalleryItem[] }) {
   const [filter, setFilter] = useState<DeviceStyle | "all">("all");
   const [mode, setMode] = useState<ViewMode>("detailed");
+  const [surface, setSurface] = useState<Surface>("phone");
 
   // Restore the persisted view preference (client only). A #grid / #detailed
   // hash on the page URL overrides it (deep-linkable view state).
@@ -270,11 +343,16 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
     } catch {}
   }, [mode]);
 
+  const surfaceItems = items.filter((it) => it.surfaces.includes(surface));
+  const surfaceCounts = new Map<Surface, number>(
+    SURFACES.map((s) => [s.id, items.filter((it) => it.surfaces.includes(s.id)).length])
+  );
+
   const counts = useMemo(() => {
     const map = new Map<DeviceStyle, number>();
-    for (const it of items) map.set(it.style, (map.get(it.style) ?? 0) + 1);
+    for (const it of surfaceItems) map.set(it.style, (map.get(it.style) ?? 0) + 1);
     return map;
-  }, [items]);
+  }, [surfaceItems]);
 
   // Grid-view raster width: content-aware, not a fixed desktop number — as
   // many columns as fit at the cell minimum (mini thumbs are 120px wide),
@@ -294,7 +372,7 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
   }, [mode]);
 
   const presentStyles = STYLE_ORDER.filter((s) => counts.has(s));
-  const visible = filter === "all" ? items : items.filter((it) => it.style === filter);
+  const visible = (filter === "all" ? surfaceItems : surfaceItems.filter((it) => it.style === filter));
 
   return (
     <>
@@ -307,6 +385,30 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
         <ViewToggle mode={mode} onChange={setMode} />
       </div>
 
+      {/* Surface switcher — the same families, seen on phone / tablet / desktop */}
+      <div className="surfaces" role="group" aria-label="Prototype surface">
+        {SURFACES.map((s) => {
+          const n = surfaceCounts.get(s.id) ?? 0;
+          return (
+            <button
+              key={s.id}
+              type="button"
+              className={`surfacebtn ${surface === s.id ? "is-on" : ""}`}
+              aria-pressed={surface === s.id}
+              disabled={n === 0}
+              onClick={() => setSurface(s.id)}
+            >
+              <span className="surfacebtn__shape" data-surface={s.id} aria-hidden="true" />
+              <span className="surfacebtn__text">
+                <span className="surfacebtn__label">{s.label}</span>
+                <span className="surfacebtn__hint">{s.hint}</span>
+              </span>
+              <span className="surfacebtn__count">{n}</span>
+            </button>
+          );
+        })}
+      </div>
+
       {/* Design-language filter chips — symmetric grid */}
       <div className="chiprow" role="group" aria-label="Filter prototypes by design language">
         <button
@@ -315,7 +417,7 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
           aria-pressed={filter === "all"}
         >
           <span className="chip__label">All styles</span>
-          <span className="chip__count">{items.length}</span>
+          <span className="chip__count">{surfaceItems.length}</span>
         </button>
         {presentStyles.map((s) => (
           <StyleChip
@@ -379,7 +481,7 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
                 </span>
               )}
               <span className="gcell__shot">
-                <Silhouette item={cell.item} mini link={false} />
+                <Silhouette item={cell.item} mini link={false} surface={surface} />
               </span>
               <span className="gcell__name">{cell.item.name}</span>
             </a>
@@ -402,7 +504,7 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
                 </div>
               </div>
 
-              <Silhouette item={item} />
+              <Silhouette item={item} surface={surface} />
 
               <div className="show__info show__info--right">
                 <div className="mini-bars">

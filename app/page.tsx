@@ -13,6 +13,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Bloom",
     url: "prototypes/bloom/",
+    surfaces: ["phone"],
     status: "reference",
     desc: "A plant-care companion in plain Material 3 — the repo's canonical M3 reference. Generative SVG plant art, animated thirst rings, M3 bottom sheets, FAB, emphasized motion and a live water schedule across four tabs.",
     style: "m3",
@@ -28,6 +29,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Anime App",
     url: "prototypes/anime-app/",
+    surfaces: ["phone"],
     status: "review",
     desc: "6-screen Material 3 Expressive anime app with Home, Library, History, Search, Settings and a detail page. Real AniList data, add-to-library, custom keyboard.",
     style: "m3",
@@ -45,6 +47,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Setup Wizard",
     url: "prototypes/setup-wizard/",
+    surfaces: ["phone"],
     status: "review",
     desc: "An animated 8-step setup wizard — theme switching, folder selection, permissions, backup restore, and an animated companion. Lime M3 palette.",
     style: "m3",
@@ -64,6 +67,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Music Player",
     url: "prototypes/music-player/",
+    surfaces: ["phone"],
     status: "review",
     desc: "A soft-UI (neumorphism) music player — extruded circular album art, play/pause with pressed-in state, playlist grid and working playback simulation.",
     style: "neumorph",
@@ -79,6 +83,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Still",
     url: "prototypes/still/",
+    surfaces: ["phone"],
     status: "review",
     desc: "Meditation & breathing companion that turns neumorphism's plastic-gadget look inward — a single molded slab where every press carves into the surface and the centerpiece orb IS the control, scaling with box, 4-7-8 and ocean breath patterns.",
     style: "neumorph",
@@ -94,6 +99,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Drift",
     url: "prototypes/drift/",
+    surfaces: ["phone"],
     status: "review",
     desc: "Podcast & audio player that makes glassmorphism color discipline the product — milky low-alpha glass over a vivid mesh backdrop that rotates hue per tab (dawn amber → sea teal → dusk magenta → forest green). Generative cover art, live waveforms, draggable glass scrubber and a mini-player docked above the glass nav.",
     style: "glass",
@@ -109,6 +115,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Weather App",
     url: "prototypes/weather-app/",
+    surfaces: ["phone"],
     status: "review",
     desc: "Aurora Weather — milky glassmorphism over a vivid four-theme sky (dawn/day/dusk/night), glossy gradient glyphs, count-up hero temp, sun arc, 24h charts, city search with favorites and full unit/theme settings.",
     style: "glass",
@@ -124,6 +131,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Wallet",
     url: "prototypes/wallet/",
+    surfaces: ["phone"],
     status: "review",
     desc: "Apple Wallet–style passes & payments in the iOS 26/27 Liquid Glass language — floating glass tab bar and nav bar, pass stack with tap-to-front, glass keypad Apple Pay flow and the iOS 27 Clear ↔ Tinted glass setting.",
     style: "hig",
@@ -139,6 +147,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Streetwear Store",
     url: "prototypes/streetwear-store/",
+    surfaces: ["phone"],
     status: "review",
     desc: "Neo-brutalist drop shop — marquee tickers, sticker badges, 2-3px ink borders and hard offset shadows on everything; size/colorway pickers, promo codes, favorites and a full cart, all persisted.",
     style: "brutalism",
@@ -154,6 +163,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Ruckus",
     url: "prototypes/ruckus/",
+    surfaces: ["phone"],
     status: "review",
     desc: "Neo-brutalist DIY gig guide — 0px radius, 2-3px ink borders, hard zero-blur offset shadows, marquee tickers and poster type. Numbered lineup, generative cover art, capacity meters and a ticket wallet with perforated stubs.",
     style: "brutalism",
@@ -169,6 +179,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Finance Hub",
     url: "prototypes/finance-hub/",
+    surfaces: ["phone"],
     status: "review",
     desc: "IBM Carbon banking app — flat layer surfaces, 0px radii, spending bar chart, transaction filtering, card freeze toggles and tabular-nums money.",
     style: "carbon",
@@ -184,6 +195,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Pulse",
     url: "prototypes/pulse/",
+    surfaces: ["phone"],
     status: "review",
     desc: "IBM Carbon system-status dashboard — service status grid with blinking down-squares, ack/resolve incident flow with expandable timelines. Seeded 24h metric charts rescale under a Carbon range selector, with a real density toggle app-wide.",
     style: "carbon",
@@ -199,6 +211,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Smart Home",
     url: "prototypes/smart-home/",
+    surfaces: ["phone"],
     status: "review",
     desc: "Bento-grid smart home dashboard — thermostat dial, light sliders, camera and energy tiles in mixed-height rounded cards, with live device toggles.",
     style: "bento",
@@ -214,6 +227,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Atlas",
     url: "prototypes/atlas/",
+    surfaces: ["phone"],
     status: "review",
     desc: "Travel trip planner where the bento tile hierarchy IS the information architecture — tile sizes encode frequency of use, generative CSS landscapes paint each destination, and tapping any tile morphs it full-screen. Hero/weather/countdown trip grid, saved places pairs, per-trip packing bento and a stats profile.",
     style: "bento",
@@ -229,6 +243,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Fitness Tracker",
     url: "prototypes/fitness-tracker/",
+    surfaces: ["phone"],
     status: "review",
     desc: "Apple HIG fitness app — activity rings, iOS grouped lists, translucent tab bar, week selector and a live workout timer.",
     style: "hig",
@@ -244,6 +259,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Kids Learning",
     url: "prototypes/kids-learning/",
+    surfaces: ["phone"],
     status: "review",
     desc: "Claymorphism learning game for kids — puffy pastel tiles, a tap-to-answer quiz with star rewards, a badge shelf and satisfying squish feedback.",
     style: "clay",
@@ -259,6 +275,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Simmer",
     url: "prototypes/simmer/",
+    surfaces: ["phone"],
     status: "review",
     desc: "Claymorphism recipes & cooking companion — generative CSS dish art, a live-scaling recipe view with press-in step blobs, a week's meal plan that derives an aisle-grouped shopping list, and a chunky clay countdown dial.",
     style: "clay",
@@ -274,6 +291,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Chat App",
     url: "prototypes/chat-app/",
+    surfaces: ["phone"],
     status: "review",
     desc: "Flat-design messenger — zero shadows, solid teal/coral blocks, chat list with unread badges, working message send with auto-reply and the custom keyboard.",
     style: "flat",
@@ -289,6 +307,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Habit Tracker",
     url: "prototypes/habit-tracker/",
+    surfaces: ["phone"],
     status: "review",
     desc: "Monochrome minimalism — ink-on-paper habit checklist with streaks, a weekly completion grid, and add/manage habit flows. No color, only hierarchy.",
     style: "minimal",
@@ -304,6 +323,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Nook",
     url: "prototypes/nook/",
+    surfaces: ["phone"],
     status: "review",
     desc: "A typographic reading journal where the design is the type scale: serif long-form reader with scroll-driven progress, immersive tap-to-hide chrome and hairline-marked passages. Notes, a goal ring and a text-only tab row — no color, no pills, one shadow.",
     style: "minimal",
@@ -319,6 +339,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Hop",
     url: "prototypes/hop/",
+    surfaces: ["phone"],
     status: "review",
     desc: "Food delivery in Flat Design 2.0 — screens open ON solid cuisine colour planes, the tab bar is four edge-to-edge segments where the active one is an inverted block, and a coral dot travels a 1px rail through the live order tracker. Flying-square cart adds, block-stepper checkout, zero shadows anywhere.",
     style: "flat",
@@ -335,6 +356,7 @@ const PROTOTYPES: GalleryItem[] = [
   {
     name: "Gallery App",
     url: "prototypes/gallery-app/",
+    surfaces: ["phone"],
     status: "review",
     desc: "Bauhaus museum app — generative CSS artwork plates in the red/blue/yellow triad, numbered exhibitions with detail pushes, a full-screen plate view with live re-inking, date-chip ticket booking and a persisted collection.",
     style: "bauhaus",
@@ -349,6 +371,7 @@ const PROTOTYPES: GalleryItem[] = [
   },  {
     name: "Linie",
     url: "prototypes/linie/",
+    surfaces: ["phone"],
     status: "review",
     desc: "Bauhaus metro planner — the network drawn as geometry: three lines on right-angle SVG paths, circle stations with ink rings, interchanges as double rings. Journey planner with a vertical route diagram, live departure countdowns and a ticket wallet. Red primary, 2px borders, zero shadows.",
     style: "bauhaus",
@@ -359,6 +382,58 @@ const PROTOTYPES: GalleryItem[] = [
       { name: "Route", interactions: 80 },
       { name: "Abfahrt", interactions: 60 },
       { name: "Me", interactions: 55 },
+    ],
+  },
+
+  {
+    name: "Meridian",
+    url: "prototypes/meridian/",
+    hash: "#overview",
+    surfaces: ["desktop", "tablet"],
+    status: "reference",
+    desc: "A desktop project-delivery workspace in Material 3 — the reference desktop build. Window chrome and menu bar, sectioned sidebar, sortable multi-select project table with a beside-not-over inspector, ⌘K command palette, task board with WIP limits and an app-wide density preference.",
+    style: "m3",
+    tags: ["Desktop reference", "M3", "Data table", "⌘K"],
+    palette: { bg: "#14111f", surface: "#221e33", surfaceAlt: "#332d4c", accent: "#d0bcff", text: "#ece6f5" },
+    screens: [
+      { name: "Overview", interactions: 80 },
+      { name: "Projects", interactions: 95 },
+      { name: "Board", interactions: 70 },
+      { name: "Settings", interactions: 50 },
+    ],
+  },
+  {
+    name: "Quill",
+    url: "prototypes/quill/",
+    hash: "#library",
+    surfaces: ["desktop", "tablet"],
+    status: "review",
+    desc: "An Apple HIG desktop notes app — a three-column window where the preview opens beside the list, a block editor with working checklists and a metadata rail, grouped search with highlighted matches, and a two-column settings form.",
+    style: "hig",
+    tags: ["Desktop", "HIG", "Three-column", "Editor"],
+    palette: { bg: "#ffffff", surface: "#f2f2f7", surfaceAlt: "#d1d1d6", accent: "#0a84ff", text: "#1c1c1e" },
+    screens: [
+      { name: "Library", interactions: 85 },
+      { name: "Note", interactions: 90 },
+      { name: "Search", interactions: 65 },
+      { name: "Settings", interactions: 45 },
+    ],
+  },
+  {
+    name: "Telemetry",
+    url: "prototypes/telemetry/",
+    hash: "#fleet",
+    surfaces: ["desktop"],
+    status: "review",
+    desc: "An IBM Carbon desktop infrastructure console — the style at its native desktop density. Service tiles with 30-day uptime bars, a six-column sortable table with multi-select and a bulk bar, a sticky detail panel beside the data, and an acknowledge-to-resolve flow that repairs service state.",
+    style: "carbon",
+    tags: ["Desktop", "Carbon", "Monitoring", "Incident flow"],
+    palette: { bg: "#161616", surface: "#262626", surfaceAlt: "#393939", accent: "#0f62fe", text: "#f4f4f4" },
+    screens: [
+      { name: "Fleet", interactions: 95 },
+      { name: "Incidents", interactions: 80 },
+      { name: "Metrics", interactions: 75 },
+      { name: "Settings", interactions: 50 },
     ],
   },
 
