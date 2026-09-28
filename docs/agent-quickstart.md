@@ -21,12 +21,13 @@
 ### 1. Read these files first (in order)
 1. [`STARTUP.md`](../STARTUP.md) — master context
 2. [`docs/preferences.md`](./preferences.md) — **all user design preferences** (don't violate these)
-3. [`docs/template-rules.md`](./template-rules.md) — the rules every prototype follows
-4. [`docs/theme-architecture.md`](./theme-architecture.md) — how app theme is scoped (CRITICAL)
-5. [`docs/notification-protocol.md`](./notification-protocol.md) — how to notify the user
+3. [`docs/ui-failure-modes.md`](./ui-failure-modes.md) — **the 15 defect classes the user rejects in reviews** (content escaping controls, orphan-word toasts, jammed segments, clipped selections, below-fold CTAs…). Read before writing UI; run its 10-point checklist before finishing.
+4. [`docs/template-rules.md`](./template-rules.md) — the rules every prototype follows
+5. [`docs/theme-architecture.md`](./theme-architecture.md) — how app theme is scoped (CRITICAL)
+6. [`docs/notification-protocol.md`](./notification-protocol.md) — how to notify the user
 
 ### 2. Notify the user on EVERY task completion
-- **Topic:** `TASKISDONE` on ntfy.sh
+- **Topic:** `TASK808DONE` on ntfy.sh
 - **Format:** 8 emojis (one color) on line 1, blank line, then message
 - **Colors:** 🟩 success · 🟥 error · 🟦 paused · 🟧 processing
 - Copy-paste command in [`docs/notification-protocol.md`](./notification-protocol.md)

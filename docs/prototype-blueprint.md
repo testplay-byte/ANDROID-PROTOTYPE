@@ -373,7 +373,7 @@ Prototype ready: <your-name>.
 - <key interactions>
 Live: https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/<your-name>/
 Status: awaiting your review." \
-  https://ntfy.sh/TASKISDONE
+  https://ntfy.sh/TASK808DONE
 ```
 
 ---

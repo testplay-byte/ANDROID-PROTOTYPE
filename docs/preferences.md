@@ -192,7 +192,7 @@ Both are the user's own creations — copy freely.
 ---
 
 ## 5. Notification protocol
-- **Always** notify on task completion via ntfy.sh, topic `TASKISDONE`.
+- **Always** notify on task completion via ntfy.sh, topic `TASK808DONE`.
 - 8 emojis (single color) on line 1: 🟩 success, 🟥 error, 🟦 paused, 🟧 processing.
 - See `docs/notification-protocol.md` for the full spec.
 

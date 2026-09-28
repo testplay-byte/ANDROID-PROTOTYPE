@@ -9,7 +9,7 @@
 ## ⚠️ ALWAYS REMEMBER (the 30-second version)
 
 1. **Every task you complete — big or small — sends a notification.** No exceptions.
-2. **Topic:** `TASKISDONE` → endpoint `https://ntfy.sh/TASKISDONE`
+2. **Topic:** `TASK808DONE` → endpoint `https://ntfy.sh/TASK808DONE`
 3. **Format:** line 1 = **exactly 8 emojis** of one color. Line 2 = blank. Line 3+ = your message.
 4. **Colors:** 🟩 success · 🟥 error · 🟦 paused/need input · 🟧 processing.
 5. **Send with `curl`** (command template below — copy, edit the body, run).
@@ -24,7 +24,7 @@ Task complete: <one-line summary>.
 - <where: file/URL>
 - <what's next>
 Live: <URL if relevant>" \
-  https://ntfy.sh/TASKISDONE
+  https://ntfy.sh/TASK808DONE
 ```
 
 That's it. Read the rest of this file only if you need the error/paused/processing variants or the rationale.
@@ -33,10 +33,10 @@ That's it. Read the rest of this file only if you need the error/paused/processi
 
 ## The topic
 
-- **Topic:** `TASKISDONE`
-- **Full endpoint:** `https://ntfy.sh/TASKISDONE`
+- **Topic:** `TASK808DONE`
+- **Full endpoint:** `https://ntfy.sh/TASK808DONE`
 
-Anyone (the user) subscribes to this topic at `https://ntfy.sh/TASKISDONE` (web, or the ntfy app) and receives every notification we post.
+Anyone (the user) subscribes to this topic at `https://ntfy.sh/TASK808DONE` (web, or the ntfy app) and receives every notification we post.
 
 ---
 
@@ -79,7 +79,7 @@ Task complete: set up the ANDROID-PROTOTYPE repository.
 - Initial commit pushed to main
 Live: https://testplay-byte.github.io/ANDROID-PROTOTYPE/
 Next: awaiting your first prototype brief." \
-     https://ntfy.sh/TASKISDONE
+     https://ntfy.sh/TASK808DONE
 ```
 
 ### Error (red)
@@ -90,7 +90,7 @@ curl -H "Title: ANDROID-PROTOTYPE" -H "Tags: warning" \
 Issue: GitHub Pages deploy failed on the latest push.
 Reason: workflow permissions not set to write.
 Fixing now; no action needed yet." \
-     https://ntfy.sh/TASKISDONE
+     https://ntfy.sh/TASK808DONE
 ```
 
 ### Stopping for input (blue)
@@ -101,7 +101,7 @@ curl -H "Title: ANDROID-PROTOTYPE" -H "Tags: question" \
 Paused: need your decision on the food-delivery prototype primary color.
 A) warm orange   B) green
 Reply with A or B to continue." \
-     https://ntfy.sh/TASKISDONE
+     https://ntfy.sh/TASK808DONE
 ```
 
 ### In progress (orange) — use rarely
@@ -111,7 +111,7 @@ curl -H "Title: ANDROID-PROTOTYPE" -H "Tags: hourglass" \
 
 Building the onboarding prototype (3 screens).
 ~10 min estimate. Will notify green when done." \
-     https://ntfy.sh/TASKISDONE
+     https://ntfy.sh/TASK808DONE
 ```
 
 ---
@@ -123,13 +123,13 @@ Building the onboarding prototype (3 screens).
 3. **Message body:** concise. What was done, where, what's next (or what you need).
 4. **Pick the right color:** green for done, red for problems, blue when blocked on the user, orange only for long-running tasks where a heads-up helps.
 5. **Never** send a notification with no emojis or mixed colors — that breaks the user's filtering.
-6. If `curl` is unavailable, use any HTTP POST to `https://ntfy.sh/TASKISDONE` with the body as the message.
+6. If `curl` is unavailable, use any HTTP POST to `https://ntfy.sh/TASK808DONE` with the body as the message.
 
 ---
 
 ## Verification tip
 
-After sending, you can confirm delivery by visiting `https://ntfy.sh/TASKISDONE` in a browser — recent messages are listed there.
+After sending, you can confirm delivery by visiting `https://ntfy.sh/TASK808DONE` in a browser — recent messages are listed there.
 
 ---
 

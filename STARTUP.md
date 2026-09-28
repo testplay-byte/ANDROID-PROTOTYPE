@@ -66,6 +66,7 @@ ANDROID-PROTOTYPE/
 │   ├── template-rules.md   ← Rules every prototype follows.
 │   ├── theme-architecture.md ← CRITICAL: app theme scoped to .device.
 │   ├── preferences.md      ← MANDATORY MEMORY: all user design preferences.
+│   ├── ui-failure-modes.md ← MANDATORY BEFORE BUILDING: 15 rejected UI defect classes + self-review checklist.
 │   ├── notification-protocol.md ← MANDATORY: how to notify via ntfy.sh.
 │   ├── github-pages.md     ← Deployment guide + troubleshooting.
 │   └── git-conventions.md  ← Branch, commit, PR conventions.
@@ -198,8 +199,8 @@ A future agent should be able to understand the entire project by reading `START
 
 **Every time you complete a task — small or big — you MUST send a notification to the user via [ntfy.sh](https://nty.sh).**
 
-- **Topic:** `TASKISDONE`
-- **Endpoint:** `https://ntfy.sh/TASKISDONE`
+- **Topic:** `TASK808DONE`
+- **Endpoint:** `https://ntfy.sh/TASK808DONE`
 - **Method:** HTTP POST (see `docs/notification-protocol.md` for exact commands)
 
 ### Emoji Color Code
@@ -280,6 +281,7 @@ Reply with A or B to continue.
 | Read the prototype template rules      | `docs/template-rules.md`               |
 | Understand the theme architecture      | `docs/theme-architecture.md`           |
 | **Read user design preferences**       | `docs/preferences.md`                  |
+| **Avoid rejected UI defects**          | `docs/ui-failure-modes.md`             |
 | **Choose a design language**           | `docs/style-selection-guide.md`        |
 | **Read a style spec (11 languages)**   | `docs/design-languages/navigation.md`  |
 | Understand deployment                  | `docs/github-pages.md`                 |
