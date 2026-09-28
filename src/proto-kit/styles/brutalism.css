@@ -9,7 +9,7 @@
    zero blur) on every container. Elements look "stickered on".
    ========================================================================= */
 
-.device[data-style="brutalism"] {
+:is(.device, .surface)[data-style="brutalism"] {
   --color-bg: #181614;
   --color-surface-1: #211f1c;
   --color-surface-2: #2a2723;
@@ -56,7 +56,7 @@
   --frame-shadow: rgba(0, 0, 0, 0.6);
 }
 
-.device[data-style="brutalism"][data-theme="light"] {
+:is(.device, .surface)[data-style="brutalism"][data-theme="light"] {
   --color-bg: #f7f4ec;
   --color-surface-1: #ffffff;
   --color-surface-2: #f7f4ec;

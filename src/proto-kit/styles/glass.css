@@ -31,7 +31,7 @@
    Never stack translucent glass directly on translucent glass.
    ========================================================================= */
 
-.device[data-style="glass"] {
+:is(.device, .surface)[data-style="glass"] {
   --color-bg: #0d1424;
   --color-surface-1: rgba(235, 240, 252, 0.1);
   --color-surface-2: rgba(235, 240, 252, 0.14);
@@ -87,7 +87,7 @@
   --glass-grain-opacity: 0.04;
 }
 
-.device[data-style="glass"][data-theme="light"] {
+:is(.device, .surface)[data-style="glass"][data-theme="light"] {
   --color-bg: #eef2fb;
   --color-surface-1: rgba(255, 255, 255, 0.62);
   --color-surface-2: rgba(255, 255, 255, 0.7);

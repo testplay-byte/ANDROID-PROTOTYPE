@@ -1,0 +1,122 @@
+/* proto-kit / surface — the tablet + desktop window.
+   Token-driven like every frame: design languages restyle it through
+   data-style, so a brutalism desktop gets square corners and a glass desktop
+   gets a blurred, layered chrome without any code change. */
+
+.surface {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: var(--surface-w, 1280px);
+  height: var(--surface-h, 800px);
+  overflow: hidden;
+  border-radius: var(--device-radius, 18px);
+  background: var(--color-bg);
+  color: var(--color-text);
+  box-shadow:
+    0 0 0 var(--bezel-w) var(--device-bezel),
+    0 0 0 var(--edge-w) var(--device-edge),
+    0 24px 60px -16px var(--frame-shadow);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* A tablet is a DEVICE (bigger bezel + radii); a desktop is a WINDOW. */
+.surface[data-surface="tablet"] {
+  --device-radius: 28px;
+}
+
+.body {
+  position: relative;
+  display: flex;
+  flex: 1;
+  min-height: 0;
+}
+
+.screen {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+}
+.screen::-webkit-scrollbar {
+  display: none;
+}
+
+/* ---- OS-style window chrome (opt-in) ---- */
+.winbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+  height: 38px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--color-outline-variant);
+  background: color-mix(in srgb, var(--color-surface-2) 70%, transparent);
+}
+.winbar__lights {
+  display: inline-flex;
+  gap: 8px;
+}
+.winbar__lights i {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--color-outline);
+}
+/* Brutalism keeps flat blocks; most languages get soft dots. */
+.surface[data-style="brutalism"] .winbar__lights i {
+  border-radius: 0;
+}
+.winbar__title {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+/* ---- Menu bar (desktop-only chrome) ---- */
+.menubar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex: none;
+  height: 32px;
+  padding: 0 10px;
+  border-bottom: 1px solid var(--color-outline-variant);
+  background: color-mix(in srgb, var(--color-surface-2) 55%, transparent);
+}
+.menubar__item {
+  padding: 4px 9px;
+  border-radius: var(--r-xs);
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.menubar__item:hover {
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+  color: var(--color-text);
+}
+
+/* Glass desktops layer the chrome like glass should. */
+.surface[data-style="glass"] .winbar,
+.surface[data-style="glass"] .menubar {
+  backdrop-filter: blur(var(--glass-blur, 20px)) saturate(var(--glass-saturate, 1.6));
+  -webkit-backdrop-filter: blur(var(--glass-blur, 20px)) saturate(var(--glass-saturate, 1.6));
+}
+
+/* ---- Mobile: the surface fills the screen (no window) ---- */
+@media (max-width: 480px) {
+  .surface {
+    width: 100%;
+    height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+    min-width: 0;
+    max-width: 100%;
+  }
+  .winbar,
+  .menubar {
+    display: none;
+  }
+}

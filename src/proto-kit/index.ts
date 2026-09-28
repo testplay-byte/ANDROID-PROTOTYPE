@@ -7,6 +7,22 @@
  */
 
 export { DeviceFrame, Screen, type DeviceFrameProps } from "./device-frame/device-frame";
+
+// SURFACES — phone (DeviceFrame) / tablet / desktop (SurfaceFrame). Desktop
+// and tablet prototypes are separate apps, never a rescaled phone.
+export {
+  SurfaceFrame,
+  SurfaceScreen,
+  DesktopRail,
+  DesktopSidebar,
+  DesktopTopBar,
+  SURFACE_PRESETS,
+  SURFACE_LABELS,
+  type SurfaceFrameProps,
+  type DesktopNavItem,
+  type DesktopTopBarProps,
+  type Surface,
+} from "./surface";
 export { StatusBar } from "./device-frame/status-bar";
 
 // Device chrome settings — configurable camera cutout (punch / pill / notch),

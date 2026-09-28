@@ -9,7 +9,7 @@
    Rule: if you are tempted to add a color, don't.
    ========================================================================= */
 
-.device[data-style="minimal"] {
+:is(.device, .surface)[data-style="minimal"] {
   --color-bg: #0e0e0e;
   --color-surface-1: #161616;
   --color-surface-2: #1c1c1c;
@@ -48,7 +48,7 @@
   --frame-shadow: rgba(0, 0, 0, 0.6);
 }
 
-.device[data-style="minimal"][data-theme="light"] {
+:is(.device, .surface)[data-style="minimal"][data-theme="light"] {
   --color-bg: #ffffff;
   --color-surface-1: #fafafa;
   --color-surface-2: #f4f4f4;

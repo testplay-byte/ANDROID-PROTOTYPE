@@ -10,7 +10,7 @@
    (pressed dough) — plain flat surfaces look broken in this style.
    ========================================================================= */
 
-.device[data-style="clay"] {
+:is(.device, .surface)[data-style="clay"] {
   --color-bg: #2a2733;
   --color-surface-1: #322e3d;
   --color-surface-2: #3a3547;
@@ -66,7 +66,7 @@
      muted #5b547a on bg / surface-1/2 = 5.2 / 6.0 / 6.3:1 (AA)
      primary #6d3fe0 + white fg        = 6.1:1
      on-primary-container #371d73 on container #ddd0fb = 9.1:1 */
-.device[data-style="clay"][data-theme="light"] {
+:is(.device, .surface)[data-style="clay"][data-theme="light"] {
   --color-bg: #e0dbf2;
   --color-surface-1: #efebf9;
   --color-surface-2: #f4f1fc;

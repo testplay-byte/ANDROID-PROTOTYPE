@@ -10,7 +10,7 @@
    explicitly calls for HIG/iOS look).
    ========================================================================= */
 
-.device[data-style="hig"] {
+:is(.device, .surface)[data-style="hig"] {
   --color-bg: #000000;
   --color-surface-1: #1c1c1e;
   --color-surface-2: #2c2c2e;
@@ -52,7 +52,7 @@
   --glass-border: rgba(255, 255, 255, 0.12);
 }
 
-.device[data-style="hig"][data-theme="light"] {
+:is(.device, .surface)[data-style="hig"][data-theme="light"] {
   --color-bg: #f2f2f7;
   --color-surface-1: #ffffff;
   --color-surface-2: #ffffff;

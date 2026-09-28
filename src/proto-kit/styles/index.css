@@ -8,10 +8,10 @@
    How it works:
    - <DeviceFrame style="carbon"> sets data-style="carbon" on .device.
    - Each style file below defines a COMPLETE token layer for both themes:
-       .device[data-style="X"]                      → dark/default values
-       .device[data-style="X"][data-theme="light"]  → light values
+       :is(.device, .surface)[data-style="X"]                      → dark/default values
+       :is(.device, .surface)[data-style="X"][data-theme="light"]  → light values
    - Specificity: style dark (0,2,0) beats the M3 default on .device;
-     style light (0,3,0) beats tokens.css' .device[data-theme="light"].
+     style light (0,3,0) beats tokens.css' :is(.device, .surface)[data-theme="light"].
      Import order does not matter, but keep tokens.css first anyway.
 
    THE TOKEN CONTRACT — every style file must define ALL of these for both

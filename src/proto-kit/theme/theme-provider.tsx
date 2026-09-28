@@ -45,9 +45,11 @@ export function DeviceThemeProvider({
 
   // Apply theme to the .device element + persist.
   useEffect(() => {
-    const device = document.querySelector(".device");
-    if (device) {
-      device.setAttribute("data-theme", theme);
+    // `.device` = phone frame, `.surface` = tablet/desktop window — both
+    // carry the data-theme contract, so desktop prototypes theme the same way.
+    const host = document.querySelector(".device, .surface");
+    if (host) {
+      host.setAttribute("data-theme", theme);
     }
     if (storageKey) {
       try {

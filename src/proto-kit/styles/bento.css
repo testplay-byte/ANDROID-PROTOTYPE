@@ -9,7 +9,7 @@
    Signature: the bento GRID itself — 2-col tiles of mixed heights.
    ========================================================================= */
 
-.device[data-style="bento"] {
+:is(.device, .surface)[data-style="bento"] {
   --color-bg: #111114;
   --color-surface-1: #1c1c21;
   --color-surface-2: #232329;
@@ -54,7 +54,7 @@
   --frame-shadow: rgba(0, 0, 0, 0.55);
 }
 
-.device[data-style="bento"][data-theme="light"] {
+:is(.device, .surface)[data-style="bento"][data-theme="light"] {
   --color-bg: #f2f2f7;
   --color-surface-1: #ffffff;
   --color-surface-2: #ffffff;

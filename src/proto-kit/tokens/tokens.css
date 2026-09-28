@@ -14,8 +14,8 @@
    Structure:
    1. :root           — universal tokens (type, spacing, radius, motion)
    2. .device          — app-level tokens (M3 color roles, surfaces)
-   3. .device[data-theme="dark"]  — dark palette (default)
-   4. .device[data-theme="light"] — light palette
+   3. :is(.device, .surface)[data-theme="dark"]  — dark palette (default)
+   4. :is(.device, .surface)[data-theme="light"] — light palette
    5. Stage tokens     — adapt to the device theme via :has()
 
    A prototype may override any token by re-declaring it on .device or a
@@ -66,7 +66,7 @@
    App-level tokens — scoped to .device (M3 dark purple, default theme).
    M3 tonal elevation: higher elevation = lighter surface tone (in dark).
    ========================================================================= */
-.device {
+:is(.device, .surface) {
   /* Surface tonal tiers */
   --color-bg: #14111f;
   --color-surface-1: #1b1729;
@@ -115,7 +115,7 @@
 }
 
 /* ---- Light theme ---- */
-.device[data-theme="light"] {
+:is(.device, .surface)[data-theme="light"] {
   --color-bg: #fef7ff;
   --color-surface-1: #f3edf7;
   --color-surface-2: #ede7f4;
@@ -152,7 +152,7 @@
 }
 
 /* ---- Stage adapts to the device theme via :has() ---- */
-:has(.device[data-theme="light"]) {
+:has(:is(.device, .surface)[data-theme="light"]) {
   --stage-bg: #c8c8c8;
   --sb-bg: #d0d0d0;
   --sb-muted: #c0c0c0;

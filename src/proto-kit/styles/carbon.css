@@ -9,7 +9,7 @@
    repo's "no blue primary" rule (only when the brief calls for Carbon).
    ========================================================================= */
 
-.device[data-style="carbon"] {
+:is(.device, .surface)[data-style="carbon"] {
   --color-bg: #161616;
   --color-surface-1: #262626;
   --color-surface-2: #333333;
@@ -56,7 +56,7 @@
   --frame-shadow: rgba(0, 0, 0, 0.55);
 }
 
-.device[data-style="carbon"][data-theme="light"] {
+:is(.device, .surface)[data-style="carbon"][data-theme="light"] {
   --color-bg: #f4f4f4;
   --color-surface-1: #ffffff;
   --color-surface-2: #f4f4f4;
