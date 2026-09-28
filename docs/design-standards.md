@@ -130,6 +130,30 @@ Reusable versions live in `templates/components/`.
 
 ---
 
+## 10.5 Content & layout awareness (mandatory — user rule)
+
+Every element must be built CONSCIOUS of what it is, how much content it
+holds, and how it behaves next to every other element. The user rejects any
+UI where an element is crushed, overlapped, or clipped by a neighbour. In
+practice, every element you write gets an explicit adaptive contract:
+
+- **Text blocks** — wrap or ellipsize deliberately (`min-width: 0` on the
+  flex chain), never clip mid-word with no ellipsis.
+- **Horizontal strips** (chips, filters, tabs) — `flex: 0 0 auto` + their own
+  `overflow-x: auto`; never a flex-shrinkable child of a column container.
+- **Grid tiles** — tracks grow with content
+  (`minmax(min-content, auto)`); design floors live on the tile as
+  `min-height`, never as a fixed-px track minimum (see failure mode #25).
+- **Controls** (switches, segments, steppers) — `flex: 0 0 auto` so text
+  neighbours shrink instead of squeezing them.
+- **Scroll containers** — the scroll owner owns the overflow: content inside
+  it must be fully reachable, and sticky is reserved for real chrome.
+
+Then PROVE it at 390px: no `scrollHeight > clientHeight` anywhere the user
+can't scroll, no element painting over a sibling. "It looked right with my
+test data" is not done — it must be right for the longest label the data
+model can produce.
+
 ## 10. Dark mode
 
 - Implement via a `data-theme="dark"` attribute on `<html>` or the frame.

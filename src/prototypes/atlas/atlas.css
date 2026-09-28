@@ -112,7 +112,7 @@ button {
   padding: 20px 14px 118px; /* .screen already sits below the status bar; bottom clears the nav row */
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  grid-auto-rows: minmax(96px, auto);
+  grid-auto-rows: minmax(min-content, auto); /* tracks grow with content; the 96px floor lives on .at-tile — a fixed-px track minimum silently disables growth */
   gap: 12px; /* the felt gutter — bg shows between every tile */
   align-content: start;
   animation: at-fade var(--dur-2) var(--ease-standard) both;
@@ -120,11 +120,6 @@ button {
 }
 .at-screen::-webkit-scrollbar {
   display: none;
-}
-/* the trip header is a single text line — exempt its row from the 96px
-   auto-row minimum so the greeting tile stays slim */
-.at-screen-trip {
-  grid-template-rows: minmax(0, auto);
 }
 
 @keyframes at-fade {
@@ -151,6 +146,7 @@ button {
   display: flex;
   flex-direction: column;
   gap: 6px;
+  min-height: 96px; /* bento floor; tiles with min-height:0 (greeting, about) hug content */
   padding: 14px;
   border: none; /* bento: 0 border-w, gutter + shadow separate tiles */
   border-radius: var(--r-lg);

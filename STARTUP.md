@@ -66,7 +66,7 @@ ANDROID-PROTOTYPE/
 │   ├── template-rules.md   ← Rules every prototype follows.
 │   ├── theme-architecture.md ← CRITICAL: app theme scoped to .device.
 │   ├── preferences.md      ← MANDATORY MEMORY: all user design preferences.
-│   ├── ui-failure-modes.md ← MANDATORY BEFORE BUILDING: 15 rejected UI defect classes + self-review checklist.
+│   ├── ui-failure-modes.md ← MANDATORY BEFORE BUILDING: 26 rejected UI defect classes + self-review checklist.
 │   ├── notification-protocol.md ← MANDATORY: how to notify via ntfy.sh.
 │   ├── github-pages.md     ← Deployment guide + troubleshooting.
 │   └── git-conventions.md  ← Branch, commit, PR conventions.

@@ -866,6 +866,9 @@ button {
   padding: 4px 8px;
 }
 .sm-chiprow {
+  /* flex child of .sm-content with overflow-x:auto — without flex:0 0 auto
+     its automatic min-size is 0 and the row collapses to a sliver */
+  flex: 0 0 auto;
   display: flex;
   gap: 8px;
   overflow-x: auto;

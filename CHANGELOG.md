@@ -7,6 +7,25 @@
 
 ## [Unreleased]
 
+### 2026-09-28 — polish round 3: content-awareness fixes (Simmer filters, Atlas bento) + docs
+
+- **Simmer Find** — quick-filter chip row collapsed to a 4px sliver: an
+  `overflow-x: auto` strip that is a flex child of a column container has
+  zero automatic min-size. Now `flex: 0 0 auto` (failure mode #26).
+- **Atlas Trip** — greeting tile overlapped by the hero: the
+  `minmax(0, auto)` row hack resolved to 0px. Removed; rows are now
+  content-driven.
+- **Atlas Me** — notifications tile cut off with no scroll:
+  `grid-auto-rows: minmax(96px, auto)` never grows in Chrome (fixed-px
+  track minimums disable growth — failure mode #25). Tracks are now
+  `minmax(min-content, auto)` with the 96px bento floor moved onto
+  `.at-tile` as `min-height`; the notifications tile grows to fit all rows,
+  every other tile keeps the rhythm.
+- **Docs** — `design-standards.md` gained section 10.5 "Content & layout
+  awareness" (every element needs an explicit adaptive contract + 390px
+  proof); failure modes #25/#26 + checklist items 18–19; counts refreshed
+  in STARTUP.md and agent-quickstart.md.
+
 ### 2026-09-28 — polish round 2: Pulse toggles, Still profile, Drift header/player
 
 - **Pulse** — DARK/LIGHT + density segmented controls rebuilt as separate

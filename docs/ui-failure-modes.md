@@ -232,6 +232,35 @@ fights component classes (lists, headings, inputs — same trap). Never
 reset. When a class rule's padding computes to 0 in devtools, check for a
 higher-specificity reset BEFORE touching the component rule.
 
+## 25. Fixed-px grid-track minimums silently disable track growth
+
+`grid-auto-rows: minmax(96px, auto)` looks like "at least 96px, grow if
+needed" — but Chrome never grows a track whose MIN is a fixed px length
+(verified 2026-09-28: every `minmax(96px, *)` variant stayed at 96 while
+content scrolled to 174px inside an `overflow: hidden` tile). Symptoms:
+a tile's rows get cut off with "no scrolling", content just disappears at
+the tile edge.
+
+Fix (Atlas bento): tracks must be content-driven —
+`grid-auto-rows: minmax(min-content, auto)` — and the design floor moves
+ONTO THE TILE: `.at-tile { min-height: 96px }` (a min-height contributes to
+min-content, so the floor holds AND rows still grow). Tiles that should hug
+content opt out with `min-height: 0` (greeting, about rows). Verify with
+`tile.scrollHeight <= tile.clientHeight` for EVERY tile.
+
+## 26. Overflow strips inside a column flex collapse to a sliver
+
+A horizontal chip/filter strip (`overflow-x: auto`) that is a flex CHILD of
+a `flex-direction: column` scroll container has an automatic minimum size of
+ZERO (overflow ≠ visible ⇒ min-size auto ⇒ 0). When the column's content
+overflows, the strip shrinks to a few px and the chips render half-clipped
+behind the next block (Simmer's Find filters). Same family as the search
+field collapse fixed earlier.
+
+Fix: every fixed-height strip that scrolls horizontally needs
+`flex: 0 0 auto` on itself. Corollary: NEVER leave `overflow-x: auto` on an
+unflexed child of a column flex container.
+
 ## Self-review checklist (run before you finish ANY prototype)
 
 1. Grep your stylesheet for fixed `width` on anything containing text — justify each one.
@@ -252,3 +281,7 @@ higher-specificity reset BEFORE touching the component rule.
 16. Any `position: sticky` inside a screen's scroll container? Remove it.
 17. Buttons with class padding: computed padding in devtools actually non-zero
     (i.e. no root `X button` reset is beating it)?
+18. Grid tiles: `scrollHeight <= clientHeight` for EVERY tile (nothing clipped
+    with no way to scroll)?
+19. Horizontal chip/filter strips: `flex: 0 0 auto` if they sit in a column
+    flex container?
