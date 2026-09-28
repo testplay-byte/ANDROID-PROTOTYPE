@@ -1,3 +1,17 @@
+## Non-obvious decisions (added 2026-09-28)
+
+- **Bento rows grow with content**: `.at-screen { grid-auto-rows:
+  minmax(min-content, auto) }` with the 96px floor on `.at-tile` as
+  `min-height` — Chrome never grows a track whose minimum is a fixed px, so
+  a fixed-px track minimum silently clipped the notifications tile (failure
+  mode #25). Opt out with `min-height: 0` where a tile should hug content
+  (greeting, about row).
+- **The greeting tile is slim** (`min-height: 0`) and never sticky — a
+  sticky tile inside the scrolling grid reads as a rendering glitch.
+- Tile padding comes from the class (`.at-tile`), never from a root
+  `button` reset — all prototype resets use `:where(button)` (failure
+  mode #24).
+
 # atlas — navigation
 
 ## What this prototype is

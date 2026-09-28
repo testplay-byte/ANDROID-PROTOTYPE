@@ -1,3 +1,15 @@
+## Non-obvious decisions (added 2026-09-28)
+
+- **Horizontally scrolling strips need `flex: 0 0 auto`** when they sit in
+  a column flex container (`.sm-search`, `.sm-chiprow`): an `overflow-x`
+  child has an automatic minimum size of 0, so it crushes to a sliver when
+  the column overflows (failure mode #26).
+- Empty plan slots are dashed outlines with a primary-coloured "Add a
+  recipe" verb — a tinted box with a small "Choose" label reads as disabled
+  content, not a button (failure mode #22).
+- Shopping-list quantities can never leave the row: `.sm-line-qty` is
+  `flex: none` with a max width and ellipsis.
+
 # simmer — navigation
 
 ## What this prototype is

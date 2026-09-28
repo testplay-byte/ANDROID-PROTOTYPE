@@ -40,7 +40,7 @@ ANDROID-PROTOTYPE/
 │   ├── dashboard/              ← Dashboard styles, theme toggle, data-driven gallery.
 │   │   ├── dashboard.css       ← Warm-cream theme (approved palette — do not re-theme).
 │   │   ├── theme-toggle.tsx    ← Page-level light/dark toggle.
-│   │   ├── gallery.tsx         ← Filterable prototype gallery (detailed + grid views).
+│   │   ├── gallery.tsx         ← Filterable prototype gallery (detailed + grid views). Grid view = ONE shared raster: placeCells() flows every design language through the same column grid (wrap continues below the last card) and each cell paints its own sheet background (.gcell::before) that merges with same-family neighbours — see the block comment before editing it.
 │   │   ├── thumbs.tsx          ← Mini home-screen thumbnails per prototype.
 │   │   ├── settings-panel.tsx  ← Device settings page body (cutout config + live preview).
 │   │   └── settings.css        ← Settings page styles.
