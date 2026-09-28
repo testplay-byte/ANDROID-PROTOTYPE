@@ -50,6 +50,15 @@ export interface GalleryItem {
 
 type ViewMode = "detailed" | "grid";
 
+/** Grid-view raster sizing: minimum cell width and the grid gap (px).
+ *  Exposed sheet edges expand by SHEET_EDGE_PX only, so two DIFFERENT
+ *  families show GRID_GAP - 2*SHEET_EDGE_PX of page background between
+ *  them, while same-family neighbours expand half the gap and merge
+ *  seamlessly (see .gcell::before in dashboard.css). */
+const GRID_GAP = 24;
+const CELL_MIN = 180;
+const SHEET_EDGE_PX = 4;
+
 const STYLE_ORDER: DeviceStyle[] = [
   "m3", "hig", "carbon", "neumorph", "glass", "brutalism", "clay", "bauhaus", "minimal", "bento", "flat",
 ];
@@ -267,9 +276,10 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
     return map;
   }, [items]);
 
-  // Grid-view raster width: 3 columns on desktop (the packing rhythm the
-  // rows are designed for), fewer as the viewport narrows. Measured, not
-  // media-queried, so the grid reacts to its actual container.
+  // Grid-view raster width: content-aware, not a fixed desktop number — as
+  // many columns as fit at the cell minimum (mini thumbs are 120px wide),
+  // capped at 5 so sheets never get cramped. Measured via ResizeObserver so
+  // the grid reacts to its actual container.
   const gridRef = useRef<HTMLDivElement>(null);
   const [cols, setCols] = useState(3);
   useEffect(() => {
@@ -277,7 +287,7 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
     if (!el || typeof ResizeObserver === "undefined") return;
     const ro = new ResizeObserver((entries) => {
       const w = entries[0].contentRect.width;
-      setCols(w >= 760 ? 3 : w >= 470 ? 2 : 1);
+      setCols(Math.max(1, Math.min(5, Math.floor((w + GRID_GAP) / (CELL_MIN + GRID_GAP)))));
     });
     ro.observe(el);
     return () => ro.disconnect();
@@ -352,6 +362,13 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
                 ["--bw-right"]: cell.right ? "0px" : "1px",
                 ["--bw-bottom"]: cell.down ? "0px" : "1px",
                 ["--bw-left"]: cell.left ? "0px" : "1px",
+                // sheet expansion per side: half the gap toward a same-family
+                // neighbour (seamless merge), a sliver toward anything else
+                // (visible spacing between different families)
+                ["--ex-t"]: cell.up ? `${GRID_GAP / -2}px` : `-${SHEET_EDGE_PX}px`,
+                ["--ex-r"]: cell.right ? `${GRID_GAP / -2}px` : `-${SHEET_EDGE_PX}px`,
+                ["--ex-b"]: cell.down ? `${GRID_GAP / -2}px` : `-${SHEET_EDGE_PX}px`,
+                ["--ex-l"]: cell.left ? `${GRID_GAP / -2}px` : `-${SHEET_EDGE_PX}px`,
               } as React.CSSProperties}
             >
               {cell.first && (

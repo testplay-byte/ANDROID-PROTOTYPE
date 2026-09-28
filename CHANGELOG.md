@@ -22,9 +22,15 @@
   corners), so L-shaped sheets get clean rounded outer corners.
 - **Family header rides the first cell** of its group (`.ghead`), not a
   separate section line.
-- Columns are measured, not media-queried (ResizeObserver): 3 on desktop,
-  2 below 760px, 1 below 470px — the packing rule holds at every width
-  (verified 1360 / 700 / 390).
+- **Spacing between family sheets** (user review): the sheet expansion is now
+  per side — half the gap toward a same-family neighbour (seamless merge),
+  4px on exposed sides — so different families keep 16px of page background
+  between them while wrapped families stay perfectly connected.
+- **Content-aware column count**: as many columns as fit at a 180px cell
+  minimum, capped at 5 — wide displays now show 4-5 prototypes per row
+  (was hard-capped at 3). Verified 1360 (5 cols) / 700 (3) / 390 (1).
+- Columns are measured, not media-queried (ResizeObserver) — the packing
+  rule holds at every width.
 
 ### 2026-09-28 — polish round 3: content-awareness fixes (Simmer filters, Atlas bento) + docs
 
