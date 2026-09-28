@@ -14,10 +14,13 @@
 | `workflow.md`                 | High-level prototype workflow (create → update → retire).           |
 | `tech-stack.md`               | The allowed tech for prototypes and *why* each choice was made.      |
 | `design-standards.md`         | Mobile UI/UX standards: spacing, type scale, color, touch targets, the phone frame. |
+| `SPEC.md`                | **Authoritative system spec** — surfaces, tokens, components, adaptivity, targeting. Read this first. |
+| `playbook.md`            | How to work here without burning a cycle (verification, stale previews, CSS traps). |
+| `native-bridge.md`       | Token → Compose / SwiftUI mapping, so a native prototype reads the same source of truth. |
 | `github-pages.md`             | How deployment works, how to find live URLs, how to troubleshoot.    |
 | `notification-protocol.md`    | **MANDATORY MEMORY FILE.** The ntfy.sh protocol: topic, colors, format, copy-paste commands. |
 | `preferences.md`              | **MANDATORY MEMORY FILE.** All accumulated user design preferences. Read before designing anything. |
-| `ui-failure-modes.md`         | **MANDATORY BEFORE BUILDING.** The 15 recurring UI defect classes the user rejected in reviews (content escaping controls, orphan-word toasts, jammed segments, clipped selections, below-fold CTAs…) + the 10-point self-review checklist. Learn to *recognise* bad, not just apply fixes. |
+| `ui-failure-modes.md`         | **MANDATORY BEFORE BUILDING.** The 26 recurring UI defect classes the user rejected in reviews (content escaping controls, orphan-word toasts, jammed segments, clipped selections, below-fold CTAs…) + the 19-point self-review checklist. Learn to *recognise* bad, not just apply fixes. |
 | `template-rules.md`           | The rules every prototype (built on `src/proto-kit/`) must follow (frame, status bar, text-selection, scrollbar, mobile, theming). |
 | `theme-architecture.md`       | **CRITICAL.** How app theme (scoped to `.device`) is separated from page theme. Read before touching CSS variables. |
 | `style-selection-guide.md`    | **Choose a design language** for a brief — intent → style mapping, the 11 languages, rules and exceptions. |
@@ -34,7 +37,7 @@
 2. [`agent-quickstart.md`](./agent-quickstart.md) — 2-minute fast-start
 3. [`repo-map.md`](./repo-map.md) — see where everything is
 4. [`preferences.md`](./preferences.md) — user's design preferences (MANDATORY)
-5. [`ui-failure-modes.md`](./ui-failure-modes.md) — the 15 defect classes the user rejects (MANDATORY before writing UI)
+5. [`ui-failure-modes.md`](./ui-failure-modes.md) — the 26 defect classes the user rejects (MANDATORY before writing UI)
 6. [`template-rules.md`](./template-rules.md) — the rules every prototype follows
 7. [`theme-architecture.md`](./theme-architecture.md) — how theming works (CRITICAL)
 8. [`style-selection-guide.md`](./style-selection-guide.md) — how to pick a design language for a brief
@@ -51,4 +54,4 @@
 
 ---
 
-*Last updated: 2026-09-28 — added `ui-failure-modes.md` (15 rejected defect classes + self-review checklist, mandatory before building). Reading order renumbered.*
+*Last updated: 2026-09-28 — added `ui-failure-modes.md` (26 rejected defect classes + self-review checklist, mandatory before building). Reading order renumbered.*

@@ -56,6 +56,9 @@ ANDROID-PROTOTYPE/
 ├── docs/                   ← All documentation (workflow, standards, deploy, etc.).
 │   ├── navigation.md       ← Index of docs/.
 │   ├── agent-quickstart.md ← 2-minute fast-start for any AI agent.
+│   ├── SPEC.md           ← **the authoritative system spec** — surfaces, tokens, components, adaptivity.
+│   ├── playbook.md       ← how to work here without wasting a cycle.
+│   ├── native-bridge.md  ← token → Compose / SwiftUI mapping.
 │   ├── style-selection-guide.md ← How to PICK a design language for a brief.
 │   ├── design-languages/   ← Style specs for the 11 design languages.
 │   ├── prototype-blueprint.md ← Step-by-step guide to build a new prototype.

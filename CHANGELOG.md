@@ -7,6 +7,23 @@
 
 ## [Unreleased]
 
+### 2026-09-28 — docs consolidation: SPEC, standards rewrite, playbook, native bridge
+
+- **`docs/SPEC.md`** is now the authoritative system spec: surfaces (phone /
+  tablet / desktop), the component inventory, the adaptivity contract and the
+  targeting convention. Every other doc defers to it.
+- **`docs/design-standards.md` rewritten** against the real code — removes the
+  ten known contradictions (bezel colour and width, `data-theme` target, type
+  scale, token names, nav heights, accent colour, mobile control, stale counts
+  and paths) by stating the facts once, correctly.
+- **`docs/playbook.md`**: the process rules learned the hard way — verify at the
+  user's width, never trust a stale preview, prove every edit landed, CSS-module
+  and container-query traps, and restate a requirement before building it.
+- **`docs/native-bridge.md`**: token → Compose / SwiftUI mapping so a future
+  native prototype consumes the same source of truth.
+- Verified: `node scripts/verify.mjs` passes on all 26 prototypes at every
+  supported size (phone 360/390/430, desktop 1280/1000/760).
+
 ### 2026-09-28 — desktop surface round 2: surface URLs, real window chrome, live resize
 
 - **Surface-specific URLs**: `app/prototypes/[slug]/[surface]/` renders the right

@@ -51,7 +51,7 @@ And skimmed the reference prototype:
 Each prototype lives in **two** places:
 
 ```bash
-cd /home/z/DESIGN-PROTOTYPE
+cd <repo-root>
 
 # 1. The Next.js route (thin shell):
 mkdir -p app/prototypes/<your-name>
@@ -326,7 +326,7 @@ Update the prototypes index (e.g. `public/prototypes/navigation.md`) and add a r
 ## Step 10: Build & verify locally BEFORE pushing
 
 ```bash
-cd /home/z/DESIGN-PROTOTYPE
+cd <repo-root>
 npm run build          # must succeed with no type errors
 
 # Preview with the correct basePath:
@@ -343,7 +343,7 @@ Click through every screen, test every interaction. The build MUST succeed local
 ## Step 11: Commit, push, verify live
 
 ```bash
-cd /home/z/DESIGN-PROTOTYPE
+cd <repo-root>
 git add app/prototypes/<your-name> src/prototypes/<your-name> app/page.tsx public/prototypes/navigation.md
 git commit -m "feat: add <your-name> prototype
 

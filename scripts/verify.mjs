@@ -23,7 +23,7 @@
  */
 
 import { spawn } from "node:child_process";
-import { mkdirSync, existsSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, existsSync, readFileSync, writeFileSync, rmSync, readdirSync, statSync, renameSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import { tmpdir } from "node:os";
@@ -204,11 +204,39 @@ async function cdp(url, width, height) {
     ws.close();
     return { page: result.value, shot };
   } finally {
+    await cleanupProfile(child, profile);
+  }
+}
+
+/** Kill the browser, wait for it to actually exit, then remove its ~150MB
+ *  profile. Windows holds file locks for a moment after exit, so retry with
+ *  backoff; anything still locked is renamed so the next run can sweep it. */
+async function cleanupProfile(child, profile) {
+  if (child.exitCode === null) {
+    const exited = new Promise((r) => child.once("exit", r));
     child.kill();
+    await Promise.race([exited, new Promise((r) => setTimeout(r, 3000))]);
+  }
+  for (let attempt = 0; attempt < 5; attempt++) {
+    try {
+      rmSync(profile, { recursive: true, force: true, maxRetries: 2 });
+      return;
+    } catch {
+      await new Promise((r) => setTimeout(r, 300 * (attempt + 1)));
+    }
+  }
+  // locked: park it under a name the sweeper can recognise and delete later
+  try {
+    const parked = `${profile}.locked`;
+    rmSync(parked, { recursive: true, force: true });
+    renameSync(profile, parked);
+  } catch {
+    /* give up — sweepStaleProfiles() will catch it on the next run */
   }
 }
 
 /* ---------- run ---------- */
+sweepStaleProfiles();
 const all = discover();
 const wanted = process.argv.slice(2).filter((a) => !a.startsWith("--"));
 const targets = wanted.length ? all.filter((p) => wanted.includes(p.slug)) : all;
@@ -216,6 +244,33 @@ if (!targets.length) {
   console.error("No matching prototypes. Known:", all.map((p) => p.slug).join(", "));
   process.exit(1);
 }
+/* Self-healing: a previous run that was killed (or the machine rebooted)
+   leaves ~150MB profiles behind. Sweep anything older than 10 minutes
+   before starting, so the gate can never fill the disk again. */
+function sweepStaleProfiles() {
+  const base = tmpdir();
+  let removed = 0;
+  let bytes = 0;
+  for (const name of readdirSync(base)) {
+    if (!name.startsWith("verify-")) continue;
+    const dir = join(base, name);
+    try {
+      if (Date.now() - statSync(dir).mtimeMs < 3 * 60 * 1000) continue;
+      bytes += statSync(dir).size;
+      rmSync(dir, { recursive: true, force: true });
+      removed++;
+    } catch {
+      /* still locked by a running Chrome — try again next run */
+    }
+  }
+  if (removed) console.log(`swept ${removed} stale profile(s) (${(bytes / 1e6).toFixed(0)} MB) from a previous run
+`);
+}
+
+if (SHOTS) mkdirSync(OUT, { recursive: true });
+
+// previous runs' screenshots are stale the moment a new run starts
+if (existsSync(OUT)) rmSync(OUT, { recursive: true, force: true });
 if (SHOTS) mkdirSync(OUT, { recursive: true });
 
 let failures = 0;

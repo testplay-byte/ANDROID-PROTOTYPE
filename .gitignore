@@ -34,3 +34,5 @@ out/
 *.tmp
 *.bak
 .cache/
+# verification output (scripts/verify.mjs screenshots)
+.verify/

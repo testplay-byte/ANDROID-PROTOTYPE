@@ -62,7 +62,7 @@
 ## Build & preview locally
 
 ```bash
-cd /home/z/DESIGN-PROTOTYPE
+cd <repo-root>
 npm install
 npm run build          # static export → ./out
 

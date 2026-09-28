@@ -198,7 +198,7 @@ Both are the user's own creations — copy freely.
 
 ---
 
-## 6. Material 3 Expressive design (for prototypes that use M3)
+## 6. (Prototype-specific: these are the anime-app screen rules, not global law.) Material 3 Expressive design (for prototypes that use M3)
 
 When a prototype uses Material 3 (like bloom or anime-app), follow these rules:
 

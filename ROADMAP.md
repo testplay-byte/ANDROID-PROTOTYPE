@@ -101,21 +101,21 @@ Two hard principles the user has stated:
 - Surface switcher above the family-sheet raster; the sheet packing adapts to the
   surface's natural card aspect. Top half untouched.
 
-### Phase 5 — Spec + docs consolidation (D8, D9) `[~]` — `docs/SPEC.md` written; the contradiction sweep across the older docs is still open
+### Phase 5 — Spec + docs consolidation (D8, D9) `[x]` — `docs/SPEC.md` is authoritative; the older docs now defer to it and their ten known contradictions are resolved
 - `docs/SPEC.md`: tokens, surfaces, component inventory (per language), adaptivity
   rules, the targeting convention, and the add-a-style / add-a-surface recipes.
 - Resolve the 10 known contradictions; mark superseded docs; shrink the mandatory
   reading path.
 - Per-file style index convention documented and adopted.
 
-### Phase 6 — Adaptivity + verification (D6, D10) `[~]` — `scripts/verify.mjs` landed and 25/26 prototypes are clean; the fix pass over the flagged ones is still open
+### Phase 6 — Adaptivity + verification (D6, D10) `[x]` — `scripts/verify.mjs` is the gate and all 26 prototypes pass at 360/390/430 (phone) and 1280/1000/760 (desktop)
 - `scripts/verify.mjs`: per-prototype checks at 360 / 390 / 430 (phone) and the desktop
   width — horizontal overflow, clipped content (`scrollHeight > clientHeight` on
   non-scrollable elements), forbidden in-device CSS (vh/vw, fixed-px grid track
   minimums), plus screenshot capture.
 - Audit pass over the 23 mobile prototypes; fix real breakages only.
 
-### Phase 7 — Native bridge (D11) `[ ]`
+### Phase 7 — Native bridge (D11) `[x]` — `docs/native-bridge.md` maps every token to Compose / SwiftUI and names the gaps (glass, neumorphism)
 - `docs/native-bridge.md`: token → Compose / SwiftUI mapping, and what a native
   prototype consumes from this repo. No native build in this phase.
 
