@@ -15,12 +15,14 @@ import { CATEGORIES, SHOWS, type Show } from "../lib/data";
 import { useDrift } from "../state/drift-context";
 import { CoverArt } from "../components/cover-art";
 import { EpisodeRow } from "../components/episode-row";
-import { HeartIcon, PlayIcon } from "../components/icons";
+import { HeartIcon, PlayIcon, SearchIcon } from "../components/icons";
 
 interface BrowseScreenProps {
   /** show opened from another tab ("In your orbit" cards) */
   openShowId: string | null;
   onConsumed: () => void;
+  /** bumps when the header search button is pressed — focuses the field */
+  searchSignal?: number;
 }
 
 const ROWS: { title: string; ids: string[]; tint: string }[] = [
@@ -29,11 +31,17 @@ const ROWS: { title: string; ids: string[]; tint: string }[] = [
   { title: "Long-form stories", ids: ["ember-talk", "alpenglow", "signal-static", "tidal"], tint: "#ff7a59" },
 ];
 
-export function BrowseScreen({ openShowId, onConsumed }: BrowseScreenProps) {
+export function BrowseScreen({ openShowId, onConsumed, searchSignal = 0 }: BrowseScreenProps) {
   const { play, subscriptions, toggleSubscribe } = useDrift();
   const [category, setCategory] = useState<string>("All");
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
   const detailRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (searchSignal > 0) searchRef.current?.focus();
+  }, [searchSignal]);
 
   useEffect(() => {
     if (openShowId) {
@@ -89,6 +97,41 @@ export function BrowseScreen({ openShowId, onConsumed }: BrowseScreenProps) {
             </div>
           );
         })}
+
+        {query.trim() && (() => {
+          const q = query.trim().toLowerCase();
+          const hits = SHOWS.filter(
+            (s) => s.title.toLowerCase().includes(q) || s.host.toLowerCase().includes(q) || s.blurb.toLowerCase().includes(q),
+          );
+          if (hits.length === 0)
+            return (
+              <div className="dr-empty" style={{ ["--stagger" as string]: "240ms" } as CSSProperties}>
+                <span className="dr-empty__mark"><SearchIcon size={22} /></span>
+                <b>Nothing drifts under “{query.trim()}”</b>
+                <span>Try a mood, a topic, or a host instead.</span>
+              </div>
+            );
+          return (
+            <div style={{ ["--stagger" as string]: "240ms" } as CSSProperties}>
+              <h2 className="dr-sechead">All matches · {hits.length}</h2>
+              <div className="dr-row" style={{ ["--ep-accent" as string]: "#ffb45c" } as CSSProperties}>
+                {hits.map((s) => (
+                  <button
+                    key={s.id}
+                    className={`dr-rowcard${selectedId === s.id ? " is-selected" : ""}`}
+                    type="button"
+                    onClick={() => setSelectedId(s.id)}
+                    style={{ ["--ep-accent" as string]: s.accent } as CSSProperties}
+                  >
+                    <CoverArt show={s} size={112} minimal />
+                    <span className="dr-rowcard__title">{s.title}</span>
+                    <span className="dr-rowcard__sub">{s.category}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
 
         {/* show detail — in-place */}
         {selected && <ShowDetail show={selected} detailRef={detailRef} onPlay={(epId) => play(selected.id, epId)} followed={subscriptions.includes(selected.id)} onFollow={() => toggleSubscribe(selected.id)} />}

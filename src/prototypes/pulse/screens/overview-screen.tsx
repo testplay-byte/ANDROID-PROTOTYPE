@@ -186,7 +186,7 @@ export function OverviewScreen({ onGoIncidents }: { onGoIncidents: () => void })
                     </span>
                   </td>
                   <td>
-                    <StateTag tone={STATE_TONE[s.state]}>{STATUS_LABEL[s.state]}</StateTag>
+                    <StateTag tone={STATE_TONE[s.state]} compact>{STATUS_LABEL[s.state]}</StateTag>
                   </td>
                   <td className="plu-td-num tnum">{fmtMs(serviceP50(s, s.state))}</td>
                   <td className="plu-td-num tnum">{fmtPct(s.uptime)}%</td>

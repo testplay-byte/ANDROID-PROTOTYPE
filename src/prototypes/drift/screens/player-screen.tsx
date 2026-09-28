@@ -90,8 +90,8 @@ export function PlayerScreen() {
             onPointerUp={onPointerUp}
             onPointerCancel={onPointerUp}
           >
-            <span className="dr-scrub__rail" aria-hidden="true" />
-            <span className="dr-scrub__fill" style={{ transform: `scaleX(${played.toFixed(4)})` } as CSSProperties} aria-hidden="true" />
+            {/* the waveform above IS the progress bar (no duplicate rail) —
+                this strip stays the invisible drag surface + position knob */}
             <span className="dr-scrub__knob" style={{ left: `${(played * 100).toFixed(3)}%` } as CSSProperties} aria-hidden="true" />
           </div>
           <div className="dr-scrub__times tnum">

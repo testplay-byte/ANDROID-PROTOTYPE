@@ -375,6 +375,12 @@ button {
   white-space: nowrap;
   border: 1px solid;
 }
+.plu-tag--sm {
+  height: 18px;
+  padding: 0 5px;
+  font-size: 8.5px;
+  letter-spacing: 0.04em;
+}
 .plu-tag--green {
   color: var(--color-tertiary);
   border-color: color-mix(in srgb, var(--color-tertiary) 55%, transparent);
@@ -452,8 +458,8 @@ button {
   width: 48px;
   height: 24px;
   flex: none;
-  border: 1px solid var(--color-outline);
-  background: var(--color-surface-2);
+  border: 1.5px solid var(--color-text-muted);
+  background: var(--color-surface-3);
   transition: background 120ms var(--ease-standard),
     border-color 120ms var(--ease-standard);
 }
@@ -487,13 +493,14 @@ button {
   background: var(--color-bg);
 }
 .plu-seg__opt {
-  height: 30px;
-  padding: 0 11px;
+  height: 36px;
+  padding: 0 15px;
+  min-width: 44px;
   font-size: var(--fs-label-s);
   font-weight: 600;
   letter-spacing: 0.05em;
   color: var(--color-text-muted);
-  border-right: 1px solid var(--color-outline-variant);
+  border-right: 1px solid var(--color-outline);
   transition: background 110ms var(--ease-standard),
     color 110ms var(--ease-standard);
 }
@@ -736,11 +743,24 @@ button {
   color: var(--color-text-subtle);
 }
 
-/* data table — Carbon zebra-free, hairlines, hover tint */
+/* data table — Carbon zebra-free, hairlines, hover tint.
+   Fixed layout: every column reserves the width its widest value needs
+   (failure-mode #3 — no text escaping cells). */
 .plu-table {
   width: 100%;
+  table-layout: fixed;
   border-collapse: collapse;
 }
+.plu-table th:nth-child(1),
+.plu-table td:nth-child(1) { width: auto; }
+.plu-table th:nth-child(2),
+.plu-table td:nth-child(2) { width: 84px; }
+.plu-table th:nth-child(3),
+.plu-table td:nth-child(3) { width: 52px; }
+.plu-table th:nth-child(4),
+.plu-table td:nth-child(4) { width: 56px; }
+.plu-table th:nth-child(5),
+.plu-table td:nth-child(5) { width: 72px; }
 .plu-table thead th {
   text-align: left;
   font-size: var(--fs-label-s);
@@ -751,9 +771,10 @@ button {
   white-space: nowrap;
 }
 .plu-table tbody td {
-  padding: var(--plu-row-py) var(--sp-3);
+  padding: var(--plu-row-py) 6px;
   border-bottom: 1px solid var(--color-outline-variant);
   vertical-align: middle;
+  overflow: hidden;
 }
 .plu-table tbody tr {
   transition: background 110ms var(--ease-standard);

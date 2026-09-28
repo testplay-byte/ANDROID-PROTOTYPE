@@ -285,6 +285,7 @@ button {
 
 /* ---------- 3. shared clay bits ---------- */
 .sm-chip {
+  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   gap: 5px;
@@ -303,6 +304,7 @@ button {
 }
 
 .sm-chip--filter {
+  flex: 0 0 auto;
   color: var(--color-text-muted);
   cursor: pointer;
   transition: transform var(--dur-2) var(--ease-emphasized),
@@ -831,6 +833,7 @@ button {
   gap: 9px;
   padding: 0 14px;
   height: 52px;
+  flex: 0 0 auto;
   background: var(--color-surface-1);
   border-radius: var(--r-lg);
   box-shadow: var(--shadow-inset);
@@ -886,6 +889,10 @@ button {
 
 /* ---------- 8. Detail push ---------- */
 .sm-detail {
+  /* opaque clay sheet over the tab — the page behind must never show
+     through while scrolling (failure-mode #9) */
+  background: var(--color-bg);
+  z-index: 24;
   animation: sm-push var(--dur-4) var(--ease-emphasized-decel) both;
 }
 @keyframes sm-push {
@@ -1315,7 +1322,7 @@ button {
   gap: 11px;
   width: 100%;
   text-align: left;
-  padding: 11px 13px;
+  padding: 11px 14px;
   border-radius: var(--r-md);
   background: var(--color-surface-2);
   box-shadow: var(--shadow-1);
@@ -1361,6 +1368,9 @@ button {
   font-size: var(--fs-body);
   font-weight: 700;
   color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .sm-line--on .sm-line-name {
   color: var(--color-text-muted);
@@ -1598,11 +1608,13 @@ button {
   box-shadow: var(--shadow-inset);
 }
 .sm-seg-btn {
+  white-space: nowrap;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 11px 8px;
+  min-height: 48px;
+  padding: 12px 14px;
   border-radius: var(--r-md);
   font-size: var(--fs-body);
   font-weight: 800;
@@ -1650,6 +1662,7 @@ button {
   right: 0;
   bottom: 0;
   max-height: 78%;
+  background: var(--color-surface-2);
   display: flex;
   flex-direction: column;
   background: var(--color-surface-1);
@@ -1805,13 +1818,14 @@ button {
   display: flex;
   align-items: center;
   gap: 9px;
-  max-width: 86%;
-  padding: 11px 16px 11px 11px;
+  max-width: 92%;
+  padding: 11px 18px 11px 12px;
   border-radius: var(--r-pill);
   background: var(--color-surface-4);
   color: var(--color-text);
-  font-size: var(--fs-body);
+  font-size: var(--fs-body-s);
   font-weight: 700;
+  white-space: nowrap;
   box-shadow: var(--shadow-2);
   animation: sm-toast-in var(--dur-4) var(--ease-emphasized-decel) both;
 }

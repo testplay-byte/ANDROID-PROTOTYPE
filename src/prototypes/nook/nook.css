@@ -178,7 +178,7 @@ button {
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: none;
-  padding: 26px 20px 96px;
+  padding: 26px 20px 120px;
   display: flex;
   flex-direction: column;
   gap: 2px;
@@ -257,7 +257,14 @@ button {
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--color-text-subtle);
-  margin: 34px 0 4px;
+  margin: 38px 0 8px;
+  padding-top: 22px;
+  border-top: var(--border-w) solid var(--color-outline-variant);
+}
+.no-sechead:first-of-type {
+  border-top: none;
+  padding-top: 0;
+  margin-top: 26px;
 }
 
 /* the 1px progress rule — fill over hairline */
@@ -319,6 +326,9 @@ button {
   font-weight: 500;
   letter-spacing: 0.005em;
   color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .no-row__author {
   font-size: 12px;
@@ -516,12 +526,19 @@ button {
   overflow: hidden;
 }
 .no-seg__btn {
-  padding: 6px 12px;
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 15px;
   line-height: 1.3;
   font-family: var(--no-serif);
   color: var(--color-text-subtle);
   transition: background var(--dur-2) var(--ease-standard),
     color var(--dur-2) var(--ease-standard);
+}
+.no-seg__btn:hover {
+  background: var(--color-surface-1);
+  color: var(--color-text);
 }
 .no-seg__btn + .no-seg__btn {
   border-left: var(--border-w) solid var(--color-outline-variant);
@@ -551,7 +568,7 @@ button {
   overflow-y: auto;
   overscroll-behavior: contain;
   scrollbar-width: none;
-  padding: 12px 24px 96px;
+  padding: 12px 24px 120px;
   cursor: grab;
 }
 .no-scroll::-webkit-scrollbar {
@@ -738,10 +755,11 @@ button {
 }
 .no-stat__num {
   font-family: var(--no-serif);
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 500;
   line-height: 1.1;
   color: var(--color-text);
+  white-space: nowrap;
 }
 .no-stat__label {
   font-size: 10px;
@@ -935,7 +953,7 @@ button {
   padding: 6px 8px calc(14px + env(safe-area-inset-bottom));
   background: linear-gradient(
     to top,
-    var(--color-bg) 60%,
+    var(--color-bg) 78%,
     color-mix(in srgb, var(--color-bg) 0%, transparent)
   );
 }

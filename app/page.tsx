@@ -152,6 +152,21 @@ const PROTOTYPES: GalleryItem[] = [
     ],
   },
   {
+    name: "Ruckus",
+    url: "prototypes/ruckus/",
+    status: "review",
+    desc: "Neo-brutalist DIY gig guide — 0px radius, 2-3px ink borders, hard zero-blur offset shadows, marquee tickers and poster type. Numbered lineup, generative cover art, capacity meters and a ticket wallet with perforated stubs.",
+    style: "brutalism",
+    tags: ["Gigs", "Tickets", "Marquee"],
+    palette: { bg: "#181614", surface: "#211f1c", surfaceAlt: "#3d3831", accent: "#ffd23f", text: "#f5f2ea" },
+    screens: [
+      { name: "Gigs", interactions: 80 },
+      { name: "Bands", interactions: 65 },
+      { name: "Rooms", interactions: 55 },
+      { name: "Me", interactions: 50 },
+    ],
+  },
+  {
     name: "Finance Hub",
     url: "prototypes/finance-hub/",
     status: "review",
@@ -331,7 +346,22 @@ const PROTOTYPES: GalleryItem[] = [
       { name: "Visit", interactions: 70 },
       { name: "Settings", interactions: 45 },
     ],
+  },  {
+    name: "Linie",
+    url: "prototypes/linie/",
+    status: "review",
+    desc: "Bauhaus metro planner — the network drawn as geometry: three lines on right-angle SVG paths, circle stations with ink rings, interchanges as double rings. Journey planner with a vertical route diagram, live departure countdowns and a ticket wallet. Red primary, 2px borders, zero shadows.",
+    style: "bauhaus",
+    tags: ["Transit", "Geometric", "No shadows"],
+    palette: { bg: "#f4f1ea", surface: "#ffffff", surfaceAlt: "#e0dbcd", accent: "#d5321f", text: "#141414" },
+    screens: [
+      { name: "Netz", interactions: 75 },
+      { name: "Route", interactions: 80 },
+      { name: "Abfahrt", interactions: 60 },
+      { name: "Me", interactions: 55 },
+    ],
   },
+
 ];
 
 const STYLE_BARS = STYLE_ORDER_SAFE();

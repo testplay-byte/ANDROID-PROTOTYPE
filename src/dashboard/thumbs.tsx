@@ -116,6 +116,30 @@ const THUMBS: Record<string, (p: Palette) => ReactNode> = {
       </div>
     </>
   ),
+  "Ruckus": (p) => (
+    <>
+      {/* yellow poster hero + marquee strip */}
+      <div style={{ background: p.accent, border: "2px solid var(--color-outline)", borderRadius: 0, padding: 6, display: "flex", flexDirection: "column", gap: 4 }}>
+        <span style={{ ...line("rgba(0,0,0,.55)", "34%", 6, 0) }} />
+        <span style={{ ...line("rgba(0,0,0,.8)", "62%", 10, 0) }} />
+      </div>
+      <div style={{ background: p.accent, border: "2px solid var(--color-outline)", padding: "2px 0" }}>
+        <span style={{ display: "block", height: 3, width: "70%", background: "rgba(0,0,0,.6)" }} />
+      </div>
+      {/* numbered lineup rows */}
+      {[0, 1, 2].map((i) => (
+        <div key={i} style={{ display: "flex", alignItems: "center", gap: 5, border: "2px solid var(--color-outline)", padding: "4px 5px" }}>
+          <span style={{ fontSize: 7, fontWeight: 900, color: p.text }}>0{i + 1}</span>
+          <div style={{ display: "flex", flexDirection: "column", gap: 2, flex: 1 }}>
+            <span style={line(p.text, "58%", 3, 0)} />
+            <span style={line(p.surfaceAlt, "40%", 2, 0)} />
+          </div>
+          <span style={{ ...line("#f0513d", "16%", 5, 0) }} />
+        </div>
+      ))}
+    </>
+  ),
+
   "Wallet": (p) => (
     <>
       {/* fanned pass stack — front card in the accent gradient */}
@@ -494,6 +518,31 @@ const THUMBS: Record<string, (p: Palette) => ReactNode> = {
       ))}
     </>
   ),
+  "Linie": (p) => (
+    <>
+      {/* poster header + quarter circle */}
+      <div style={{ background: p.accent, border: "2px solid var(--color-outline)", borderRadius: 2, padding: 6, position: "relative" }}>
+        <span style={{ ...line(p.text, "58%", 9, 0), opacity: 0.9 }} />
+        <span style={{ position: "absolute", right: -8, bottom: -8, width: 24, height: 24, borderRadius: "50%", background: "#f0c000" }} />
+      </div>
+      {/* metro map plate: two lines + circles */}
+      <div style={{ border: "2px solid var(--color-outline)", borderRadius: 2, background: p.surface, padding: 6, position: "relative", height: 60 }}>
+        <span style={{ position: "absolute", left: 8, top: 12, width: 40, height: 3, background: p.accent }} />
+        <span style={{ position: "absolute", left: 44, top: 15, width: 3, height: 30, background: "#1f6fd0" }} />
+        <span style={{ position: "absolute", left: 12, top: 36, width: 34, height: 3, background: "#f0c000" }} />
+        {[[10, 13], [50, 15], [44, 45], [14, 38]].map(([x, y], i) => (
+          <span key={i} style={{ position: "absolute", left: x, top: y, width: i === 1 ? 7 : 5, height: i === 1 ? 7 : 5, borderRadius: "50%", background: p.surface, border: "1.5px solid var(--color-outline)" }} />
+        ))}
+      </div>
+      {/* stat blocks */}
+      <div style={{ display: "flex", gap: 4 }}>
+        {[p.accent, "#1f6fd0", "#f0c000"].map((c, i) => (
+          <span key={i} style={{ flex: 1, border: `2px solid ${c}`, borderRadius: 2, height: 16, background: p.surface }} />
+        ))}
+      </div>
+    </>
+  ),
+
   "Gallery App": (p) => (
     <>
       <span style={{ ...line(p.text, "72%", 10, 0) }} />

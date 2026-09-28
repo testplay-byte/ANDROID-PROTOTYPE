@@ -55,11 +55,27 @@ export function TodayScreen({ onNavigate }: TodayScreenProps) {
           </div>
         </div>
 
+        {/* rhythm strip — three soft wells give the screen structure */}
+        <div className="st-rhythm" style={({ ["--stagger" as string]: "110ms" } as CSSProperties)}>
+          <div className="st-rhythm__cell">
+            <b className="st-num">{totalMinutes}</b>
+            <span>minutes still</span>
+          </div>
+          <div className="st-rhythm__cell">
+            <b className="st-num">{completeCount}</b>
+            <span>sessions done</span>
+          </div>
+          <div className="st-rhythm__cell">
+            <b className="st-num">{streak}</b>
+            <span>day streak</span>
+          </div>
+        </div>
+
         {/* intention card — one soft extruded slab, pressed on tap */}
         <button
           type="button"
           className="st-intention"
-          style={({ ["--stagger" as string]: "140ms" } as CSSProperties)}
+          style={({ ["--stagger" as string]: "170ms" } as CSSProperties)}
           onClick={() => onNavigate("breathe")}
         >
           <span className="st-intention__eyebrow">
@@ -69,7 +85,7 @@ export function TodayScreen({ onNavigate }: TodayScreenProps) {
           <span className="st-intention__line">{intention}</span>
         </button>
 
-        <h2 className="st-sechead" style={({ ["--stagger" as string]: "210ms" } as CSSProperties)}>
+        <h2 className="st-sechead" style={({ ["--stagger" as string]: "240ms" } as CSSProperties)}>
           Recommended
         </h2>
 

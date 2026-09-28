@@ -1,0 +1,312 @@
+/* ============================================================
+   ruckus.css — "Ruckus" live-music gig guide (Neo-brutalism).
+   Base tokens: src/proto-kit/styles/brutalism.css (data-style).
+
+   The language, enforced everywhere in this file:
+     - 0px radius, EVERYWHERE (the device frame included, via the
+       style layer's --device-radius: 0)
+     - 2-3px ink borders on every container; structure lives in
+       the border, never in a soft shadow
+     - hard ZERO-blur offset shadows (--shadow-1/2) + inset
+       pressed states (--shadow-inset) — the shadow is a solid block
+     - uppercase poster type (Arial Black stack), numbered stencils
+     - flat yellow #ffd23f / orange-red #f0513d blocks; no
+       gradients, no blur, no borders under 2px inside the device
+   Every selector is prefixed .rk so nothing leaks.
+   ============================================================ */
+
+.rk {
+  --rk-display: "Arial Black", "Arial Bold", Impact, system-ui, sans-serif;
+  --rk-sticker-flame: var(--color-secondary);
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  overflow: hidden;
+  font-family: "Helvetica Neue", Arial, system-ui, sans-serif;
+  background: var(--color-bg);
+  color: var(--color-text);
+  -webkit-font-smoothing: antialiased;
+}
+
+.rk button { font: inherit; color: inherit; background: none; border: none; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.rk button:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+
+/* ---------- 1. screens + scroll shell ---------- */
+.rk-screen { position: absolute; inset: 0; }
+.rk-content {
+  position: absolute;
+  inset: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  scrollbar-width: none;
+  padding: 104px 16px 120px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  cursor: grab;
+}
+.rk-content::-webkit-scrollbar { display: none; }
+.rk-detail .rk-content { padding-top: 68px; }
+
+/* staggered entrance — hard 140ms rise, no bounce */
+.rk [data-stagger] { animation: rk-in 140ms steps(6) both; animation-delay: calc(var(--i, 0) * 45ms); }
+@keyframes rk-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ---------- 2. poster + marquee + banners ---------- */
+.rk-poster {
+  position: relative;
+  padding: 18px;
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  border: 3px solid var(--color-outline);
+  box-shadow: var(--shadow-2);
+}
+.rk-poster__kicker { display: block; font-size: 10px; font-weight: 800; letter-spacing: 0.16em; text-transform: uppercase; }
+.rk-poster__title { margin: 4px 0 2px; font-family: var(--rk-display); font-size: 46px; line-height: 0.92; letter-spacing: -0.02em; text-transform: uppercase; }
+.rk-poster__sub { margin: 0; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; }
+.rk-poster--detail { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.rk-poster--detail .rk-poster__title { font-size: 38px; }
+
+.rk-marquee { overflow: hidden; border: 3px solid var(--color-outline); background: var(--color-primary); color: var(--color-primary-fg); }
+.rk-marquee--ink { background: var(--color-bg); color: var(--color-text); }
+.rk-marquee__inner { display: flex; width: max-content; animation: rk-slide 14s linear infinite; }
+.rk-marquee__run { padding: 7px 0; font-size: 12px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; white-space: nowrap; }
+@keyframes rk-slide { to { transform: translateX(-50%); } }
+
+.rk-banner { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 3px solid var(--color-outline); box-shadow: var(--shadow-1); }
+.rk-banner--ink { background: var(--color-bg); }
+.rk-banner--primary { background: var(--color-primary); color: var(--color-primary-fg); }
+.rk-banner--flame { background: var(--color-secondary); color: var(--color-bg); }
+.rk-banner__n { font-family: var(--rk-display); font-size: 18px; line-height: 1; }
+.rk-banner__label { font-size: 12px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; }
+
+.rk-sticker {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  /* sits in a positioned cell; poster overrides the offset below */
+  pointer-events: none;
+  display: inline-flex;
+  align-items: center;
+  padding: 5px 9px;
+  border: 2px solid var(--color-outline);
+  box-shadow: var(--shadow-1);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.rk-sticker--flame { background: var(--color-secondary); color: var(--color-bg); }
+.rk-sticker--primary { background: var(--color-primary); color: var(--color-primary-fg); }
+.rk-sticker--ink { background: var(--color-bg); color: var(--color-text); }
+
+/* ---------- 3. chips + headers ---------- */
+.rk-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.rk-chip {
+  flex: 0 0 auto;
+  padding: 8px 13px;
+  min-height: 34px;
+  border: 2px solid var(--color-outline);
+  background: var(--color-bg);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  box-shadow: var(--shadow-1);
+  transition: transform 90ms steps(2), box-shadow 90ms steps(2);
+}
+.rk-chip:active { transform: translate(2px, 2px); box-shadow: var(--shadow-inset); }
+.rk-chip.is-on { background: var(--color-primary); color: var(--color-primary-fg); }
+
+.rk-slabhead { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.rk-h1 { margin: 0; font-family: var(--rk-display); font-size: 34px; line-height: 0.95; text-transform: uppercase; }
+.rk-count { font-size: 10px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; color: var(--color-text-muted); }
+.rk-listhead { padding: 10px 0 4px; font-size: 10px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; color: var(--color-text-muted); }
+
+/* ---------- 4. lineup rows ---------- */
+.rk-list { display: flex; flex-direction: column; gap: 10px; }
+.rk-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 13px;
+  border: 3px solid var(--color-outline);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-1);
+  text-align: left;
+  transition: transform 90ms steps(2), box-shadow 90ms steps(2);
+}
+.rk-row:active { transform: translate(3px, 3px); box-shadow: var(--shadow-inset); }
+.rk-row.is-out { opacity: 0.72; }
+.rk-row__n { font-family: var(--rk-display); font-size: 24px; line-height: 1; }
+.rk-row__main { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.rk-row__band { font-family: var(--rk-display); font-size: 16px; line-height: 1.05; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rk-row__meta { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rk-row__price { position: relative; flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: flex-end; }
+.rk-row__price .rk-sticker { position: static; transform: rotate(4deg); }
+.rk-row__price em { font-family: var(--rk-display); font-size: 15px; font-style: normal; }
+.rk-row--btn { justify-content: space-between; }
+
+/* ---------- 5. bands grid + generative cover ---------- */
+.rk-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.rk-card { border: 3px solid var(--color-outline); box-shadow: var(--shadow-1); background: var(--color-bg); }
+.rk-card__art { position: relative; display: block; width: 100%; padding: 0; border-bottom: 3px solid var(--color-outline); }
+.rk-card__art .rk-sticker { top: 6px; right: 6px; }
+.rk-card__body { display: flex; flex-direction: column; align-items: flex-start; gap: 5px; padding: 10px; }
+.rk-card__name { font-family: var(--rk-display); font-size: 15px; line-height: 1; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; }
+.rk-card__meta { font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-text-muted); }
+
+.rk-cover { position: relative; display: block; width: 100%; height: 100%; min-height: 96px; overflow: hidden; }
+.rk-cover__bars { position: absolute; inset: 14px; display: flex; align-items: flex-end; gap: 5px; }
+.rk-cover__bars i { flex: 1; background: currentColor; display: block; }
+.rk-cover__bars[data-m="1"] { flex-direction: row-reverse; }
+.rk-cover__bars[data-m="2"] { transform: rotate(90deg) scale(0.7); }
+.rk-cover__bars[data-m="3"] { inset: 22px 10px; gap: 8px; }
+.rk-cover__dot { position: absolute; width: 34%; aspect-ratio: 1; border-radius: 50%; background: currentColor; bottom: 6px; left: 6px; }
+.rk-cover__dot[data-m="1"] { bottom: auto; top: 6px; left: auto; right: 6px; }
+.rk-cover__dot[data-m="2"] { width: 22%; bottom: 40%; left: 8%; }
+.rk-cover__dot[data-m="3"] { width: 44%; bottom: -12%; left: auto; right: -8%; }
+
+/* ---------- 6. gig detail ---------- */
+.rk-dhead { display: flex; align-items: center; gap: 10px; }
+.rk-back {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--color-outline);
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  box-shadow: var(--shadow-1);
+  transition: transform 90ms steps(2), box-shadow 90ms steps(2);
+}
+.rk-back:active { transform: translate(3px, 3px); box-shadow: var(--shadow-inset); }
+.rk-dhead__crumb { font-size: 10px; font-weight: 800; letter-spacing: 0.14em; text-transform: uppercase; }
+
+.rk-slabs { display: flex; flex-direction: column; gap: 8px; }
+.rk-slab { display: flex; align-items: center; gap: 11px; padding: 12px; border: 2px solid var(--color-outline); background: var(--color-surface-1); }
+.rk-slab span { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.rk-slab b { font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.02em; }
+.rk-slab em { font-size: 11px; font-style: normal; color: var(--color-text-muted); }
+
+.rk-cta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 12px 22px;
+  border: 3px solid var(--color-outline);
+  background: var(--color-secondary);
+  color: var(--color-bg);
+  box-shadow: var(--shadow-2);
+  font-family: var(--rk-display);
+  font-size: 15px;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: transform 90ms steps(2), box-shadow 90ms steps(2);
+}
+.rk-cta:active { transform: translate(4px, 4px); box-shadow: var(--shadow-inset); }
+.rk-cta.is-owned { background: var(--color-bg); color: var(--color-text); }
+.rk-cta:disabled { background: var(--color-surface-3); color: var(--color-text-muted); cursor: not-allowed; box-shadow: var(--shadow-1); }
+
+.rk-follow {
+  min-height: 42px;
+  padding: 10px 18px;
+  border: 3px solid var(--color-outline);
+  background: var(--color-bg);
+  box-shadow: var(--shadow-1);
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  transition: transform 90ms steps(2), box-shadow 90ms steps(2);
+}
+.rk-follow:active { transform: translate(3px, 3px); box-shadow: var(--shadow-inset); }
+.rk-follow.is-on { background: var(--color-primary); color: var(--color-primary-fg); }
+.rk-follow--sm { min-height: 34px; padding: 7px 12px; display: inline-flex; align-items: center; gap: 6px; font-size: 10px; }
+
+/* ---------- 7. venues + capacity meter ---------- */
+.rk-venue { border: 3px solid var(--color-outline); box-shadow: var(--shadow-1); padding: 12px; display: flex; flex-direction: column; gap: 9px; }
+.rk-venue__top { display: flex; align-items: center; gap: 10px; }
+.rk-venue__n { font-family: var(--rk-display); font-size: 20px; }
+.rk-venue__cap { font-family: var(--rk-display); font-size: 17px; }
+.rk-meter { display: flex; gap: 3px; }
+.rk-meter i { flex: 1; height: 14px; background: var(--color-surface-3); border: 2px solid var(--color-outline); }
+.rk-meter i.is-on { background: var(--color-primary); }
+.rk-venue__note { margin: 0; font-size: 11px; color: var(--color-text-muted); }
+.rk-venue__gigs { display: flex; flex-wrap: wrap; gap: 6px; }
+.rk-minitag { padding: 6px 10px; border: 2px solid var(--color-outline); background: var(--color-bg); font-size: 10px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; }
+.rk-minitag:active { box-shadow: var(--shadow-inset); }
+
+/* ---------- 8. me — wallet stubs, groups, switch, seg, about ---------- */
+.rk-wallet { display: flex; flex-direction: column; gap: 10px; }
+.rk-stub { display: flex; align-items: stretch; border: 3px solid var(--color-outline); box-shadow: var(--shadow-1); background: var(--color-surface-1); }
+.rk-stub__l { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; padding: 12px; }
+.rk-stub__l b { font-family: var(--rk-display); font-size: 14px; text-transform: uppercase; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.rk-stub__l span { font-size: 11px; color: var(--color-text-muted); }
+.rk-stub__perf { width: 16px; border-left: 2px dashed var(--color-outline); }
+.rk-stub__r { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 12px; border-left: 2px solid var(--color-outline); font-size: 10px; letter-spacing: 0.08em; }
+
+.rk-group { border: 3px solid var(--color-outline); box-shadow: var(--shadow-1); display: flex; flex-direction: column; }
+.rk-group .rk-row { border: none; box-shadow: none; }
+.rk-group .rk-row + .rk-row { border-top: 2px solid var(--color-outline); }
+
+.rk-switch { position: relative; width: 52px; height: 32px; flex: 0 0 auto; border: 3px solid var(--color-outline); background: var(--color-surface-3); transition: transform 90ms steps(2); }
+.rk-switch i { position: absolute; top: 2px; left: 2px; width: 22px; height: 22px; background: var(--color-text); transition: left 110ms steps(3); }
+.rk-switch.is-on { background: var(--color-primary); }
+.rk-switch.is-on i { left: 22px; background: var(--color-primary-fg); }
+
+.rk-seg { display: inline-flex; gap: 2px; }
+.rk-seg__b { min-height: 36px; padding: 8px 14px; border: 2px solid var(--color-outline); font-size: 10px; font-weight: 800; letter-spacing: 0.08em; }
+.rk-seg__b.is-on { background: var(--color-primary); color: var(--color-primary-fg); }
+
+.rk-about { display: flex; align-items: center; gap: 11px; width: 100%; padding: 14px; border: 3px solid var(--color-outline); box-shadow: var(--shadow-1); text-align: left; }
+.rk-about:active { transform: translate(3px, 3px); box-shadow: var(--shadow-inset); }
+.rk-about span { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.rk-about b { font-size: 12px; font-weight: 800; letter-spacing: 0.08em; }
+.rk-about em { font-size: 11px; font-style: normal; color: var(--color-text-muted); }
+
+.rk-empty { display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 40px 20px; border: 3px dashed var(--color-outline); text-align: center; }
+.rk-empty b { font-family: var(--rk-display); font-size: 20px; }
+.rk-empty span { font-size: 11px; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.06em; }
+
+/* ---------- 9. toast — one line, hard shadow ---------- */
+.rk-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 100px;
+  z-index: 29;
+  transform: translate(-50%, 16px);
+  max-width: 92%;
+  padding: 12px 18px;
+  border: 3px solid var(--color-outline);
+  background: var(--color-bg);
+  color: var(--color-text);
+  box-shadow: var(--shadow-2);
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 110ms steps(3), transform 110ms steps(3);
+}
+.rk-toast.is-in { opacity: 1; transform: translate(-50%, 0); }
+.rk-toast--flame { background: var(--color-secondary); color: var(--color-bg); }
+
+@media (prefers-reduced-motion: reduce) {
+  .rk *, .rk *::before, .rk *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+  .rk-marquee__inner { animation: none; }
+}
+
+/* ---------- 10. stage side-panel helpers ---------- */
+.rk .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.rk .tag { padding: 4px 9px; border: 1px solid var(--sb-border); font-size: 10px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }

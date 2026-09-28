@@ -251,7 +251,11 @@
   border: none;
 }
 .vSoft .item {
-  height: 44px;
+  height: 46px;
+  /* soft variant: the active bubble hugs its icon+label — give the
+     content room so it never touches the pill edges */
+  padding: 0 16px;
+  gap: 8px;
 }
 .vSoft .itemIsActive {
   background: var(--color-bg);

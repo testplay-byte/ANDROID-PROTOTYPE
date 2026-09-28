@@ -102,8 +102,9 @@ Per the `brutalism.css` header: `--border-w` (2-3px) + `--shadow-1`/`--shadow-2`
 
 ## Demo prototype
 
-Demo prototype: **Streetwear Store** at `app/prototypes/streetwear-store` — a drop shop
-using every signature of the language: marquee tickers, rotated sticker badges, numbered
+Demo prototypes: **Streetwear Store** at `app/prototypes/streetwear-store` (a drop
+shop) and **Ruckus** at `app/prototypes/ruckus` (a DIY gig guide — numbered poster
+lineup, generative covers, ticket stubs) — using every signature of the language: marquee tickers, rotated sticker badges, numbered
 poster sections, 2-3px ink borders + hard zero-blur offset shadows on every container,
 inset-shadow pressed states, and zero radius anywhere (including the device frame).
 Also the styles gallery at https://testplay-byte.github.io/ANDROID-PROTOTYPE/.

@@ -36,7 +36,7 @@ const TITLES: Record<string, string> = {
   library: "Library",
 };
 
-export function DrHeader({ view }: { view: string }) {
+export function DrHeader({ view, onSearch }: { view: string; onSearch: () => void }) {
   return (
     <header className="dr-glass dr-head" style={{ ["--dr-blur" as string]: "22px" } as CSSProperties}>
       <div className="dr-head__brand">
@@ -46,7 +46,7 @@ export function DrHeader({ view }: { view: string }) {
         <h1 className="dr-head__title">{TITLES[view] ?? "Drift"}</h1>
       </div>
       <div className="dr-head__actions">
-        <button className="dr-head__iconbtn" aria-label="Search shows" type="button">
+        <button className="dr-head__iconbtn" aria-label="Search shows" type="button" onClick={onSearch}>
           <SearchIcon size={19} />
         </button>
         <button className="dr-head__avatar" aria-label="Your profile" type="button">

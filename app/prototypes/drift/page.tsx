@@ -81,6 +81,7 @@ const NAV_ITEMS = [
 
 function Shell() {
   const [view, setView] = useState<ViewId>("listen");
+  const [searchSignal, setSearchSignal] = useState(0);
   const [browseShowId, setBrowseShowId] = useState<string | null>(null);
   const { now, show, episode, downloads, subscriptions } = useDrift();
 
@@ -113,6 +114,12 @@ function Shell() {
   function openShow(showId: string) {
     setBrowseShowId(showId);
     go("browse");
+  }
+
+  /* header search → browse tab + focus its search field */
+  function openSearch() {
+    if (view !== "browse") go("browse");
+    setSearchSignal((t) => t + 1);
   }
 
   /* swipe navigation (proto-kit) */
@@ -204,12 +211,12 @@ function Shell() {
               <span className="dr-bg__grain" />
             </div>
 
-            <DrHeader view={view} />
+            <DrHeader view={view} onSearch={openSearch} />
 
             <div className="dr-screens" key={view}>
               {view === "listen" && <ListenScreen onOpenShow={openShow} />}
               {view === "browse" && (
-                <BrowseScreen openShowId={browseShowId} onConsumed={() => setBrowseShowId(null)} />
+                <BrowseScreen openShowId={browseShowId} onConsumed={() => setBrowseShowId(null)} searchSignal={searchSignal} />
               )}
               {view === "player" && <PlayerScreen />}
               {view === "library" && <LibraryScreen />}

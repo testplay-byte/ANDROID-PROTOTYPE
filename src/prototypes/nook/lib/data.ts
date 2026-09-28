@@ -273,12 +273,13 @@ export function flatParagraphs(book: Book): { passageId: string; paraIndex: numb
   return out;
 }
 
-/** "12 min" / "1 hr 40 min" quiet duration label. */
+/** Compact duration: "12 min" / "11h 1m" — units stay glued to their
+    numbers (failure-mode #12: never "11h 1" + "min" on the next line). */
 export function minutesLabel(mins: number): string {
   if (mins < 60) return `${mins} min`;
   const h = Math.floor(mins / 60);
   const m = mins % 60;
-  return m === 0 ? `${h} hr` : `${h} hr ${m} min`;
+  return m === 0 ? `${h}h` : `${h}h ${m}m`;
 }
 
 export const YEARLY_GOAL = 12;

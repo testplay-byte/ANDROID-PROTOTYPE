@@ -31,8 +31,8 @@ Prototypes are deployed to GitHub Pages automatically on every push to `main`.
 - **A prototype:** `https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/<name>/`
 
 Current catalog (filterable on the dashboard by design language, in detailed or grid view):
-bloom, anime-app, setup-wizard, music-player, still, drift, weather-app, streetwear-store,
-finance-hub, pulse, smart-home, atlas, fitness-tracker, wallet, kids-learning, simmer, chat-app, hop, habit-tracker, nook, gallery-app.
+bloom, anime-app, setup-wizard, music-player, still, drift, weather-app, streetwear-store, ruckus,
+finance-hub, pulse, smart-home, atlas, fitness-tracker, wallet, kids-learning, simmer, chat-app, hop, habit-tracker, nook, gallery-app, linie.
 
 A prototype at `app/prototypes/my-app/` is reachable at `https://testplay-byte.github.io/ANDROID-PROTOTYPE/prototypes/my-app/`.
 

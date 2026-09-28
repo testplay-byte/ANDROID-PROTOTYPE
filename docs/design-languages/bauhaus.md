@@ -101,8 +101,9 @@ Light:
 
 ## Demo prototype
 
-Demo prototype: **Gallery App** at `app/prototypes/gallery-app` — a museum app built like
-a Bauhaus poster: generative CSS artwork (12 data-driven geometric compositions, no
+Demo prototypes: **Gallery App** at `app/prototypes/gallery-app` (a museum) and
+**Linie** at `app/prototypes/linie` (a metro planner — the network drawn as geometry:
+right-angle SVG lines, circle stations, interchange rings) — built like a Bauhaus poster: generative CSS artwork (12 data-driven geometric compositions, no
 bitmaps), numbered exhibitions with detail pushes, a full-screen plate view whose triad
 color chips re-ink the artwork live, 2px ink borders on everything, zero shadows, and a
 chrome experiment where the Collection screen drops the top bar for a bordered segmented

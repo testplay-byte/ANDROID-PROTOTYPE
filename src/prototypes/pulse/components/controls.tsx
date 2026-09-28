@@ -60,11 +60,17 @@ export function StatusSquare({
 export function StateTag({
   children,
   tone,
+  compact = false,
 }: {
   children: ReactNode;
   tone: "green" | "amber" | "red" | "blue" | "gray";
+  compact?: boolean;
 }) {
-  return <span className={`plu-tag plu-tag--${tone}`}>{children}</span>;
+  return (
+    <span className={`plu-tag plu-tag--${tone}${compact ? " plu-tag--sm" : ""}`}>
+      {children}
+    </span>
+  );
 }
 
 export const SEVERITY_TONE: Record<string, "red" | "amber" | "gray"> = {

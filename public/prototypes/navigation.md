@@ -20,6 +20,7 @@
 | `/prototypes/drift/` | Drift | glass | review | 4 |
 | `/prototypes/weather-app/` | Weather App | glass | review | 4 |
 | `/prototypes/streetwear-store/` | Streetwear Store | brutalism | review | 3 + detail |
+| `/prototypes/ruckus/` | Ruckus | brutalism | review | 4 + detail |
 | `/prototypes/finance-hub/` | Finance Hub | carbon | review | 4 |
 | `/prototypes/pulse/` | Pulse | carbon | review | 4 |
 | `/prototypes/smart-home/` | Smart Home | bento | review | 4 |
@@ -33,6 +34,7 @@
 | `/prototypes/habit-tracker/` | Habit Tracker | minimal | review | 4 |
 | `/prototypes/nook/` | Nook | minimal | review | 4 |
 | `/prototypes/gallery-app/` | Gallery App | bauhaus | review | 4 |
+| `/prototypes/linie/` | Linie | bauhaus | review | 4 |
 
 All 11 design languages are supported by the style system (`src/proto-kit/styles/`) —
 see `docs/style-selection-guide.md` and `docs/design-languages/`.

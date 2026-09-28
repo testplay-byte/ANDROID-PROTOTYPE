@@ -343,10 +343,10 @@
 /* header pill floats; content scrolls UNDER it */
 .dr-head {
   position: absolute;
-  top: 44px;
+  top: 40px;
   left: 14px;
   right: 14px;
-  height: 52px;
+  height: 50px;
   z-index: 6;
   display: flex;
   align-items: center;
@@ -420,7 +420,7 @@
   inset: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
-  padding: 110px 16px 208px;
+  padding: 102px 16px 208px;
   display: flex;
   flex-direction: column;
   gap: 14px;
@@ -519,9 +519,11 @@
 .dr-hero__play {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   height: 44px;
-  padding: 0 18px;
+  padding: 0 22px;
+  white-space: nowrap;
   border-radius: var(--r-pill);
   font-size: var(--fs-label);
   font-weight: 700;
@@ -532,9 +534,11 @@
 .dr-hero__follow {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 7px;
   height: 44px;
-  padding: 0 15px;
+  padding: 0 18px;
+  white-space: nowrap;
   border-radius: var(--r-pill);
   font-size: var(--fs-label);
   font-weight: 700;
@@ -698,10 +702,41 @@
 .dr-cats::-webkit-scrollbar {
   display: none;
 }
+/* browse search — glass pill, content scrolls under the header */
+.dr-search {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 42px;
+  padding: 0 15px;
+  border-radius: var(--r-pill);
+  background: var(--dr-fill);
+  -webkit-backdrop-filter: blur(16px) saturate(var(--dr-sat));
+  backdrop-filter: blur(16px) saturate(var(--dr-sat));
+  border: 1px solid var(--dr-edge-soft);
+  box-shadow: var(--dr-hi);
+  color: var(--dr-ink-mute);
+}
+.dr-search svg { flex: none; }
+.dr-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  font-size: var(--fs-body-s);
+  color: var(--dr-ink);
+}
+.dr-search input::placeholder { color: var(--dr-ink-mute); }
+.dr-search input::-webkit-search-cancel-button,
+.dr-search input::-webkit-search-decoration { -webkit-appearance: none; appearance: none; }
+
 .dr-cat {
   flex: none;
-  height: 34px;
-  padding: 0 15px;
+  height: 36px;
+  padding: 0 17px;
+  white-space: nowrap;
   border-radius: var(--r-pill);
   font-size: var(--fs-label);
   font-weight: 700;
@@ -726,7 +761,7 @@
   gap: 12px;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
-  padding: 2px 0 10px;
+  padding: 4px 2px 12px;
   scrollbar-width: none;
 }
 .dr-row::-webkit-scrollbar {
@@ -760,7 +795,8 @@
 }
 .dr-rowcard.is-selected svg {
   outline: 2px solid color-mix(in srgb, var(--ep-accent) 75%, #fff 25%);
-  outline-offset: 2px;
+  outline-offset: -2px;
+  border-radius: inherit;
 }
 
 /* show detail panel — rim + shadow-2, content tier fill */
@@ -809,13 +845,19 @@
 .dr-detail__actions {
   display: flex;
   gap: 10px;
+  flex-wrap: wrap;
+}
+.dr-detail__actions > button {
+  flex: 0 0 auto;
 }
 .dr-detail__play {
   display: flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   height: 42px;
-  padding: 0 16px;
+  padding: 0 20px;
+  white-space: nowrap;
   border-radius: var(--r-pill);
   font-size: var(--fs-label);
   font-weight: 700;
@@ -943,18 +985,27 @@
    shared between hero, detail and the player scrubber.
    ========================================================================= */
 .dr-player {
-  gap: 18px;
-  padding-bottom: 216px;
+  gap: 14px;
+  padding: 96px 16px 196px;
+  display: flex;
+  flex-direction: column;
 }
 .dr-player__coverwrap {
   position: relative;
   display: grid;
   place-items: center;
-  padding: 26px 0 10px;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 8px 0 4px;
+}
+/* the cover scales down to whatever the column can spare — transport
+   never gets pushed below the fold (failure-mode #7) */
+.dr-player__coverwrap > .dr-player__cover {
+  max-width: min(232px, 46vh);
 }
 .dr-player__glow {
   position: absolute;
-  width: 82%;
+  width: 76%;
   aspect-ratio: 1;
   border-radius: 50%;
   background: radial-gradient(circle, color-mix(in srgb, var(--ep-accent) 55%, transparent), transparent 70%);
@@ -1119,9 +1170,10 @@
   background: var(--dr-fill);
 }
 .dr-seg__btn {
-  height: 32px;
-  min-width: 46px;
-  padding: 0 12px;
+  height: 34px;
+  min-width: 54px;
+  padding: 0 14px;
+  white-space: nowrap;
   border-radius: var(--r-pill);
   font-size: var(--fs-label);
   font-weight: 700;
@@ -1135,6 +1187,8 @@
   gap: 6px;
   min-width: 0;
   flex: 1;
+  padding: 0 8px;
+  white-space: nowrap;
 }
 .dr-seg__btn.is-on {
   color: var(--dr-ink);
@@ -1149,6 +1203,10 @@
   gap: 6px;
   flex-wrap: wrap;
   justify-content: center;
+  padding: 8px 10px;
+  border-radius: var(--r-pill);
+  background: var(--dr-faint);
+  border: 1px solid var(--dr-edge-soft);
 }
 .dr-sleep__icon {
   color: var(--dr-ink-mute);
@@ -1174,9 +1232,11 @@
 }
 
 .dr-player__dl {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: var(--r-pill);
+  border: 1px solid var(--dr-edge-soft);
+  background: var(--dr-fill);
   display: grid;
   place-items: center;
   color: var(--dr-ink-mute);
