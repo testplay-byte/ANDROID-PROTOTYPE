@@ -7,6 +7,54 @@
 
 ## [Unreleased]
 
+### 2026-09-28 — review polish pass (7 prototypes) + Ruckus (brutalism) + Linie (bauhaus)
+
+**New docs:** `docs/ui-failure-modes.md` — the 15 UI defect classes the user
+rejected across seven prototypes (content escaping controls, orphan-word toasts,
+text escaping table cells, jammed segmented controls, clipped selection rings,
+corner crowding, below-fold primary actions, duplicate progress indicators,
+transparent sheets, minimalism-without-wayfinding, overlapping composed layouts,
+number/unit line-breaks, excessive chrome padding, invisible switch tracks, dead
+affordances) + a 10-point self-review checklist. Wired into STARTUP, docs index,
+agent-quickstart and blueprint as MANDATORY before building. ntfy topic switched
+to `TASK808DONE` in all live docs.
+
+**Polish (every issue from the review):**
+- **Pulse** — table fixed-layout with reserved columns + compact status tags
+  (uptime was escaping its cell); segmented controls roomy; switch tracks now
+  legible in both themes.
+- **Still** — rhythm stat strip gives Today structure; roomy pattern pills;
+  proper finish button; taller segments; icon breathing room on Profile; the
+  proto-kit soft-nav active bubble padded.
+- **Drift** — nowrap hero/detail buttons; selection rings inset (the snap row
+  was clipping them); tighter header; the player is a fixed in-device layout
+  (transport no longer below the fold); duplicate progress rail removed; the
+  dead search button now drives a real filter in Browse.
+- **Simmer** — recipe detail + picker sheet got opaque surfaces (page showed
+  through while scrolling); toasts fit one line; search bar can't collapse;
+  filter chips nowrap; taller theme segment; shopping list ellipsis.
+- **Nook** — compact duration format (no "11h 1" + "min" break); reader
+  controls read as buttons; hairline-divided sections; content clears the tab bar.
+- **Atlas** — hero no longer overflows into the weather tile; grid tracks
+  `minmax(0,1fr)` (text was clipping on the left); sticky blurred header on
+  scroll; nowrap toasts; padded appearance toggle + switch rows.
+- **Hop** — "re-ordered 40% more this week" stays on one line; active tab has
+  more presence.
+
+**New prototypes (the missing second brutalism/bauhaus demos — the dashboard
+showed only one of each):**
+- **Ruckus** — Neo-brutalist DIY gig guide: 0px radius, 2-3px ink borders,
+  hard zero-blur shadows, marquee ticker, numbered poster lineup, generative
+  covers, capacity meters, ticket wallet. GET TICKETS stays above the fold.
+- **Linie** — Bauhaus metro planner: the network drawn as geometry (right-angle
+  SVG lines, circle stations, interchange rings), route planner with a vertical
+  diagram, live departure countdowns, ticket passes. Red primary, 2px borders,
+  zero shadows, near-square radii.
+
+Both registered in the gallery (entries + custom thumbs), prototypes index,
+README catalog, and the brutalism/bauhaus demo sections. `tsc` + `build` clean
+(27 routes).
+
 ### 2026-09-28 — prototype expansion batch 3: Nook (minimal), Atlas (bento), Hop (flat)
 
 Three sub-agents (relaunched with finish/repair briefs after a network failure killed the
