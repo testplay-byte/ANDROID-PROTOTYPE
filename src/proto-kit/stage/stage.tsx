@@ -1,33 +1,107 @@
-import type { ReactNode } from "react";
+"use client";
+
+import { useEffect, useRef, useState, type ReactNode } from "react";
+import { SurfaceSwitcher } from "../surface/surface-switcher";
+import type { Surface } from "../surface/types";
+import { DASHBOARD_HREF } from "../base-path";
 import styles from "./stage.module.css";
 
 export interface StageProps {
   /** Left info panel content (prototype name, description, tags). */
   leftPanel?: ReactNode;
-  /** The DeviceFrame (the phone mockup). */
+  /** The DeviceFrame or SurfaceFrame (the prototype window). */
   children: ReactNode;
   /** Right info panel content (screen info, design notes). */
   rightPanel?: ReactNode;
+  /**
+   * Surfaces this prototype exists on. When more than one is given, the
+   * stage renders the bottom-right quick switcher — OUTSIDE the prototype,
+   * beside the Dashboard link, so the app's own UI is never polluted with
+   * preview chrome.
+   */
+  surfaces?: Surface[];
+  /** The surface being viewed right now (for the switcher's active state). */
+  currentSurface?: Surface;
+  /** Slug used to build per-surface URLs. */
+  slug?: string;
+  /** Show the fullscreen button (bottom-left, next to the Dashboard link). */
+  fullscreen?: boolean;
 }
 
+const PANEL_W = 230;
+const GAP = 24;
+
 /**
- * Stage — the desktop layout: [left panel] [device] [right panel].
+ * Stage — the desktop layout: [left panel] [prototype] [right panel].
  *
- * Side panels hide on <=1024px. The device fills the viewport on <=480px.
- * The stage background adapts to the device theme (via :has() in tokens.css).
+ * The stage is the PREVIEW ENVIRONMENT, not part of the prototype: the
+ * Dashboard link (top-left), the fullscreen button (bottom-left) and the
+ * surface switcher (bottom-right) all live here, never inside the app.
  *
- * A "Dashboard" back button sits top-left on PC (hidden on mobile, where
- * there is no dashboard context to return from) — same pill style as the
- * dashboard's own nav buttons.
+ * Two behaviours worth knowing:
+ *  - **the panels yield to a wide window.** Drag the desktop window bigger
+ *    than the space the panels leave and they collapse, so the window gets
+ *    the whole stage instead of being squeezed.
+ *  - fullscreen uses the real Fullscreen API, so the browser chrome
+ *    disappears and the prototype is all that is left.
  */
-export function Stage({ leftPanel, children, rightPanel }: StageProps) {
+export function Stage({
+  leftPanel,
+  children,
+  rightPanel,
+  surfaces,
+  currentSurface,
+  slug,
+  fullscreen = false,
+}: StageProps) {
+  const stageRef = useRef<HTMLDivElement>(null);
+  const [compact, setCompact] = useState(false);
+  const [isFull, setIsFull] = useState(false);
+
+  /* Collapse the info panels once the window is too wide to sit beside
+     them — the prototype keeps the space, the panels step aside. */
+  useEffect(() => {
+    const el = stageRef.current;
+    if (!el) return;
+    const check = () => {
+      const child = el.querySelector(".device, .surface") as HTMLElement | null;
+      if (!child) return;
+      const w = child.getBoundingClientRect().width;
+      const needed =
+        w + (leftPanel ? PANEL_W + GAP : 0) + (rightPanel ? PANEL_W + GAP : 0) + GAP;
+      setCompact(needed > window.innerWidth);
+    };
+    check();
+    window.addEventListener("resize", check);
+    const ro = new ResizeObserver(check);
+    ro.observe(el);
+    return () => {
+      window.removeEventListener("resize", check);
+      ro.disconnect();
+    };
+  }, [leftPanel, rightPanel]);
+
+  useEffect(() => {
+    const onChange = () => setIsFull(!!document.fullscreenElement);
+    document.addEventListener("fullscreenchange", onChange);
+    return () => document.removeEventListener("fullscreenchange", onChange);
+  }, []);
+
+  const toggleFullscreen = () => {
+    if (document.fullscreenElement) void document.exitFullscreen();
+    else void stageRef.current?.requestFullscreen?.().catch(() => {});
+  };
+
+  const showSwitcher = !!(surfaces && surfaces.length > 1 && slug && currentSurface);
+
   return (
-    <div className={styles.stage}>
-      <a
-        className={styles.backlink}
-        href="../../"
-        aria-label="Back to dashboard"
-      >
+    <div
+      className={styles.stage}
+      ref={stageRef}
+      data-compact={compact || undefined}
+      data-fullscreen={isFull || undefined}
+    >
+      <a className={styles.backlink} href={DASHBOARD_HREF} aria-label="Back to dashboard">
         <svg
           width="16"
           height="16"
@@ -43,31 +117,67 @@ export function Stage({ leftPanel, children, rightPanel }: StageProps) {
         </svg>
         <span className={styles.backlink__label}>Dashboard</span>
       </a>
-      {leftPanel && (
+
+      {leftPanel && !compact && (
         <aside className={styles.sidepanel} aria-label="Prototype info">
           {leftPanel}
         </aside>
       )}
       {children}
-      {rightPanel && (
+      {rightPanel && !compact && (
         <aside className={styles.sidepanel} aria-label="Screen info">
           {rightPanel}
         </aside>
+      )}
+
+      {fullscreen && (
+        <button
+          className={`${styles.previewpill} ${styles.stagebtn}`}
+          type="button"
+          onClick={toggleFullscreen}
+          aria-label={isFull ? "Exit fullscreen" : "Fullscreen"}
+          title={isFull ? "Exit fullscreen" : "Fullscreen"}
+        >
+          <svg
+            width="15"
+            height="15"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            {isFull ? (
+              <path d="M9 3v6H3M15 21v-6h6M3.5 9A9 9 0 0 1 9 3.5M20.5 15A9 9 0 0 1 15 20.5" />
+            ) : (
+              <path d="M8 3H5a2 2 0 0 0-2 2v3M16 3h3a2 2 0 0 1 2 2v3M8 21H5a2 2 0 0 1-2-2v-3M16 21h3a2 2 0 0 0 2-2v-3" />
+            )}
+          </svg>
+          <span className={styles.backlink__label}>{isFull ? "Exit full screen" : "Full screen"}</span>
+        </button>
+      )}
+
+      {showSwitcher && (
+        <div className={`${styles.previewpill} ${styles.stageswitch}`}>
+          <SurfaceSwitcher surfaces={surfaces!} current={currentSurface!} slug={slug!} />
+        </div>
       )}
     </div>
   );
 }
 
-/** Convenience sub-components for panel content. */
+/* ---- side-panel helpers (used by every prototype's Stage panels) ---- */
 export function PanelBadge({ children }: { children: ReactNode }) {
-  return <span className={styles.sidepanel__badge}>{children}</span>;
+  return <span className={styles.sidebadge}>{children}</span>;
 }
 export function PanelTitle({ children }: { children: ReactNode }) {
-  return <h2 className={styles.sidepanel__title}>{children}</h2>;
+  return <h2 className={styles.sidetitle}>{children}</h2>;
 }
 export function PanelDesc({ children }: { children: ReactNode }) {
-  return <p className={styles.sidepanel__desc}>{children}</p>;
+  return <p className={styles.sidedesc}>{children}</p>;
 }
 export function PanelHead({ children }: { children: ReactNode }) {
-  return <h3 className={styles.sidepanel__head}>{children}</h3>;
+  return <div className={styles.sidehead}>{children}</div>;
 }

@@ -35,6 +35,7 @@ import {
   SurfaceScreen,
   DesktopSidebar,
   DesktopTopBar,
+  useCanonicalSurface,
   type DesktopNavItem,
 } from "../../../src/proto-kit";
 import { MeridianProvider, VIEWS, useMeridian } from "../../../src/prototypes/meridian/state/meridian-context";
@@ -80,6 +81,7 @@ const SCREEN_INFO: Record<string, { name: string; desc: string }> = {
 };
 
 function Shell() {
+  useCanonicalSurface("meridian", "desktop");
   const { view, go, density, setDensity, setPaletteOpen, toast, notify, counts } = useMeridian();
 
   /* "/" focuses search — a desktop shortcut, not a mobile gesture */
@@ -110,6 +112,10 @@ function Shell() {
 
   return (
     <Stage
+      surfaces={["desktop", "tablet"]}
+      currentSurface="desktop"
+      slug="meridian"
+      fullscreen
       leftPanel={
         <>
           <PanelBadge>desktop</PanelBadge>
@@ -150,6 +156,8 @@ function Shell() {
         windowChrome
         windowTitle="Meridian — Workspace"
         menu={["File", "Edit", "View", "Project", "Help"]}
+        storageKey="meridian"
+        draggable
       >
         <DesktopSidebar items={navItems} activeId={view} onSelect={(id) => go(id === "projects-all" ? "projects" : (id as never))} />
           <div className="mrd-main">

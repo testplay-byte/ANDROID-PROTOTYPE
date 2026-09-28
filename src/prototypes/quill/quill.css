@@ -1184,7 +1184,7 @@
   z-index: 40;
   display: flex;
   justify-content: center;
-  padding-top: 14vh;
+  padding-top: 14%; /* surface-relative: vh would measure the BROWSER */
   background: color-mix(in srgb, var(--color-bg) 55%, transparent);
 }
 .ql-palette__box {

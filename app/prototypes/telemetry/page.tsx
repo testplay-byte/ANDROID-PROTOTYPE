@@ -43,6 +43,7 @@ import {
   SurfaceScreen,
   DesktopSidebar,
   DesktopTopBar,
+  useCanonicalSurface,
   type DesktopNavItem,
 } from "../../../src/proto-kit";
 import { TelemetryProvider, VIEWS, useTelemetry } from "../../../src/prototypes/telemetry/state/telemetry-context";
@@ -89,6 +90,7 @@ const SCREEN_INFO: Record<string, { name: string; desc: string }> = {
 };
 
 function Shell() {
+  useCanonicalSurface("telemetry", "desktop");
   const {
     view,
     go,
@@ -121,6 +123,10 @@ function Shell() {
 
   return (
     <Stage
+      surfaces={["desktop"]}
+      currentSurface="desktop"
+      slug="telemetry"
+      fullscreen
       leftPanel={
         <>
           <PanelBadge>desktop</PanelBadge>
@@ -167,6 +173,8 @@ function Shell() {
         windowChrome
         windowTitle="Telemetry — Operations Console"
         menu={["File", "Edit", "View", "Incident", "Window", "Help"]}
+        storageKey="telemetry"
+        draggable
       >
         <DesktopSidebar items={navItems} activeId={view} onSelect={onNavSelect} />
         <div className="tel" data-density={density}>

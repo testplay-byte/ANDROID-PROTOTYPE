@@ -425,6 +425,8 @@
   justify-content: space-between;
   gap: 12px;
   padding-top: 12px;
+  /* keep clear of the floating surface switcher (bottom-right) */
+  padding-right: 190px;
   font-size: var(--fs-label-s);
   color: var(--color-text-muted);
 }
@@ -615,7 +617,7 @@
   z-index: 40;
   display: flex;
   justify-content: center;
-  padding-top: 12vh;
+  padding-top: 12%; /* surface-relative: vh would measure the BROWSER */
   background: color-mix(in srgb, #000 45%, transparent);
 }
 .mrd-palette__box {

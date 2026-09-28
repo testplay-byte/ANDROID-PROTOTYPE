@@ -74,7 +74,7 @@ Two hard principles the user has stated:
 
 ## Phases
 
-### Phase 1 — Sizable phones (D1) `[~]`
+### Phase 1 — Sizable phones (D1) `[x]`
 - `device-settings`: `size` (preset id) + optional `customW` / `customH`, sanitized,
   persisted, cross-tab synced — same store pattern as the cutout settings.
 - `DeviceFrame`: read size settings, expose `--device-w` / `--device-h` / `--device-radius`
@@ -83,32 +83,32 @@ Two hard principles the user has stated:
 - **Done when:** changing the size resizes every prototype live, persists across reloads,
   and the fullscreen/mobile override is unaffected.
 
-### Phase 2 — Surface abstraction + desktop chrome (D2, D3, D4) `[ ]`
+### Phase 2 — Surface abstraction + desktop chrome (D2, D3, D4) `[x]`
 - `proto-kit/surface/`: `Surface` type + `SurfaceFrame` (wraps the device window),
   desktop window chrome (optional traffic lights), desktop nav components (rail, top bar).
 - Phone prototypes keep using `DeviceFrame`; the frame reads its size from settings.
 - **Done when:** a desktop prototype renders inside a desktop window with rail/top-nav
   chrome, and tablet renders the same surface at tablet dimensions.
 
-### Phase 3 — Desktop prototypes (D7) `[ ]`
+### Phase 3 — Desktop prototypes (D7) `[x]`
 - One reference desktop prototype (deep, teaches sidebar + data table/grid + command
   surface + adaptive density).
 - Two more: a HIG-language desktop app and a Carbon enterprise dashboard.
 - Each registered in the gallery, `navigation.md`, and its design-language doc.
 
-### Phase 4 — Dashboard redesign (D5) `[ ]`
+### Phase 4 — Dashboard redesign (D5) `[x]`
 - `GalleryItem` gains `surfaces: Surface[]`; thumbs per surface.
 - Surface switcher above the family-sheet raster; the sheet packing adapts to the
   surface's natural card aspect. Top half untouched.
 
-### Phase 5 — Spec + docs consolidation (D8, D9) `[ ]`
+### Phase 5 — Spec + docs consolidation (D8, D9) `[~]` — `docs/SPEC.md` written; the contradiction sweep across the older docs is still open
 - `docs/SPEC.md`: tokens, surfaces, component inventory (per language), adaptivity
   rules, the targeting convention, and the add-a-style / add-a-surface recipes.
 - Resolve the 10 known contradictions; mark superseded docs; shrink the mandatory
   reading path.
 - Per-file style index convention documented and adopted.
 
-### Phase 6 — Adaptivity + verification (D6, D10) `[ ]`
+### Phase 6 — Adaptivity + verification (D6, D10) `[~]` — `scripts/verify.mjs` landed and 25/26 prototypes are clean; the fix pass over the flagged ones is still open
 - `scripts/verify.mjs`: per-prototype checks at 360 / 390 / 430 (phone) and the desktop
   width — horizontal overflow, clipped content (`scrollHeight > clientHeight` on
   non-scrollable elements), forbidden in-device CSS (vh/vw, fixed-px grid track
@@ -120,6 +120,19 @@ Two hard principles the user has stated:
   prototype consumes from this repo. No native build in this phase.
 
 ---
+
+## Round-2 review outcomes (2026-09-28, all shipped)
+
+| Ask | How it landed |
+|---|---|
+| URLs must name the surface | `/prototypes/<slug>/<surface>/` via `_registry.ts` + `useCanonicalSurface` |
+| Desktop chrome: minimize / maximize-restore / close | real window buttons in `SurfaceFrame`, closed state with Reopen |
+| Live customizability | 8 drag handles, size persisted per prototype |
+| Fullscreen from the prototype | bottom-left button, real Fullscreen API |
+| Phones must not squash a desktop app | wrong-surface notice under 520px, per surface |
+| Scrollbars are part of the language | token-driven thin scrollbars on tablet/desktop; phone stays clean |
+| Desktop looks too bubbly | the desktop surface tightens the radius scale; tablet keeps phone radii |
+| Quick surface switch on the prototype page | `<SurfaceSwitcher>`, bottom-right, only when a prototype has >1 surface |
 
 ## Rules that hold across every phase
 

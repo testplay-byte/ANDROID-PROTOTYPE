@@ -176,6 +176,7 @@
 
 /* ---- Screen + view slots ---- */
 .screen {
+  container-type: inline-size;
   flex: 1 1 auto;
   position: relative;
   overflow: hidden;

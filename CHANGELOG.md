@@ -7,6 +7,28 @@
 
 ## [Unreleased]
 
+### 2026-09-28 — desktop surface round 2: surface URLs, real window chrome, live resize
+
+- **Surface-specific URLs**: `app/prototypes/[slug]/[surface]/` renders the right
+  build from `_registry.ts`, so `/prototypes/meridian/desktop/` and
+  `/prototypes/meridian/tablet/` are distinct addresses; desktop builds
+  canonicalise themselves off their bare slug URL via `useCanonicalSurface`.
+  Cross-prototype links are basePath-aware through `proto-kit/base-path.ts`.
+- **Real window controls**: minimize (collapses to the title bar),
+  maximize / restore-down, and close (a closed-window state with Reopen).
+  Fixed a z-order bug where the top resize handle covered the buttons.
+- **Live resize**: 8 drag handles with correct cursors; the dragged size is
+  persisted per prototype and restored on the next visit.
+- **Fullscreen button** bottom-left (real Fullscreen API) and a **wrong-surface
+  notice** below 520px so a desktop app never renders squashed on a phone.
+- **Scrollbars** are token-driven and visible on tablet/desktop (phones stay
+  clean); the **desktop radius scale is tightened** so windows read less bubbly.
+- **`<SurfaceSwitcher>`**: bottom-right quick switch between a prototype's
+  surfaces, rendered only when more than one exists.
+- `docs/SPEC.md`: the authoritative system spec; `scripts/verify.mjs`: the
+  pre-review gate (overflow / clipping / forbidden-CSS checks at every
+  supported size, plus screenshots).
+
 ### 2026-09-28 — dashboard grid view: shared raster + merged family bands
 
 - **Grid view rebuilt as ONE shared raster** (`gallery.tsx placeCells`):

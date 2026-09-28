@@ -16,13 +16,17 @@ export {
   DesktopRail,
   DesktopSidebar,
   DesktopTopBar,
+  SurfaceSwitcher,
   SURFACE_PRESETS,
   SURFACE_LABELS,
   type SurfaceFrameProps,
   type DesktopNavItem,
   type DesktopTopBarProps,
+  type SurfaceSwitcherProps,
   type Surface,
 } from "./surface";
+export { useCanonicalSurface } from "./surface/use-canonical-surface";
+export { BASE_PATH, prototypeHref } from "./base-path";
 export { StatusBar } from "./device-frame/status-bar";
 
 // Device chrome settings — configurable camera cutout (punch / pill / notch),

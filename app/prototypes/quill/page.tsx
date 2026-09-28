@@ -31,6 +31,7 @@ import {
   SurfaceScreen,
   DesktopSidebar,
   DesktopTopBar,
+  useCanonicalSurface,
   useDeviceTheme,
   type DesktopNavItem,
 } from "../../../src/proto-kit";
@@ -70,6 +71,7 @@ const SCREEN_INFO: Record<string, { name: string; desc: string }> = {
 };
 
 function Shell() {
+  useCanonicalSurface("quill", "desktop");
   const { view, go, setPaletteOpen, toast, notify, newNote, counts } = useQuill();
   const { theme, toggleTheme } = useDeviceTheme();
 
@@ -107,6 +109,10 @@ function Shell() {
 
   return (
     <Stage
+      surfaces={["desktop", "tablet"]}
+      currentSurface="desktop"
+      slug="quill"
+      fullscreen
       leftPanel={
         <>
           <PanelBadge>desktop</PanelBadge>
@@ -148,6 +154,8 @@ function Shell() {
         windowChrome
         windowTitle="Quill — Notes"
         menu={["File", "Edit", "View", "Note", "Window", "Help"]}
+        storageKey="quill"
+        draggable
       >
         <DesktopSidebar
           items={navItems}
