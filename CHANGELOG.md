@@ -7,6 +7,25 @@
 
 ## [Unreleased]
 
+### 2026-09-28 — dashboard grid view: shared raster + merged family bands
+
+- **Grid view rebuilt as ONE shared raster** (`gallery.tsx placeCells`):
+  families flow through the same column grid — a family fills the free cells
+  of the current row, and on wrap continues DIRECTLY BELOW its last card
+  (falling back to the next row's rightmost cell), so a split family renders
+  as one tall band or an inverted-L, never disconnected boxes. Later families
+  backfill the gaps: no dead cells anywhere. Carbon now sits beside the HIG
+  pair and wraps into a two-row band on the right, exactly as specified.
+- **Family background painted per cell** (`.gcell::before`, expanded by half
+  the gap): same-family neighbours merge seamlessly; borders/radii come from
+  the placement data (no border on internal seams, radius only on exposed
+  corners), so L-shaped sheets get clean rounded outer corners.
+- **Family header rides the first cell** of its group (`.ghead`), not a
+  separate section line.
+- Columns are measured, not media-queried (ResizeObserver): 3 on desktop,
+  2 below 760px, 1 below 470px — the packing rule holds at every width
+  (verified 1360 / 700 / 390).
+
 ### 2026-09-28 — polish round 3: content-awareness fixes (Simmer filters, Atlas bento) + docs
 
 - **Simmer Find** — quick-filter chip row collapsed to a 4px sliver: an

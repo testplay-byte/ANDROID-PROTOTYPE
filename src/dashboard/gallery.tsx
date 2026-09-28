@@ -19,7 +19,7 @@
  * indigo/blue — see docs/preferences.md.
  */
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type { DeviceStyle } from "@/proto-kit/styles/types";
 import { STYLE_LABELS } from "@/proto-kit/styles/types";
 import { getThumb } from "./thumbs";
@@ -166,6 +166,78 @@ function ViewToggle({ mode, onChange }: { mode: ViewMode; onChange: (m: ViewMode
   );
 }
 
+/* ---- Grid-view raster placement -------------------------------------- */
+
+interface GridCell {
+  item: GalleryItem;
+  style: DeviceStyle;
+  count: number;
+  /** 0-based raster position */
+  row: number;
+  col: number;
+  first: boolean;
+  /** same-family neighbours — drive the merged background's borders/radii */
+  up: boolean;
+  down: boolean;
+  left: boolean;
+  right: boolean;
+}
+
+/**
+ * Flow every family through ONE shared cols-wide raster, in STYLE_ORDER:
+ *  - a family's first card takes the first free cell (rows scan left-to-right);
+ *  - later cards continue rightward while the row lasts;
+ *  - on wrap the family continues DIRECTLY BELOW its last card — a split
+ *    family stays in one column, so its background reads as one tall band
+ *    (2 items) or an inverted-L (3+ items: band + leftward continuation),
+ *    never two disconnected boxes. If the cell below is taken, fall back to
+ *    the next row's rightmost free cell and keep flowing leftward;
+ *  - later families backfill the cells a wrap left open (global first-free),
+ *    so the sheet packs tightly with no holes.
+ */
+function placeCells(groups: { style: DeviceStyle; items: GalleryItem[] }[], cols: number): GridCell[] {
+  const occ = new Map<string, DeviceStyle>();
+  const k = (r: number, c: number) => `${r}:${c}`;
+  const firstFree = () => {
+    for (let r = 0; ; r++) for (let c = 0; c < cols; c++) if (!occ.has(k(r, c))) return { r, c };
+  };
+  const rightmostFreeFrom = (r: number) => {
+    for (let rr = r; ; rr++) for (let c = cols - 1; c >= 0; c--) if (!occ.has(k(rr, c))) return { r: rr, c };
+  };
+  const cells: GridCell[] = [];
+  for (const g of groups) {
+    let prev: { r: number; c: number } | null = null;
+    let wrapLeft = false;
+    g.items.forEach((item, i) => {
+      let pos: { r: number; c: number };
+      if (i === 0) {
+        pos = firstFree();
+      } else if (!wrapLeft && prev!.c + 1 < cols && !occ.has(k(prev!.r, prev!.c + 1))) {
+        pos = { r: prev!.r, c: prev!.c + 1 };
+      } else if (prev!.c >= 0 && !occ.has(k(prev!.r + 1, prev!.c))) {
+        // wrap: continue straight down — the band stays connected
+        pos = { r: prev!.r + 1, c: prev!.c };
+        wrapLeft = true;
+      } else if (wrapLeft && prev!.c - 1 >= 0 && !occ.has(k(prev!.r, prev!.c - 1))) {
+        pos = { r: prev!.r, c: prev!.c - 1 };
+      } else {
+        pos = rightmostFreeFrom(prev!.r + 1);
+        wrapLeft = true;
+      }
+      occ.set(k(pos.r, pos.c), g.style);
+      cells.push({ item, style: g.style, count: g.items.length, row: pos.r, col: pos.c, first: i === 0, up: false, down: false, left: false, right: false });
+      prev = pos;
+    });
+  }
+  for (const cell of cells) {
+    cell.up = occ.get(k(cell.row - 1, cell.col)) === cell.style;
+    cell.down = occ.get(k(cell.row + 1, cell.col)) === cell.style;
+    cell.left = occ.get(k(cell.row, cell.col - 1)) === cell.style;
+    cell.right = occ.get(k(cell.row, cell.col + 1)) === cell.style;
+  }
+  return cells;
+}
+
 export function Gallery({ items }: { items: GalleryItem[] }) {
   const [filter, setFilter] = useState<DeviceStyle | "all">("all");
   const [mode, setMode] = useState<ViewMode>("detailed");
@@ -194,6 +266,22 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
     for (const it of items) map.set(it.style, (map.get(it.style) ?? 0) + 1);
     return map;
   }, [items]);
+
+  // Grid-view raster width: 3 columns on desktop (the packing rhythm the
+  // rows are designed for), fewer as the viewport narrows. Measured, not
+  // media-queried, so the grid reacts to its actual container.
+  const gridRef = useRef<HTMLDivElement>(null);
+  const [cols, setCols] = useState(3);
+  useEffect(() => {
+    const el = gridRef.current;
+    if (!el || typeof ResizeObserver === "undefined") return;
+    const ro = new ResizeObserver((entries) => {
+      const w = entries[0].contentRect.width;
+      setCols(w >= 760 ? 3 : w >= 470 ? 2 : 1);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [mode]);
 
   const presentStyles = STYLE_ORDER.filter((s) => counts.has(s));
   const visible = filter === "all" ? items : items.filter((it) => it.style === filter);
@@ -231,41 +319,54 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
       </div>
 
       {mode === "grid" ? (
-        /* ---- Grid view: per-style sections --------------------------------
-           Each design language is its own section: the style name is a full
-           header line at the TOP, and all of its prototypes sit in a card
-           grid directly BELOW it. Sections stack vertically. Column count
-           adapts to the display width (auto-fill) — never a fixed number of
-           items per line. */
-        <div className="gridview">
-          {presentStyles
-            .filter((s) => filter === "all" || filter === s)
-            .map((s) => {
-              const group = visible.filter((it) => it.style === s);
-              if (group.length === 0) return null;
-              return (
-                <section className="stylesec" data-style={s} key={s}>
-                  <header className="stylesec__head">
-                    <span className="stylesec__dot" aria-hidden="true" />
-                    <h3 className="stylesec__title">{STYLE_LABELS[s]}</h3>
-                    <span className="stylesec__count">{group.length}</span>
-                  </header>
-                  <div
-                    className="stylesec__grid"
-                    style={{ "--cols": Math.min(group.length, 4) } as React.CSSProperties}
-                  >
-                    {group.map((item) => (
-                      <a className="gcell" key={item.name} href={item.url} aria-label={`Open ${item.name} prototype`}>
-                        <span className="gcell__shot">
-                          <Silhouette item={item} mini link={false} />
-                        </span>
-                        <span className="gcell__name">{item.name}</span>
-                      </a>
-                    ))}
-                  </div>
-                </section>
-              );
-            })}
+        /* ---- Grid view: one shared raster ---------------------------------
+           All families flow through the SAME column grid (see placeCells):
+           no row is left half-empty, and a family that wraps keeps ONE
+           background — painted per cell by .gcell::before (expanded by half
+           the gap, rounded only on corners without a same-family neighbour),
+           so it renders as a tall band or an L-shaped sheet. The family
+           header rides on the first cell of its group. */
+        <div className="gridview" ref={gridRef} style={{ "--cols": cols } as React.CSSProperties}>
+          {placeCells(
+            presentStyles
+              .filter((s) => filter === "all" || filter === s)
+              .map((s) => ({ style: s, items: visible.filter((it) => it.style === s) }))
+              .filter((g) => g.items.length > 0),
+            cols
+          ).map((cell) => (
+            <a
+              key={cell.item.name}
+              className="gcell"
+              data-style={cell.style}
+              data-first={cell.first || undefined}
+              href={cell.item.url}
+              aria-label={`Open ${cell.item.name} prototype`}
+              style={{
+                gridRow: cell.row + 1,
+                gridColumn: cell.col + 1,
+                ["--r-tl"]: !cell.up && !cell.left ? "16px" : "0px",
+                ["--r-tr"]: !cell.up && !cell.right ? "16px" : "0px",
+                ["--r-br"]: !cell.down && !cell.right ? "16px" : "0px",
+                ["--r-bl"]: !cell.down && !cell.left ? "16px" : "0px",
+                ["--bw-top"]: cell.up ? "0px" : "1px",
+                ["--bw-right"]: cell.right ? "0px" : "1px",
+                ["--bw-bottom"]: cell.down ? "0px" : "1px",
+                ["--bw-left"]: cell.left ? "0px" : "1px",
+              } as React.CSSProperties}
+            >
+              {cell.first && (
+                <span className="ghead">
+                  <span className="ghead__dot" aria-hidden="true" />
+                  <h3 className="ghead__title">{STYLE_LABELS[cell.style]}</h3>
+                  <span className="ghead__count">{cell.count}</span>
+                </span>
+              )}
+              <span className="gcell__shot">
+                <Silhouette item={cell.item} mini link={false} />
+              </span>
+              <span className="gcell__name">{cell.item.name}</span>
+            </a>
+          ))}
         </div>
       ) : (
         /* ---- Detailed view: rich cards ---- */

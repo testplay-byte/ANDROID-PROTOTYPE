@@ -367,100 +367,109 @@
       color: var(--chart-3); border-color: transparent;
     }
 
-    /* ---- Grid view: per-style family sheets, packed ---------------------
-       Each design language is a "family sheet": the style name is a header
-       at the TOP of its block, and its prototypes sit directly on ONE shared
-       tinted background — no individual card backgrounds. Family blocks are
-       sized to their content (never stretched full-width), and they pack
-       horizontally on a flex row: the next family continues right after the
-       previous family's last item, so there is no dead space at the end of a
-       row. --cols (set inline per family, capped at 4) keeps the sheet
-       exactly as wide as its items; on small screens families go full-width
-       with auto-fill columns. */
+    /* ---- Grid view: one shared raster, merged family backgrounds --------
+       All families flow through the SAME column grid (placement computed in
+       gallery.tsx `placeCells`): a family fills the free cells of the current
+       row, wraps to the NEXT row's rightmost cell and keeps flowing leftward,
+       and later families backfill the gaps — no dead cells anywhere. The
+       family background is painted PER CELL by .gcell::before, expanded by
+       half the gap so same-family neighbours merge seamlessly; borders and
+       corner radii are supplied per cell from the placement data (a side
+       touching a same-family neighbour gets no border, a corner with two
+       exposed sides gets the radius), so a wrapped family renders as one
+       tall band or an L-shaped sheet with rounded outer corners. The family
+       header rides inside the group's first cell. */
     .gridview {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: flex-start;
-      gap: 12px;
+      --halfgap: 6px;
+      display: grid;
+      grid-template-columns: repeat(var(--cols, 3), minmax(0, 1fr));
+      grid-auto-rows: minmax(min-content, auto);
+      gap: calc(var(--halfgap) * 2);
       margin-bottom: 8px;
     }
-    .stylesec {
-      display: inline-flex;
+    .gcell {
+      position: relative;
+      display: flex;
       flex-direction: column;
-      width: fit-content;
-      max-width: 100%;
-      padding: 12px;
-      border-radius: 16px;
-      border: 1px solid var(--border);
-      background: var(--card);
+      align-items: center;
+      gap: 8px;
+      padding: 10px 8px 8px;
+      border-radius: 12px;
+      color: var(--foreground);
+      transition: background .15s ease, transform .15s ease;
     }
-    /* Distinct family tint per design language (background + matching edge). */
-    .stylesec[data-style="m3"]        { background: color-mix(in srgb, #d0bcff 12%, var(--card)); border-color: color-mix(in srgb, #d0bcff 30%, var(--border)); }
-    .stylesec[data-style="hig"]       { background: color-mix(in srgb, #0a84ff 10%, var(--card)); border-color: color-mix(in srgb, #0a84ff 28%, var(--border)); }
-    .stylesec[data-style="carbon"]    { background: color-mix(in srgb, #8d8d8d 12%, var(--card)); border-color: color-mix(in srgb, #8d8d8d 30%, var(--border)); }
-    .stylesec[data-style="neumorph"]  { background: color-mix(in srgb, #e0a458 13%, var(--card)); border-color: color-mix(in srgb, #e0a458 30%, var(--border)); }
-    .stylesec[data-style="glass"]     { background: color-mix(in srgb, #67e8f9 12%, var(--card)); border-color: color-mix(in srgb, #67e8f9 30%, var(--border)); }
-    .stylesec[data-style="brutalism"] { background: color-mix(in srgb, #ffd23f 15%, var(--card)); border-color: color-mix(in srgb, #ffd23f 34%, var(--border)); }
-    .stylesec[data-style="clay"]      { background: color-mix(in srgb, #ec7fae 12%, var(--card)); border-color: color-mix(in srgb, #ec7fae 30%, var(--border)); }
-    .stylesec[data-style="bauhaus"]   { background: color-mix(in srgb, #d5321f 11%, var(--card)); border-color: color-mix(in srgb, #d5321f 28%, var(--border)); }
-    .stylesec[data-style="minimal"]   { background: color-mix(in srgb, #111111 7%, var(--card));  border-color: color-mix(in srgb, #111111 20%, var(--border)); }
-    .stylesec[data-style="bento"]     { background: color-mix(in srgb, #ff5c33 12%, var(--card)); border-color: color-mix(in srgb, #ff5c33 30%, var(--border)); }
-    .stylesec[data-style="flat"]      { background: color-mix(in srgb, #00897b 12%, var(--card)); border-color: color-mix(in srgb, #00897b 30%, var(--border)); }
-
-    .stylesec__head {
+    /* first cell of a family carries the header — make room for it */
+    .gcell[data-first] {
+      padding-top: 42px;
+      align-items: flex-start;
+    }
+    .gcell[data-first] .gcell__shot,
+    .gcell[data-first] .gcell__name {
+      align-self: center;
+    }
+    .gcell::before {
+      content: "";
+      position: absolute;
+      inset: calc(var(--halfgap) * -1);
+      z-index: 0;
+      background: var(--secbg, var(--card));
+      border: 0 solid var(--secedge, var(--border));
+      border-top-width: var(--bw-top, 1px);
+      border-right-width: var(--bw-right, 1px);
+      border-bottom-width: var(--bw-bottom, 1px);
+      border-left-width: var(--bw-left, 1px);
+      border-radius: var(--r-tl, 16px) var(--r-tr, 16px) var(--r-br, 16px) var(--r-bl, 16px);
+      transition: background .25s ease, border-color .25s ease;
+    }
+    .gcell__shot,
+    .gcell__name,
+    .ghead {
+      position: relative;
+      z-index: 1;
+    }
+    /* Family header — lives inside the group's first cell, on the sheet. */
+    .ghead {
+      position: absolute;
+      top: 10px;
+      left: 16px;
+      right: 16px;
       display: flex;
       align-items: center;
       gap: 8px;
-      margin: 0 0 10px;
+      pointer-events: none;
     }
-    .stylesec__dot {
+    .ghead__dot {
       flex: none;
       width: 10px;
       height: 10px;
       border-radius: 50%;
-      background: var(--muted-foreground);
+      background: var(--secdot, var(--muted-foreground));
     }
-    .stylesec[data-style="m3"] .stylesec__dot        { background: #a885e8; }
-    .stylesec[data-style="hig"] .stylesec__dot       { background: #0a84ff; }
-    .stylesec[data-style="carbon"] .stylesec__dot    { background: #8d8d8d; }
-    .stylesec[data-style="neumorph"] .stylesec__dot  { background: #e0a458; }
-    .stylesec[data-style="glass"] .stylesec__dot     { background: #22b8cf; }
-    .stylesec[data-style="brutalism"] .stylesec__dot { background: #e6b400; }
-    .stylesec[data-style="clay"] .stylesec__dot      { background: #ec7fae; }
-    .stylesec[data-style="bauhaus"] .stylesec__dot   { background: #d5321f; }
-    .stylesec[data-style="minimal"] .stylesec__dot   { background: #111111; }
-    .stylesec[data-style="bento"] .stylesec__dot     { background: #ff5c33; }
-    .stylesec[data-style="flat"] .stylesec__dot      { background: #00897b; }
-    .stylesec__title {
+    .ghead__title {
       margin: 0;
       font-size: 15px;
       font-weight: 700;
       letter-spacing: -.01em;
       line-height: 1.3;
     }
-    .stylesec__count {
+    .ghead__count {
       font-size: 12px;
       color: var(--muted-foreground);
       font-variant-numeric: tabular-nums;
     }
+    /* Distinct family tint per design language (sheet bg + edge + dot). */
+    .gcell[data-style="m3"]        { --secbg: color-mix(in srgb, #d0bcff 12%, var(--card)); --secedge: color-mix(in srgb, #d0bcff 30%, var(--border)); --secdot: #a885e8; }
+    .gcell[data-style="hig"]       { --secbg: color-mix(in srgb, #0a84ff 10%, var(--card)); --secedge: color-mix(in srgb, #0a84ff 28%, var(--border)); --secdot: #0a84ff; }
+    .gcell[data-style="carbon"]    { --secbg: color-mix(in srgb, #8d8d8d 12%, var(--card)); --secedge: color-mix(in srgb, #8d8d8d 30%, var(--border)); --secdot: #8d8d8d; }
+    .gcell[data-style="neumorph"]  { --secbg: color-mix(in srgb, #e0a458 13%, var(--card)); --secedge: color-mix(in srgb, #e0a458 30%, var(--border)); --secdot: #e0a458; }
+    .gcell[data-style="glass"]     { --secbg: color-mix(in srgb, #67e8f9 12%, var(--card)); --secedge: color-mix(in srgb, #67e8f9 30%, var(--border)); --secdot: #22b8cf; }
+    .gcell[data-style="brutalism"] { --secbg: color-mix(in srgb, #ffd23f 15%, var(--card)); --secedge: color-mix(in srgb, #ffd23f 34%, var(--border)); --secdot: #e6b400; }
+    .gcell[data-style="clay"]      { --secbg: color-mix(in srgb, #ec7fae 12%, var(--card)); --secedge: color-mix(in srgb, #ec7fae 30%, var(--border)); --secdot: #ec7fae; }
+    .gcell[data-style="bauhaus"]   { --secbg: color-mix(in srgb, #d5321f 11%, var(--card)); --secedge: color-mix(in srgb, #d5321f 28%, var(--border)); --secdot: #d5321f; }
+    .gcell[data-style="minimal"]   { --secbg: color-mix(in srgb, #111111 7%, var(--card));  --secedge: color-mix(in srgb, #111111 20%, var(--border)); --secdot: #111111; }
+    .gcell[data-style="bento"]     { --secbg: color-mix(in srgb, #ff5c33 12%, var(--card)); --secedge: color-mix(in srgb, #ff5c33 30%, var(--border)); --secdot: #ff5c33; }
+    .gcell[data-style="flat"]      { --secbg: color-mix(in srgb, #00897b 12%, var(--card)); --secedge: color-mix(in srgb, #00897b 30%, var(--border)); --secdot: #00897b; }
 
-    /* Items share the family background — exactly --cols tracks so the
-       sheet hugs its content. */
-    .stylesec__grid {
-      display: grid;
-      grid-template-columns: repeat(var(--cols, 1), minmax(146px, 1fr));
-      gap: 10px;
-    }
-    .gcell {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 8px;
-      padding: 8px 6px 6px;
-      border-radius: 12px;
-      color: var(--foreground);
-      transition: background .15s ease, transform .15s ease;
-    }
     .gcell:hover {
       background: color-mix(in srgb, var(--foreground) 6%, transparent);
       transform: translateY(-2px);
@@ -481,12 +490,6 @@
       white-space: nowrap;
       max-width: 100%;
       transition: color .15s ease;
-    }
-
-    /* Small screens: families go full-width, columns adapt via auto-fill. */
-    @media (max-width: 640px) {
-      .stylesec { width: 100%; }
-      .stylesec__grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
     }
 
     /* Style badge on prototype cards (distinct from the orange status tag) */
