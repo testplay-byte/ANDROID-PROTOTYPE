@@ -7,6 +7,28 @@
 
 ## [Unreleased]
 
+### 2026-09-28 — polish round 2: Pulse toggles, Still profile, Drift header/player
+
+- **Pulse** — DARK/LIGHT + density segmented controls rebuilt as separate
+  bordered cells (read as a toggle, not one button); switch ON state = blue
+  track + ink outer ring + white thumb with a primary-colored check, legible
+  on any surface in both themes.
+- **Still** — intention card text can't escape; breathing orb gained an
+  animated color halo (user request); profile switch-row knob pulled inside
+  its card; soundscape icon/dot hug the label; About icon + version pulled
+  in from the edges; reminder +/- buttons got their press animation.
+- **Drift** — header pill 12px under the status bar (the .dr root starts
+  below the status bar, so 40px was pure padding) and hidden on the player
+  (focus mode); buttons wider with min-widths; browse filter chips wrap;
+  player cover sized in px — `46vh` referenced the browser viewport, not the
+  device (new failure mode #16); sleep chips padded; mini-player progress is
+  a clean 2px accent line tinted by the show's accent.
+- **docs/ui-failure-modes.md** — classes #16–20 added (vh-in-device, chrome
+  clearance, toggle state contrast, segmented-as-toggle, wrap-prone copy);
+  checklist extended to 14 points.
+
+`tsc` + `build` clean (27 routes).
+
 ### 2026-09-28 — review polish pass (7 prototypes) + Ruckus (brutalism) + Linie (bauhaus)
 
 **New docs:** `docs/ui-failure-modes.md` — the 15 UI defect classes the user
