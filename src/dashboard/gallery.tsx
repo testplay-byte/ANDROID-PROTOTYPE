@@ -358,10 +358,10 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
                 ["--r-tr"]: !cell.up && !cell.right ? "16px" : "0px",
                 ["--r-br"]: !cell.down && !cell.right ? "16px" : "0px",
                 ["--r-bl"]: !cell.down && !cell.left ? "16px" : "0px",
-                ["--bw-top"]: cell.up ? "0px" : "1px",
-                ["--bw-right"]: cell.right ? "0px" : "1px",
-                ["--bw-bottom"]: cell.down ? "0px" : "1px",
-                ["--bw-left"]: cell.left ? "0px" : "1px",
+                ["--bw-top"]: cell.up ? "0px" : "2px",
+                ["--bw-right"]: cell.right ? "0px" : "2px",
+                ["--bw-bottom"]: cell.down ? "0px" : "2px",
+                ["--bw-left"]: cell.left ? "0px" : "2px",
                 // sheet expansion per side: half the gap toward a same-family
                 // neighbour (seamless merge), a sliver toward anything else
                 // (visible spacing between different families)

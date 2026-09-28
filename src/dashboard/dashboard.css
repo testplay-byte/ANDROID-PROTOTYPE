@@ -392,6 +392,9 @@
       display: flex;
       flex-direction: column;
       align-items: center;
+      justify-content: flex-end; /* bottom-align: thumbs + names line up across
+                                    a row even when the first cell carries the
+                                    header's extra top padding */
       gap: 8px;
       padding: 12px 10px 10px;
       border-radius: 12px;
@@ -401,11 +404,6 @@
     /* first cell of a family carries the header — make room for it */
     .gcell[data-first] {
       padding-top: 46px;
-      align-items: flex-start;
-    }
-    .gcell[data-first] .gcell__shot,
-    .gcell[data-first] .gcell__name {
-      align-self: center;
     }
     .gcell::before {
       content: "";

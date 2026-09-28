@@ -29,6 +29,11 @@
 - **Content-aware column count**: as many columns as fit at a 180px cell
   minimum, capped at 5 — wide displays now show 4-5 prototypes per row
   (was hard-capped at 3). Verified 1360 (5 cols) / 700 (3) / 390 (1).
+- **Row alignment + sheet framing** (user review): every card bottom-aligns
+  its thumb + name (justify-content: flex-end), so cards line up across a
+  row even when the first cell carries the header's extra top padding;
+  sheet borders thickened 1px → 2px so each family sheet reads as a framed
+  card.
 - Columns are measured, not media-queried (ResizeObserver) — the packing
   rule holds at every width.
 
