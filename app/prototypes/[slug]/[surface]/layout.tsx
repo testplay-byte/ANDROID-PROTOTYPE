@@ -2,11 +2,16 @@ import type { ReactNode } from "react";
 import "../../../../src/proto-kit/tokens/tokens.css";
 import "../../../../src/proto-kit/styles/index.css";
 /* The surface route reuses the prototype page components but not their
-   layouts, so their stylesheets are imported here. All three are
-   prefix-scoped (.mrd- / .ql- / .tel-) and never collide. */
+   layouts, so every desktop prototype's stylesheet is imported here.
+   They are prefix-scoped (.mrd- .ql- .tel- .aur- .sy- .mch- .atl-) and
+   never collide. */
 import "../../../../src/prototypes/meridian/meridian.css";
 import "../../../../src/prototypes/quill/quill.css";
 import "../../../../src/prototypes/telemetry/telemetry.css";
+import "../../../../src/prototypes/aurora/aurora.css";
+import "../../../../src/prototypes/stockyard/stockyard.css";
+import "../../../../src/prototypes/mochi/mochi.css";
+import "../../../../src/prototypes/atelier/atelier.css";
 
 /**
  * Layout for the surface-aware prototype route (`[slug]/[surface]`).

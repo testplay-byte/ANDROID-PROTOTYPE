@@ -1,0 +1,1562 @@
+/* =========================================================================
+   stockyard / stockyard.css — "Stockyard" inventory + fulfilment console
+   (Neo-brutalism, DESKTOP surface).
+   =========================================================================
+   STYLE INDEX (per docs/SPEC.md § targeting convention — keep in sync):
+     1. Shell + density  .sy, .sy-view, .sy-split, .sy-datacol, .sy-viewhead
+     2. Shared atoms .... .sy-micro, .sy-tnum, .sy-btn, .sy-iconbtn, .sy-chip,
+                          .sy-seg, .sy-switch, .sy-kbd, .sy-facts, .sy-block
+     3. Inventory ....... .sy-rail, .sy-cat, .sy-toolbar, .sy-search,
+                          .sy-filters, .sy-filter, .sy-bulkbar, .sy-table,
+                          .sy-tablefoot
+     4. Detail drawer ... .sy-drawer, .sy-cover, .sy-bins, .sy-restock,
+                          .sy-stepper, .sy-select
+     5. Orders .......... .sy-orders, .sy-order, .sy-panel, .sy-linetable,
+                          .sy-statusrow, .sy-loadlist
+     6. Movement ........ .sy-statrow, .sy-stat, .sy-chart, .sy-bar, .sy-log
+     7. Settings ........ .sy-settings, .sy-field, .sy-shortcuts, .sy-switches,
+                          .sy-preview
+     8. Overlays ........ .sy-palette, .sy-toast, .sy-warn
+     9. Adaptivity ...... @container surface (never @media)
+   ------------------------------------------------------------------------
+   THE BRUTALISM CONTRACT, enforced throughout:
+     · 0px radius, EVERYWHERE — see the guard in §8
+     · every container carries --border-w (2px) and a hard, zero-blur
+       --shadow-1 / --shadow-2; structure lives in the border, never in a
+       soft blur
+     · heavy uppercase micro-labels (letter-spaced) do the labelling work
+     · flat, high-contrast token fills — no gradients, no translucency
+       beyond the palette's own containers
+     · tabular numerals on every figure
+   Every value below is a token — no hardcoded colors, no fixed hex. The
+   design language arrives through `data-style` on the .surface element.
+   ========================================================================= */
+
+/* ---------- 1. shell + density ---------- */
+.sy {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--fs-body);
+}
+.sy :where(button, input, select) {
+  font: inherit;
+  color: inherit;
+}
+.sy :where(button) {
+  cursor: pointer;
+}
+.sy :where(button):disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+.sy :where(button:focus-visible, input:focus-visible, select:focus-visible) {
+  outline: var(--border-w) solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.sy-view {
+  padding: var(--sp-3) var(--sp-4) var(--sp-5);
+}
+
+/* The three-column desktop arrangement: rail · data · detail panel. */
+.sy-split {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--sp-3);
+  min-height: 100%;
+}
+.sy-datacol {
+  flex: 1;
+  min-width: 0;
+}
+
+/* Density: one attribute rescales EVERY row in the app. The row height is
+   the whole point of the setting, so it is a real height, not a padding
+   nudge. */
+.sy [data-density] {
+  --sy-row: 40px;
+  --sy-cell-x: var(--sp-3);
+}
+.sy [data-density="dense"] {
+  --sy-row: 26px;
+  --sy-cell-x: var(--sp-2);
+}
+
+/* ---------- 2. shared atoms ---------- */
+/* The workhorse label: uppercase, letter-spaced, quiet. */
+.sy-micro {  display: block;
+  font-size: var(--fs-label-s);
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  line-height: 1.2;
+}
+.sy-tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
+}
+
+.sy-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 32px;
+  padding: 0 var(--sp-3);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-size: var(--fs-label);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: var(--shadow-1);
+}
+.sy-btn:hover:not(:disabled) {
+  background: var(--color-surface-3);
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow-2);
+}
+.sy-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+.sy-btn--solid {
+  background: var(--color-primary);
+  border-color: var(--color-outline);
+  color: var(--color-primary-fg);
+}
+.sy-btn--wide {
+  width: 100%;
+  min-height: 40px;
+}
+
+.sy-iconbtn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  flex: none;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+.sy-iconbtn:hover {
+  background: var(--color-error);
+  border-color: var(--color-outline);
+  color: var(--color-primary-fg);
+}
+.sy-dot {
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--color-outline);
+  background: var(--color-secondary);
+}
+
+/* the top bar's ⌘K affordance — a command surface, not a search box */
+.sy-searchbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 30px;
+  padding: 0 var(--sp-2);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  box-shadow: var(--shadow-1);
+}
+.sy-searchbtn:hover {
+  background: var(--color-surface-3);
+  color: var(--color-text);
+}
+
+.sy-avatar {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-tertiary);
+  color: var(--color-text);
+  font-size: var(--fs-label-s);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  box-shadow: var(--shadow-1);
+}
+
+/* One chip, three vocabularies, colour by data attribute. */
+.sy-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-3);
+  color: var(--color-text);
+  font-size: var(--fs-label-s);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.sy-chip[data-state="ok"] { background: var(--color-primary); color: var(--color-primary-fg); }
+.sy-chip[data-state="low"] { background: var(--color-warn); color: var(--color-primary-fg); }
+.sy-chip[data-state="critical"] { background: var(--color-secondary); color: var(--color-primary-fg); }
+.sy-chip[data-state="backorder"] { background: var(--color-error); color: var(--color-primary-fg); }
+
+.sy-chip[data-status="queued"] { background: var(--color-surface-4); }
+.sy-chip[data-status="picking"] { background: var(--color-tertiary-container); color: var(--color-text); }
+.sy-chip[data-status="packed"] { background: var(--color-primary); color: var(--color-primary-fg); }
+.sy-chip[data-status="shipped"] { background: var(--color-success); color: var(--color-primary-fg); }
+.sy-chip[data-status="hold"] { background: var(--color-error); color: var(--color-primary-fg); }
+
+.sy-chip[data-type="receipt"] { background: var(--color-primary); color: var(--color-primary-fg); }
+.sy-chip[data-type="pick"] { background: var(--color-secondary); color: var(--color-primary-fg); }
+.sy-chip[data-type="adjust"] { background: var(--color-surface-4); }
+.sy-chip[data-type="transfer"] { background: var(--color-tertiary-container); color: var(--color-text); }
+
+.sy-seg {
+  display: inline-flex;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-2);
+}
+.sy-seg__btn {
+  padding: 7px var(--sp-4);
+  border: none;
+  border-right: var(--border-w) solid var(--color-outline);
+  background: none;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.sy-seg__btn:last-child {
+  border-right: none;
+}
+.sy-seg__btn.is-on {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+/* Notification switch — a hard block that slides NO shadows. */
+.sy-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  background: none;
+  border: none;
+  padding: 0;
+}
+.sy-switch__box {
+  position: relative;
+  display: block;
+  width: 40px;
+  height: 22px;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-3);
+  box-shadow: var(--shadow-inset);
+}
+.sy-switch__knob {
+  position: absolute;
+  top: 0;
+  left: 0;
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border-right: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-5);
+  color: var(--color-primary-fg);
+}
+.sy-switch[data-on] .sy-switch__box { background: var(--color-primary-container); }
+.sy-switch[data-on] .sy-switch__knob {
+  left: 20px;
+  background: var(--color-primary);
+}
+.sy-switch__text {
+  width: 30px;
+  font-size: var(--fs-label-s);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-align: left;
+  color: var(--color-text-subtle);
+}
+.sy-switch[data-on] .sy-switch__text { color: var(--color-text); }
+
+.sy kbd {
+  display: inline-block;
+  padding: 1px 6px;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-3);
+  font-family: inherit;
+  font-size: var(--fs-label-s);
+  font-weight: 800;
+  line-height: 1.6;
+}
+
+/* A titled block: the console's only container shape. */
+.sy-block {
+  padding: var(--sp-3) var(--sp-4) var(--sp-4);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  box-shadow: var(--shadow-1);
+}
+.sy-block + .sy-block {
+  margin-top: var(--sp-4);
+}
+.sy-block__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  padding-bottom: var(--sp-2);
+  margin-bottom: var(--sp-3);
+  border-bottom: var(--border-w) solid var(--color-outline);
+}
+.sy-block__head h2 {
+  margin: 0;
+  font-size: var(--fs-label);
+  font-weight: 900;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+}
+
+/* label / value pairs — the brutalist replacement for a stat card */
+.sy-facts {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+.sy-facts > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: 5px 0;
+  border-bottom: 1px dashed var(--color-outline-variant);
+}
+.sy-facts > div:last-child {
+  border-bottom: none;
+}
+.sy-facts dt {
+  font-size: var(--fs-label-s);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.sy-facts dd {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  text-align: right;
+}
+.sy-facts__strong {
+  color: var(--color-primary);
+  font-size: var(--fs-body-l);
+}
+.sy-facts dd[data-tone="bad"] { color: var(--color-secondary); }
+.sy-facts--tight > div { padding: 3px 0; }
+
+/* ---------- 3. inventory ---------- */
+/* The left rail is desktop-only: a phone gets a sheet, a window gets a
+   permanent column you never lose. */
+.sy-rail {
+  flex: none;
+  width: 168px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--sp-2);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-2);
+  box-shadow: var(--shadow-1);
+}
+.sy-rail__title {
+  padding: 4px 6px 2px;
+  border-bottom: var(--border-w) solid var(--color-outline-variant);
+  margin-bottom: 3px;
+}
+.sy-rail__title + .sy-cat { margin-top: 0; }
+
+.sy-cat {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  width: 100%;
+  min-height: 28px;
+  padding: 3px 6px;
+  border: var(--border-w) solid transparent;
+  background: none;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  font-weight: 700;
+  text-align: left;
+}
+.sy-cat:hover {
+  border-color: var(--color-outline-variant);
+  color: var(--color-text);
+}
+.sy-cat.is-on {
+  border-color: var(--color-outline);
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  font-weight: 900;
+}
+.sy-cat__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sy-cat__n {
+  flex: none;
+  font-size: var(--fs-label-s);
+  font-weight: 800;
+}
+
+.sy-toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-2);
+}
+.sy-toolbar__count {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 0;
+}
+.sy-toolbar__count b {
+  color: var(--color-text);
+  font-size: var(--fs-body);
+}
+
+.sy-search {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1 1 240px;
+  min-width: 0;
+  height: 30px;
+  padding: 0 var(--sp-2);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  color: var(--color-text-muted);
+  box-shadow: var(--shadow-inset);
+}
+.sy-search input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  color: var(--color-text);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  outline: none;
+}
+
+.sy-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+.sy-filter {
+  min-height: 26px;
+  padding: 2px 9px;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.sy-filter:hover:not(:disabled) {
+  background: var(--color-surface-3);
+  color: var(--color-text);
+}
+.sy-filter.is-on {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  border-color: var(--color-outline);
+}
+
+.sy-bulkbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  padding: 5px var(--sp-2);
+  margin-bottom: var(--sp-2);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  font-size: var(--fs-label-s);
+  font-weight: 800;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  box-shadow: var(--shadow-1);
+}
+.sy-bulkbar__stat {
+  opacity: 0.85;
+  text-transform: none;
+  letter-spacing: 0.02em;
+}
+.sy-bulkbar__sep { flex: 1; }
+.sy-bulkbar button {
+  padding: 2px 8px;
+  border: var(--border-w) solid var(--color-primary-fg);
+  background: none;
+  color: inherit;
+  font-size: inherit;
+  font-weight: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+}
+.sy-bulkbar button:hover {
+  background: var(--color-primary-fg);
+  color: var(--color-primary);
+}
+.sy-bulkbar .sy-bulkbar__clear {
+  display: grid;
+  place-items: center;
+  padding: 2px 6px;
+}
+
+/* The table. Fixed layout + percentage columns = no horizontal scroll,
+   ever, at 1280 or at 900. */
+.sy-table {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  font-size: var(--fs-label);
+}
+.sy-table thead th {
+  height: 26px;
+  padding: 0 var(--sy-cell-x, var(--sp-2));
+  border-bottom: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-3);
+  font-size: var(--fs-label-s);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.sy-table thead th button {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  padding: 0;
+}
+.sy-sort {
+  opacity: 0.25;
+  font-size: 8px;
+}
+.sy-sort.is-on {
+  opacity: 1;
+  color: var(--color-primary);
+}
+.sy-table tbody td {
+  /* the density switch lands here, and nowhere else */
+  height: var(--sy-row, 40px);
+  padding: 0 var(--sy-cell-x, var(--sp-2));
+  border-bottom: 1px solid var(--color-outline-variant);
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sy-table tbody tr { cursor: pointer; }
+.sy-table tbody tr:hover { background: var(--color-surface-2); }
+.sy-table tbody tr[data-checked] { box-shadow: inset 4px 0 0 0 var(--color-primary); }
+.sy-table tbody tr[data-selected] {
+  background: var(--color-primary-container);
+  box-shadow: inset 4px 0 0 0 var(--color-outline);
+}
+.sy-table__check {
+  width: 34px;
+  padding-left: 8px !important;
+}
+.sy-table__check input {
+  width: 13px;
+  height: 13px;
+  accent-color: var(--color-primary);
+}
+.sy-table__sku b { font-weight: 900; letter-spacing: 0.01em; }
+.sy-table__name { font-weight: 600; }
+.sy-table__sub {
+  display: block;
+  font-size: var(--fs-label-s);
+  font-weight: 500;
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sy-table__num { font-weight: 700; }
+.sy-table__empty {
+  height: auto !important;
+  padding: var(--sp-6) var(--sp-3) !important;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+.sy-table tbody tr[data-state="critical"] .sy-table__num:first-of-type,
+.sy-table tbody tr[data-state="backorder"] .sy-table__num:first-of-type {
+  color: var(--color-secondary);
+}
+
+.sy-tablefoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding-top: var(--sp-2);
+  /* keep clear of the stage's floating surface switcher (bottom-right) */
+  padding-right: 190px;
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.sy-tablefoot__hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+
+/* ---------- 4. detail drawer ---------- */
+.sy-drawer {
+  flex: none;
+  width: 292px;
+  position: sticky;
+  top: 0;
+  /* Bounded so the sticky panel can never be taller than the 1280×800
+     window it lives in — a sticky box taller than its scrollport clips its
+     own tail unreachably. It scrolls internally instead, and the bound is
+     released at tablet width where the panel is a static block. */
+  max-height: 620px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  align-items: flex-start;
+  padding: var(--sp-3);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  box-shadow: var(--shadow-2);
+}
+.sy-drawer__head,
+.sy-panel__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-2);
+  width: 100%;
+  padding-bottom: var(--sp-2);
+  border-bottom: var(--border-w) solid var(--color-outline);
+}
+.sy-drawer__head h2,
+.sy-panel__head h2 {
+  margin: 2px 0 0;
+  font-size: var(--fs-body-l);
+  font-weight: 900;
+  line-height: 1.15;
+}
+.sy-drawer__head p,
+.sy-panel__head p {
+  margin: 2px 0 0;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.sy-drawer > .sy-facts,
+.sy-panel > .sy-facts { width: 100%; }
+/* the drawer is a narrow column of facts — tighter than the settings page */
+.sy-drawer > .sy-facts > div { padding: 3px 0; }
+.sy-drawer > .sy-facts dt,
+.sy-panel > .sy-facts dt { font-size: 10px; }
+.sy-drawer__section,
+.sy-panel__section {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  width: 100%;
+  margin: var(--sp-1) 0 0;
+  padding-bottom: 2px;
+  border-bottom: var(--border-w) solid var(--color-outline-variant);
+  font-size: var(--fs-label-s);
+  font-weight: 900;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+/* cover bar — on-hand against twice the reorder point */
+.sy-cover { width: 100%; }
+.sy-cover__track {
+  position: relative;
+  height: 14px;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-3);
+  overflow: hidden;
+}
+.sy-cover__fill {
+  display: block;
+  height: 100%;
+  background: var(--color-primary);
+}
+.sy-cover__fill[data-state="low"] { background: var(--color-warn); }
+.sy-cover__fill[data-state="critical"] { background: var(--color-secondary); }
+.sy-cover__fill[data-state="backorder"] { background: var(--color-error); }
+.sy-cover__mark {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: var(--border-w);
+  background: var(--color-text);
+}
+.sy-cover__legend {
+  margin-top: 3px;
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+}
+.sy-cover__legend b { color: var(--color-text); }
+
+/* per-location breakdown */
+.sy-bins {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sy-bins li {
+  display: grid;
+  grid-template-columns: 44px 1fr auto;
+  align-items: center;
+  gap: 6px;
+}
+.sy-bins__code {
+  font-size: var(--fs-label-s);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+}
+.sy-bins__bar {
+  display: block;
+  height: 10px;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-3);
+}
+.sy-bins__fill {
+  display: block;
+  height: 100%;
+  background: var(--color-tertiary);
+}
+.sy-bins li[data-empty] .sy-bins__bar {
+  background: var(--color-error-container);
+}
+.sy-bins__n {
+  font-size: var(--fs-label-s);
+  font-weight: 800;
+  text-align: right;
+}
+.sy-bins__n i {
+  display: block;
+  font-style: normal;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+/* restock form — the drawer's reason for existing */
+.sy-restock {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  padding: var(--sp-2);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-2);
+  box-shadow: var(--shadow-inset);
+}
+.sy-stepper {
+  display: flex;
+  align-items: stretch;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+}
+.sy-stepper button {
+  width: 30px;
+  flex: none;
+  border: none;
+  background: var(--color-surface-3);
+  color: var(--color-text);
+  font-size: var(--fs-body-l);
+  font-weight: 900;
+  line-height: 1;
+}
+.sy-stepper button:hover { background: var(--color-primary); color: var(--color-primary-fg); }
+.sy-stepper input {
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  border: none;
+  border-right: var(--border-w) solid var(--color-outline);
+  border-left: var(--border-w) solid var(--color-outline);
+  background: none;
+  color: var(--color-text);
+  font-size: var(--fs-body);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  outline: none;
+  -moz-appearance: textfield;
+}
+.sy-stepper input::-webkit-outer-spin-button,
+.sy-stepper input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.sy-select {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+.sy-select select {
+  flex: 1;
+  min-width: 0;
+  height: 28px;
+  padding: 0 4px;
+  border: var(--border-w) solid var(--color-outline);
+  border-radius: 0;
+  background: var(--color-surface-1);
+  color: var(--color-text);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  outline: none;
+}
+.sy-restock__actions {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.sy-restock__actions .sy-btn { flex: 1 1 auto; }
+.sy-restock__actions .sy-btn:not(.sy-btn--solid) {
+  flex: 0 0 auto;
+  box-shadow: none;
+  background: none;
+  font-size: var(--fs-label-s);
+}
+
+.sy-drawer__log {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+.sy-drawer__log li {
+  display: grid;
+  grid-template-columns: 56px 54px 1fr;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 0;
+  border-bottom: 1px dashed var(--color-outline-variant);
+}
+.sy-drawer__log li:last-child { border-bottom: none; }
+.sy-drawer__log b { font-size: var(--fs-label-s); }
+.sy-drawer__log b[data-sign="in"] { color: var(--color-success); }
+.sy-drawer__log b[data-sign="out"] { color: var(--color-secondary); }
+.sy-drawer__logwhy {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sy-drawer__log-empty {
+  display: block !important;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+
+/* ---------- 5. orders ---------- */
+.sy-orders {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sy-order {
+  display: grid;
+  grid-template-columns: 76px minmax(0, 1fr) minmax(0, 1.3fr) 78px 84px 18px;
+  align-items: center;
+  gap: var(--sp-2);
+  width: 100%;
+  padding: 7px var(--sp-2);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  color: var(--color-text);
+  text-align: left;
+  box-shadow: var(--shadow-1);
+}
+.sy-order:hover {
+  background: var(--color-surface-2);
+  transform: translate(-1px, -1px);
+  box-shadow: var(--shadow-2);
+}
+.sy-order[data-open] {
+  background: var(--color-primary-container);
+  box-shadow: inset 5px 0 0 0 var(--color-outline);
+}
+.sy-order__ref {
+  font-size: var(--fs-label);
+  font-weight: 900;
+}
+.sy-order__cust {
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sy-order__meta {
+  text-transform: none;
+  letter-spacing: 0.02em;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sy-order__val {
+  font-size: var(--fs-label);
+  font-weight: 800;
+  text-align: right;
+}
+.sy-orders__empty {
+  padding: var(--sp-6);
+  border: var(--border-w) dashed var(--color-outline);
+  text-align: center;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+/* density reaches the queue rows too, not just the tables */
+.sy [data-density="dense"] .sy-order { padding: 3px var(--sp-2); }
+.sy [data-density="dense"] .sy-order .sy-chip { padding: 0 5px; }
+
+/* the detail panel beside the queue (orders + the reusable shape) */
+.sy-panel {
+  flex: none;
+  width: 336px;
+  position: sticky;
+  top: 0;
+  max-height: 620px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  align-items: flex-start;
+  padding: var(--sp-3);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  box-shadow: var(--shadow-2);
+}
+.sy-panel__note {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin: 0;
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.sy-statusrow { display: flex; flex-wrap: wrap; gap: 4px; width: 100%; }
+
+.sy-linetable {
+  width: 100%;
+  table-layout: fixed;
+  border-collapse: collapse;
+  border: var(--border-w) solid var(--color-outline);
+  font-size: var(--fs-label-s);
+}
+.sy-linetable thead th {
+  height: 22px;
+  padding: 0 6px;
+  border-bottom: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-3);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.sy-linetable tbody td {
+  height: 24px;
+  padding: 0 6px;
+  border-bottom: 1px solid var(--color-outline-variant);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sy-linetable tbody tr[data-short] {
+  background: var(--color-error-container);
+}
+.sy-linetable tbody tr[data-short] td:first-child {
+  box-shadow: inset 3px 0 0 0 var(--color-secondary);
+}
+.sy-linetable__name { font-weight: 600; }
+
+.sy-loadlist {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.sy-loadlist li {
+  display: grid;
+  grid-template-columns: 54px 1fr auto;
+  align-items: baseline;
+  gap: 5px;
+  padding: 4px 5px;
+  border-left: 3px solid var(--color-primary);
+  background: var(--color-surface-1);
+  font-size: var(--fs-label-s);
+}
+.sy-loadlist b { font-weight: 900; }
+.sy-loadlist span {
+  color: var(--color-text-muted);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sy-loadlist i { font-style: normal; font-weight: 800; }
+.sy-loadlist__empty {
+  display: block !important;
+  border-left: 3px solid var(--color-outline-variant);
+  color: var(--color-text-muted);
+}
+
+/* ---------- 6. movement ---------- */
+.sy-statrow {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-4);
+}
+.sy-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: var(--sp-2) var(--sp-3);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  box-shadow: var(--shadow-1);
+}
+.sy-stat b {
+  font-size: var(--fs-h2);
+  font-weight: 900;
+  line-height: 1.05;
+}
+.sy-stat[data-tone="ok"] b { color: var(--color-success); }
+.sy-stat[data-tone="bad"] b { color: var(--color-secondary); }
+.sy-stat__sub {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+
+/* the daily series: hard columns, hard borders, no curve */
+.sy-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 168px;
+  padding: var(--sp-3) 0 0;
+  border-top: var(--border-w) solid var(--color-outline);
+}
+.sy-bar {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: stretch;
+  gap: 2px;
+}
+.sy-bar__fill {
+  display: block;
+  width: 100%;
+  border: var(--border-w) solid var(--color-outline);
+  border-bottom: none;
+  background: var(--color-tertiary);
+  box-shadow: var(--shadow-1);
+}
+.sy-bar[data-today] .sy-bar__fill {
+  background: var(--color-primary);
+}
+.sy-bar__n {
+  font-size: 10px;
+  font-weight: 800;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+.sy-bar[data-today] .sy-bar__n { color: var(--color-text); }
+.sy-bar__label {
+  text-align: center;
+  font-size: 9px;
+  color: var(--color-text-subtle);
+}
+
+.sy-log .sy-log__qty { font-weight: 900; }
+.sy-log__qty[data-sign="in"] { color: var(--color-success); }
+.sy-log__qty[data-sign="out"] { color: var(--color-secondary); }
+.sy-log__tag {
+  display: inline-block;
+  margin-left: 5px;
+  padding: 0 4px;
+  border: 1px solid var(--color-outline);
+  background: var(--color-surface-3);
+  color: var(--color-text-muted);
+  font-size: 9px;
+  letter-spacing: 0.06em;
+}
+.sy-log tbody tr[data-type="adjust"] { background: var(--color-surface-2); }
+
+/* ---------- 7. settings ---------- */
+.sy-settings {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 400px;
+  gap: var(--sp-4);
+  align-items: start;
+}
+.sy-settings__col { min-width: 0; }
+.sy-settings__preview { min-width: 0; }
+
+.sy-field + .sy-field { margin-top: var(--sp-4); }
+.sy-field > label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: var(--fs-label-s);
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.sy-field__hint {
+  margin: 6px 0 0;
+  font-size: var(--fs-label-s);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+.sy-field__hint code {
+  padding: 0 4px;
+  border: 1px solid var(--color-outline);
+  background: var(--color-surface-3);
+  font-family: inherit;
+  font-weight: 800;
+}
+.sy-field--row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+}
+
+.sy-switches {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+.sy-switches li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: 7px 0;
+  border-bottom: 1px dashed var(--color-outline-variant);
+}
+.sy-switches li:last-child { border-bottom: none; }
+.sy-switches b {
+  display: block;
+  font-size: var(--fs-label);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.sy-switches span {
+  display: block;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+
+.sy-shortcuts {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+}
+.sy-shortcuts > div {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+.sy-shortcuts dt { flex: none; width: 108px; }
+.sy-shortcuts dd {
+  margin: 0;
+  font-size: var(--fs-label);
+  font-weight: 600;
+}
+
+.sy-preview tbody td {
+  height: var(--sy-row, 40px);
+  font-size: var(--fs-label-s);
+  cursor: default;
+}
+.sy-preview { margin-bottom: var(--sp-3); }
+
+/* ---------- 8. overlays ---------- */
+.sy-palette {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  padding-top: 11%; /* surface-relative: vh would measure the BROWSER */
+  background: color-mix(in srgb, var(--color-bg) 62%, transparent);
+}
+.sy-palette__box {
+  width: min(560px, 88%);
+  height: fit-content;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-2);
+  box-shadow: var(--shadow-2);
+}
+.sy-palette__input {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-3);
+  border-bottom: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  color: var(--color-text-muted);
+}
+.sy-palette__input input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  color: var(--color-text);
+  font-size: var(--fs-body-l);
+  font-weight: 600;
+  outline: none;
+}
+.sy-palette__list {
+  list-style: none;
+  margin: 0;
+  padding: var(--sp-1);
+}
+.sy-palette__list button {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  width: 100%;
+  padding: 6px var(--sp-2);
+  border: var(--border-w) solid transparent;
+  background: none;
+  color: var(--color-text);
+  text-align: left;
+}
+.sy-palette__list button.is-cursor {
+  border-color: var(--color-outline);
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+.sy-palette__kind {
+  flex: none;
+  width: 56px;
+  padding: 1px 5px;
+  border: 1px solid currentColor;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  text-align: center;
+}
+.sy-palette__list button b {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-label);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sy-palette__hint {
+  flex: none;
+  max-width: 40%;
+  font-size: var(--fs-label-s);
+  opacity: 0.8;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sy-palette__empty {
+  padding: var(--sp-4);
+  font-size: var(--fs-label);
+  color: var(--color-text-muted);
+}
+.sy-palette__foot {
+  padding: 5px var(--sp-3);
+  border-top: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+
+.sy-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 20px;
+  translate: -50% 0;
+  z-index: 45;
+  max-width: min(520px, 82%);
+  padding: 8px var(--sp-4);
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  font-size: var(--fs-label);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  box-shadow: var(--shadow-2);
+}
+
+.sy-warn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  min-height: 28px;
+  padding: 2px 9px;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-secondary);
+  color: var(--color-primary-fg);
+  font-size: var(--fs-label-s);
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+/* The zero-radius guard. `.surface[data-surface="desktop"]` re-points
+   --r-pill at 8px for every desktop window, so a style file that trusted
+   the token alone would sprout rounded pills in a brutalism app. This
+   closes that door for every element the console owns. */
+.sy, .sy *, .sy *::before, .sy *::after {
+  border-radius: 0;
+}
+
+/* ---------- 9. adaptivity: the window resizes, so CONTAINERS do ----------
+   The surface is its own query container, so a 1400px browser can still
+   be showing an 834px tablet. Never @media here. */
+
+/* Tablet: the three columns cannot survive side by side, so the
+   arrangement genuinely changes — the rail becomes a persistent filter
+   bar pinned to the top, the table becomes self-describing records, and
+   the detail becomes a full-width block directly beneath the bar. */
+@container surface (max-width: 900px) {
+  .sy-view { padding: var(--sp-2) var(--sp-3) var(--sp-5); }
+
+  .sy-split {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--sp-2);
+  }
+
+  /* the category rail → a horizontal, sticky filter bar */
+  .sy-rail {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 4px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    box-shadow: var(--shadow-2);
+  }
+  .sy-rail::-webkit-scrollbar { display: none; }
+  .sy-rail__title { display: none; }
+  .sy-cat {
+    width: auto;
+    flex: none;
+    min-height: 30px;
+    padding: 3px 10px;
+  }
+  .sy-cat__name { white-space: nowrap; }
+
+  /* the detail panel becomes a full-width block ABOVE the records */
+  .sy-drawer,
+  .sy-panel {
+    position: static;
+    width: 100%;
+    max-height: none;
+    overflow-y: visible;
+    order: -1;
+    box-shadow: var(--shadow-1);
+  }
+
+  .sy-datacol { width: 100%; }
+
+  /* the table → stacked records. No column headers exist, so every cell
+     labels itself from data-label. */
+  .sy-table,
+  .sy-table tbody,
+  .sy-table tbody tr,
+  .sy-table tbody td {
+    display: block;
+    width: 100%;
+  }
+  .sy-table thead { display: none; }
+  .sy-table tbody tr {
+    margin-bottom: var(--sp-2);
+    border: var(--border-w) solid var(--color-outline);
+    background: var(--color-surface-1);
+    box-shadow: var(--shadow-1);
+  }
+  .sy-table tbody td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--sp-3);
+    height: auto;
+    min-height: 24px;
+    padding: 3px var(--sp-2);
+    border-bottom: 1px dashed var(--color-outline-variant);
+    text-align: left !important;
+    white-space: normal;
+  }
+  .sy-table tbody td:last-child { border-bottom: none; }
+  .sy-table tbody td::before {
+    content: attr(data-label);
+    flex: none;
+    font-size: var(--fs-label-s);
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-text-muted);
+  }
+  /* the two identity cells become the record's own header row */
+  .sy-table__check,
+  .sy-table__sku,
+  .sy-table__name {
+    display: flex;
+    justify-content: flex-start;
+    gap: var(--sp-2);
+    background: var(--color-surface-2);
+  }
+  .sy-table__check { width: 100%; }
+  .sy-table__sku,
+  .sy-table__name {
+    font-size: var(--fs-body);
+    font-weight: 800;
+  }
+  .sy-table__check::before,
+  .sy-table__sku::before,
+  .sy-table__name::before { content: none; }
+  .sy-table__sub { display: inline; margin-left: 6px; }
+  .sy-table__empty { text-align: center !important; }
+
+  .sy-linetable thead { display: none; }
+  .sy-linetable tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2px var(--sp-2);
+    padding: 5px var(--sp-2);
+  }
+  .sy-linetable tbody td {
+    display: flex;
+    height: auto;
+    padding: 0;
+    border: none;
+    white-space: normal;
+  }
+  .sy-linetable__name { grid-column: 1 / -1; }
+
+  /* one column of KPIs, one column of everything else */
+  .sy-statrow { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sy-settings { grid-template-columns: minmax(0, 1fr); }
+  .sy-settings__preview { order: -1; }
+
+  .sy-order {
+    grid-template-columns: 70px minmax(0, 1fr) auto;
+    grid-template-areas:
+      "ref cust chip"
+      "meta meta val";
+    row-gap: 2px;
+  }
+  .sy-order__ref { grid-area: ref; }
+  .sy-order__cust { grid-area: cust; }
+  .sy-order__meta { grid-area: meta; }
+  .sy-order__val { grid-area: val; text-align: right; }
+  .sy-order .sy-chip { grid-area: chip; justify-self: end; }
+  .sy-order > svg { display: none; }
+
+  .sy-tablefoot { padding-right: 0; }
+}
+
+/* Narrow windows: the chart keeps every bar but drops the per-bar
+   figure, and the bulk bar stops claiming a full row. */
+@container surface (max-width: 700px) {
+  .sy-statrow { grid-template-columns: minmax(0, 1fr); }
+  .sy-bar__n { display: none; }
+  .sy-tablefoot { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .sy-bulkbar { gap: 4px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sy * { transition: none !important; animation: none !important; }
+}

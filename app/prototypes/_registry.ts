@@ -3,6 +3,10 @@ import type { Surface } from "@/proto-kit/surface/types";
 import MeridianPage from "./meridian/page";
 import QuillPage from "./quill/page";
 import TelemetryPage from "./telemetry/page";
+import AuroraPage from "./aurora/page";
+import StockyardPage from "./stockyard/page";
+import MochiPage from "./mochi/page";
+import AtelierPage from "./atelier/page";
 
 /**
  * app/prototypes/_registry — which prototype exists on which surface.
@@ -43,6 +47,26 @@ export const PROTOTYPE_REGISTRY: Record<string, PrototypeEntry> = {
     name: "Telemetry",
     surfaces: ["desktop"],
     views: { desktop: TelemetryPage },
+  },
+  aurora: {
+    name: "Aurora",
+    surfaces: ["desktop", "tablet"],
+    views: { desktop: AuroraPage, tablet: AuroraPage },
+  },
+  stockyard: {
+    name: "Stockyard",
+    surfaces: ["desktop", "tablet"],
+    views: { desktop: StockyardPage, tablet: StockyardPage },
+  },
+  mochi: {
+    name: "Mochi",
+    surfaces: ["desktop", "tablet"],
+    views: { desktop: MochiPage, tablet: MochiPage },
+  },
+  atelier: {
+    name: "Atelier",
+    surfaces: ["desktop", "tablet"],
+    views: { desktop: AtelierPage, tablet: AtelierPage },
   },
 };
 

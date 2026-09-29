@@ -1,0 +1,1615 @@
+/* =========================================================================
+   aurora / aurora.css — "Aurora" desktop weather + ambience (glassmorphism).
+
+   THE GLASS CONTRACT: this file never invents a second glass recipe. Every
+   translucent panel goes through ONE primitive (`.aur-panel`) that follows the
+   glass token layer's MUST-USE rule exactly —
+
+     background   : var(--color-surface-*)
+     backdrop-filter: blur(var(--aur-blur)) saturate(var(--glass-saturate, 1.6))
+     border       : var(--border-w) solid var(--glass-border)
+     box-shadow   : var(--shadow-inset), var(--shadow-1 | --shadow-2)
+
+   `--aur-blur` and `--aur-overlay` are the two knobs the Settings glass
+   control drives through `data-glass` on the app root. Every colour, radius,
+   type step and duration below is a `var(--*)` token — there are no hex
+   values and no `!important` anywhere in this file.
+
+   STYLE INDEX (per docs/SPEC.md § targeting convention — keep in sync):
+     1. App shell ........... .aur, .aur-sky, .aur-orb, .aur-grain,
+                             .aur-navwrap, .aur-main, .aur-view, .tnum
+     2. Glass recipe ........ .aur-panel, [data-glass], .aur-chip, .aur-btn,
+                             .aur-iconbtn, .aur-seg, .aur-input, .aur-switch
+     3. Now view ............ .aur-now, .aur-hero, .aur-hours, .aur-week,
+                             .aur-metric
+     4. Cities view ......... .aur-cities, .aur-city, .aur-addpanel
+     5. Details view ........ .aur-details, .aur-radar, .aur-sun, .aur-metrics
+     6. Settings view ....... .aur-settings, .aur-scene, .aur-shortcuts
+     7. Overlays ............ .aur-palette, .aur-toast
+     8. Container queries ... 1120 / 1000 / 900 (tablet) / 760
+   ========================================================================= */
+
+/* ---------- 1. app shell ---------- */
+
+/*
+   `.aur` is the app root that fills the SurfaceFrame body. `isolation:
+   isolate` makes it a stacking context so the ambient scene (z -1) paints
+   BEHIND the sidebar and the content column while still being visible —
+   without it the -1 layer would fall behind the window background.
+*/
+.aur {
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+
+  /* the two glass knobs — see §2 for the values they resolve to */
+  --aur-blur: var(--glass-blur);
+  --aur-overlay: transparent;
+}
+
+/* ---- ambient scene: the colour the glass has to sample ---- */
+.aur-sky {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+  background:
+    radial-gradient(110% 80% at 8% -10%, color-mix(in srgb, var(--color-tertiary) 40%, transparent), transparent 62%),
+    radial-gradient(80% 70% at 96% 6%, color-mix(in srgb, var(--color-primary) 34%, transparent), transparent 66%),
+    linear-gradient(158deg, var(--color-bg) 0%, color-mix(in srgb, var(--color-primary) 14%, var(--color-bg)) 58%, var(--color-bg) 100%);
+}
+
+.aur-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(46px);
+  opacity: 0.5;
+  background: radial-gradient(circle at 42% 38%, var(--orb), transparent 68%);
+}
+.aur-orb--1 {
+  width: 44%;
+  aspect-ratio: 1;
+  top: -16%;
+  right: -6%;
+  --orb: var(--orb-a);
+}
+.aur-orb--2 {
+  width: 34%;
+  aspect-ratio: 1;
+  bottom: -12%;
+  left: 6%;
+  --orb: var(--orb-b);
+  opacity: 0.4;
+}
+.aur-orb--3 {
+  width: 26%;
+  aspect-ratio: 1;
+  top: 34%;
+  left: 40%;
+  --orb: var(--orb-c);
+  opacity: 0.32;
+  filter: blur(60px);
+}
+.aur-orb--4 {
+  width: 18%;
+  aspect-ratio: 1;
+  bottom: 6%;
+  right: 14%;
+  --orb: var(--orb-d);
+  opacity: 0.28;
+  filter: blur(34px);
+}
+
+/* the feTurbulence tile the glass token layer ships, at its own opacity */
+.aur-grain {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: var(--glass-grain);
+  opacity: var(--glass-grain-opacity);
+  mix-blend-mode: overlay;
+}
+
+/* ---- ambience scene → orb palette (data-scene, set from context) ---- */
+.aur[data-scene="rain-on-glass"] {
+  --orb-a: var(--color-tertiary);
+  --orb-b: var(--color-primary);
+  --orb-c: var(--color-error);
+  --orb-d: var(--color-warn);
+}
+.aur[data-scene="ocean-swell"] {
+  --orb-a: var(--color-tertiary);
+  --orb-b: var(--color-primary);
+  --orb-c: var(--color-secondary);
+  --orb-d: var(--color-warn);
+}
+.aur[data-scene="forest-hush"] {
+  --orb-a: var(--color-success);
+  --orb-b: var(--color-tertiary);
+  --orb-c: var(--color-secondary);
+  --orb-d: var(--color-warn);
+}
+.aur[data-scene="night-storm"] {
+  --orb-a: var(--color-primary);
+  --orb-b: var(--color-tertiary);
+  --orb-c: var(--color-error);
+  --orb-d: var(--color-secondary);
+}
+.aur[data-scene="ember-fire"] {
+  --orb-a: var(--color-warn);
+  --orb-b: var(--color-error);
+  --orb-c: var(--color-primary);
+  --orb-d: var(--color-secondary);
+}
+
+/* the floating navigation layer — strongest glass, per the glass layering rule.
+   Both wrappers are deliberately UNPOSITIONED: that keeps `.aur` the
+   containing block for the command palette and the toast, so ⌘K covers the
+   whole window (sidebar included) instead of just the content column. */
+.aur-navwrap {
+  display: flex;
+  flex: none;
+  background: var(--aur-overlay);
+}
+
+.aur-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.aur-view {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 100%;
+  padding: 18px 22px 30px;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+/* layout utilities (never colour — colour always comes from a token) */
+.aur-spacer {
+  margin-left: auto;
+}
+.aur-flush {
+  margin-top: 0;
+}
+.aur-gap-top {
+  margin-top: 10px;
+}
+
+.aur-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---------- 2. glass recipe + shared atoms ---------- */
+
+/*
+   THE one glass primitive. Everything translucent in Aurora is this class
+   plus a modifier; the recipe is never re-declared anywhere else.
+*/
+.aur-panel {
+  position: relative;
+  background: var(--aur-overlay), var(--color-surface-1);
+  -webkit-backdrop-filter: blur(var(--aur-blur)) saturate(var(--glass-saturate, 1.6));
+  backdrop-filter: blur(var(--aur-blur)) saturate(var(--glass-saturate, 1.6));
+  border: var(--border-w) solid var(--glass-border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-inset), var(--shadow-1);
+}
+
+/* float layer: the palette, the active city card, hovered rows */
+.aur-panel--float {
+  background: var(--aur-overlay), var(--color-surface-4);
+  box-shadow: var(--shadow-inset), var(--shadow-2);
+}
+
+.aur-panel__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.aur-panel__head h2 {
+  margin: 0;
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.aur-panel__head h3 {
+  margin: 0;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.aur-panel__head p {
+  margin: 2px 0 0;
+  font-size: var(--fs-label);
+  color: var(--color-text-muted);
+}
+.aur-panel__meta {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+
+/* glass intensity — the Settings control, applied as a data attribute */
+.aur[data-glass="soft"] {
+  --aur-blur: 7px;
+  --aur-overlay: transparent;
+}
+.aur[data-glass="standard"] {
+  --aur-blur: var(--glass-blur);
+  --aur-overlay: transparent;
+}
+.aur[data-glass="dense"] {
+  --aur-blur: 34px;
+  /* pushes the whole ladder toward opaque, in BOTH themes, because
+     --color-surface-solid is a theme token */
+  --aur-overlay: color-mix(in srgb, var(--color-surface-solid) 48%, transparent);
+}
+
+.aur-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--r-pill);
+  background: var(--color-surface-2);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.aur-chip--accent {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+.aur-chip--good {
+  background: color-mix(in srgb, var(--color-success) 22%, var(--color-surface-2));
+  color: var(--color-text);
+}
+.aur-chip--warn {
+  background: color-mix(in srgb, var(--color-warn) 26%, var(--color-surface-2));
+  color: var(--color-text);
+}
+.aur-chip--bad {
+  background: color-mix(in srgb, var(--color-error) 24%, var(--color-surface-2));
+  color: var(--color-text);
+}
+.aur-chip i {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.aur-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 32px;
+  padding: 0 13px;
+  border: 1px solid var(--color-outline);
+  border-radius: var(--r-pill);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--dur-2) var(--ease-standard), border-color var(--dur-2) var(--ease-standard);
+}
+.aur-btn:hover {
+  background: var(--color-surface-3);
+}
+.aur-btn--filled {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+.aur-btn--filled:hover {
+  background: color-mix(in srgb, var(--color-primary) 84%, var(--color-text));
+}
+.aur-btn--ghost {
+  background: none;
+}
+.aur-btn[disabled] {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.aur-iconbtn {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  background: none;
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: background var(--dur-2) var(--ease-standard), color var(--dur-2) var(--ease-standard);
+}
+.aur-iconbtn:hover {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+
+.aur-cmdbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--color-outline);
+  border-radius: var(--r-pill);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  cursor: pointer;
+}
+.aur-cmdbtn:hover {
+  background: var(--color-surface-3);
+  color: var(--color-text);
+}
+.aur-cmdbtn kbd,
+.aur-kbd {
+  padding: 1px 6px;
+  border: 1px solid var(--color-outline);
+  border-radius: var(--r-xs);
+  background: var(--color-surface-1);
+  font-size: var(--fs-label-s);
+  font-family: inherit;
+  color: var(--color-text-muted);
+}
+
+.aur-input {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1 1 240px;
+  min-width: 0;
+  height: 34px;
+  padding: 0 12px;
+  border: 1px solid var(--color-outline);
+  border-radius: var(--r-pill);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+}
+.aur-input input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--fs-body);
+  outline: none;
+}
+.aur-input input::placeholder {
+  color: var(--color-text-subtle);
+}
+
+/* segmented control (theme, units, glass level) */
+.aur-seg {
+  display: inline-flex;
+  gap: 4px;
+  padding: 3px;
+  border: 1px solid var(--color-outline-variant);
+  border-radius: var(--r-pill);
+  background: var(--color-surface-1);
+}
+.aur-seg__btn {
+  min-width: 84px;
+  height: 28px;
+  padding: 0 14px;
+  border: none;
+  border-radius: var(--r-pill);
+  background: none;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--dur-2) var(--ease-standard), color var(--dur-2) var(--ease-standard);
+}
+.aur-seg__btn:hover {
+  color: var(--color-text);
+}
+.aur-seg__btn.is-on {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  box-shadow: var(--shadow-1);
+}
+
+.aur-meter {
+  height: 8px;
+  border-radius: var(--r-pill);
+  background: var(--color-surface-3);
+  overflow: hidden;
+}
+.aur-meter i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--color-tertiary), var(--color-primary));
+}
+.aur-meter[data-tone="warn"] i {
+  background: linear-gradient(90deg, var(--color-warn), var(--color-error));
+}
+.aur-meter[data-tone="good"] i {
+  background: linear-gradient(90deg, var(--color-tertiary), var(--color-success));
+}
+
+.aur-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 0;
+}
+.aur-facts > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.aur-facts dt {
+  font-size: var(--fs-label);
+  color: var(--color-text-muted);
+}
+.aur-facts dd {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 600;
+}
+
+/* ---------- 3. now view ---------- */
+
+.aur-now {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* desktop: hero beside a metric column. tablet: one column, metrics 2-up. */
+.aur-now__grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(272px, 0.9fr);
+  gap: 16px;
+  align-items: start;
+}
+.aur-now__side {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.aur-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 20px 18px;
+}
+.aur-hero__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+.aur-hero__place {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.aur-hero__city {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.aur-hero__where {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.aur-hero__clock {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.aur-hero__read {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  min-width: 0;
+}
+.aur-hero__num {
+  font-size: var(--fs-display);
+  font-weight: 800;
+  line-height: 0.9;
+  letter-spacing: -0.04em;
+  font-variant-numeric: tabular-nums;
+  /* the one glow accent on the Now view */
+  text-shadow: 0 0 24px color-mix(in srgb, var(--color-primary) 45%, transparent);
+}
+.aur-hero__deg {
+  margin-top: 2px;
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+.aur-hero__cond {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding-top: 2px;
+}
+.aur-hero__cond b {
+  display: block;
+  font-size: var(--fs-body);
+  font-weight: 700;
+}
+.aur-hero__cond span {
+  display: block;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.aur-hero__condicon {
+  color: var(--color-tertiary);
+}
+/* condition tone → accent, straight off the data table in data.ts */
+[data-tone="sun"] { color: var(--color-warn); }
+[data-tone="cloud"] { color: var(--color-secondary); }
+[data-tone="water"] { color: var(--color-tertiary); }
+[data-tone="storm"] { color: var(--color-primary); }
+[data-tone="snow"] { color: var(--color-tertiary); }
+[data-tone="wind"] { color: var(--color-text-muted); }
+.aur-hero__spark {
+  height: 62px;
+}
+.aur-hero__spark svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.aur-hero__line {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 1.8;
+  vector-effect: non-scaling-stroke;
+}
+.aur-hero__area {
+  fill: color-mix(in srgb, var(--color-primary) 20%, transparent);
+  stroke: none;
+}
+.aur-hero__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  padding-top: 14px;
+  border-top: var(--border-w) solid var(--color-outline-variant);
+}
+.aur-hero__stat span {
+  display: block;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.aur-hero__stat b {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--fs-body-l);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.aur-hero__tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.aur-city__tags {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+/* metric cards (precipitation, air quality, and their siblings) */
+.aur-metric {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px 15px;
+}
+.aur-metric__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.aur-metric__head h3 {
+  margin: 0;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.aur-metric__icon {
+  display: inline-grid;
+  place-items: center;
+  color: var(--color-tertiary);
+}
+.aur-metric[data-tone="warn"] .aur-metric__icon {
+  color: var(--color-warn);
+}
+.aur-metric[data-tone="bad"] .aur-metric__icon {
+  color: var(--color-error);
+}
+.aur-metric__val {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  font-size: var(--fs-h1);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.aur-metric__val small {
+  font-size: var(--fs-label);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.aur-metric__sub {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.aur-scale {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+}
+
+/* hourly strip: 24 columns that fit the window on desktop */
+.aur-hours {
+  padding: 12px 12px 10px;
+}
+.aur-hours__track {
+  display: grid;
+  grid-template-columns: repeat(24, minmax(0, 1fr));
+  gap: 2px;
+}
+.aur-hour {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 7px 1px;
+  border-radius: var(--r-sm);
+  color: var(--color-text-muted);
+}
+.aur-hour[data-now] {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--color-primary) 40%, transparent);
+}
+.aur-hour[data-day="night"] {
+  background: color-mix(in srgb, var(--color-primary) 12%, transparent);
+}
+.aur-hour__t {
+  font-size: var(--fs-label-s);
+  font-variant-numeric: tabular-nums;
+}
+.aur-hour__temp {
+  font-size: var(--fs-label);
+  font-weight: 700;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+}
+.aur-hour__p {
+  font-size: var(--fs-label-s);
+  color: var(--color-tertiary);
+  font-variant-numeric: tabular-nums;
+}
+.aur-hour[data-now] .aur-hour__p,
+.aur-hour[data-now] .aur-hour__t {
+  color: inherit;
+}
+
+/* 7-day list */
+.aur-week {
+  padding: 8px;
+}
+.aur-week__row {
+  display: grid;
+  grid-template-columns: 88px 30px 58px 46px minmax(64px, 1fr) 52px;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 12px;
+  border-radius: var(--r-md);
+  font-size: var(--fs-body);
+}
+.aur-week__row[data-today] {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+.aur-week__row:hover {
+  background: color-mix(in srgb, var(--color-text) 6%, transparent);
+}
+.aur-week__row[data-today]:hover {
+  background: var(--color-primary-container);
+}
+.aur-week__day b {
+  display: block;
+  font-weight: 700;
+}
+.aur-week__day span {
+  display: block;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.aur-week__row[data-today] .aur-week__day span {
+  color: inherit;
+}
+.aur-week__icon {
+  display: inline-grid;
+  place-items: center;
+  color: var(--color-tertiary);
+}
+.aur-week__p,
+.aur-week__lo,
+.aur-week__hi {
+  font-size: var(--fs-label);
+  font-variant-numeric: tabular-nums;
+  color: var(--color-text-muted);
+}
+.aur-week__p {
+  color: var(--color-tertiary);
+}
+.aur-week__hi {
+  text-align: right;
+  font-weight: 700;
+  color: var(--color-text);
+}
+.aur-week__bar {
+  position: relative;
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--color-surface-3);
+}
+.aur-week__bar i {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--color-tertiary), var(--color-primary));
+}
+.aur-week__foot {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 10px 14px 4px;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.aur-week__legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* ---------- 4. cities view ---------- */
+
+.aur-cities__bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.aur-cities {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.aur-city {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px 16px 14px;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  transition: transform var(--dur-2) var(--ease-standard), box-shadow var(--dur-2) var(--ease-standard);
+}
+.aur-city:hover {
+  box-shadow: var(--shadow-inset), var(--shadow-2);
+}
+.aur-city[data-active] {
+  border-color: color-mix(in srgb, var(--color-primary) 62%, transparent);
+  box-shadow: var(--shadow-inset), var(--shadow-2),
+    0 0 0 1px color-mix(in srgb, var(--color-primary) 38%, transparent),
+    0 18px 40px -20px color-mix(in srgb, var(--color-primary) 70%, transparent);
+}
+.aur-city__top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.aur-city__name {
+  display: block;
+  font-size: var(--fs-body-l);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.aur-city__where {
+  display: block;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.aur-city__temp {
+  display: flex;
+  align-items: flex-start;
+  gap: 2px;
+  font-variant-numeric: tabular-nums;
+}
+.aur-city__num {
+  font-size: var(--fs-h1);
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+.aur-city__deg {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+.aur-city__cond {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--fs-label);
+  color: var(--color-text-muted);
+}
+.aur-city__metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding-top: 10px;
+  border-top: var(--border-w) solid var(--color-outline-variant);
+}
+.aur-city__metrics span {
+  display: block;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.aur-city__metrics b {
+  display: block;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.aur-city__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 10px;
+}
+.aur-city__actions .aur-btn {
+  height: 28px;
+  font-size: var(--fs-label-s);
+}
+
+.aur-addpanel {
+  padding: 14px 16px 16px;
+}
+.aur-addpanel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+.aur-addlist {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.aur-addrow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--r-md);
+  background: var(--color-surface-1);
+  border: var(--border-w) solid var(--color-outline-variant);
+}
+.aur-addrow__text {
+  flex: 1;
+  min-width: 0;
+}
+.aur-addrow__text b {
+  display: block;
+  font-size: var(--fs-body);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.aur-addrow__text span {
+  display: block;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.aur-addrow__temp {
+  font-size: var(--fs-body);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.aur-addempty {
+  padding: 16px 4px;
+  font-size: var(--fs-label);
+  color: var(--color-text-muted);
+}
+
+/* ---------- 5. details view ---------- */
+
+/* desktop: radar + sun column beside the metric column. tablet: stacked. */
+.aur-details {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(288px, 0.95fr);
+  gap: 16px;
+  align-items: start;
+}
+.aur-details__col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.aur-radar {
+  padding: 14px 16px 16px;
+}
+.aur-radar__grid {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(14, minmax(0, 1fr));
+  grid-template-rows: repeat(9, minmax(0, 1fr));
+  gap: 2px;
+  aspect-ratio: 14 / 9;
+  padding: 10px;
+  border-radius: var(--r-md);
+  background: var(--color-surface-1);
+  box-shadow: inset 0 0 0 1px var(--color-outline-variant);
+  overflow: hidden;
+}
+.aur-cell {
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--color-surface-solid) 10%, transparent);
+}
+.aur-cell[data-level="1"] {
+  background: color-mix(in srgb, var(--color-tertiary) 26%, transparent);
+}
+.aur-cell[data-level="2"] {
+  background: color-mix(in srgb, var(--color-tertiary) 48%, transparent);
+}
+.aur-cell[data-level="3"] {
+  background: color-mix(in srgb, var(--color-primary) 58%, transparent);
+}
+.aur-cell[data-level="4"] {
+  background: color-mix(in srgb, var(--color-error) 74%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--color-error) 45%, transparent);
+}
+.aur-radar__rings {
+  position: absolute;
+  inset: 10px;
+  pointer-events: none;
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--color-text) 16%, transparent),
+    inset 0 0 0 34px color-mix(in srgb, var(--color-text) 10%, transparent),
+    inset 0 0 0 68px color-mix(in srgb, var(--color-text) 8%, transparent);
+  -webkit-mask-image: radial-gradient(circle, transparent 38%, #000 40%, #000 100%);
+  mask-image: radial-gradient(circle, transparent 38%, #000 40%, #000 100%);
+}
+.aur-radar__sweep {
+  position: absolute;
+  inset: 10px;
+  pointer-events: none;
+  background: conic-gradient(
+    from 200deg,
+    color-mix(in srgb, var(--color-primary) 34%, transparent) 0deg,
+    transparent 42deg,
+    transparent 360deg
+  );
+  -webkit-mask-image: radial-gradient(circle, #000 6%, transparent 72%);
+  mask-image: radial-gradient(circle, #000 6%, transparent 72%);
+}
+.aur-radar__legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.aur-radar__key {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.aur-radar__swatch {
+  width: 14px;
+  height: 10px;
+  border-radius: 3px;
+  background: color-mix(in srgb, var(--color-surface-solid) 10%, transparent);
+}
+.aur-radar__swatch[data-level="1"] { background: color-mix(in srgb, var(--color-tertiary) 26%, transparent); }
+.aur-radar__swatch[data-level="2"] { background: color-mix(in srgb, var(--color-tertiary) 48%, transparent); }
+.aur-radar__swatch[data-level="3"] { background: color-mix(in srgb, var(--color-primary) 58%, transparent); }
+.aur-radar__swatch[data-level="4"] { background: color-mix(in srgb, var(--color-error) 74%, transparent); }
+
+/* sun / moon timeline */
+.aur-sun {
+  padding: 14px 18px 16px;
+}
+.aur-sun__track {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 100 / 48;
+  margin-top: 6px;
+}
+.aur-sun__track svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.aur-sun__arc {
+  fill: none;
+  stroke: var(--color-outline);
+  stroke-width: 1.2;
+  vector-effect: non-scaling-stroke;
+}
+.aur-sun__arc--lit {
+  fill: none;
+  stroke: var(--color-warn);
+  stroke-width: 2;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--color-warn) 55%, transparent));
+}
+.aur-sun__horizon {
+  stroke: var(--color-outline-variant);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.aur-sun__mark {
+  position: absolute;
+  left: var(--sun-x, 50%);
+  top: var(--sun-y, 40%);
+  translate: -50% -50%;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  color: var(--color-warn);
+  background: color-mix(in srgb, var(--color-surface-solid) 55%, transparent);
+  box-shadow: 0 0 0 1px var(--glass-border), 0 0 22px color-mix(in srgb, var(--color-warn) 55%, transparent);
+}
+.aur-sun__scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+.aur-sun__facts {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 12px;
+}
+.aur-sun__facts div {
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  background: var(--color-surface-1);
+  border: var(--border-w) solid var(--color-outline-variant);
+}
+.aur-sun__facts span {
+  display: block;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.aur-sun__facts b {
+  display: block;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+/* wind + humidity metric cards, and the wider metric grid */
+.aur-metrics {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.aur-metric--wide {
+  grid-column: span 2;
+}
+.aur-compass {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  margin: 2px auto 0;
+  border-radius: 50%;
+  background: var(--color-surface-1);
+  box-shadow: inset 0 0 0 1px var(--color-outline-variant);
+}
+.aur-compass span {
+  position: absolute;
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  color: var(--color-text-subtle);
+}
+.aur-compass span[data-c="N"] { top: 4px; left: 50%; translate: -50% 0; color: var(--color-text); }
+.aur-compass span[data-c="E"] { right: 5px; top: 50%; translate: 0 -50%; }
+.aur-compass span[data-c="S"] { bottom: 4px; left: 50%; translate: -50% 0; }
+.aur-compass span[data-c="W"] { left: 5px; top: 50%; translate: 0 -50%; }
+.aur-compass__needle {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 3px;
+  height: 38px;
+  translate: -50% -50%;
+  border-radius: var(--r-pill);
+  background: linear-gradient(180deg, var(--color-error) 0 50%, var(--color-text-muted) 50% 100%);
+  transform: rotate(var(--needle, 0deg));
+  transform-origin: 50% 50%;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--color-primary) 55%, transparent);
+}
+.aur-compass__hub {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  translate: -50% -50%;
+  border-radius: 50%;
+  background: var(--color-primary);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-surface-solid) 60%, transparent);
+}
+
+/* ---------- 6. settings view ---------- */
+
+.aur-settings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  align-items: start;
+}
+.aur-settings .aur-panel {
+  padding: 16px 18px 18px;
+}
+.aur-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aur-field + .aur-field {
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: var(--border-w) solid var(--color-outline-variant);
+}
+.aur-field > label,
+.aur-field__label {
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.aur-field__hint {
+  margin: 0;
+  font-size: var(--fs-label-s);
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+.aur-field__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.aur-slider {
+  flex: 1 1 180px;
+  accent-color: var(--color-primary);
+  height: 20px;
+}
+.aur-slider__marks {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-subtle);
+}
+
+.aur-scenes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 8px;
+}
+.aur-scene {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 12px;
+  border: var(--border-w) solid var(--color-outline-variant);
+  border-radius: var(--r-md);
+  background: var(--color-surface-1);
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color var(--dur-2) var(--ease-standard), background var(--dur-2) var(--ease-standard);
+}
+.aur-scene:hover {
+  background: var(--color-surface-2);
+}
+.aur-scene[aria-pressed="true"] {
+  border-color: var(--color-primary);
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--color-primary) 35%, transparent);
+}
+.aur-scene b {
+  font-size: var(--fs-body);
+  font-weight: 700;
+}
+.aur-scene span {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.aur-scene[aria-pressed="true"] span {
+  color: inherit;
+}
+
+.aur-layers {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+.aur-layer {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) 36px;
+  align-items: center;
+  gap: 10px;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.aur-layer b {
+  font-weight: 600;
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.aur-shortcuts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 0;
+}
+.aur-shortcuts > div {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.aur-shortcuts dt {
+  flex: none;
+  width: 116px;
+}
+.aur-shortcuts dd {
+  margin: 0;
+  font-size: var(--fs-body);
+  color: var(--color-text);
+}
+
+/* ---------- 7. overlays ---------- */
+
+.aur-palette {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  /* surface-relative: vh would measure the BROWSER, not the window */
+  padding-top: 11%;
+  background: color-mix(in srgb, var(--color-bg) 62%, transparent);
+}
+.aur-palette__box {
+  width: min(560px, 88%);
+  height: fit-content;
+  border: var(--border-w) solid var(--glass-border);
+  border-radius: var(--r-lg);
+  background: var(--color-surface-2);
+  -webkit-backdrop-filter: blur(28px) saturate(var(--glass-saturate, 1.6));
+  backdrop-filter: blur(28px) saturate(var(--glass-saturate, 1.6));
+  box-shadow: var(--shadow-inset), var(--shadow-2);
+  overflow: hidden;
+}
+.aur-palette__input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  border-bottom: var(--border-w) solid var(--color-outline-variant);
+  color: var(--color-text-muted);
+}
+.aur-palette__input input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--fs-body-l);
+  outline: none;
+}
+.aur-palette__list {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+}
+.aur-palette__list button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border: none;
+  border-radius: var(--r-sm);
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--fs-body);
+  text-align: left;
+  cursor: pointer;
+}
+.aur-palette__list button.is-cursor {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+.aur-palette__glyph {
+  display: inline-grid;
+  place-items: center;
+  color: var(--color-text-muted);
+}
+.aur-palette__list button.is-cursor .aur-palette__glyph {
+  color: inherit;
+}
+.aur-palette__kind {
+  flex: none;
+  min-width: 62px;
+  padding: 1px 7px;
+  border-radius: var(--r-pill);
+  background: var(--color-surface-3);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--color-text-muted);
+}
+.aur-palette__list button b {
+  font-weight: 600;
+}
+.aur-palette__hint {
+  flex: 1;
+  min-width: 0;
+  margin-left: auto;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.aur-palette__list button.is-cursor .aur-palette__hint {
+  color: inherit;
+}
+.aur-palette__empty {
+  padding: 14px 14px 18px;
+  font-size: var(--fs-label);
+  color: var(--color-text-muted);
+}
+.aur-palette__foot {
+  display: flex;
+  gap: 16px;
+  margin: 0;
+  padding: 9px 14px;
+  border-top: var(--border-w) solid var(--color-outline-variant);
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.aur-palette__foot span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.aur-palette__foot kbd {
+  padding: 1px 5px;
+  border: 1px solid var(--color-outline);
+  border-radius: var(--r-xs);
+  font-size: var(--fs-label-s);
+  font-family: inherit;
+}
+
+.aur-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  translate: -50% 0;
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border: var(--border-w) solid var(--glass-border);
+  border-radius: var(--r-pill);
+  background: var(--color-surface-4);
+  -webkit-backdrop-filter: blur(var(--aur-blur)) saturate(var(--glass-saturate, 1.6));
+  backdrop-filter: blur(var(--aur-blur)) saturate(var(--glass-saturate, 1.6));
+  color: var(--color-text);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  box-shadow: var(--shadow-inset), var(--shadow-2);
+}
+
+/* ---------- 8. adaptivity — the WINDOW resizes, so these are CONTAINER
+   queries on `surface`, never media queries (see surface-frame.module.css) --- */
+
+@container surface (max-width: 1120px) {
+  .aur-cities {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .aur-hero__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    row-gap: 12px;
+  }
+}
+
+@container surface (max-width: 1000px) {
+  .aur-details {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aur-settings {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aur-addlist {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---- TABLET: a genuinely different arrangement, not smaller padding ---- */
+@container surface (max-width: 900px) {
+  /* Now becomes ONE column … */
+  .aur-now__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  /* … and the two metric cards go 2-up underneath the hero. */
+  .aur-now__side {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+    align-items: start;
+  }
+  /* The hourly strip stops being a 24-column grid and becomes a
+     horizontally scrolling rail. */
+  .aur-hours__track {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scrollbar-width: thin;
+    padding-bottom: 6px;
+  }
+  .aur-hour {
+    flex: 0 0 64px;
+  }
+  .aur-hero__num {
+    font-size: var(--fs-h1);
+  }
+  .aur-cities {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .aur-week__row {
+    grid-template-columns: 72px 28px 50px 42px minmax(56px, 1fr) 48px;
+  }
+  .aur-view {
+    padding: 16px 16px 26px;
+  }
+}
+
+@container surface (max-width: 760px) {
+  .aur-now__side {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aur-cities {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aur-metrics {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .aur-metric--wide {
+    grid-column: auto;
+  }
+  .aur-hero__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  /* drop the precipitation column from the 7-day rows */
+  .aur-week__row {
+    grid-template-columns: 60px 26px 40px minmax(48px, 1fr) 44px;
+  }
+  .aur-week__p {
+    display: none;
+  }
+  .aur-sun__facts {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .aur-view {
+    padding: 14px 12px 22px;
+  }
+}
+
+/* ---- reduced motion / no backdrop-filter fallbacks ---- */
+@media (prefers-reduced-motion: reduce) {
+  .aur-btn,
+  .aur-city,
+  .aur-seg__btn,
+  .aur-iconbtn {
+    transition: none;
+  }
+}
+
+@supports not ((backdrop-filter: blur(2px)) or (-webkit-backdrop-filter: blur(2px))) {
+  /* the glass token layer ships --color-surface-solid for exactly this path */
+  .aur-panel,
+  .aur-palette__box,
+  .aur-toast {
+    background: var(--aur-overlay), var(--color-surface-solid);
+  }
+}
