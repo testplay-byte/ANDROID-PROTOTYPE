@@ -1,0 +1,1130 @@
+/* =========================================================================
+   thin / thin.css — "Thin", a minimal desktop tasks + writing app.
+   =========================================================================
+   STYLE INDEX (keep in sync with the sections below):
+     1. Scope root ............ .tn, the type scale, resets, the accent, motion
+     2. Shared atoms .......... .tn-btn, .tn-input, .tn-seg, .tn-switch,
+                                .tn-link, .tn-check-inline, .tn-eyebrow, kbd
+     3. Shell ................. .tn-head, .tn-view, .tn-foot, .tn-cmd
+     4. Today ................. .tn-today, .tn-filter, .tn-note
+     5. Task rows + bulk ...... .tn-rows, .tn-row, .tn-bulk
+     6. Projects .............. .tn-split, .tn-master, .tn-add, .tn-detail
+     7. Inbox ................. .tn-inbox, .tn-triage
+     8. Settings .............. .tn-settings, .tn-card, .tn-field, .tn-keys
+     9. Overlays .............. .tn-palette, .tn-toast
+    10. Adaptivity ............ @container surface breakpoints
+
+   THE MINIMAL RULES obeyed throughout:
+     · NO box-shadow anywhere. minimal.css sets --shadow-*: none; a plane is
+       separated by a HAIRLINE or by whitespace, never by elevation.
+     · NO gradients, NO fills-for-decoration, NO cards where a list will do.
+     · Monochrome. Every colour in this file is a token. There is exactly ONE
+       accent — --tn-accent, aliased to --color-error so the hue is still
+       token-driven — and it appears in four places only: the active filter
+       underline, the selected project rule, the "on" switch dot, and the
+       focus ring. Nothing else is ever coloured.
+     · One type scale. --fs-* is re-declared on the app root with a
+       multiplier, so the Settings type-scale control moves every piece of
+       type in the window at once, chrome included.
+     · Generous whitespace: 28–40px of padding around every block, and the
+       only border that earns its place is a separator.
+     · Restraint IS the design: if a border or a card is not load-bearing,
+       it has been removed rather than restyled.
+
+   Every colour below is var(--*) — no hardcoded hex.
+   ========================================================================= */
+
+/* ---------- 1. scope root ---------- */
+.tn {
+  /* Minimal is crisp: pull the radius scale right down, the way flat.css and
+     bauhaus.css do. Sizes only — no colour is touched here. */
+  --r-xs: 2px;
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 8px;
+  --r-pill: 4px;
+
+  /* THE accent. Aliased, not authored, so it tracks the active theme and
+     stays inside the token contract. */
+  --tn-accent: var(--color-error);
+  --tn-accent-soft: var(--color-error-container);
+
+  --tn-line: 1px solid var(--color-outline-variant);
+  --tn-line-strong: 1px solid var(--color-outline);
+
+  /* The writing face. A tasks app that also writes should not set its note in
+     the same sans as the chrome — same rule the nook reader follows. */
+  --tn-serif: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia,
+    "Times New Roman", serif;
+
+  /* --- the type scale -------------------------------------------------
+     These are the :root ramp values with one multiplier in front of them.
+     Change --tn-scale in Settings and every heading, row, label, button and
+     kbd in the window resizes together. */
+  --tn-scale: 1;
+  --fs-label-s: calc(11px * var(--tn-scale));
+  --fs-label: calc(12px * var(--tn-scale));
+  --fs-body-s: calc(13px * var(--tn-scale));
+  --fs-body: calc(14px * var(--tn-scale));
+  --fs-body-l: calc(16px * var(--tn-scale));
+  --fs-h3: calc(18px * var(--tn-scale));
+  --fs-h2: calc(22px * var(--tn-scale));
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+  font-size: var(--fs-body);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Scoped to the app root so the attributes can never leak into a child. */
+.tn[data-scale="s"] { --tn-scale: 0.9; }
+.tn[data-scale="m"] { --tn-scale: 1; }
+.tn[data-scale="l"] { --tn-scale: 1.12; }
+.tn[data-scale="xl"] { --tn-scale: 1.26; }
+
+/* Reduce motion: every transition in the app goes to zero. There is nothing
+   decorative animating, so this costs the design nothing. */
+.tn[data-motion="calm"] *,
+.tn[data-motion="calm"] *::before,
+.tn[data-motion="calm"] *::after {
+  transition-duration: 0s !important;
+  animation-duration: 0s !important;
+  animation-iteration-count: 1 !important;
+}
+
+.tn .tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.tn :where(button) {
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.tn :where(input, select, textarea) {
+  font: inherit;
+  color: inherit;
+}
+
+.tn :where(input[type="checkbox"]) {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  margin: 0;
+  /* ink, not the accent: a ticked box is state, and state is monochrome */
+  accent-color: var(--color-primary);
+  cursor: pointer;
+}
+
+.tn :where(button, input, select, textarea):focus-visible {
+  outline: 1px solid var(--tn-accent);
+  outline-offset: 2px;
+}
+
+.tn :where(kbd) {
+  display: inline-block;
+  padding: 1px 5px;
+  border: var(--tn-line);
+  border-radius: var(--r-xs);
+  color: var(--color-text-subtle);
+  font-family: inherit;
+  font-size: var(--fs-label-s);
+  font-weight: 500;
+}
+
+/* screen-reader-only text (the inbox's file-under picker) */
+.tn-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- 2. shared atoms ---------- */
+.tn-eyebrow {
+  margin: 0 0 2px;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.tn-view__title {
+  margin: 0;
+  font-size: var(--fs-h2);
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+
+.tn-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+  padding: 6px 12px;
+  border: var(--tn-line-strong);
+  border-radius: var(--r-xs);
+  background: none;
+  color: var(--color-text);
+  font-size: var(--fs-label);
+  font-weight: 500;
+  white-space: nowrap;
+  transition: border-color var(--dur-2) var(--ease-standard),
+    color var(--dur-2) var(--ease-standard);
+}
+.tn-btn:hover:not(:disabled) {
+  border-color: var(--color-text-muted);
+}
+.tn-btn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+/* the only filled control in the app: the primary action in the top bar */
+.tn-btn--solid {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+.tn-btn--solid:hover:not(:disabled) {
+  border-color: var(--color-primary);
+  opacity: 0.86;
+}
+
+.tn-input {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 0;
+  border: none;
+  border-bottom: var(--tn-line-strong);
+  border-radius: 0;
+  background: none;
+  font-size: var(--fs-body);
+  transition: border-color var(--dur-2) var(--ease-standard);
+}
+.tn-input::placeholder {
+  color: var(--color-text-subtle);
+}
+.tn-input:focus {
+  outline: none;
+  border-bottom-color: var(--color-text);
+}
+
+.tn-link {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--color-text-subtle);
+  cursor: pointer;
+}
+.tn-link:hover {
+  text-decoration-color: var(--color-text);
+}
+
+.tn-check-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  flex: none;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+/* segmented control: text, and a hairline under the chosen one */
+.tn-seg {
+  display: inline-flex;
+  flex: none;
+  border: var(--tn-line);
+  border-radius: var(--r-xs);
+  overflow: hidden;
+}
+.tn-seg__btn {
+  padding: 5px 11px;
+  border-right: var(--tn-line);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  white-space: nowrap;
+  transition: background var(--dur-2) var(--ease-standard),
+    color var(--dur-2) var(--ease-standard);
+}
+.tn-seg__btn:last-child {
+  border-right: none;
+}
+.tn-seg__btn:hover {
+  color: var(--color-text);
+}
+.tn-seg__btn.is-on {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  font-weight: 600;
+}
+
+/* switch: a small pill with a dot. The only accent in Settings. */
+.tn-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  flex: none;
+  padding: 4px 11px 4px 5px;
+  border: var(--tn-line-strong);
+  border-radius: var(--r-pill);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  transition: color var(--dur-2) var(--ease-standard);
+}
+.tn-switch__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--color-outline);
+  transition: background var(--dur-2) var(--ease-standard);
+}
+.tn-switch[data-on] {
+  color: var(--color-text);
+}
+.tn-switch[data-on] .tn-switch__dot {
+  background: var(--tn-accent);
+}
+
+/* ---------- 3. shell ---------- */
+.tn-head,
+.tn-today__head,
+.tn-inbox__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 22px;
+}
+
+.tn-view {
+  flex: 1;
+  min-width: 0;
+  padding: 30px 34px 44px;
+}
+
+.tn-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding-top: 16px;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label);
+}
+.tn-foot__date {
+  flex: none;
+}
+
+/* the top bar's command button — the desktop "search or jump to" slot */
+.tn-cmd {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 6px 10px;
+  border: var(--tn-line);
+  border-radius: var(--r-xs);
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label);
+  transition: border-color var(--dur-2) var(--ease-standard),
+    color var(--dur-2) var(--ease-standard);
+}
+.tn-cmd:hover {
+  border-color: var(--color-outline);
+  color: var(--color-text-muted);
+}
+.tn-cmd kbd {
+  margin-left: 6px;
+}
+
+.tn-empty {
+  padding: 30px 2px;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-body-s);
+}
+
+/* ---------- 4. today ---------- */
+.tn-today__stat {
+  flex: none;
+  margin: 0;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label);
+}
+
+.tn-today__body {
+  display: flex;
+  align-items: flex-start;
+  gap: 44px;
+  border-top: var(--tn-line);
+  padding-top: 22px;
+}
+.tn-today__list {
+  flex: 1;
+  min-width: 0;
+}
+
+/* the project filter: a line of words, not a row of chips */
+.tn-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px 20px;
+  padding-bottom: 18px;
+}
+.tn-filter__btn {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
+  padding: 3px 0;
+  border-bottom: 1px solid transparent;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  transition: color var(--dur-2) var(--ease-standard),
+    border-color var(--dur-2) var(--ease-standard);
+}
+.tn-filter__btn:hover {
+  color: var(--color-text);
+}
+/* accent #1: the chosen filter, underlined */
+.tn-filter__btn.is-on {
+  border-bottom-color: var(--tn-accent);
+  color: var(--color-text);
+  font-weight: 600;
+}
+.tn-filter__n {
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+}
+
+/* the daily note — a column, not a card. The hairline down its side is the
+   only thing separating it from the list. */
+.tn-note {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 316px;
+  align-self: stretch;
+  padding-left: 28px;
+  border-left: var(--tn-line);
+}
+.tn-note__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--dur-2) var(--ease-standard);
+}
+.tn-note:focus-within .tn-note__head {
+  /* accent #2 is reserved for the master-detail rule and the switch, so the
+     note's focus feedback is ink, not hue */
+  border-bottom-color: var(--color-outline);
+}
+.tn-note__label {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  font-weight: 500;
+}
+.tn-note__saved {
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+}
+.tn-note__area {
+  flex: 1;
+  width: 100%;
+  min-height: 360px;
+  padding: 12px 0 8px;
+  border: none;
+  border-radius: 0;
+  background: none;
+  resize: none;
+  color: var(--color-text);
+  font-family: var(--tn-serif);
+  font-size: calc(var(--fs-body) * 1.04);
+  line-height: 1.68;
+}
+.tn-note__area:focus {
+  outline: none;
+}
+.tn-note__area::placeholder {
+  color: var(--color-text-subtle);
+  font-family: inherit;
+}
+.tn-note__foot {
+  margin: 0;
+  padding-top: 10px;
+  border-top: var(--tn-line);
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+}
+
+/* ---------- 5. task rows + the bulk bar ---------- */
+.tn-rows {
+  margin: 0;
+  padding: 0 0 0 16px;
+  list-style: none;
+}
+.tn-rows > li {
+  border-top: var(--tn-line);
+}
+.tn-rows > li:last-child {
+  border-bottom: var(--tn-line);
+}
+
+.tn-row {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 11px 2px 11px 0;
+}
+.tn-row__check {
+  margin-top: 3px;
+}
+.tn-row__main {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0;
+  text-align: left;
+  transition: color var(--dur-2) var(--ease-standard);
+}
+.tn-row__title {
+  color: var(--color-text);
+  font-size: var(--fs-body);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.tn-row__meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 12px;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+}
+.tn-row__proj {
+  color: var(--color-text-muted);
+}
+.tn-row__late {
+  color: var(--color-text-muted);
+}
+/* the estimate is the last thing on the line, right-aligned, grey */
+.tn-row__est {
+  margin-left: auto;
+  padding-left: 12px;
+}
+/* done: quieter and struck through. Nothing else changes — no green, no
+   filled circle, no move to an "archive of the day". */
+.tn-row[data-done] .tn-row__title {
+  color: var(--color-text-subtle);
+  text-decoration: line-through;
+  text-decoration-color: var(--color-text-subtle);
+}
+.tn-row[data-done] .tn-row__meta {
+  opacity: 0.7;
+}
+/* selected: a 2px accent rule in the gutter — the list does not move */
+.tn-row[data-checked]::before {
+  content: "";
+  position: absolute;
+  left: -16px;
+  top: 9px;
+  bottom: 9px;
+  width: 2px;
+  background: var(--tn-accent);
+}
+.tn-row:hover .tn-row__title {
+  color: var(--color-text);
+}
+
+.tn-row__trailing {
+  display: flex;
+  flex: none;
+  align-items: center;
+  margin-top: -2px;
+}
+
+.tn-bulk {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 14px;
+  padding: 9px 0;
+  border-top: var(--tn-line-strong);
+  border-bottom: var(--tn-line);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+}
+.tn-bulk__n {
+  color: var(--color-text);
+  font-weight: 600;
+}
+.tn-bulk__rule {
+  flex: 1;
+  height: 1px;
+  background: var(--color-outline-variant);
+}
+.tn-bulk button {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  transition: color var(--dur-2) var(--ease-standard);
+}
+.tn-bulk button:hover:not(:disabled) {
+  color: var(--color-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.tn-bulk button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+.tn-bulk__clear {
+  color: var(--color-text-subtle) !important;
+}
+
+/* ---------- 6. projects: master + detail ---------- */
+.tn-split {
+  display: flex;
+  align-items: stretch;
+  min-height: 100%;
+  padding: 0;
+}
+.tn-split__list {
+  display: flex;
+  flex: 0 0 292px;
+  flex-direction: column;
+  padding: 30px 22px 30px 34px;
+  border-right: var(--tn-line);
+}
+.tn-split__detail {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+  flex-direction: column;
+  padding: 30px 34px 40px;
+}
+
+.tn-master {
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.tn-master__item {
+  display: flex;
+  width: 100%;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 0 9px 14px;
+  border-left: 2px solid transparent;
+  text-align: left;
+  transition: border-color var(--dur-2) var(--ease-standard);
+}
+/* accent #3: the selected project's rule */
+.tn-master__item.is-on {
+  border-left-color: var(--tn-accent);
+}
+.tn-master__name {
+  color: var(--color-text-muted);
+  font-size: var(--fs-body);
+  transition: color var(--dur-2) var(--ease-standard);
+}
+.tn-master__item:hover .tn-master__name,
+.tn-master__item.is-on .tn-master__name {
+  color: var(--color-text);
+}
+.tn-master__item.is-on .tn-master__name {
+  font-weight: 600;
+}
+.tn-master__meta {
+  display: flex;
+  gap: 10px;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+}
+.tn-master__n {
+  margin-left: auto;
+}
+.tn-split__hint {
+  margin: auto 0 0;
+  padding-top: 20px;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+  line-height: 1.6;
+}
+
+.tn-detail__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 20px;
+}
+.tn-detail__note {
+  max-width: 46ch;
+  margin: 8px 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--fs-body-s);
+  line-height: 1.6;
+}
+.tn-detail__stat {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: none;
+  margin: 0;
+  padding-top: 20px;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label);
+}
+.tn-detail__sep {
+  width: 14px;
+  height: 1px;
+  background: var(--color-outline);
+}
+
+.tn-add {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 2px 0 16px;
+}
+.tn-add .tn-btn {
+  margin-left: auto;
+}
+
+/* the back affordance exists only in the narrow-surface reflow */
+.tn-back {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  align-self: flex-start;
+  margin-bottom: 14px;
+  padding: 0;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+}
+.tn-back:hover {
+  color: var(--color-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---------- 7. inbox ---------- */
+.tn-inbox__hint {
+  margin: 12px 0 20px;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label);
+}
+.tn-triage {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.tn-triage__btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 0;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  transition: color var(--dur-2) var(--ease-standard);
+}
+.tn-triage__btn:hover {
+  color: var(--color-text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.tn-triage__pick {
+  position: relative;
+  display: inline-flex;
+}
+.tn-triage__pick select {
+  padding: 3px 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-color: var(--color-outline);
+  cursor: pointer;
+}
+.tn-triage__pick select:hover {
+  color: var(--color-text);
+}
+.tn-triage__pick select:focus-visible {
+  outline: 1px solid var(--tn-accent);
+  outline-offset: 2px;
+}
+
+/* ---------- 8. settings ---------- */
+.tn-settings__head {
+  padding-bottom: 24px;
+}
+/* The grid's 1px gap shows the hairline colour THROUGH it, so the cards are
+   divided by a single line rather than by sixteen empty pixels of border. */
+.tn-settings__grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  border: var(--tn-line);
+  background: var(--color-outline-variant);
+}
+.tn-card {
+  display: flex;
+  flex-direction: column;
+  padding: 22px 24px 24px;
+  background: var(--color-bg);
+}
+.tn-card__title {
+  margin: 0 0 4px;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.tn-card__text {
+  margin: 12px 0 16px;
+  max-width: 52ch;
+  color: var(--color-text-muted);
+  font-size: var(--fs-body-s);
+  line-height: 1.65;
+}
+.tn-card__inline {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+/* The field is a wrapping flex row: while the control fits beside the label
+   it stays on one line, and the moment the type scale grows (or the window
+   narrows) the control drops to its own line rather than crushing the label
+   into a three-word column. */
+.tn-field {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px 26px;
+  padding: 15px 0;
+  border-top: var(--tn-line);
+}
+.tn-field__text {
+  flex: 1 1 200px;
+  min-width: 0;
+}
+.tn-field__label {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 500;
+}
+.tn-field__hint {
+  margin: 4px 0 0;
+  max-width: 44ch;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+  line-height: 1.6;
+}
+.tn-field__control {
+  flex: 0 0 auto;
+  margin-left: auto;
+  padding-top: 1px;
+}
+
+.tn-preview {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 6px;
+  padding-top: 16px;
+  border-top: var(--tn-line);
+}
+.tn-preview__aa {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-family: var(--tn-serif);
+  font-size: calc(var(--fs-h2) * 1.5);
+  line-height: 1;
+}
+.tn-preview__line {
+  margin: 0;
+  font-size: var(--fs-body-l);
+  letter-spacing: -0.01em;
+}
+.tn-preview__sub {
+  margin: 2px 0 0;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+}
+
+.tn-keys {
+  margin: 8px 0 0;
+}
+.tn-keys__row {
+  display: flex;
+  align-items: baseline;
+  gap: 18px;
+  padding: 9px 0;
+  border-top: var(--tn-line);
+}
+.tn-keys__row dt {
+  flex: none;
+  min-width: 128px;
+}
+.tn-keys__row dd {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--fs-body-s);
+}
+
+/* ---------- 9. overlays ---------- */
+/* The palette is a hairline-bordered plane, not a floating card: no shadow
+   anywhere, because minimal.css sets --shadow-*: none. */
+.tn-palette {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  padding-top: 11%; /* surface-relative: vh measures the browser */
+  background: color-mix(in srgb, var(--color-bg) 74%, transparent);
+}
+.tn-palette__box {
+  width: min(560px, 100%);
+  height: fit-content;
+  border: var(--tn-line-strong);
+  border-radius: var(--r-md);
+  background: var(--color-surface-1);
+  overflow: hidden;
+}
+.tn-palette__input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: var(--tn-line);
+  color: var(--color-text-subtle);
+}
+.tn-palette__input input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  font-size: var(--fs-body);
+}
+.tn-palette__input input:focus {
+  outline: none;
+}
+.tn-palette__list {
+  max-height: 46%; /* surface-relative: vh measures the browser */
+  margin: 0;
+  padding: 4px 0;
+  overflow-y: auto;
+  list-style: none;
+}
+.tn-palette__list button {
+  display: flex;
+  width: 100%;
+  align-items: baseline;
+  gap: 12px;
+  padding: 8px 14px;
+  text-align: left;
+}
+.tn-palette__list button.is-cursor {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+.tn-palette__kind {
+  flex: none;
+  width: 58px;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.tn-palette__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-body-s);
+}
+.tn-palette__hint {
+  flex: none;
+  max-width: 44%;
+  overflow: hidden;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.tn-palette__list button.is-cursor .tn-palette__hint,
+.tn-palette__list button.is-cursor .tn-palette__kind {
+  color: var(--color-on-primary-container);
+  opacity: 0.75;
+}
+.tn-palette__empty {
+  padding: 18px 14px;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-body-s);
+}
+.tn-palette__foot {
+  display: flex;
+  gap: 18px;
+  margin: 0;
+  padding: 8px 14px;
+  border-top: var(--tn-line);
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+}
+.tn-palette__foot kbd {
+  margin-right: 3px;
+}
+
+.tn-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 26px;
+  z-index: 30;
+  translate: -50% 0;
+  padding: 8px 16px;
+  border: var(--tn-line-strong);
+  border-radius: var(--r-sm);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-size: var(--fs-label);
+}
+
+/* ---------- 10. adaptivity: @container surface, never @media ---------- */
+
+/* Tablet: the window narrows, the layout CHANGES. Both are real swaps, not
+   squeezes — the master–detail becomes one pane with a back link, and the
+   note drops under the list. */
+@container surface (max-width: 900px) {
+  .tn-view {
+    padding: 22px 22px 34px;
+  }
+  .tn-head,
+  .tn-today__head,
+  .tn-inbox__head {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+    padding-bottom: 18px;
+  }
+
+  /* Today: the note becomes a block UNDER the list, divided by a hairline
+     across the window instead of down it. */
+  .tn-today__body {
+    flex-direction: column;
+    gap: 26px;
+  }
+  .tn-note {
+    flex: none;
+    width: 100%;
+    padding-left: 0;
+    border-left: none;
+    border-top: var(--tn-line);
+    padding-top: 20px;
+  }
+  .tn-note__area {
+    min-height: 190px;
+  }
+
+  /* Projects: one pane at a time. The list is not hidden behind a menu — it
+     is swapped for the detail, and the detail grows a back affordance. */
+  .tn-split {
+    flex-direction: column;
+  }
+  .tn-split__list {
+    flex: none;
+    width: 100%;
+    padding: 22px 22px 18px;
+    border-right: none;
+    border-bottom: var(--tn-line);
+  }
+  .tn-split__detail {
+    padding: 20px 22px 32px;
+  }
+  .tn-split[data-pane="list"] .tn-split__detail {
+    display: none;
+  }
+  .tn-split[data-pane="detail"] .tn-split__list {
+    display: none;
+  }
+  .tn-back {
+    display: inline-flex;
+  }
+  .tn-split__hint {
+    display: none;
+  }
+  .tn-detail__head {
+    flex-direction: column;
+    gap: 4px;
+  }
+  .tn-detail__stat {
+    padding-top: 6px;
+  }
+
+  .tn-settings__grid {
+    grid-template-columns: 1fr;
+  }
+  .tn-foot {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+}
+
+/* Narrower still: the two halves of every row stack instead of competing.
+   The inbox's triage controls move under the title rather than disappearing —
+   they are the whole point of that screen. */
+@container surface (max-width: 620px) {
+  .tn-field {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .tn-row {
+    flex-wrap: wrap;
+  }
+  .tn-row__trailing {
+    flex-basis: 100%;
+    margin: 4px 0 0 29px;
+  }
+  .tn-keys__row {
+    flex-direction: column;
+    gap: 4px;
+  }
+}

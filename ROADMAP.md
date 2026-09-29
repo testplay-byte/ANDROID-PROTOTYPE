@@ -147,3 +147,13 @@ Two hard principles the user has stated:
 - Whether desktop prototypes get their own gallery view or share the switcher (D5 covers
   the first pass; revisit after Phase 4).
 - Native build order (Compose vs SwiftUI) — deferred until Phase 7.
+
+
+## Phase 8 — Desktop library (completed 2026-09-28)
+
+Twelve desktop/tablet prototypes, one per design language, plus the twelfth
+language (**Console**) built for data. All registered in the surface registry,
+the surface stylesheet layer and the dashboard gallery, and all passing
+`scripts/verify.mjs` at 1280 / 1000 / 760. The Stage now measures the width a
+window *requests* rather than the box it shrank to, so the side panels yield
+correctly and a desktop build never silently falls back to its tablet layout.

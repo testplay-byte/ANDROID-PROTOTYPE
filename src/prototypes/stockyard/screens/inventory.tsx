@@ -38,6 +38,7 @@ const COLUMNS: { key: SortKey; label: string; align?: "right" }[] = [
   { key: "name", label: "Description" },
   { key: "onHand", label: "On hand", align: "right" },
   { key: "reserved", label: "Res.", align: "right" },
+  { key: "free", label: "Free", align: "right" },
   { key: "reorderPoint", label: "ROP", align: "right" },
   { key: "unitCost", label: "Unit cost", align: "right" },
 ];
@@ -234,6 +235,9 @@ export function InventoryScreen() {
                   </td>
                   <td data-label="Free" className="sy-table__num sy-tnum" style={{ textAlign: "right" }}>
                     {freeStock(s).toLocaleString("en-US")}
+                  </td>
+                  <td data-label="ROP" className="sy-table__num sy-tnum" style={{ textAlign: "right" }}>
+                    {s.reorderPoint.toLocaleString("en-US")}
                   </td>
                   <td data-label="Unit cost" className="sy-table__num sy-tnum" style={{ textAlign: "right" }}>
                     {money(s.unitCost)}

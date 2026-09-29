@@ -7,6 +7,26 @@
 
 ## [Unreleased]
 
+### 2026-09-28 — twelve desktop prototypes + the Console language
+
+- **New design language: Console** (`styles/console.css`, `console.md`) — the
+  instrument language for data: near-black ground, hairline rules, squared
+  charts, signal palette (`--chart-series-1..5`, `--chart-grid`,
+  `--chart-axis`). Registered through the documented six points, which proves
+  the add-a-language path.
+- **Twelve desktop/tablet prototypes, one per language:** Meridian (m3),
+  Quill (hig), Telemetry (carbon), Signal (console), Halo (neumorph),
+  Aurora (glass), Stockyard (brutalism), Mochi (clay), Atelier (bauhaus),
+  Counter (flat), Facet (bento), Thin (minimal). All pass the gate at
+  1280 / 1000 / 760.
+- **Stage fix**: the side panels now measure the width the window REQUESTS
+  (its size variable) instead of the box it already shrank to — previously a
+  wide window in a 1280 browser collapsed to ~724px and the panels never
+  yielded, so desktop builds silently rendered their tablet layout.
+- Stockyard: real reorder-point column (the header had no matching cell);
+  Signal and Thin: `vh` inside surface content replaced with surface-relative
+  units (failure mode #16).
+
 ### 2026-09-28 — docs consolidation: SPEC, standards rewrite, playbook, native bridge
 
 - **`docs/SPEC.md`** is now the authoritative system spec: surfaces (phone /

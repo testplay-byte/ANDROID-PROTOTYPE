@@ -1,0 +1,1948 @@
+/* =========================================================================
+   facet / facet.css — "Facet", the BENTO desktop personal dashboard.
+
+   Base design language: Bento (src/proto-kit/styles/bento.css) — the enlarged
+   radius scale (18-26px), the felt background, shadow-1 contact lift and the
+   single orange accent all come from the style token layer. This file adds
+   ONLY prototype-scoped extras (the board grid, the span system, the tile
+   grammar) and every app selector is prefixed `.fc`, so nothing leaks into
+   another route.
+
+   STYLE INDEX (keep in sync with the sections below):
+     1. Scope root ............ .fc, density tokens, resets
+     2. Shell ................. .fc-main, .fc-view, .fc-split, empty states
+     3. Shared atoms .......... .fc-btn, .fc-iconbtn, .fc-chip, .fc-meter,
+                                .fc-search, .fc-searchbox, .fc-avatar
+     4. The bento board ....... .fc-boardbar, .fc-board, the span system
+     5. The tile atom ......... .fc-tile + head/tools/body/centre, per-span
+                                content fallbacks
+     6. Clock + weather ....... .fc-clock, .fc-wx
+     7. Agenda ................ .fc-agenda
+     8. Capture + habits ...... .fc-cap, .fc-habits, .fc-ring
+     9. Focus, notes, mini
+       month, signal .......... .fc-focus, .fc-note, .fc-mini, .fc-signal
+    10. Calendar .............. .fc-month, .fc-daydetail, .fc-events,
+                                .fc-checklist
+    11. Notes ................. .fc-notelist, .fc-editor
+    12. Settings .............. .fc-settings, .fc-card, .fc-segment,
+                                .fc-swatch, .fc-miniboard, .fc-tilelist,
+                                .fc-keys
+    13. Overlays .............. .fc-palette, .fc-toast
+    14. Adaptivity ............ @container surface breakpoints
+
+   BENTO RULES obeyed throughout:
+     · Tiles are BORDERLESS. The 14px gutter of felt background between
+       every card is the separation; only shadow-1 lifts a tile off the felt.
+       A border would read as a table cell, and a table cell has a job of
+       its own.
+     · ONE job per tile. Size carries meaning: 2×2 is what you check every
+       morning, 1×1 is what you glance at. The user owns the layout, so every
+       tile head carries the span cycle.
+     · Nothing scrolls inside a tile. When a tile gets smaller the CSS drops
+       the content that no longer earns its place (see section 5) rather
+       than starting a scrollbar.
+     · Content is vertically centred with balanced padding; only the tiles
+       that genuinely have a list (agenda, mini month) start at the top.
+     · Both themes work because every colour is a token. This file contains
+       no hex, no rgb(), no hsl().
+
+   Every value below is a token — no hardcoded colours.
+   ========================================================================= */
+
+/* ---------- 1. scope root ---------- */
+.fc {
+  /* the felt gutter: the felt background showing between every tile IS the
+     separation, so this is the most important number in the file */
+  --fc-gutter: 14px;
+  --fc-tile-pad: 14px;
+  --fc-row: 134px;
+  --fc-line: 1px solid var(--color-outline-variant);
+
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: var(--fs-body);
+  line-height: 1.45;
+}
+
+/* Tile density is a LAYOUT preference, not a font preference: it changes the
+   grid's row height and the tile padding, so the whole board re-proportions
+   under the content. Set from #settings and persisted. */
+.fc[data-density="compact"] {
+  --fc-row: 112px;
+  --fc-tile-pad: 11px;
+  --fc-gutter: 12px;
+}
+.fc[data-density="roomy"] {
+  --fc-row: 152px;
+  --fc-tile-pad: 17px;
+  --fc-gutter: 16px;
+}
+
+.fc .tnum {
+  font-variant-numeric: tabular-nums;
+}
+
+.fc :where(button) {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.fc :where(input, select, textarea) {
+  font: inherit;
+  color: inherit;
+}
+
+.fc button:focus-visible,
+.fc input:focus-visible,
+.fc textarea:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ---------- 2. shell ---------- */
+.fc-main {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+}
+
+.fc-view {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 14px 16px 16px;
+}
+
+/* the desktop split: data on the left, detail/form BESIDE it */
+.fc-split {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  min-width: 0;
+}
+.fc-split__main {
+  flex: 1;
+  min-width: 0;
+}
+.fc-split__side {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 320px;
+}
+.fc-split__list {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 320px;
+  min-width: 0;
+}
+
+.fc-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 28px 26px;
+  border-radius: var(--r-lg);
+  background: var(--color-surface-1);
+  box-shadow: var(--shadow-1);
+}
+.fc-empty h2 {
+  margin: 0;
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.fc-empty p {
+  margin: 0;
+  max-width: 46ch;
+  color: var(--color-text-muted);
+}
+
+/* ---------- 3. shared atoms ---------- */
+.fc-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border: var(--fc-line);
+  border-radius: var(--r-pill);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  white-space: nowrap;
+  transition: background var(--dur-2) var(--ease-standard),
+    border-color var(--dur-2) var(--ease-standard), transform var(--dur-1) var(--ease-standard);
+}
+.fc-btn:hover {
+  background: var(--color-surface-3);
+}
+.fc-btn:active {
+  transform: scale(0.98);
+}
+/* the ONE accent: a filled pill, used for the single primary action */
+.fc-btn--solid {
+  border-color: var(--color-primary);
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+.fc-btn--solid:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+.fc-btn--ghost {
+  background: none;
+  color: var(--color-text-muted);
+}
+.fc-btn--quiet {
+  background: var(--color-surface-3);
+  color: var(--color-text-muted);
+}
+.fc-btn--sm {
+  height: 28px;
+  padding: 0 10px;
+  font-size: var(--fs-label-s);
+}
+.fc-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.fc-iconbtn {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 30px;
+  height: 30px;
+  border: var(--fc-line);
+  border-radius: var(--r-sm);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  transition: background var(--dur-2) var(--ease-standard), color var(--dur-2) var(--ease-standard);
+}
+.fc-iconbtn:hover {
+  background: var(--color-surface-3);
+  color: var(--color-text);
+}
+
+.fc-chip {
+  flex: none;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  background: var(--color-surface-3);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* the small progress bar used by focus, signal and the clock */
+.fc-meter {
+  display: block;
+  width: 100%;
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--color-text) 12%, transparent);
+  overflow: hidden;
+}
+.fc-meter__fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: var(--color-primary);
+}
+
+/* top bar: the ⌘K trigger — desktop's command surface */
+.fc-search {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 34px;
+  padding: 0 8px 0 12px;
+  border: var(--fc-line);
+  border-radius: var(--r-pill);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  transition: background var(--dur-2) var(--ease-standard);
+}
+.fc-search:hover {
+  background: var(--color-surface-3);
+  color: var(--color-text);
+}
+.fc-search span {
+  min-width: 150px;
+  text-align: left;
+}
+.fc-search kbd,
+.fc-searchbox kbd {
+  display: inline-flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: var(--r-xs);
+  background: var(--color-surface-4);
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+}
+
+.fc-searchbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 36px;
+  padding: 0 10px;
+  border: var(--fc-line);
+  border-radius: var(--r-pill);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+}
+.fc-searchbox:focus-within {
+  border-color: var(--color-primary);
+}
+.fc-searchbox input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  outline: none;
+  font-size: var(--fs-body-s);
+}
+.fc-searchbox input::placeholder {
+  color: var(--color-text-subtle);
+}
+.fc-searchbox button {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: var(--r-xs);
+  color: var(--color-text-subtle);
+}
+.fc-searchbox button:hover {
+  color: var(--color-text);
+}
+
+.fc-avatar {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-pill);
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  font-size: var(--fs-label-s);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+/* ---------- 4. the bento board ---------- */
+.fc-boardbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  min-height: 30px;
+  padding: 0 2px;
+}
+.fc-boardbar__legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.fc-boardbar__text {
+  margin-right: 2px;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.fc-boardbar__key {
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+}
+.fc-boardbar__readout {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+}
+.fc-boardbar__actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* THE GRID. Four equal columns, one fixed row height, and plain auto-flow
+   placement — so re-spanning a tile genuinely reflows everything after it,
+   the way a bento board behaves. `align-content: start` keeps the last row
+   honest when tiles are hidden. */
+.fc-board {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: var(--fc-row);
+  gap: var(--fc-gutter);
+  align-content: start;
+  min-width: 0;
+}
+
+/* ---------- 5. the tile atom ---------- */
+.fc-tile {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  padding: var(--fc-tile-pad);
+  /* borderless: the gutter + the felt background separate the tiles, and
+     shadow-1 is the contact lift. A border would make it a table cell. */
+  border-radius: var(--r-lg);
+  background: var(--fc-tile-bg, var(--color-surface-1));
+  color: var(--fc-tile-fg, var(--color-text));
+  box-shadow: var(--shadow-1);
+  overflow: hidden;
+  transition: box-shadow var(--dur-2) var(--ease-standard),
+    transform var(--dur-2) var(--ease-standard);
+}
+.fc-tile:hover {
+  box-shadow: var(--shadow-2);
+  transform: translateY(-1px);
+}
+.fc-tile[data-active] {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* the four sizes — this is the whole span system */
+.fc-tile[data-span="1x1"] { grid-column: span 1; grid-row: span 1; }
+.fc-tile[data-span="2x1"] { grid-column: span 2; grid-row: span 1; }
+.fc-tile[data-span="1x2"] { grid-column: span 1; grid-row: span 2; }
+.fc-tile[data-span="2x2"] { grid-column: span 2; grid-row: span 2; }
+
+/* tone planes — small doses of the style's accent roles */
+.fc-tile[data-tone="primary"] {
+  --fc-tile-bg: var(--color-primary-container);
+  --fc-tile-fg: var(--color-on-primary-container);
+}
+.fc-tile[data-tone="secondary"] {
+  --fc-tile-bg: var(--color-secondary-container);
+  --fc-tile-fg: var(--color-text);
+}
+.fc-tile[data-tone="tertiary"] {
+  --fc-tile-bg: var(--color-tertiary-container);
+  --fc-tile-fg: var(--color-text);
+}
+.fc-tile[data-tone="surface"] {
+  --fc-tile-bg: var(--color-surface-1);
+  --fc-tile-fg: var(--color-text);
+}
+.fc-tile[data-tone="quiet"] {
+  --fc-tile-bg: var(--color-surface-3);
+  --fc-tile-fg: var(--color-text);
+}
+
+.fc-tile__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  min-height: 18px;
+  margin-bottom: 6px;
+}
+.fc-tile__job {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.fc-tile__tools {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+
+/* THE SPAN CYCLE CONTROL. Click it and the tile walks 1×1 → 2×1 → 2×2 → 1×2. */
+.fc-tile__span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+  padding: 0 7px;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  transition: background var(--dur-2) var(--ease-standard), color var(--dur-2) var(--ease-standard);
+}
+.fc-tile__span:hover {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+.fc-tile__tool {
+  display: grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 4px;
+  border-radius: var(--r-pill);
+  color: var(--color-text-muted);
+  transition: background var(--dur-2) var(--ease-standard), color var(--dur-2) var(--ease-standard);
+}
+.fc-tile__tool--label {
+  display: inline-flex;
+  gap: 4px;
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+}
+.fc-tile__tool:hover {
+  background: color-mix(in srgb, var(--color-text) 10%, transparent);
+  color: var(--color-text);
+}
+.fc-dotpick {
+  display: block;
+  width: 7px;
+  height: 7px;
+  border-radius: var(--r-pill);
+  background: currentColor;
+  opacity: 0.4;
+}
+.fc-tile[data-active] .fc-dotpick {
+  background: var(--color-primary);
+  opacity: 1;
+}
+
+/* the body is the flexible middle: content centred, never scrolled */
+.fc-tile__body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 0;
+  overflow: hidden;
+}
+.fc-tile__center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+  text-align: center;
+}
+
+/* Tiles that genuinely contain a list start at the top instead of centring —
+   the ONE exception to "content vertically centred". */
+.fc-tile:has(.fc-agenda) .fc-tile__body,
+.fc-tile:has(.fc-mini) .fc-tile__body,
+.fc-tile:has(.fc-signal) .fc-tile__body,
+.fc-tile:has(.fc-wx) .fc-tile__body {
+  justify-content: flex-start;
+}
+
+/* --- per-span content fallbacks -------------------------------------------
+   Nothing scrolls inside a tile. When the user shrinks a tile, the content
+   that no longer earns its place is dropped instead: a 1×1 agenda shows one
+   row, a 1×1 weather drops its hourly strip, a 1×1 month drops the grid. */
+.fc-tile[data-span="1x1"] .fc-agenda__row:nth-child(n + 2),
+.fc-tile[data-span="1x2"] .fc-agenda__row:nth-child(n + 5),
+.fc-tile[data-span="2x2"] .fc-agenda__row:nth-child(n + 6) {
+  display: none;
+}
+.fc-tile[data-span="1x1"] .fc-wx__hours,
+.fc-tile[data-span="1x2"] .fc-wx__hours,
+.fc-tile[data-span="1x1"] .fc-mini__grid,
+.fc-tile[data-span="1x1"] .fc-habits__list,
+.fc-tile[data-span="1x1"] .fc-habits__streak,
+.fc-tile[data-span="1x1"] .fc-signal__week,
+.fc-tile[data-span="1x1"] .fc-note__body,
+.fc-tile[data-span="1x1"] .fc-clock__count {
+  display: none;
+}
+.fc-tile[data-span="2x2"] .fc-cap {
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+/* ---------- 6. clock + weather ---------- */
+.fc-clock {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+.fc-clock__now {
+  display: flex;
+  align-items: baseline;
+  flex: none;
+}
+.fc-clock__time {
+  font-size: 38px;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+}
+.fc-clock__sec {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.fc-clock__side {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+.fc-clock__greet {
+  font-size: var(--fs-body);
+  font-weight: 600;
+}
+.fc-clock__date {
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+}
+.fc-clock__day {
+  display: block;
+  width: 100%;
+  min-width: 120px;
+  height: 5px;
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--color-text) 12%, transparent);
+  overflow: hidden;
+}
+.fc-clock__daybar {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: var(--color-primary);
+}
+.fc-clock__count {
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+}
+
+.fc-wx {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+.fc-wx__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.fc-wx__glyph {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-md);
+  background: color-mix(in srgb, var(--color-text) 8%, transparent);
+  color: var(--color-primary);
+}
+.fc-wx__temp {
+  flex: none;
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.fc-wx__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+.fc-wx__place {
+  font-size: var(--fs-body-s);
+  font-weight: 600;
+}
+.fc-wx__sum,
+.fc-wx__hl {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+}
+.fc-wx__hours {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 4px;
+  padding-top: 7px;
+  border-top: var(--fc-line);
+}
+.fc-wx__hour {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+}
+.fc-wx__hlabel {
+  color: var(--color-text-subtle);
+  font-size: 9px;
+  font-weight: 700;
+}
+.fc-wx__hourglyph {
+  color: inherit;
+}
+
+/* ---------- 7. agenda ---------- */
+.fc-agenda {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+.fc-agenda__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.fc-agenda__day {
+  font-size: var(--fs-body-s);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.fc-agenda__count {
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+}
+.fc-agenda__list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  min-width: 0;
+}
+.fc-agenda__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 5px 8px;
+  border-radius: var(--r-sm);
+  background: color-mix(in srgb, var(--color-text) 6%, transparent);
+}
+.fc-agenda__row[data-tone="primary"] { --fc-dot: var(--color-primary); }
+.fc-agenda__row[data-tone="secondary"] { --fc-dot: var(--color-secondary); }
+.fc-agenda__row[data-tone="tertiary"] { --fc-dot: var(--color-tertiary); }
+.fc-agenda__row[data-tone="quiet"] { --fc-dot: var(--color-text-subtle); }
+.fc-agenda__time {
+  position: relative;
+  flex: none;
+  padding-left: 12px;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+}
+.fc-agenda__time::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--fc-dot);
+  transform: translateY(-50%);
+}
+.fc-agenda__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.fc-agenda__text b {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-body-s);
+  font-weight: 600;
+}
+.fc-agenda__text span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+}
+.fc-agenda__empty {
+  padding: 10px 8px;
+  border-radius: var(--r-sm);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+}
+
+/* ---------- 8. capture + habits ---------- */
+.fc-cap {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  width: 100%;
+  min-width: 0;
+}
+.fc-cap__hint {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+}
+.fc-cap__row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+.fc-cap__input {
+  flex: 1;
+  min-width: 0;
+  height: 32px;
+  padding: 0 11px;
+  border: var(--fc-line);
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--color-surface-1) 70%, transparent);
+  outline: none;
+  font-size: var(--fs-body-s);
+}
+.fc-cap__input::placeholder {
+  color: var(--color-text-subtle);
+}
+.fc-cap__input:focus {
+  border-color: var(--color-primary);
+}
+.fc-cap__add {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--r-pill);
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+  transition: transform var(--dur-1) var(--ease-standard);
+}
+.fc-cap__add:hover {
+  transform: scale(1.05);
+}
+.fc-capture__count {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+}
+
+.fc-habits {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  min-width: 0;
+}
+.fc-ring {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 60px;
+  height: 60px;
+}
+.fc-ring__track {
+  fill: none;
+  stroke: color-mix(in srgb, var(--color-text) 14%, transparent);
+  stroke-width: 6.5;
+}
+.fc-ring__value {
+  fill: none;
+  stroke: var(--color-tertiary);
+  stroke-width: 6.5;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 30px 30px;
+  transition: stroke-dasharray var(--dur-4) var(--ease-standard);
+}
+.fc-ring__num {
+  position: absolute;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.fc-ring__num i {
+  color: var(--color-text-subtle);
+  font-size: 11px;
+  font-style: normal;
+  font-weight: 600;
+}
+.fc-habits__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.fc-habits__item {
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+  text-align: left;
+}
+.fc-habits__item:hover {
+  color: var(--color-text);
+}
+.fc-habits__item[data-done] {
+  color: var(--color-text);
+  text-decoration: line-through;
+  text-decoration-color: var(--color-tertiary);
+}
+.fc-habits__streak {
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+}
+
+/* ---------- 9. focus, notes, mini month, signal ---------- */
+.fc-focus__num {
+  font-size: 30px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+.fc-focus__label {
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+}
+.fc-focus__delta {
+  color: var(--color-success);
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+}
+
+.fc-note {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 100%;
+  min-width: 0;
+}
+.fc-note__tag {
+  align-self: flex-start;
+  padding: 1px 8px;
+  border-radius: var(--r-pill);
+  background: var(--color-surface-3);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+}
+.fc-note__title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-body-s);
+  font-weight: 700;
+}
+.fc-note__body {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+  line-height: 1.35;
+}
+.fc-note__count {
+  margin-top: auto;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+}
+
+.fc-mini {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+  min-height: 0;
+}
+.fc-mini__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex: none;
+}
+.fc-mini__month {
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.fc-mini__dows {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+  flex: 1;
+  max-width: 220px;
+  color: var(--color-text-subtle);
+  font-size: 8px;
+  font-weight: 700;
+  text-align: center;
+}
+/* the grid takes whatever height is left, so the same markup reads as a
+   10px strip in a 2×1 tile and a roomy calendar in a 2×2 */
+.fc-mini__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-auto-rows: minmax(0, 1fr);
+  gap: 2px;
+  flex: 1;
+  min-height: 0;
+}
+.fc-mini__cell {
+  display: grid;
+  place-items: center;
+  min-height: 0;
+  border-radius: var(--r-xs);
+  color: var(--color-text-muted);
+  font-size: 9px;
+  font-weight: 600;
+}
+.fc-mini__cell.is-blank {
+  background: none;
+}
+.fc-mini__cell:not(.is-blank):hover {
+  background: var(--color-surface-3);
+  color: var(--color-text);
+}
+.fc-mini__cell[data-today] {
+  box-shadow: inset 0 0 0 1px var(--color-primary);
+  color: var(--color-text);
+}
+.fc-mini__cell[data-selected] {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+
+.fc-signal {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+}
+.fc-signal__stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.fc-signal__stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.fc-signal__label {
+  color: var(--color-text-subtle);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.fc-signal__value {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  line-height: 1.1;
+}
+.fc-signal__unit {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+}
+.fc-signal__week {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  height: 20px;
+  flex: none;
+  padding-top: 4px;
+  border-top: var(--fc-line);
+}
+.fc-signal__bar {
+  display: flex;
+  align-items: flex-end;
+  flex: 1;
+  height: 100%;
+  min-width: 0;
+}
+.fc-signal__bar > span {
+  display: block;
+  width: 100%;
+  border-radius: var(--r-xs);
+  background: var(--color-primary);
+  opacity: 0.75;
+}
+
+/* ---------- 10. calendar ---------- */
+.fc-month {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: var(--r-lg);
+  background: var(--color-surface-1);
+  box-shadow: var(--shadow-1);
+}
+.fc-month__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.fc-month__title {
+  margin: 0;
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.fc-month__nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.fc-month__dows,
+.fc-month__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 6px;
+}
+.fc-month__dows {
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-align: center;
+}
+.fc-month__cell {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3px;
+  height: 46px;
+  padding: 5px 0 6px;
+  border-radius: var(--r-sm);
+  color: var(--color-text);
+  font-size: var(--fs-body-s);
+  transition: background var(--dur-2) var(--ease-standard);
+}
+.fc-month__cell.is-blank {
+  background: none;
+}
+.fc-month__cell:not(.is-blank):hover {
+  background: var(--color-surface-3);
+}
+.fc-month__num {
+  font-weight: 600;
+}
+.fc-month__cell[data-today] .fc-month__num {
+  color: var(--color-primary);
+  font-weight: 800;
+}
+.fc-month__cell[data-selected] {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+.fc-month__cell[data-selected] .fc-month__num {
+  color: var(--color-primary-fg);
+  font-weight: 800;
+}
+.fc-month__dots {
+  display: flex;
+  gap: 3px;
+  height: 5px;
+}
+.fc-month__dots i {
+  display: block;
+  width: 5px;
+  height: 5px;
+  border-radius: var(--r-pill);
+  background: var(--color-primary);
+}
+.fc-month__cell[data-selected] .fc-month__dots i {
+  background: var(--color-primary-fg);
+}
+.fc-month__foot {
+  margin: 0;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+}
+
+.fc-daydetail {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  border-radius: var(--r-lg);
+  background: var(--color-surface-1);
+  box-shadow: var(--shadow-1);
+}
+.fc-daydetail__label {
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.fc-daydetail__title {
+  margin: 0;
+  font-size: var(--fs-body-l);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.fc-daydetail__note {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+}
+
+.fc-events {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.fc-event {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding: 7px 9px;
+  border-radius: var(--r-sm);
+  background: var(--color-surface-3);
+}
+.fc-event[data-tone="primary"] { --fc-dot: var(--color-primary); }
+.fc-event[data-tone="secondary"] { --fc-dot: var(--color-secondary); }
+.fc-event[data-tone="tertiary"] { --fc-dot: var(--color-tertiary); }
+.fc-event[data-tone="quiet"] { --fc-dot: var(--color-text-subtle); }
+.fc-event__time {
+  position: relative;
+  flex: none;
+  padding-left: 12px;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+}
+.fc-event__time::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 6px;
+  height: 6px;
+  border-radius: var(--r-pill);
+  background: var(--fc-dot);
+  transform: translateY(-50%);
+}
+.fc-event__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.fc-event__text b {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-body-s);
+  font-weight: 600;
+}
+.fc-event__text span {
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+}
+.fc-events__empty {
+  padding: 10px;
+  border-radius: var(--r-sm);
+  background: var(--color-surface-3);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+}
+
+.fc-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.fc-checklist__item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 6px 8px;
+  border-radius: var(--r-sm);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  text-align: left;
+}
+.fc-checklist__item:hover {
+  background: var(--color-surface-3);
+  color: var(--color-text);
+}
+.fc-checklist__box {
+  flex: none;
+  width: 15px;
+  height: 15px;
+  border: 1.5px solid var(--color-outline);
+  border-radius: var(--r-xs);
+}
+.fc-checklist__item[data-done] {
+  color: var(--color-text);
+}
+.fc-checklist__item[data-done] .fc-checklist__box {
+  border-color: var(--color-tertiary);
+  background: var(--color-tertiary);
+  box-shadow: inset 0 0 0 3px var(--color-surface-1);
+}
+.fc-checklist__target {
+  margin-left: auto;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+}
+
+/* ---------- 11. notes ---------- */
+.fc-notelist__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+}
+.fc-notelist {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  overflow-y: auto;
+  min-height: 0;
+}
+.fc-notelist__item {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--color-surface-1);
+  box-shadow: var(--shadow-1);
+  text-align: left;
+  transition: background var(--dur-2) var(--ease-standard);
+}
+.fc-notelist__item:hover {
+  background: var(--color-surface-2);
+}
+.fc-notelist__item[data-active] {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+.fc-notelist__top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+.fc-notelist__top b {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-body-s);
+  font-weight: 700;
+}
+.fc-notelist__preview {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+}
+.fc-notelist__item[data-active] .fc-notelist__preview {
+  color: var(--color-on-primary-container);
+  opacity: 0.8;
+}
+.fc-notelist__stamp {
+  color: var(--color-text-subtle);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+.fc-notelist__empty {
+  padding: 14px;
+  border-radius: var(--r-md);
+  background: var(--color-surface-1);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+}
+
+.fc-editor {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  height: 100%;
+  min-height: 0;
+  padding: 16px;
+  border-radius: var(--r-lg);
+  background: var(--color-surface-1);
+  box-shadow: var(--shadow-1);
+}
+.fc-editor__bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+.fc-editor__tag {
+  padding: 2px 9px;
+  border-radius: var(--r-pill);
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+}
+.fc-editor__stamp {
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+}
+.fc-editor__spacer {
+  flex: 1;
+}
+.fc-editor__title {
+  margin: 0;
+  flex: none;
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.fc-editor__body {
+  flex: 1;
+  min-height: 180px;
+  padding: 12px 14px;
+  border: var(--fc-line);
+  border-radius: var(--r-md);
+  background: var(--color-surface-2);
+  outline: none;
+  resize: none;
+  font-size: var(--fs-body);
+  line-height: 1.6;
+}
+.fc-editor__body:focus {
+  border-color: var(--color-primary);
+}
+.fc-editor__foot {
+  flex: none;
+  color: var(--color-text-subtle);
+  font-size: var(--fs-label-s);
+}
+
+/* ---------- 12. settings ---------- */
+.fc-settings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  align-items: start;
+}
+.fc-card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-radius: var(--r-lg);
+  background: var(--color-surface-1);
+  box-shadow: var(--shadow-1);
+}
+.fc-card--wide {
+  grid-column: 1 / -1;
+}
+.fc-card__title {
+  margin: 0;
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.fc-card__desc {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+  line-height: 1.5;
+}
+.fc-card__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.fc-segment {
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--r-pill);
+  background: var(--color-surface-3);
+}
+.fc-segment--stack {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  border-radius: var(--r-md);
+}
+.fc-segment__btn {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 7px 12px;
+  border-radius: var(--r-pill);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.fc-segment--stack .fc-segment__btn {
+  border-radius: var(--r-sm);
+  text-align: left;
+  white-space: normal;
+}
+.fc-segment__btn span {
+  color: var(--color-text-subtle);
+  font-size: 9px;
+  font-weight: 600;
+}
+.fc-segment__btn:hover {
+  color: var(--color-text);
+}
+.fc-segment__btn[data-active] {
+  background: var(--color-primary);
+  color: var(--color-primary-fg);
+}
+.fc-segment__btn[data-active] span {
+  color: var(--color-primary-fg);
+  opacity: 0.75;
+}
+
+.fc-swatchrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+}
+.fc-swatchrow__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.fc-swatch {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--r-xs);
+}
+.fc-swatch--surface { background: var(--color-surface-1); box-shadow: var(--shadow-1); }
+.fc-swatch--primary { background: var(--color-primary); }
+.fc-swatch--secondary { background: var(--color-secondary); }
+.fc-swatch--tertiary { background: var(--color-tertiary); }
+
+/* a three-tile miniature of the board, which really changes with density */
+.fc-miniboard {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-auto-rows: var(--fc-row);
+  gap: var(--fc-gutter);
+  padding: 10px;
+  border-radius: var(--r-md);
+  background: var(--color-bg);
+  overflow: hidden;
+  max-height: 190px;
+}
+.fc-miniboard > span {
+  border-radius: var(--r-md);
+  background: var(--color-surface-1);
+  box-shadow: var(--shadow-1);
+}
+.fc-miniboard > span[data-span="2x1"] {
+  grid-column: span 2;
+}
+
+.fc-tilelist {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.fc-tilelist__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  border-radius: var(--r-sm);
+  background: var(--color-surface-2);
+}
+.fc-tilelist__row[data-hidden] {
+  background: none;
+  outline: var(--fc-line);
+  color: var(--color-text-subtle);
+}
+.fc-tilelist__name {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: var(--fs-label);
+  font-weight: 600;
+}
+.fc-tilelist__span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+}
+.fc-tilelist__cycle {
+  flex: none;
+}
+
+.fc-keys {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.fc-keys li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.fc-keys kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  min-width: 54px;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: var(--r-xs);
+  background: var(--color-surface-3);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+}
+.fc-keys span {
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+}
+
+/* ---------- 13. overlays ---------- */
+.fc-palette {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 64px 16px 16px;
+  background: color-mix(in srgb, var(--color-text) 26%, transparent);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+}
+.fc-palette__box {
+  width: min(560px, 100%);
+  border-radius: var(--r-lg);
+  background: var(--color-surface-1);
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+}
+.fc-palette__input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-bottom: var(--fc-line);
+  color: var(--color-text-muted);
+}
+.fc-palette__input input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  outline: none;
+  font-size: var(--fs-body-l);
+}
+.fc-palette__list {
+  margin: 0;
+  padding: 6px;
+  list-style: none;
+  max-height: 380px;
+  overflow-y: auto;
+}
+.fc-palette__list button {
+  display: grid;
+  grid-template-columns: 62px minmax(0, 1fr);
+  align-items: center;
+  gap: 4px 10px;
+  width: 100%;
+  padding: 8px 10px;
+  border-radius: var(--r-sm);
+  text-align: left;
+}
+.fc-palette__list button.is-cursor,
+.fc-palette__list button:hover {
+  background: var(--color-surface-3);
+}
+.fc-palette__kind {
+  grid-row: span 2;
+  justify-self: start;
+  padding: 2px 8px;
+  border-radius: var(--r-pill);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.fc-palette__kind[data-kind="View"] { background: var(--color-primary-container); color: var(--color-on-primary-container); }
+.fc-palette__kind[data-kind="Tile"] { background: var(--color-secondary-container); }
+.fc-palette__kind[data-kind="Action"] { background: var(--color-tertiary-container); }
+.fc-palette__list b {
+  font-size: var(--fs-body-s);
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.fc-palette__hint {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+}
+.fc-palette__empty {
+  padding: 16px 12px;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label-s);
+  text-align: center;
+}
+
+.fc-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  z-index: 55;
+  max-width: 70%;
+  padding: 10px 18px;
+  border-radius: var(--r-pill);
+  background: var(--color-surface-4);
+  color: var(--color-text);
+  box-shadow: var(--shadow-2);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  text-align: center;
+  transform: translateX(-50%);
+  animation: fc-toast-in var(--dur-3) var(--ease-emphasized-decel) both;
+}
+
+@keyframes fc-toast-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, 10px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+/* ---------- 14. adaptivity: @container surface, never @media ---------- */
+
+/* Tablet: the surface is ~834px. The board drops to TWO columns and every tile
+   that was taller than the grid now reads as a wide short tile (2×2 → 2×1,
+   1×2 → 1×1) — a real layout change, not a squeeze. The detail regions stop
+   being sidebars and become full-width blocks BELOW the data. */
+@container surface (max-width: 900px) {
+  .fc-board {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  /* 2×2 becomes 2×1 and 1×2 becomes 1×1: the tile keeps its reading order
+     and its content, but it now occupies ONE grid row. */
+  .fc-tile[data-span="2x2"] {
+    grid-column: span 2;
+    grid-row: span 1;
+  }
+  .fc-tile[data-span="1x2"] {
+    grid-column: span 1;
+    grid-row: span 1;
+  }
+
+  /* A tile that now occupies one row must drop the content that needed two.
+     These are the same rules the 1×1 tile uses, applied to the two spans the
+     reflow just turned into a 1-row tile. */
+  .fc-tile[data-span="1x2"] .fc-agenda__row:nth-child(n + 2),
+  .fc-tile[data-span="2x2"] .fc-agenda__row:nth-child(n + 4),
+  .fc-tile[data-span="1x2"] .fc-wx__hours,
+  .fc-tile[data-span="2x2"] .fc-wx__hours,
+  .fc-tile[data-span="1x2"] .fc-mini__grid,
+  .fc-tile[data-span="1x2"] .fc-habits__list,
+  .fc-tile[data-span="1x2"] .fc-habits__streak,
+  .fc-tile[data-span="1x2"] .fc-signal__week,
+  .fc-tile[data-span="1x2"] .fc-note__body,
+  .fc-tile[data-span="1x2"] .fc-clock__count,
+  .fc-tile[data-span="2x2"] .fc-signal__week,
+  .fc-tile[data-span="2x2"] .fc-note__body {
+    display: none;
+  }
+  /* the wide short habits tile reads best as a row: ring, list, streak */
+  .fc-tile[data-span="2x2"] .fc-habits {
+    flex-direction: row;
+    align-items: center;
+    gap: 16px;
+  }
+  .fc-tile[data-span="2x2"] .fc-habits__list {
+    flex: 1;
+    min-width: 0;
+  }
+  .fc-tile[data-span="2x2"] .fc-habits__streak {
+    margin-left: auto;
+  }
+  .fc-tile[data-span="2x2"] .fc-cap {
+    justify-content: center;
+  }
+
+  /* the splits go vertical: detail BELOW the data, not beside it */
+  .fc-split,
+  .fc-split--notes {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .fc-split__side,
+  .fc-split__list {
+    width: 100%;
+  }
+  .fc-settings {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .fc-notelist {
+    max-height: 260px;
+  }
+  .fc-editor__body {
+    min-height: 240px;
+  }
+  .fc-boardbar__readout {
+    display: none;
+  }
+  .fc-month__cell {
+    height: 40px;
+  }
+}
+
+@container surface (max-width: 620px) {
+  .fc-view {
+    padding: 12px 12px 14px;
+  }
+  .fc-tile {
+    padding: 11px;
+  }
+  .fc-board {
+    gap: 10px;
+  }
+  .fc-signal__stats {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .fc-segment--stack {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .fc-clock__time {
+    font-size: 30px;
+  }
+}
+
+/* ---------- a11y ---------- */
+@media (prefers-reduced-motion: reduce) {
+  .fc *,
+  .fc *::before,
+  .fc *::after {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+}

@@ -49,7 +49,7 @@ import {
 
 export type ViewId = "inventory" | "orders" | "movement" | "settings";
 export type Density = "regular" | "dense";
-export type SortKey = "sku" | "name" | "onHand" | "reserved" | "reorderPoint" | "unitCost";
+export type SortKey = "sku" | "name" | "onHand" | "reserved" | "free" | "reorderPoint" | "unitCost";
 export type StockFilter = StockState | "all";
 export type MovementFilter = "all" | "receipt" | "pick" | "adjust" | "transfer";
 export type OrderFilter = "all" | "open" | "shipped" | "hold";
@@ -447,6 +447,8 @@ export function StockyardProvider({ children }: { children: ReactNode }) {
           return (a.onHand - b.onHand) * dir;
         case "reserved":
           return (a.reserved - b.reserved) * dir;
+        case "free":
+          return (freeStock(a) - freeStock(b)) * dir;
         case "reorderPoint":
           return (a.reorderPoint - b.reorderPoint) * dir;
         case "unitCost":

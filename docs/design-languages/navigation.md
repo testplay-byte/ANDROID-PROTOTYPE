@@ -22,6 +22,7 @@
 | [`minimal.md`](./minimal.md) | `minimal` | Minimalism / monochrome | floating / large |
 | [`bento.md`](./bento.md) | `bento` | Bento grid | floating / large |
 | [`flat.md`](./flat.md) | `flat` | Flat Design 2.0 | labeled / inline |
+| [`console.md`](./console.md) | `console` | Console (analytics / instrument UI) | — (desktop language) |
 
 The default `m3` language is documented in [`docs/design-systems/material-3-expressive/`](../design-systems/material-3-expressive/navigation.md)
 (tokens live in `src/proto-kit/tokens/tokens.css`; no `data-style` attribute needed).

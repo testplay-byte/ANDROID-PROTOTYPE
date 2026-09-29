@@ -8,18 +8,27 @@
  *   DeviceThemeProvider (scoped to the SURFACE, not just .device)
  *     → StockyardProvider
  *       → Stage (info panels + preview controls, OUTSIDE the app)
- *         → SurfaceFrame (surface="desktop", style="brutalism",
- *                         windowChrome, menu bar, draggable)
- *           · DesktopSidebar — sectioned rail navigation
- *           · DesktopTopBar  — title + ⌘K search slot + actions
- *           · SurfaceScreen  — the active view
- *           · CommandPalette (⌘K) and a toast
+ *         · .sy-stagefit — the fit guard, see below
+ *           → SurfaceFrame (surface="desktop", style="brutalism",
+ *                           windowChrome, menu bar, draggable)
+ *             · DesktopSidebar — sectioned rail navigation
+ *             · .sy-topbar     — title + ⌘K search slot + actions
+ *             · SurfaceScreen  — the active view
+ *             · CommandPalette (⌘K) and a toast
  *
  * What makes it a desktop app and not a wide phone:
  *   navigation is a sidebar, the stock table is multi-column, sortable
- *   and multi-select, detail opens BESIDE the data in a drawer, the
- *   command palette exists, a density preference changes every row
+ *   and multi-select, detail opens beside or above the data in a drawer,
+ *   the command palette exists, a density preference changes every row
  *   app-wide, and the window auto-fits the stage instead of scrolling.
+ *
+ * The fit guard: <Stage> decides whether its info panels still fit by
+ * MEASURING the window. Left to flex, the window shrank to the space
+ * between the panels, so the measurement never showed a window that
+ * needed more room and the panels never yielded. `.sy-stagefit` refuses
+ * to shrink (flex-basis auto, no shrink), so the window reports the room
+ * the stage really has and <Stage>'s own compact mode collapses the
+ * panels on its own — it is never second-guessed or overridden here.
  *
  * Desktop chrome only: there is no status bar and no bottom nav anywhere
  * in here. Every preview control (fullscreen, surface switcher) belongs
@@ -37,7 +46,6 @@ import {
   SurfaceFrame,
   SurfaceScreen,
   DesktopSidebar,
-  DesktopTopBar,
   useCanonicalSurface,
   type DesktopNavItem,
 } from "../../../src/proto-kit";
@@ -71,7 +79,7 @@ const NAV: { id: string; label: string; icon: ReactNode }[] = [
 const SCREEN_INFO: Record<string, { name: string; desc: string }> = {
   inventory: {
     name: "Inventory",
-    desc: "The main screen: a category rail, a fixed-layout sortable multi-select stock table (SKU · on-hand · reserved · free · reorder point · unit cost · state) and a detail drawer that opens BESIDE the data with a per-bin breakdown and a working restock form.",
+    desc: "The main screen: a category filter row, a fixed-layout sortable multi-select stock table (SKU · on-hand · reserved · free · reorder point · unit cost · state) and a detail drawer that opens beside the data — or reflows to a full-width block when the window is too narrow to keep the table readable — with a per-bin breakdown and a working restock form.",
   },
   orders: {
     name: "Orders",
@@ -187,30 +195,39 @@ function Shell() {
         </>
       }
     >
-      <SurfaceFrame
-        surface="desktop"
-        style="brutalism"
-        theme="dark"
-        windowChrome
-        windowTitle="Stockyard — Fulfilment Console"
-        menu={["Stockyard", "File", "Edit", "View", "Orders", "Help"]}
-        storageKey="stockyard"
-        draggable
-      >
-        <DesktopSidebar items={navItems} activeId={view} onSelect={(id) => go(id as never)} />
-        <div className="sy" data-density={density}>
-          <DesktopTopBar
-            title={current.name}
-            subtitle={`Stockyard · ${counts.skus} SKUs · ${counts.units.toLocaleString("en-US")} units`}
-            tools={
-              <button className="sy-searchbtn" type="button" onClick={() => setPaletteOpen(true)}>
-                <SearchIcon size={15} />
-                <span>Search or run a command…</span>
-                <kbd>⌘K</kbd>
-              </button>
-            }
-            actions={
-              <>
+      {/* The fit guard: see the file header. It carries no chrome of its
+          own — it only stops the window being squeezed before <Stage> can
+          measure it. */}
+      <div className="sy-stagefit">
+        <SurfaceFrame
+          surface="desktop"
+          style="brutalism"
+          theme="dark"
+          windowChrome
+          windowTitle="Stockyard — Fulfilment Console"
+          menu={["Stockyard", "File", "Edit", "View", "Orders", "Help"]}
+          storageKey="stockyard"
+          draggable
+        >
+          <DesktopSidebar items={navItems} activeId={view} onSelect={(id) => go(id as never)} />
+          <div className="sy" data-density={density}>
+            {/* The app's own top bar: title left, the ⌘K command surface
+                centre, actions right. Three explicit flex tracks, so no
+                pair of them can ever overlap — the title ellipsises and
+                the actions keep their size before anything collides. */}
+            <header className="sy-topbar">
+              <div className="sy-topbar__title">
+                <h1>{current.name}</h1>
+                <p>{`Stockyard · ${counts.skus} SKUs · ${counts.units.toLocaleString("en-US")} units`}</p>
+              </div>
+              <div className="sy-topbar__tools">
+                <button className="sy-searchbtn" type="button" onClick={() => setPaletteOpen(true)}>
+                  <SearchIcon size={15} />
+                  <span>Search or run a command…</span>
+                  <kbd>⌘K</kbd>
+                </button>
+              </div>
+              <div className="sy-topbar__actions">
                 <StockWarning />
                 <button
                   className="sy-btn sy-btn--solid"
@@ -220,7 +237,8 @@ function Shell() {
                     notify("Pick the SKU you want to receive into");
                   }}
                 >
-                  Receive stock
+                  <TruckIcon size={14} />
+                  <span className="sy-btn__label">Receive stock</span>
                 </button>
                 <button
                   className="sy-iconbtn"
@@ -232,7 +250,7 @@ function Shell() {
                   {alertsOn > 0 && <i className="sy-dot" />}
                 </button>
                 <button
-                  className="sy-btn"
+                  className="sy-btn sy-topbar__density"
                   type="button"
                   onClick={() => setDensity(density === "dense" ? "regular" : "dense")}
                   aria-label="Toggle row density"
@@ -243,23 +261,23 @@ function Shell() {
                 <span className="sy-avatar" aria-hidden="true">
                   DK
                 </span>
-              </>
-            }
-          />
-          <SurfaceScreen>
-            {view === "inventory" && <InventoryScreen />}
-            {view === "orders" && <OrdersScreen />}
-            {view === "movement" && <MovementScreen />}
-            {view === "settings" && <SettingsScreen />}
-          </SurfaceScreen>
-          <CommandPalette />
-          {toast && (
-            <div className="sy-toast" role="status">
-              {toast}
-            </div>
-          )}
-        </div>
-      </SurfaceFrame>
+              </div>
+            </header>
+            <SurfaceScreen>
+              {view === "inventory" && <InventoryScreen />}
+              {view === "orders" && <OrdersScreen />}
+              {view === "movement" && <MovementScreen />}
+              {view === "settings" && <SettingsScreen />}
+            </SurfaceScreen>
+            <CommandPalette />
+            {toast && (
+              <div className="sy-toast" role="status">
+                {toast}
+              </div>
+            )}
+          </div>
+        </SurfaceFrame>
+      </div>
     </Stage>
   );
 }

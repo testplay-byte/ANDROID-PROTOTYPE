@@ -66,7 +66,14 @@ export function Stage({
     const check = () => {
       const child = el.querySelector(".device, .surface") as HTMLElement | null;
       if (!child) return;
-      const w = child.getBoundingClientRect().width;
+      // The window shrinks to the stage, so measuring its current box always
+      // "fits" and the panels would never yield. Measure the width the window
+      // REQUESTS (its size variable) — that is what must share the row.
+      const cs = getComputedStyle(child);
+      const declared = ["--surface-w", "--device-w"]
+        .map((v) => parseFloat(cs.getPropertyValue(v)))
+        .find((n) => Number.isFinite(n) && n > 0);
+      const w = declared ?? child.getBoundingClientRect().width;
       const needed =
         w + (leftPanel ? PANEL_W + GAP : 0) + (rightPanel ? PANEL_W + GAP : 0) + GAP;
       setCompact(needed > window.innerWidth);

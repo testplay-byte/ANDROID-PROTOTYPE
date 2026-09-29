@@ -3,9 +3,12 @@
    (Neo-brutalism, DESKTOP surface).
    =========================================================================
    STYLE INDEX (per docs/SPEC.md § targeting convention — keep in sync):
-     1. Shell + density  .sy, .sy-view, .sy-split, .sy-datacol, .sy-viewhead
-     2. Shared atoms .... .sy-micro, .sy-tnum, .sy-btn, .sy-iconbtn, .sy-chip,
-                          .sy-seg, .sy-switch, .sy-kbd, .sy-facts, .sy-block
+     1. Shell + density  .sy-stagefit, .sy, .sy-view, .sy-split, .sy-datacol,
+                          .sy-topbar, .sy-topbar__title, .sy-topbar__tools,
+                          .sy-topbar__actions
+     2. Shared atoms .... .sy-micro, .sy-tnum, .sy-btn, .sy-btn__label,
+                          .sy-iconbtn, .sy-chip, .sy-seg, .sy-switch, .sy-kbd,
+                          .sy-facts, .sy-block
      3. Inventory ....... .sy-rail, .sy-cat, .sy-toolbar, .sy-search,
                           .sy-filters, .sy-filter, .sy-bulkbar, .sy-table,
                           .sy-tablefoot
@@ -17,7 +20,15 @@
      7. Settings ........ .sy-settings, .sy-field, .sy-shortcuts, .sy-switches,
                           .sy-preview
      8. Overlays ........ .sy-palette, .sy-toast, .sy-warn
-     9. Adaptivity ...... @container surface (never @media)
+     9. Adaptivity ...... @container surface + @container (unnamed) — never @media
+   ------------------------------------------------------------------------
+   THREE COLUMN BUDGET, the rule every layout rule below obeys:
+     a side column is allowed to keep its width only while the data beside
+     it stays readable. A window this size holds ONE side column next to
+     the table, not two — so the category rail is a filter ROW (it costs
+     a line, not a column), and the drawer reflows to a full-width block
+     the moment a column beside it would squeeze the numbers. Nothing in
+     here may ever win a width fight against the inventory table.
    ------------------------------------------------------------------------
    THE BRUTALISM CONTRACT, enforced throughout:
      · 0px radius, EVERYWHERE — see the guard in §8
@@ -33,6 +44,21 @@
    ========================================================================= */
 
 /* ---------- 1. shell + density ---------- */
+/* The fit guard. <Stage> holds [panel · window · panel]; left to flex, the
+   window shrank to whatever the panels left over, so Stage's own check —
+   which measures the window to decide whether the panels still fit — never
+   saw a window that needed more room and the panels never yielded. The
+   window then spent the rest of the layout as a ~720px slab, which is
+   narrower than this app's own `@container surface (max-width: 900px)`
+   desktop/tablet break, so the DESKTOP build rendered in tablet mode.
+   Claiming the stage's own width and refusing to shrink hands the room
+   back, and Stage's compact mode collapses the panels by itself. */
+.sy-stagefit {
+  flex: 0 0 auto;
+  width: min(1280px, 100%);
+  min-width: 0;
+}
+
 .sy {
   display: flex;
   flex-direction: column;
@@ -61,31 +87,102 @@
 }
 
 .sy-view {
-  padding: var(--sp-3) var(--sp-4) var(--sp-5);
+  padding: var(--sp-2) var(--sp-3) var(--sp-4);
 }
 
-/* The three-column desktop arrangement: rail · data · detail panel. */
+/* The desktop arrangement: [filter row] over [data] beside [detail].
+   `wrap` is what makes the FIRST line the filter row and the second the
+   data + drawer: each block asks for a full line, so a block that cannot
+   fit beside its neighbour drops to a line of its own instead of
+   compressing it. That is the whole reflow rule — no width is ever
+   negotiated away from the table. */
 .sy-split {
   display: flex;
   align-items: flex-start;
-  gap: var(--sp-3);
+  flex-wrap: wrap;
+  gap: var(--sp-2);
   min-height: 100%;
 }
 .sy-datacol {
-  flex: 1;
+  flex: 1 1 0%;
   min-width: 0;
 }
 
 /* Density: one attribute rescales EVERY row in the app. The row height is
    the whole point of the setting, so it is a real height, not a padding
-   nudge. */
+   nudge. The cell padding is deliberately tight — at 10% of a 950px table
+   a column is ~95px, and every pixel of padding is a pixel the header
+   "ON HAND" has to fit inside. */
 .sy [data-density] {
   --sy-row: 40px;
-  --sy-cell-x: var(--sp-3);
+  --sy-cell-x: var(--sp-2);
 }
 .sy [data-density="dense"] {
   --sy-row: 26px;
-  --sy-cell-x: var(--sp-2);
+  --sy-cell-x: 6px;
+}
+
+/* ---- the top bar: three tracks, sized so none can eat another ----
+   The bar used to carry a title block that could shrink to nothing, a
+   flex:1 command slot that overflowed sideways once squeezed, and a
+   flex:none action cluster that could not shrink at all — so the ⌘K
+   button spilled out of its slot and painted over the title. Now the
+   tracks are ordered by who may give ground:
+     tools   — grows into the free space and centres the command button,
+               shrinking (label ellipsised) before anything else moves
+     title   — shrinks with an ellipsis, never overlaps
+     actions — a fixed budget, always right-aligned and always whole
+   Left · centre · right, in that order, in normal flow to the right of
+   the sidebar: .sy is a flex sibling of the sidebar, so the bar can only
+   ever start where the sidebar ends. */
+.sy-topbar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex: none;
+  min-width: 0;
+  min-height: 56px;
+  padding: var(--sp-2) var(--sp-3);
+  border-bottom: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+}
+.sy-topbar__title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 0 1 auto;
+  min-width: 0;
+}
+.sy-topbar__title h1 {
+  margin: 0;
+  font-size: var(--fs-h3);
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sy-topbar__title p {
+  margin: 0;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.sy-topbar__tools {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 0%;
+  min-width: 0;
+}
+.sy-topbar__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex: 0 0 auto;
 }
 
 /* ---------- 2. shared atoms ---------- */
@@ -137,6 +234,15 @@
   width: 100%;
   min-height: 40px;
 }
+/* The removable half of a button's text: the icon and the box survive the
+   top bar losing width, the wording is the first thing to go. */
+.sy-btn__label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sy-btn > svg { flex: none; }
 
 .sy-iconbtn {
   position: relative;
@@ -169,6 +275,12 @@
   display: inline-flex;
   align-items: center;
   gap: 7px;
+  /* A flex item's default min-width is its content, so a narrow slot used
+     to push this whole button sideways out of .sy-topbar__tools. min-width
+     0 lets the slot squeeze it, and the label below carries the ellipsis
+     instead — the button itself stays inside its track. */
+  flex: 0 1 300px;
+  min-width: 0;
   height: 30px;
   padding: 0 var(--sp-2);
   border: var(--border-w) solid var(--color-outline);
@@ -178,6 +290,15 @@
   font-weight: 600;
   box-shadow: var(--shadow-1);
 }
+.sy-searchbtn > span {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sy-searchbtn > svg,
+.sy-searchbtn > kbd { flex: none; }
 .sy-searchbtn:hover {
   background: var(--color-surface-3);
   color: var(--color-text);
@@ -375,34 +496,52 @@
 .sy-facts--tight > div { padding: 3px 0; }
 
 /* ---------- 3. inventory ---------- */
-/* The left rail is desktop-only: a phone gets a sheet, a window gets a
-   permanent column you never lose. */
+/* The categories are a FILTER, and this window has room for exactly one
+   side column. As a 168px column they were the second of three columns
+   fighting over the table and it lost every time; as a row they cost one
+   line and hand the table their whole width. Same controls, same counts,
+   same is-on state — a different shape. */
 .sy-rail {
-  flex: none;
-  width: 168px;
+  flex: 0 0 100%;
+  width: 100%;
   display: flex;
-  flex-direction: column;
-  gap: 2px;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
   padding: var(--sp-2);
   border: var(--border-w) solid var(--color-outline);
   background: var(--color-surface-2);
   box-shadow: var(--shadow-1);
 }
 .sy-rail__title {
-  padding: 4px 6px 2px;
-  border-bottom: var(--border-w) solid var(--color-outline-variant);
-  margin-bottom: 3px;
+  flex: none;
+  padding: 0 var(--sp-2) 0 var(--sp-1);
+  border-bottom: none;
+  margin-bottom: 0;
 }
-.sy-rail__title + .sy-cat { margin-top: 0; }
+/* the "ready to load" list rides in the same row, as a strip of chips */
+.sy-rail .sy-loadlist {
+  flex: 1 1 240px;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+.sy-rail .sy-loadlist li {
+  border-left: none;
+  border: var(--border-w) solid var(--color-outline);
+  background: var(--color-surface-1);
+}
+.sy-rail .sy-loadlist li b { flex: none; }
 
 .sy-cat {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: var(--sp-2);
-  width: 100%;
-  min-height: 28px;
-  padding: 3px 6px;
-  border: var(--border-w) solid transparent;
+  flex: none;
+  width: auto;
+  min-height: 26px;
+  padding: 3px 8px;
+  border: var(--border-w) solid var(--color-outline-variant);
   background: none;
   color: var(--color-text-muted);
   font-size: var(--fs-label);
@@ -410,7 +549,7 @@
   text-align: left;
 }
 .sy-cat:hover {
-  border-color: var(--color-outline-variant);
+  border-color: var(--color-outline);
   color: var(--color-text);
 }
 .sy-cat.is-on {
@@ -420,10 +559,6 @@
   font-weight: 900;
 }
 .sy-cat__name {
-  flex: 1;
-  min-width: 0;
-  overflow: hidden;
-  text-overflow: ellipsis;
   white-space: nowrap;
 }
 .sy-cat__n {
@@ -432,6 +567,10 @@
   font-weight: 800;
 }
 
+/* The toolbar is one line that WRAPS; it never has two children on the
+   same line that do not both fit. `flex: 0 0 auto` on the filter group is
+   the fix for the overlap: without it the group could shrink below the
+   width its nowrap chips need and spill them past the toolbar's edge. */
 .sy-toolbar {
   display: flex;
   align-items: center;
@@ -440,7 +579,7 @@
   margin-bottom: var(--sp-2);
 }
 .sy-toolbar__count {
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
   padding: 6px 0;
 }
@@ -453,7 +592,7 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  flex: 1 1 240px;
+  flex: 1 1 220px;
   min-width: 0;
   height: 30px;
   padding: 0 var(--sp-2);
@@ -477,6 +616,8 @@
   display: flex;
   flex-wrap: wrap;
   gap: 4px;
+  flex: 0 0 auto;
+  max-width: 100%;
 }
 .sy-filter {
   min-height: 26px;
@@ -608,6 +749,9 @@
   padding-left: 8px !important;
 }
 .sy-table__check input {
+  /* the UA's own 3/4px checkbox margin was pushing the box past the 4%
+     column; the cell padding already does the indenting */
+  margin: 0;
   width: 13px;
   height: 13px;
   accent-color: var(--color-primary);
@@ -659,9 +803,12 @@
 }
 
 /* ---------- 4. detail drawer ---------- */
+/* 260px is the whole width budget the detail may claim beside the table.
+   Wider than that, the columns left for the data stop being readable —
+   so anything that needs more room than this reflows instead (§9). */
 .sy-drawer {
-  flex: none;
-  width: 292px;
+  flex: 0 0 260px;
+  width: 260px;
   position: sticky;
   top: 0;
   /* Bounded so the sticky panel can never be taller than the 1280×800
@@ -984,8 +1131,8 @@
 
 /* the detail panel beside the queue (orders + the reusable shape) */
 .sy-panel {
-  flex: none;
-  width: 336px;
+  flex: 0 0 320px;
+  width: 320px;
   position: sticky;
   top: 0;
   max-height: 620px;
@@ -1398,29 +1545,63 @@
 }
 
 /* ---------- 9. adaptivity: the window resizes, so CONTAINERS do ----------
-   The surface is its own query container, so a 1400px browser can still
-   be showing an 834px tablet. Never @media here. */
+   Two containers are in play. `surface` is the window itself, so a 1400px
+   browser can still be showing an 834px tablet. An UNNAMED query resolves
+   against the nearest container, which inside the app is `.screen` — the
+   scrollable area the content actually lives in. Never @media here. */
 
-/* Tablet: the three columns cannot survive side by side, so the
-   arrangement genuinely changes — the rail becomes a persistent filter
-   bar pinned to the top, the table becomes self-describing records, and
-   the detail becomes a full-width block directly beneath the bar. */
+/* THE COLUMN BUDGET, enforced. `.screen` holds the filter row, the table
+   and the detail. Below this width the detail cannot keep a column beside
+   the table without taking the width the numbers need, so it stops being
+   a column: it becomes a full-width block directly ABOVE the data. The
+   table keeps every pixel either way — the panel gives ground first, and
+   it is never allowed to sit over the data either. */
+@container (max-width: 1180px) {
+  .sy-drawer,
+  .sy-panel {
+    position: static;
+    flex: 1 1 100%;
+    width: 100%;
+    /* bounded, not a tower: a full-width block that pushed the table off
+       the screen would be a worse answer than the column it replaced */
+    max-height: 420px;
+    overflow-y: auto;
+    order: -1;
+    box-shadow: var(--shadow-1);
+  }
+  /* the facts are label/value pairs — in a full-width block they read as
+     a grid of pairs instead of one 900px-long row of dashes */
+  .sy-drawer > .sy-facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    column-gap: var(--sp-6);
+  }
+}
+
+/* The command surface is the first wording the bar loses: the magnifier and
+   the ⌘K hint still say what it is, and the title keeps its pixels. */
+@container surface (max-width: 1180px) {
+  .sy-searchbtn > span { display: none; }
+}
+
+/* Tablet: the arrangement genuinely changes — the filter row becomes a
+   persistent bar pinned to the top, the table becomes self-describing
+   records, and the detail is the full-width block from the rule above. */
 @container surface (max-width: 900px) {
   .sy-view { padding: var(--sp-2) var(--sp-3) var(--sp-5); }
 
   .sy-split {
     flex-direction: column;
+    flex-wrap: nowrap;
     align-items: stretch;
     gap: var(--sp-2);
   }
 
-  /* the category rail → a horizontal, sticky filter bar */
+  /* the filter row → pinned to the top, one scrollable line */
   .sy-rail {
     position: sticky;
     top: 0;
     z-index: 20;
-    width: 100%;
-    flex-direction: row;
     flex-wrap: nowrap;
     gap: 4px;
     overflow-x: auto;
@@ -1430,23 +1611,10 @@
   }
   .sy-rail::-webkit-scrollbar { display: none; }
   .sy-rail__title { display: none; }
+  .sy-rail .sy-loadlist { flex: none; }
   .sy-cat {
-    width: auto;
-    flex: none;
     min-height: 30px;
     padding: 3px 10px;
-  }
-  .sy-cat__name { white-space: nowrap; }
-
-  /* the detail panel becomes a full-width block ABOVE the records */
-  .sy-drawer,
-  .sy-panel {
-    position: static;
-    width: 100%;
-    max-height: none;
-    overflow-y: visible;
-    order: -1;
-    box-shadow: var(--shadow-1);
   }
 
   .sy-datacol { width: 100%; }
@@ -1531,6 +1699,17 @@
   .sy-settings { grid-template-columns: minmax(0, 1fr); }
   .sy-settings__preview { order: -1; }
 
+  /* the top bar sheds wording, never boxes: the subtitle goes, the primary
+     action keeps its icon, and the three tracks keep their order so the
+     title can only ever ellipsise into the space the tools leave it. */
+  .sy-topbar {
+    min-height: 50px;
+    padding: var(--sp-2);
+  }
+  .sy-topbar__title p { display: none; }
+  .sy-topbar .sy-btn__label { display: none; }
+  .sy-topbar__actions { gap: var(--sp-1); }
+
   .sy-order {
     grid-template-columns: 70px minmax(0, 1fr) auto;
     grid-template-areas:
@@ -1555,6 +1734,8 @@
   .sy-bar__n { display: none; }
   .sy-tablefoot { flex-direction: column; align-items: flex-start; gap: 2px; }
   .sy-bulkbar { gap: 4px; }
+  /* the density toggle moves to Settings before it can crowd the bar */
+  .sy-topbar__density { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {

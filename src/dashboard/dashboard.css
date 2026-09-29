@@ -567,6 +567,7 @@
     .gcell[data-style="bauhaus"]   { --secbg: color-mix(in srgb, #d5321f 11%, var(--card)); --secedge: color-mix(in srgb, #d5321f 28%, var(--border)); --secdot: #d5321f; }
     .gcell[data-style="minimal"]   { --secbg: color-mix(in srgb, #111111 7%, var(--card));  --secedge: color-mix(in srgb, #111111 20%, var(--border)); --secdot: #111111; }
     .gcell[data-style="bento"]     { --secbg: color-mix(in srgb, #ff5c33 12%, var(--card)); --secedge: color-mix(in srgb, #ff5c33 30%, var(--border)); --secdot: #ff5c33; }
+    .gcell[data-style="console"]   { --secbg: color-mix(in srgb, #4fd1e0 10%, var(--card)); --secedge: color-mix(in srgb, #4fd1e0 32%, var(--border)); --secdot: #4fd1e0; }
     .gcell[data-style="flat"]      { --secbg: color-mix(in srgb, #00897b 12%, var(--card)); --secedge: color-mix(in srgb, #00897b 30%, var(--border)); --secdot: #00897b; }
 
     .gcell:hover {

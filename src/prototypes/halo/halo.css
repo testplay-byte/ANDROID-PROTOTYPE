@@ -1,0 +1,1263 @@
+/* =========================================================================
+   halo / halo.css — "Halo" desktop smart-home control centre (Neumorphism).
+   Imported once by app/prototypes/halo/layout.tsx, AFTER tokens.css and
+   styles/index.css, so the neumorph token layer is already in place.
+   =========================================================================
+   STYLE INDEX (per docs/SPEC.md § targeting convention — keep in sync):
+     0. The recipe ....... .halo, .halo-raised, .halo-raised-lg, .halo-press
+     1. Shell ............ .halo-avatar, .halo-view, .halo-split, .halo-band
+     2. Shared atoms ..... .halo-stat, .halo-card, .halo-btn, .halo-iconbtn,
+                           .halo-seg, .halo-chip, .halo-legend, .halo-step,
+                           .halo-switch
+     3. Top bar ........... .halo-searchbtn, .halo-scene, .halo-live
+     4. Home ............. .halo-roomstrip, .halo-roomtile, .halo-sectionbar,
+                           .halo-grid, .halo-device, .halo-power, .halo-well
+     5. Rooms ............ .halo-pane, .halo-roomfilter, .halo-roomlist,
+                           .halo-roomrow, .halo-drawer, .halo-devlist,
+                           .halo-devrow, .halo-facts
+     6. Energy ........... .halo-chart, .halo-chartaxis, .halo-peak, .halo-bar,
+                           .halo-usage, .halo-draw, .halo-note
+     7. Settings ......... .halo-settings, .halo-field, .halo-soft,
+                           .halo-automation, .halo-shortcuts
+     8. Overlays ......... .halo-palette, .halo-toast
+     9. Motion + adaptivity  (container queries, not media queries)
+
+   Every value below is a token. There is not one hardcoded colour, radius or
+   shadow value in this file — the design language arrives through
+   `data-style` on the surface, and both themes are handled by the same rules.
+
+   HOW THE NEUMORPH RECIPE WORKS (section 0)
+   A neumorphic surface is the SAME colour as its background, shaped only by
+   two shadows: a dark one bottom-right and a light one top-left. Both of
+   those colours come from the token layer:
+       --neu-d  ← --frame-shadow   (a shade, identical in both palettes)
+       --neu-l  ← --color-surface-5 (a highlight; light-on-dark in the dark
+                                     palette, white-on-pale in the light one)
+   and both are multiplied by --neu-o / --neu-b, which the SOFTNESS control
+   re-bakes through `data-softness` on `.halo`. Change the data attribute and
+   every raised tile, carved groove and popup in the app changes depth —
+   which is the one preference a phone prototype could never offer.
+   ========================================================================= */
+
+/* ---------- 0. the recipe ------------------------------------------------
+   .surface[data-surface="desktop"] flattens the radius scale so a desktop
+   window does not read bubbly. Neumorphism needs the opposite, so the
+   neumorph desktop gets its puffy radii back before anything else runs. */
+.surface[data-style="neumorph"][data-surface="desktop"] {
+  --r-xs: 8px;
+  --r-sm: 12px;
+  --r-md: 16px;
+  --r-lg: 20px;
+  --r-xl: 26px;
+  --r-pill: 999px;
+}
+
+.halo {
+  /* the shadow recipe — every raised/carved surface in the app reads these */
+  --neu-o: 5px;   /* offset  */
+  --neu-b: 12px;  /* blur    */
+  --neu-l: color-mix(in srgb, var(--color-surface-5) 70%, transparent);
+  --neu-d: var(--frame-shadow);
+  --neu-o-sm: calc(var(--neu-o) * 0.55);
+  --neu-b-sm: calc(var(--neu-b) * 0.6);
+  --neu-o-lg: calc(var(--neu-o) * 1.7);
+  --neu-b-lg: calc(var(--neu-b) * 1.9);
+
+  --neu-raise: var(--neu-o) var(--neu-o) var(--neu-b) var(--neu-d),
+               calc(var(--neu-o) * -1) calc(var(--neu-o) * -1) var(--neu-b) var(--neu-l);
+  --neu-raise-lg: var(--neu-o-lg) var(--neu-o-lg) var(--neu-b-lg) var(--neu-d),
+                  calc(var(--neu-o-lg) * -1) calc(var(--neu-o-lg) * -1) var(--neu-b-lg) var(--neu-l);
+  --neu-press: inset var(--neu-o-sm) var(--neu-o-sm) var(--neu-b-sm) var(--neu-d),
+               inset calc(var(--neu-o-sm) * -1) calc(var(--neu-o-sm) * -1) var(--neu-b-sm) var(--neu-l);
+
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-size: var(--fs-body);
+  line-height: 1.45;
+  overflow: hidden;
+}
+
+/* the softness preference — the shadow recipe, re-baked */
+.halo[data-softness="firm"]   { --neu-o: 2px; --neu-b: 6px; }
+.halo[data-softness="medium"] { --neu-o: 5px; --neu-b: 12px; }
+.halo[data-softness="soft"]   { --neu-o: 9px; --neu-b: 20px; }
+
+.halo-raised {
+  background: var(--color-bg);
+  box-shadow: var(--neu-raise);
+}
+.halo-raised-lg {
+  background: var(--color-surface-2);
+  box-shadow: var(--neu-raise-lg);
+}
+.halo-press {
+  background: var(--color-bg);
+  box-shadow: var(--neu-press);
+}
+
+/* numerals that change, and the visually-hidden helper */
+.tnum {
+  font-variant-numeric: tabular-nums;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+.halo kbd {
+  padding: 2px 7px;
+  border-radius: var(--r-xs);
+  background: var(--color-surface-2);
+  box-shadow: var(--neu-raise);
+  font-family: inherit;
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+/* ---------- 1. shell ---------------------------------------------------- */
+.halo-avatar {
+  display: inline-grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--color-bg);
+  box-shadow: var(--neu-raise);
+  color: var(--color-text);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+}
+.halo-view {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+  min-width: 0;
+  padding: 18px 22px 28px;
+}
+.halo-split {
+  flex-direction: row;
+  align-items: flex-start;
+  gap: var(--sp-5);
+  min-height: 100%;
+}
+.halo-split > .halo-pane {
+  flex: 1;
+  min-width: 0;
+}
+.halo-band {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+  gap: var(--sp-4);
+  align-items: start;
+}
+
+/* ---------- 2. shared atoms --------------------------------------------- */
+.halo-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 13px 16px 15px;
+  border-radius: var(--r-lg);
+}
+.halo-stat__label {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.halo-stat__icon { color: var(--color-text-muted); }
+.halo-stat[data-tone="down"] .halo-stat__icon { color: var(--color-primary); }
+.halo-stat[data-tone="up"] .halo-stat__icon { color: var(--color-primary); }
+.halo-stat__value {
+  font-size: var(--fs-h2);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  color: var(--color-text);
+}
+.halo-stat__unit {
+  margin-left: 3px;
+  font-size: var(--fs-body);
+  font-style: normal;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.halo-stat__sub {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.halo-stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sp-4);
+}
+
+.halo-card {
+  padding: 16px 18px 18px;
+  border-radius: var(--r-lg);
+}
+.halo-card__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: 14px;
+}
+.halo-card__head h2 {
+  margin: 0;
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.halo-card__head p {
+  margin: 2px 0 0;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.halo-card__meta {
+  flex: none;
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.halo-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 0 16px;
+  border-radius: var(--r-pill);
+  background: var(--color-bg);
+  box-shadow: var(--neu-raise);
+  color: var(--color-text);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: box-shadow var(--dur-2) var(--ease-emphasized);
+}
+.halo-btn:hover { color: var(--color-primary); }
+.halo-btn:active { box-shadow: var(--neu-press); }
+/* the one filled action: primary-container + its own on-colour keeps AA */
+.halo-btn--quiet {
+  background: var(--color-surface-2);
+  box-shadow: var(--neu-raise);
+  color: var(--color-text-muted);
+}
+.halo-btn--sm { min-height: 28px; padding: 0 12px; font-size: var(--fs-label-s); }
+
+.halo-iconbtn {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  flex: none;
+  border-radius: var(--r-pill);
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: box-shadow var(--dur-2) var(--ease-emphasized),
+    color var(--dur-2) var(--ease-emphasized);
+}
+.halo-iconbtn:hover { color: var(--color-text); }
+.halo-iconbtn:active { box-shadow: var(--neu-press); }
+
+.halo-seg {
+  display: inline-flex;
+  gap: 6px;
+  padding: 5px;
+  border-radius: var(--r-pill);
+  background: var(--color-bg);
+  box-shadow: var(--neu-press);
+}
+.halo-seg__btn {
+  min-width: 88px;
+  min-height: 30px;
+  padding: 0 14px;
+  border-radius: var(--r-pill);
+  background: none;
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  cursor: pointer;
+  transition: box-shadow var(--dur-2) var(--ease-emphasized),
+    background var(--dur-2) var(--ease-emphasized);
+}
+.halo-seg__btn:hover { color: var(--color-text); }
+/* selected = POPPED OUT of the carved track */
+.halo-seg__btn.is-on {
+  background: var(--color-bg);
+  box-shadow: var(--neu-raise);
+  color: var(--color-text);
+}
+
+.halo-chip {
+  padding: 2px 10px;
+  border-radius: var(--r-pill);
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  white-space: nowrap;
+  color: var(--color-text);
+}
+.halo-chip[data-tone="mute"] { background: var(--color-surface-3); }
+.halo-chip[data-tone="on"] {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+}
+.halo-chip[data-tone="warn"] {
+  background: var(--color-tertiary-container);
+  color: var(--color-text);
+}
+.halo-chip[data-tone="off"] {
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+}
+
+.halo-legend {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.halo-legend li { display: flex; align-items: center; gap: 6px; }
+.halo-legend i {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  background: var(--color-surface-3);
+}
+.halo-legend li[data-on] i { background: var(--color-primary); }
+
+.halo-step {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: var(--r-pill);
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: box-shadow var(--dur-2) var(--ease-emphasized);
+}
+.halo-step:hover:not(:disabled) { color: var(--color-primary); }
+.halo-step:active:not(:disabled) { box-shadow: var(--neu-press); }
+.halo-step:disabled { opacity: 0.4; cursor: default; }
+
+.halo-switch {
+  position: relative;
+  width: 54px;
+  height: 30px;
+  flex: none;
+  border-radius: var(--r-pill);
+  background: var(--color-bg);
+  box-shadow: var(--neu-press);
+  cursor: pointer;
+  transition: background var(--dur-2) var(--ease-emphasized),
+    box-shadow var(--dur-2) var(--ease-emphasized);
+}
+.halo-switch__knob {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--color-surface-3);
+  box-shadow: var(--neu-raise);
+  transition: transform var(--dur-2) var(--ease-emphasized);
+}
+.halo-switch.is-on { background: var(--color-primary-container); }
+.halo-switch.is-on .halo-switch__knob { transform: translateX(24px); }
+
+/* ---------- 3. top bar -------------------------------------------------- */
+.halo-searchbtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 8px 0 12px;
+  border-radius: var(--r-pill);
+  background: var(--color-bg);
+  box-shadow: var(--neu-press);
+  color: var(--color-text-muted);
+  font-size: var(--fs-label);
+  cursor: pointer;
+  transition: box-shadow var(--dur-2) var(--ease-emphasized);
+}
+.halo-searchbtn:hover { box-shadow: var(--neu-raise); }
+.halo-scene {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 32px;
+  padding: 0 15px;
+  border-radius: var(--r-pill);
+  background: var(--color-primary-container);
+  box-shadow: var(--neu-raise);
+  color: var(--color-on-primary-container);
+  font-size: var(--fs-label);
+  font-weight: 700;
+  cursor: pointer;
+  transition: box-shadow var(--dur-2) var(--ease-emphasized);
+}
+.halo-scene:active { box-shadow: var(--neu-press); }
+.halo-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: var(--r-pill);
+  background: var(--color-bg);
+  box-shadow: var(--neu-raise);
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.halo-live b { color: var(--color-text); }
+
+/* ---------- 4. home ----------------------------------------------------- */
+.halo-roomstrip {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: var(--sp-3);
+}
+.halo-roomtile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 1px;
+  min-width: 0;
+  padding: 11px 13px 12px;
+  border-radius: var(--r-lg);
+  background: var(--color-bg);
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow var(--dur-2) var(--ease-emphasized),
+    background var(--dur-2) var(--ease-emphasized);
+}
+.halo-roomtile:hover { box-shadow: var(--neu-raise-lg); }
+/* the selected tile is CARVED — pressed, not outlined */
+.halo-roomtile.is-on {
+  box-shadow: var(--neu-press);
+  background: var(--color-surface-2);
+}
+.halo-roomtile__name {
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.halo-roomtile b {
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.halo-roomtile__sub {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+
+.halo-gridsection {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.halo-sectionbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+}
+.halo-sectionbar h2 {
+  margin: 0;
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.halo-sectionbar__right {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.halo-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: var(--sp-4);
+}
+
+.halo-device {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+  padding: 14px 15px 13px;
+  border-radius: var(--r-lg);
+}
+.halo-device__head {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+}
+.halo-device__id { flex: 1; min-width: 0; }
+.halo-device__id h3 {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.halo-device__id p {
+  margin: 1px 0 0;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.halo-device__draw {
+  flex: none;
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+.halo-device[data-on] .halo-device__draw { color: var(--color-primary); }
+/* an unreachable device stays legible but loses its accent — the one
+   device in the demo set (the towel rail) is offline */
+.halo-device[data-offline] {
+  opacity: 0.62;
+}
+.halo-device[data-offline] .halo-power.is-on {
+  box-shadow: var(--neu-raise);
+  color: var(--color-text-muted);
+  background: var(--color-bg);
+}
+.halo-device__foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 10px;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.halo-device__state { font-weight: 700; color: var(--color-text); }
+.halo-device__room { white-space: nowrap; }
+
+/* the power control: raised when off, CARVED when on. The engaged state uses
+   primary-container + on-primary-container, NOT a solid --color-primary fill:
+   in the light neumorph palette the solid accent is only ~3.3:1 against its
+   own foreground, while the container pair clears 6:1 in both themes. */
+.halo-power {
+  display: grid;
+  place-items: center;
+  flex: none;
+  border-radius: 50%;
+  background: var(--color-bg);
+  box-shadow: var(--neu-raise);
+  color: var(--color-text-muted);
+  cursor: pointer;
+  transition: box-shadow var(--dur-2) var(--ease-emphasized),
+    color var(--dur-2) var(--ease-emphasized);
+}
+.halo-power--lg { width: 54px; height: 54px; }
+.halo-power--md { width: 40px; height: 40px; }
+.halo-power--sm { width: 32px; height: 32px; }
+.halo-power.is-on {
+  box-shadow: var(--neu-press);
+  color: var(--color-on-primary-container);
+  background: var(--color-primary-container);
+}
+.halo-power:hover { color: var(--color-primary); }
+
+.halo-wellrow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.halo-well {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding: 8px 11px 9px;
+  border-radius: var(--r-md);
+  overflow: hidden;
+}
+.halo-well__label {
+  display: block;
+  font-size: var(--fs-label-s);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.halo-well b {
+  display: block;
+  font-size: var(--fs-body-l);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--color-text);
+}
+.halo-well b em {
+  margin-left: 2px;
+  font-size: var(--fs-label);
+  font-style: normal;
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+.halo-well__fill {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 3px;
+  background: var(--color-primary);
+  opacity: 0.85;
+}
+.halo-well--static b { font-size: var(--fs-body); }
+
+/* ---------- 5. rooms ---------------------------------------------------- */
+.halo-pane {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+.halo-roomfilter {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  height: 36px;
+  padding: 0 14px;
+  border-radius: var(--r-pill);
+  color: var(--color-text-muted);
+}
+.halo-roomfilter input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--fs-body);
+  outline: none;
+}
+.halo-roomlist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.halo-roomlist__empty {
+  padding: 22px 4px;
+  font-size: var(--fs-label);
+  color: var(--color-text-muted);
+}
+.halo-roomrow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: var(--r-lg);
+  color: var(--color-text);
+  text-align: left;
+  cursor: pointer;
+  transition: box-shadow var(--dur-2) var(--ease-emphasized),
+    background var(--dur-2) var(--ease-emphasized);
+}
+.halo-roomrow:hover { box-shadow: var(--neu-raise-lg); }
+.halo-roomrow.is-on {
+  box-shadow: var(--neu-press);
+  background: var(--color-surface-2);
+}
+.halo-roomrow__temp {
+  flex: none;
+  width: 52px;
+  font-size: var(--fs-h3);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--color-primary);
+}
+.halo-roomrow__id { flex: 1; min-width: 0; }
+.halo-roomrow__id b {
+  display: block;
+  font-size: var(--fs-body);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.halo-roomrow__id span,
+.halo-roomrow__counts span {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.halo-roomrow__counts {
+  flex: none;
+  text-align: right;
+  line-height: 1.2;
+}
+.halo-roomrow__counts b { display: block; font-size: var(--fs-body); }
+.halo-roomrow__draw {
+  flex: none;
+  width: 58px;
+  text-align: right;
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+/* the drawer — beside the list on desktop, below it on tablet */
+.halo-drawer {
+  flex: none;
+  width: 360px;
+  max-width: 100%;
+  padding: 16px 18px 20px;
+  border-radius: var(--r-lg);
+  align-self: flex-start;
+  position: sticky;
+  top: 0;
+}
+.halo-drawer__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+.halo-drawer__head h2 { margin: 0; font-size: var(--fs-h3); font-weight: 700; }
+.halo-drawer__head p {
+  margin: 2px 0 0;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.halo-drawer__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin: 14px 0;
+}
+.halo-devlist {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  list-style: none;
+  margin: 0 0 18px;
+  padding: 0;
+}
+.halo-devrow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  min-width: 0;
+}
+.halo-devrow__id { flex: 1; min-width: 0; }
+.halo-devrow__id b {
+  display: block;
+  font-size: var(--fs-label);
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.halo-devrow__id span {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.halo-devrow__value { flex: none; }
+.halo-devrow__value .halo-wellrow { width: 150px; }
+.halo-devrow__value .halo-well { padding: 5px 9px 6px; }
+.halo-devrow__value .halo-well b { font-size: var(--fs-label); }
+
+.halo-facts {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  margin: 0;
+  padding: 14px 4px 0;
+}
+.halo-facts > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.halo-facts dt {
+  font-size: var(--fs-label);
+  color: var(--color-text-muted);
+}
+.halo-facts dd {
+  margin: 0;
+  font-size: var(--fs-body);
+  font-weight: 700;
+}
+
+/* ---------- 6. energy --------------------------------------------------- */
+.halo-chart {
+  display: block;
+  width: 100%;
+  height: 148px;
+  overflow: visible;
+}
+/* the tick row lives in HTML, never inside the stretched viewBox */
+.halo-chartaxis {
+  position: relative;
+  height: 15px;
+  margin-top: 6px;
+}
+.halo-chartaxis span {
+  position: absolute;
+  top: 0;
+  translate: -50% 0;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+.halo-chartaxis span:first-child { translate: 0 0; }
+.halo-chartaxis span:last-child { translate: -100% 0; }
+.halo-chart__grid {
+  stroke: var(--color-outline-variant);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.halo-chart__base {
+  stroke: var(--color-outline);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.halo-chart__peak {
+  fill: var(--color-primary);
+  opacity: 0.09;
+}
+.halo-chart__area {
+  fill: var(--color-primary);
+  opacity: 0.16;
+}
+.halo-chart__line {
+  fill: none;
+  stroke: var(--color-primary);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.halo-chart__dot { fill: var(--color-primary); }
+.halo-chart__now {
+  stroke: var(--color-text-muted);
+  stroke-width: 1;
+  stroke-dasharray: 3 3;
+  vector-effect: non-scaling-stroke;
+}
+.halo-chart__nowdot { fill: var(--color-text); }
+.halo-chart__bar {
+  fill: var(--color-primary-container);
+  stroke: none;
+}
+.halo-chart__bar[data-past] { fill: var(--color-primary); }
+.halo-chart__bar[data-peak] { fill: var(--color-primary); }
+.halo-chart__prev {
+  fill: none;
+  stroke: var(--color-text-muted);
+  stroke-width: 1.4;
+  stroke-dasharray: 4 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.halo-peak {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 86px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--color-bg);
+  box-shadow: var(--neu-press);
+}
+.halo-peak__cell {
+  flex: 1;
+  min-width: 0;
+  border-radius: 2px;
+  background: var(--color-surface-3);
+}
+.halo-peak__cell[data-past] { background: var(--color-primary-container); }
+.halo-peak__cell[data-peak] { background: var(--color-primary); }
+.halo-note {
+  margin: 12px 0 0;
+  font-size: var(--fs-label);
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+.halo-note b { color: var(--color-text); }
+
+.halo-bar {
+  position: relative;
+  display: block;
+  flex: 1;
+  min-width: 40px;
+  height: 10px;
+  border-radius: var(--r-pill);
+  background: var(--color-bg);
+  box-shadow: var(--neu-press);
+  overflow: hidden;
+}
+.halo-bar__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: var(--r-pill);
+  background: var(--color-primary);
+}
+.halo-bar__tick {
+  position: absolute;
+  top: -1px;
+  bottom: -1px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--color-text);
+}
+
+.halo-usage,
+.halo-draw {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.halo-usage li,
+.halo-draw li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.halo-usage__icon {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  flex: none;
+  border-radius: 50%;
+  background: var(--color-bg);
+  box-shadow: var(--neu-raise);
+  color: var(--color-text-muted);
+}
+.halo-usage__id {
+  width: 104px;
+  flex: none;
+  min-width: 0;
+}
+.halo-usage__id b,
+.halo-draw__name {
+  display: block;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.halo-usage__id span {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.halo-usage__num {
+  flex: none;
+  width: 44px;
+  text-align: right;
+  font-size: var(--fs-label);
+  font-weight: 700;
+}
+.halo-draw__name { flex: 1; min-width: 0; }
+.halo-draw__track {
+  flex: 1;
+  min-width: 30px;
+  height: 8px;
+  border-radius: var(--r-pill);
+  background: var(--color-bg);
+  box-shadow: var(--neu-press);
+  overflow: hidden;
+}
+.halo-draw__track i {
+  display: block;
+  height: 100%;
+  border-radius: var(--r-pill);
+  background: var(--color-primary);
+}
+.halo-draw b {
+  flex: none;
+  width: 46px;
+  text-align: right;
+  font-size: var(--fs-label-s);
+}
+
+/* ---------- 7. settings ------------------------------------------------- */
+.halo-settings {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-4);
+  align-items: start;
+}
+.halo-field { display: flex; flex-direction: column; gap: 9px; }
+.halo-field + .halo-field { margin-top: 20px; }
+.halo-field > label {
+  font-size: var(--fs-label-s);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.halo-field__hint {
+  margin: 0;
+  font-size: var(--fs-label-s);
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+.halo-field__hint code {
+  padding: 1px 6px;
+  border-radius: var(--r-xs);
+  background: var(--color-surface-3);
+  font-size: var(--fs-label-s);
+  color: var(--color-text);
+}
+.halo-field__row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+/* the softness preview: three tiles sitting in a carved tray. They inherit
+   --neu-o / --neu-b from the app root, so what you see IS the live recipe. */
+.halo-soft {
+  display: flex;
+  gap: 14px;
+  padding: 16px 18px;
+  border-radius: var(--r-md);
+  background: var(--color-bg);
+  box-shadow: var(--neu-press);
+}
+.halo-soft__swatch {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  box-shadow: var(--neu-raise);
+}
+
+.halo-automation {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.halo-automation li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 15px;
+  border-radius: var(--r-md);
+}
+.halo-automation__id { min-width: 0; }
+.halo-automation__id b {
+  display: block;
+  font-size: var(--fs-body);
+  font-weight: 700;
+}
+.halo-automation__id span {
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+
+.halo-shortcuts {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  margin: 0;
+}
+.halo-shortcuts > div {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.halo-shortcuts dt { flex: none; width: 128px; }
+.halo-shortcuts dd {
+  margin: 0;
+  font-size: var(--fs-body);
+  color: var(--color-text);
+}
+
+/* ---------- 8. overlays ------------------------------------------------- */
+.halo-palette {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  padding-top: 11%;
+  background: color-mix(in srgb, var(--color-bg) 55%, transparent);
+}
+.halo-palette__box {
+  width: min(560px, 88%);
+  height: fit-content;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+}
+.halo-palette__input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 13px 16px;
+  color: var(--color-text-muted);
+}
+.halo-palette__input input {
+  flex: 1;
+  min-width: 0;
+  border: none;
+  background: none;
+  color: var(--color-text);
+  font: inherit;
+  font-size: var(--fs-body-l);
+  outline: none;
+}
+.halo-palette__list {
+  list-style: none;
+  margin: 8px;
+  padding: 0;
+  max-height: 320px;
+  overflow-y: auto;
+}
+.halo-palette__list button {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 9px 12px;
+  border-radius: var(--r-md);
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.halo-palette__list button.is-cursor {
+  background: var(--color-primary-container);
+  color: var(--color-on-primary-container);
+  box-shadow: var(--neu-raise);
+}
+.halo-palette__kind {
+  flex: none;
+  padding: 1px 8px;
+  border-radius: var(--r-pill);
+  background: var(--color-surface-3);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+.halo-palette__glyph { display: inline-grid; place-items: center; }
+.halo-palette__hint {
+  margin-left: auto;
+  font-size: var(--fs-label-s);
+  color: var(--color-text-muted);
+}
+.halo-palette__empty {
+  padding: 14px 12px;
+  font-size: var(--fs-label);
+  color: var(--color-text-muted);
+}
+
+.halo-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 22px;
+  translate: -50% 0;
+  z-index: 45;
+  padding: 10px 18px;
+  border-radius: var(--r-pill);
+  background: var(--color-surface-3);
+  color: var(--color-text);
+  font-size: var(--fs-label);
+  font-weight: 600;
+  box-shadow: var(--neu-raise-lg);
+}
+
+/* ---------- 9. motion + adaptivity --------------------------------------
+   The window is draggable, so the layout answers to a CONTAINER query on the
+   surface — not a media query on the browser. A 1280px browser showing a
+   900px window must reflow exactly like a 900px browser showing it. */
+@container surface (max-width: 1180px) {
+  .halo-roomstrip { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .halo-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .halo-band { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* TABLET: the real reflow.
+   1. the home device grid goes 4/3-up → 2-up
+   2. the room drawer leaves its column and becomes a full-width block
+      directly BELOW the room list — the beside-the-list pattern is a desktop
+      affordance and a tablet cannot afford the width for it
+   3. the stat strip and the settings grid go two-up, then one-up */
+@container surface (max-width: 900px) {
+  .halo-view { padding: 16px 16px 24px; }
+  .halo-split { flex-direction: column; align-items: stretch; }
+  .halo-drawer {
+    position: static;
+    width: 100%;
+  }
+  .halo-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .halo-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .halo-settings { grid-template-columns: minmax(0, 1fr); }
+  .halo-roomstrip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .halo-usage__id { width: 96px; }
+}
+
+@container surface (max-width: 620px) {
+  .halo-stats { grid-template-columns: minmax(0, 1fr); }
+  .halo-grid { grid-template-columns: minmax(0, 1fr); }
+  .halo-roomstrip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .halo-view { padding: 14px 12px 20px; }
+  .halo-shortcuts > div { align-items: flex-start; flex-direction: column; gap: 4px; }
+  .halo-shortcuts dt { width: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .halo * {
+    transition: none !important;
+  }
+}

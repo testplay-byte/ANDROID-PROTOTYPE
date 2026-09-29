@@ -1,0 +1,130 @@
+/* =========================================================================
+   proto-kit / styles / console.css — the "Console" design language.
+   -------------------------------------------------------------------------
+   A TWELFTH language, added for the analytics/dashboard surface. It is not
+   derived from any of the other eleven: this is the language of INSTRUMENTS
+   — dense numeric readouts, hairline grids, tabular figures and a
+   signal palette on a near-black ground. It exists to prove the
+   "add a design language in six registration points" path (see docs/SPEC.md
+   §4.3) and to give chart-heavy UI a home that is not a phone style.
+
+     :is(.device, .surface)[data-style="console"]                       dark
+     :is(.device, .surface)[data-style="console"][data-theme="light"]  light
+
+   Identity: slate ground, hairline 1px rules, squared charts, cyan for
+   signal, violet for comparison, amber for caution, rose for failure. No
+   shadows, no gradients on data, no rounded cards above 10px — the value is
+   read off the chart, so nothing competes with it.
+   ========================================================================= */
+
+:is(.device, .surface)[data-style="console"] {
+  /* ground + layers */
+  --color-bg: #0a0d12;
+  --color-surface-1: #10141b;
+  --color-surface-2: #151a23;
+  --color-surface-3: #1c222d;
+  --color-surface-4: #242b38;
+  --color-surface-5: #2e3644;
+
+  /* text */
+  --color-text: #e8edf5;
+  --color-text-muted: #9aa7b8;
+  --color-text-subtle: #6b7a8d;
+
+  /* signal roles */
+  --color-primary: #4fd1e0;          /* cyan — the signal            */
+  --color-primary-fg: #06121a;
+  --color-primary-container: #12313a;
+  --color-on-primary-container: #b8f1f8;
+  --color-secondary: #9b8cf5;        /* violet — comparison          */
+  --color-secondary-fg: #0d0a1c;
+  --color-secondary-container: #241f45;
+  --color-on-secondary-container: #dcd7ff;
+  --color-tertiary: #f0b45f;         /* amber — caution              */
+  --color-tertiary-fg: #1a1206;
+  --color-tertiary-container: #3a2b13;
+  --color-on-tertiary-container: #ffe0b8;
+  --color-error: #f2687c;             /* rose — failure               */
+  --color-error-fg: #1a070b;
+  --color-error-container: #40161f;
+  --color-on-error-container: #ffd6dd;
+  --color-success: #58c98a;
+  --color-success-fg: #06160e;
+  --color-success-container: #123527;
+  --color-on-success-container: #c8f2da;
+  --color-warn: #f0b45f;
+  --color-warn-container: #3a2b13;
+  --color-on-warn-container: #ffe0b8;
+
+  /* structure: hairline, squared, flat */
+  --border-w: 1px;
+  --shadow-1: none;
+  --shadow-2: 0 18px 40px -20px rgba(0, 0, 0, 0.9);
+  --shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+  --r-xs: 3px;
+  --r-sm: 4px;
+  --r-md: 6px;
+  --r-lg: 8px;
+  --r-xl: 10px;
+  --r-pill: 999px;
+  --device-radius: 10px;
+
+  /* chart grid + axis inks (read by chart components) */
+  --chart-grid: color-mix(in srgb, #ffffff 8%, transparent);
+  --chart-axis: #55637a;
+  --chart-series-1: #4fd1e0;
+  --chart-series-2: #9b8cf5;
+  --chart-series-3: #f0b45f;
+  --chart-series-4: #58c98a;
+  --chart-series-5: #f2687c;
+}
+
+:is(.device, .surface)[data-style="console"][data-theme="light"] {
+  --color-bg: #f7f8fa;
+  --color-surface-1: #ffffff;
+  --color-surface-2: #f2f4f7;
+  --color-surface-3: #e8ebf0;
+  --color-surface-4: #dde1e8;
+  --color-surface-5: #cfd5de;
+
+  --color-text: #10151c;
+  --color-text-muted: #4a5566;
+  --color-text-subtle: #6d7889;
+
+  --color-primary: #0d7f92;
+  --color-primary-fg: #ffffff;
+  --color-primary-container: #d3f2f7;
+  --color-on-primary-container: #06333c;
+  --color-secondary: #5b48c4;
+  --color-secondary-fg: #ffffff;
+  --color-secondary-container: #e5e1ff;
+  --color-on-secondary-container: #201a4d;
+  --color-tertiary: #8a5b12;
+  --color-tertiary-fg: #ffffff;
+  --color-tertiary-container: #fbe8c8;
+  --color-on-tertiary-container: #3a2708;
+  --color-error: #b3283d;
+  --color-error-fg: #ffffff;
+  --color-error-container: #fbdae0;
+  --color-on-error-container: #430a15;
+  --color-success: #1c6f45;
+  --color-success-fg: #ffffff;
+  --color-success-container: #d3f0de;
+  --color-on-success-container: #06291a;
+  --color-warn: #8a5b12;
+  --color-warn-container: #fbe8c8;
+  --color-on-warn-container: #3a2708;
+
+  --shadow-inset: none;
+  --device-bezel: #d8dde5;
+  --device-edge: #c3cad4;
+  --frame-shadow: rgba(20, 30, 45, 0.22);
+
+  --chart-grid: color-mix(in srgb, #10151c 10%, transparent);
+  --chart-axis: #97a2b1;
+  --chart-series-1: #0d7f92;
+  --chart-series-2: #5b48c4;
+  --chart-series-3: #a5690f;
+  --chart-series-4: #1c6f45;
+  --chart-series-5: #b3283d;
+}

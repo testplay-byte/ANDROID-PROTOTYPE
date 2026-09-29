@@ -7,6 +7,11 @@ import AuroraPage from "./aurora/page";
 import StockyardPage from "./stockyard/page";
 import MochiPage from "./mochi/page";
 import AtelierPage from "./atelier/page";
+import SignalPage from "./signal/page";
+import HaloPage from "./halo/page";
+import CounterPage from "./counter/page";
+import FacetPage from "./facet/page";
+import ThinPage from "./thin/page";
 
 /**
  * app/prototypes/_registry — which prototype exists on which surface.
@@ -67,6 +72,31 @@ export const PROTOTYPE_REGISTRY: Record<string, PrototypeEntry> = {
     name: "Atelier",
     surfaces: ["desktop", "tablet"],
     views: { desktop: AtelierPage, tablet: AtelierPage },
+  },
+  signal: {
+    name: "Signal",
+    surfaces: ["desktop", "tablet"],
+    views: { desktop: SignalPage, tablet: SignalPage },
+  },
+  halo: {
+    name: "Halo",
+    surfaces: ["desktop", "tablet"],
+    views: { desktop: HaloPage, tablet: HaloPage },
+  },
+  counter: {
+    name: "Counter",
+    surfaces: ["desktop", "tablet"],
+    views: { desktop: CounterPage, tablet: CounterPage },
+  },
+  facet: {
+    name: "Facet",
+    surfaces: ["desktop", "tablet"],
+    views: { desktop: FacetPage, tablet: FacetPage },
+  },
+  thin: {
+    name: "Thin",
+    surfaces: ["desktop", "tablet"],
+    views: { desktop: ThinPage, tablet: ThinPage },
   },
 };
 

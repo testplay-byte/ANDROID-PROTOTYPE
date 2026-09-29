@@ -12,6 +12,11 @@ import "../../../../src/prototypes/aurora/aurora.css";
 import "../../../../src/prototypes/stockyard/stockyard.css";
 import "../../../../src/prototypes/mochi/mochi.css";
 import "../../../../src/prototypes/atelier/atelier.css";
+import "../../../../src/prototypes/signal/signal.css";
+import "../../../../src/prototypes/halo/halo.css";
+import "../../../../src/prototypes/counter/counter.css";
+import "../../../../src/prototypes/facet/facet.css";
+import "../../../../src/prototypes/thin/thin.css";
 
 /**
  * Layout for the surface-aware prototype route (`[slug]/[surface]`).
