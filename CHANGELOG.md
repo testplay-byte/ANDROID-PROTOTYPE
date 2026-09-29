@@ -7,6 +7,22 @@
 
 ## [Unreleased]
 
+### 2026-09-28 — Helio: the chart-first desktop reference
+
+- New desktop prototype **Helio** (Console language) built from a supplied visual
+  reference, with the analysis done by sub-agents and the build by hand:
+- `components/charts.tsx` — eleven hand-built SVG marks: combo columns + a smooth
+  comparison line, donut, segmented progress, sharp-peak and smooth sparklines, a
+  4-level step timeline with a crosshair readout, column chart with a selected bar
+  and a dashed average rule, stacked mix bar, half-gauge with needle, ranked bars,
+  area line, a token-drawn site map, and the card frame they all sit in.
+- Four views: Overview (five saturated stat tiles, production, goal, health,
+  storage, eight weeks, mix, contributors, alerts, load shape), Analytics (a range
+  that rescales, the 96-step load bands, mix by day, storage trajectory), Sites
+  (a real table whose detail opens BESIDE it), and Live.
+- The window is the query container, so the reflow tracks the window, not the
+  browser; density is a data attribute; the data is deterministic.
+
 ### 2026-09-28 — quality-of-life pass from user review (surfaces, memory, window controls)
 
 - **Tablet stayed tablet**: `useCanonicalSurface` now takes the surface from the

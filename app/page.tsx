@@ -590,6 +590,23 @@ const PROTOTYPES: GalleryItem[] = [
       { name: "Settings", interactions: 45 },
     ],
   },
+  {
+    name: "Helio",
+    url: "prototypes/helio/",
+    hash: "#overview",
+    surfaces: ["desktop", "tablet"],
+    status: "reference",
+    desc: "A grid-operations analytics console — the chart-first desktop reference. Five saturated stat tiles, a production chart with a comparison line, a goal donut, a storage gauge, a 96-step load-band timeline with a crosshair readout, a sortable site table with a beside-not-over detail card, and a token-drawn network map. Eleven hand-built SVG chart marks, no chart borders, tabular figures throughout.",
+    style: "console",
+    tags: ["Desktop reference", "Console", "Charts", "Operations"],
+    palette: { bg: "#0a0d12", surface: "#10141b", surfaceAlt: "#1c222d", accent: "#4fd1e0", text: "#e8edf5" },
+    screens: [
+      { name: "Overview", interactions: 95 },
+      { name: "Analytics", interactions: 85 },
+      { name: "Sites", interactions: 80 },
+      { name: "Live", interactions: 75 },
+    ],
+  },
 
 ];
 

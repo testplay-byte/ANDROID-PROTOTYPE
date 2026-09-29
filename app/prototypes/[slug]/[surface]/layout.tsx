@@ -17,6 +17,7 @@ import "../../../../src/prototypes/halo/halo.css";
 import "../../../../src/prototypes/counter/counter.css";
 import "../../../../src/prototypes/facet/facet.css";
 import "../../../../src/prototypes/thin/thin.css";
+import "../../../../src/prototypes/helio/helio.css";
 
 /**
  * Layout for the surface-aware prototype route (`[slug]/[surface]`).
