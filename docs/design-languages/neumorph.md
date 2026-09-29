@@ -101,6 +101,9 @@ Per the `neumorph.css` header: `--shadow-1` / `--shadow-2` (extrude) and `--shad
 
 ## Demo prototype
 
+- **Desktop / tablet: `Halo`** (`/prototypes/halo/desktop/`, also at
+  `/tablet/`) — soft extruded device tiles, a device drawer beside the room list, a softness control.
+
 Demo prototypes: the music player at `app/prototypes/music-player` and **Still** at
 `app/prototypes/still` — a meditation/breathing app that pushes the extruded/pressed
 physicality further: a single molded slab where every control carves INTO the surface on

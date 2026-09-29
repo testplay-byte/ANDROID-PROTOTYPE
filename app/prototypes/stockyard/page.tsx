@@ -96,7 +96,7 @@ const SCREEN_INFO: Record<string, { name: string; desc: string }> = {
 };
 
 function Shell() {
-  useCanonicalSurface("stockyard", "desktop");
+  const currentSurface = useCanonicalSurface("stockyard");
   const { view, go, density, setDensity, setPaletteOpen, toast, notify, counts, notifications } = useStockyard();
 
   /* Desktop shortcuts, wired at the window (not on a view). */
@@ -134,7 +134,7 @@ function Shell() {
   return (
     <Stage
       surfaces={["desktop", "tablet"]}
-      currentSurface="desktop"
+      currentSurface={currentSurface}
       slug="stockyard"
       fullscreen
       leftPanel={

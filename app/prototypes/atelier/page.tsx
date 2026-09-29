@@ -86,7 +86,7 @@ const SCREEN_INFO: Record<string, { name: string; desc: string }> = {
 };
 
 function Shell() {
-  useCanonicalSurface("atelier", "desktop");
+  const currentSurface = useCanonicalSurface("atelier");
   const { view, go, density, selectedWork, selectWork, setPaletteOpen, contrast, setContrast, toast, notify } =
     useAtelier();
 
@@ -113,7 +113,7 @@ function Shell() {
   return (
     <Stage
       surfaces={["desktop", "tablet"]}
-      currentSurface="desktop"
+      currentSurface={currentSurface}
       slug="atelier"
       fullscreen
       leftPanel={

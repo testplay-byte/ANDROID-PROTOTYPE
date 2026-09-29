@@ -94,7 +94,7 @@ const SCREEN_INFO: Record<string, { name: string; desc: string }> = {
 };
 
 function Shell() {
-  useCanonicalSurface("facet", "desktop");
+  const currentSurface = useCanonicalSurface("facet");
   const {
     view,
     go,
@@ -164,7 +164,7 @@ function Shell() {
   return (
     <Stage
       surfaces={["desktop", "tablet"]}
-      currentSurface="desktop"
+      currentSurface={currentSurface}
       slug="facet"
       fullscreen
       leftPanel={

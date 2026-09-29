@@ -102,6 +102,9 @@ Per the `brutalism.css` header: `--border-w` (2-3px) + `--shadow-1`/`--shadow-2`
 
 ## Demo prototype
 
+- **Desktop / tablet: `Stockyard`** (`/prototypes/stockyard/desktop/`, also at
+  `/tablet/`) — inventory console: fixed-layout table, a detail drawer, hard offset shadows, density toggle.
+
 Demo prototypes: **Streetwear Store** at `app/prototypes/streetwear-store` (a drop
 shop) and **Ruckus** at `app/prototypes/ruckus` (a DIY gig guide — numbered poster
 lineup, generative covers, ticket stubs) — using every signature of the language: marquee tickers, rotated sticker badges, numbered

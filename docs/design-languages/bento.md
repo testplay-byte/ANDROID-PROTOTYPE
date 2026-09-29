@@ -103,6 +103,9 @@ Keep the palette content-first: most tiles are neutral; orange (and sky/lime in 
 
 ## Demo prototype
 
+- **Desktop / tablet: `Facet`** (`/prototypes/facet/desktop/`, also at
+  `/tablet/`) — tile grid where every tile cycles 1×1 / 2×1 / 2×2, and hiding a tile re-flows the board.
+
 Demo prototypes: the smart home dashboard at `app/prototypes/smart-home` and **Atlas** at
 `app/prototypes/atlas` — a travel planner where tile sizes encode frequency of use, each
 destination gets generative CSS landscape art, and tapping any tile morphs it full-screen

@@ -23,6 +23,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import type { DeviceStyle } from "@/proto-kit/styles/types";
 import { STYLE_LABELS } from "@/proto-kit/styles/types";
 import { getThumb } from "./thumbs";
+import { prototypeHref } from "../proto-kit/base-path";
 
 export interface GalleryScreen {
   name: string;
@@ -55,6 +56,15 @@ export interface GalleryItem {
 }
 
 type ViewMode = "detailed" | "grid";
+
+/** A card must open the prototype ON THE SURFACE YOU ARE LOOKING AT —
+ *  viewing Claymorphism on tablet has to land on the tablet build, not the
+ *  desktop one. */
+function surfaceHref(item: { url: string; hash?: string }, surface: Surface): string {
+  const slug = item.url.replace(/^prototypes\//, "").replace(/\/$/, "");
+  const base = prototypeHref(slug, surface === "phone" ? undefined : surface);
+  return surface === "phone" ? base : `${base}${item.hash ?? ""}`;
+}
 
 /** Grid-view raster sizing: minimum cell width and the grid gap (px).
  *  Exposed sheet edges expand by SHEET_EDGE_PX only, so two DIFFERENT
@@ -160,7 +170,11 @@ function Silhouette({
   if (surface !== "phone") {
     if (!link) return <WindowThumb item={item} surface={surface} />;
     return (
-      <a className="winlink" href={item.url} aria-label={`Open ${item.name} prototype`}>
+      <a
+        className="winlink"
+        href={surfaceHref(item, surface)}
+        aria-label={`Open ${item.name} prototype`}
+      >
         <WindowThumb item={item} surface={surface} />
       </a>
     );
@@ -207,7 +221,7 @@ function Silhouette({
     return <span className={phoneClass} style={{ borderColor: p.text, background: p.surface }}>{screen}</span>;
   }
   return (
-    <a className={phoneClass} href={item.url} aria-label={`Open ${item.name} prototype`}
+    <a className={phoneClass} href={surfaceHref(item, "phone")} aria-label={`Open ${item.name} prototype`}
        style={{ borderColor: p.text, background: p.surface }}>
       {screen}
     </a>
@@ -324,6 +338,55 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
   const [mode, setMode] = useState<ViewMode>("detailed");
   const [surface, setSurface] = useState<Surface>("phone");
 
+  /* Remember the surface the user was browsing: coming back from a prototype
+     must return to Phone / Tablet / Desktop as they left it — not reset. */
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("proto-kit-surface") as Surface | null;
+      if (saved === "phone" || saved === "tablet" || saved === "desktop") setSurface(saved);
+    } catch {}
+  }, []);
+  useEffect(() => {
+    try {
+      localStorage.setItem("proto-kit-surface", surface);
+    } catch {}
+  }, [surface]);
+
+  /* …and return to the scroll position they left, not the top of the page. */
+  useEffect(() => {
+    const KEY = "proto-kit-dashboard-scroll";
+    let frame = 0;
+    const save = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        try {
+          sessionStorage.setItem(KEY, String(Math.round(window.scrollY)));
+        } catch {}
+      });
+    };
+    window.addEventListener("scroll", save, { passive: true });
+    return () => {
+      window.removeEventListener("scroll", save);
+      if (frame) window.cancelAnimationFrame(frame);
+    };
+  }, []);
+
+  /* Restore the position left behind on the dashboard — but read AND CLEAR the
+     key on every mount, whatever the view, or a stale offset from a previous
+     visit would hijack a much later grid switch. */
+  useEffect(() => {
+    const KEY = "proto-kit-dashboard-scroll";
+    let y = 0;
+    try {
+      y = Number(sessionStorage.getItem(KEY) ?? 0);
+      sessionStorage.removeItem(KEY);
+    } catch {}
+    if (!y || mode !== "grid") return;
+    const id = window.setTimeout(() => window.scrollTo({ top: y, behavior: "auto" }), 60);
+    return () => window.clearTimeout(id);
+  }, [mode]);
+
   // Restore the persisted view preference (client only). A #grid / #detailed
   // hash on the page URL overrides it (deep-linkable view state).
   useEffect(() => {
@@ -343,7 +406,10 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
     } catch {}
   }, [mode]);
 
-  const surfaceItems = items.filter((it) => it.surfaces.includes(surface));
+  const surfaceItems = useMemo(
+    () => items.filter((it) => it.surfaces.includes(surface)),
+    [items, surface]
+  );
   const surfaceCounts = new Map<Surface, number>(
     SURFACES.map((s) => [s.id, items.filter((it) => it.surfaces.includes(s.id)).length])
   );
@@ -371,8 +437,28 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
     return () => ro.disconnect();
   }, [mode]);
 
-  const presentStyles = STYLE_ORDER.filter((s) => counts.has(s));
-  const visible = (filter === "all" ? surfaceItems : surfaceItems.filter((it) => it.style === filter));
+  const presentStyles = useMemo(
+    () => STYLE_ORDER.filter((s) => counts.has(s)),
+    [counts]
+  );
+  const visible = useMemo(
+    () => (filter === "all" ? surfaceItems : surfaceItems.filter((it) => it.style === filter)),
+    [filter, surfaceItems]
+  );
+
+  /* Placement is a grid walk over every card; memoised so a chip toggle or a
+     theme change doesn't re-run it (the inputs below are memoised too —
+     otherwise the cache would never hit). */
+  const gridGroups = useMemo(
+    () =>
+      presentStyles
+        .filter((s) => filter === "all" || filter === s)
+        .map((s) => ({ style: s, items: visible.filter((it) => it.style === s) }))
+        .filter((g) => g.items.length > 0),
+    [presentStyles, filter, visible]
+  );
+  const gridCells = useMemo(() => placeCells(gridGroups, cols), [gridGroups, cols]);
+
 
   return (
     <>
@@ -439,19 +525,13 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
            so it renders as a tall band or an L-shaped sheet. The family
            header rides on the first cell of its group. */
         <div className="gridview" ref={gridRef} style={{ "--cols": cols } as React.CSSProperties}>
-          {placeCells(
-            presentStyles
-              .filter((s) => filter === "all" || filter === s)
-              .map((s) => ({ style: s, items: visible.filter((it) => it.style === s) }))
-              .filter((g) => g.items.length > 0),
-            cols
-          ).map((cell) => (
+          {gridCells.map((cell) => (
             <a
               key={cell.item.name}
               className="gcell"
               data-style={cell.style}
               data-first={cell.first || undefined}
-              href={cell.item.url}
+              href={surfaceHref(cell.item, surface)}
               aria-label={`Open ${cell.item.name} prototype`}
               style={{
                 gridRow: cell.row + 1,
@@ -528,7 +608,7 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
                     <b>{STYLE_LABELS[item.style]}</b>&nbsp;style
                   </div>
                 </div>
-                <a className="openlink" href={item.url}>
+                <a className="openlink" href={surfaceHref(item, surface)}>
                   Open prototype
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
                     <path d="M5 12h14" />

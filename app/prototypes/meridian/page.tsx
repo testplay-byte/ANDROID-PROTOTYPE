@@ -81,7 +81,7 @@ const SCREEN_INFO: Record<string, { name: string; desc: string }> = {
 };
 
 function Shell() {
-  useCanonicalSurface("meridian", "desktop");
+  const currentSurface = useCanonicalSurface("meridian");
   const { view, go, density, setDensity, setPaletteOpen, toast, notify, counts } = useMeridian();
 
   /* "/" focuses search — a desktop shortcut, not a mobile gesture */
@@ -113,7 +113,7 @@ function Shell() {
   return (
     <Stage
       surfaces={["desktop", "tablet"]}
-      currentSurface="desktop"
+      currentSurface={currentSurface}
       slug="meridian"
       fullscreen
       leftPanel={

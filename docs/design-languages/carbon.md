@@ -100,6 +100,9 @@ Per the `carbon.css` header: the 0px radius overrides (sharp corners on all comp
 
 ## Demo prototype
 
+- **Desktop / tablet: `Telemetry`** (`/prototypes/telemetry/desktop/`, also at
+  `/tablet/`) — dense table with a sticky detail panel, service tiles, an acknowledge→resolve flow.
+
 Demo prototypes: the banking app at `app/prototypes/finance-hub` and **Pulse** at
 `app/prototypes/pulse` — a system-status dashboard showing Carbon's enterprise habitat:
 flat 0px-radius layer surfaces carried entirely by 1px hairline borders, blinking status

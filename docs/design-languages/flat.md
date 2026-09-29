@@ -102,6 +102,9 @@ Success (`#66bb6a` / `#43a047`) shares green territory with teal — prefer teal
 
 ## Demo prototype
 
+- **Desktop / tablet: `Counter`** (`/prototypes/counter/desktop/`, also at
+  `/tablet/`) — booking app: a real week schedule with conflict detection, multi-select bookings table.
+
 Demo prototypes: the chat app at `app/prototypes/chat-app` and **Hop** at
 `app/prototypes/hop` — a food-delivery app built on solid cuisine colour planes: screens
 OPEN on a full-bleed flat block (no title bar), the tab bar is four edge-to-edge segments

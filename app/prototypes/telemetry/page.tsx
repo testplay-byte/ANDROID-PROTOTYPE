@@ -90,7 +90,7 @@ const SCREEN_INFO: Record<string, { name: string; desc: string }> = {
 };
 
 function Shell() {
-  useCanonicalSurface("telemetry", "desktop");
+  const currentSurface = useCanonicalSurface("telemetry");
   const {
     view,
     go,
@@ -124,7 +124,7 @@ function Shell() {
   return (
     <Stage
       surfaces={["desktop"]}
-      currentSurface="desktop"
+      currentSurface={currentSurface}
       slug="telemetry"
       fullscreen
       leftPanel={

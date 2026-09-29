@@ -287,6 +287,49 @@ and `/tablet/`:**
 | bento | Facet | tile grid with real span cycling |
 | minimal | Thin | tasks + writing, type-scale control |
 
+## 8.6 Data & state (the rules every prototype follows)
+
+**Data is deterministic — this is the rule for every prototype written from
+now on.** No `Math.random()`, no `Date.now()`, no bare `new Date()` in
+anything the user sees; a prototype that reshuffles on reload cannot be
+reviewed. (The older phone prototypes predate this rule and a few still use
+it, and the shared `<StatusBar>` clock obviously reads the wall clock — both
+are known exceptions.) Use fixed arrays or a seeded generator
+(`hash(sku)` style), and pin "today" to a constant (`TODAY = "2026-09-28"`)
+so weekday maths is reproducible. Screen numbers must be derivable from the
+data, not typed twice: totals, deltas and chart series are computed, so a
+filter or a move updates them for free.
+
+**State lives in one context per prototype** (`state/<name>-context.tsx`).
+Views are presentation; the context owns the state that outlives a view
+(selection, filters, sort, density, theme). A control that changes nothing is
+a defect — the cheapest real interaction is a filter or a toggle that visibly
+moves a number elsewhere in the app.
+
+**What is allowed to persist** (localStorage, nothing else):
+
+| Key | Written by | Scope |
+|---|---|---|
+| `proto-kit-device-settings-v1` | device settings store | phone cutout + size, this browser |
+| `proto-kit-surface-size-<slug>-<surface>` | `<SurfaceFrame>` | that window's dragged size, per surface |
+| `proto-kit-surface` | dashboard gallery | which surface the user last browsed |
+| `<slug>-density` (e.g. `meridian-density`, `stockyard-density`, `signal-density`) | that prototype | that app's density preference |
+| `<slug>-theme` (e.g. `meridian-theme`) | that prototype | that app's light/dark choice |
+| `gallery-view` | dashboard | grid or detailed view |
+| `gallery-theme` | dashboard | the dashboard's own light/dark |
+
+**Keys are per-prototype and must not collide** — `gallery-theme` (the
+dashboard toggle) and `gallery-app-theme` (the Gallery App prototype) are
+deliberately different keys for exactly this reason.
+
+**In-session only** (sessionStorage): the dashboard's scroll position, so
+returning from a prototype lands where you left instead of at the top. The
+key is read and cleared on the next dashboard mount, so it can only ever
+restore once.
+
+**Never persisted:** demo data edits. A reset control is a courtesy, not a
+requirement — the data regenerates from the constants on reload.
+
 ## 9. What is NOT here (and where it lives)
 
 | Topic | File |

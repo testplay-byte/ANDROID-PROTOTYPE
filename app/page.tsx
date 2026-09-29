@@ -423,7 +423,7 @@ const PROTOTYPES: GalleryItem[] = [
     name: "Telemetry",
     url: "prototypes/telemetry/",
     hash: "#fleet",
-    surfaces: ["desktop"],
+    surfaces: ["desktop", "tablet"],
     status: "review",
     desc: "An IBM Carbon desktop infrastructure console — the style at its native desktop density. Service tiles with 30-day uptime bars, a six-column sortable table with multi-select and a bulk bar, a sticky detail panel beside the data, and an acknowledge-to-resolve flow that repairs service state.",
     style: "carbon",

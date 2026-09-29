@@ -50,8 +50,8 @@ export const PROTOTYPE_REGISTRY: Record<string, PrototypeEntry> = {
   },
   telemetry: {
     name: "Telemetry",
-    surfaces: ["desktop"],
-    views: { desktop: TelemetryPage },
+    surfaces: ["desktop", "tablet"],
+    views: { desktop: TelemetryPage, tablet: TelemetryPage },
   },
   aurora: {
     name: "Aurora",

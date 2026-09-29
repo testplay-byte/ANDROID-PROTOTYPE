@@ -1,4 +1,4 @@
-# docs/design-languages/ — Style Guides for the 11 Design Languages
+# docs/design-languages/ — Style Guides for the 12 Design Languages
 
 > One spec per design language supported by the proto-kit style system
 > (`src/proto-kit/styles/`). Read [`../style-selection-guide.md`](../style-selection-guide.md)

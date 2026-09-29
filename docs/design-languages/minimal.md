@@ -100,6 +100,9 @@ Success (`#46a758` / `#2f7d3b`) and warn (`#f5a623` / `#b45309`) exist but are f
 
 ## Demo prototype
 
+- **Desktop / tablet: `Thin`** (`/prototypes/thin/desktop/`, also at
+  `/tablet/`) — tasks + writing: a quiet daily list, master–detail projects, a type-scale control.
+
 Demo prototypes: the habit tracker at `app/prototypes/habit-tracker` and **Nook** at
 `app/prototypes/nook` — a typographic reading journal that pushes the language to its
 purest: no color at all (ink-as-primary), serif title treatments, 1px hairline progress

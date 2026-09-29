@@ -7,6 +7,37 @@
 
 ## [Unreleased]
 
+### 2026-09-28 — quality-of-life pass from user review (surfaces, memory, window controls)
+
+- **Tablet stayed tablet**: `useCanonicalSurface` now takes the surface from the
+  route (it forced `desktop` and bounced `/tablet/` back); the Stage is told the
+  effective surface so the switcher highlights the surface actually rendered.
+- **Window size remembered per surface**: the storage key includes the surface, and
+  switching surfaces resets to that surface's default instead of inheriting the
+  other one's dragged size. A refused fullscreen no longer destroys the
+  pre-maximize size.
+- **Stage panels react live**: the collapse test now takes the larger of the
+  requested width and the actual box (so maximised / fullscreen / mobile widths
+  count), accounts for the stage's own padding, compares against
+  `documentElement.clientWidth` (no scrollbar), and polls as a backstop — embedded
+  and programmatic viewport changes fire no resize event, which is why the panels
+  used to need a refresh.
+- **Minimize** keeps the title bar and adds a labelled strip below it
+  ('press Enter to restore'); **close** is now a small card that takes focus when
+  it appears; the **maximize** button joins close/minimize with a blue hover.
+- **Dashboard remembers your place**: the active surface is persisted, the scroll
+  position is restored (read and cleared once), and every card links to the
+  surface you are viewing — viewing Claymorphism on tablet lands on the tablet
+  build, not the desktop one.
+- **Console language completed**: it was missing `--color-outline`,
+  `--color-outline-variant` and the frame tokens, so its hairlines fell back to
+  M3 purple and the dark window kept a bright platinum bezel.
+- **Telemetry gained its `/tablet/` route** (the docs claimed it existed), the
+  gallery-app theme key no longer collides with the dashboard's, and the gate now
+  visits surface URLs so a missing one fails the build instead of 404ing quietly.
+- Gallery placement is genuinely memoised (its inputs were fresh arrays, so the
+  cache never hit), and the style docs list each language's desktop build.
+
 ### 2026-09-28 — twelve desktop prototypes + the Console language
 
 - **New design language: Console** (`styles/console.css`, `console.md`) — the

@@ -66,24 +66,48 @@ export function Stage({
     const check = () => {
       const child = el.querySelector(".device, .surface") as HTMLElement | null;
       if (!child) return;
-      // The window shrinks to the stage, so measuring its current box always
-      // "fits" and the panels would never yield. Measure the width the window
-      // REQUESTS (its size variable) — that is what must share the row.
+      // The window shrinks to the stage, so measuring its box alone always
+      // "fits". Take the LARGER of (a) the width the window requests from its
+      // size variable and (b) the box it actually occupies — (b) covers the
+      // widths CSS decides on its own (maximised, fullscreen, mobile).
       const cs = getComputedStyle(child);
       const declared = ["--surface-w", "--device-w"]
         .map((v) => parseFloat(cs.getPropertyValue(v)))
         .find((n) => Number.isFinite(n) && n > 0);
-      const w = declared ?? child.getBoundingClientRect().width;
+      const box = child.getBoundingClientRect().width;
+      const w = Math.max(declared ?? 0, box);
       const needed =
-        w + (leftPanel ? PANEL_W + GAP : 0) + (rightPanel ? PANEL_W + GAP : 0) + GAP;
-      setCompact(needed > window.innerWidth);
+        w +
+        (leftPanel ? PANEL_W + GAP : 0) +
+        (rightPanel ? PANEL_W + GAP : 0) +
+        GAP * 2; // the stage's own left + right padding
+      // clientWidth excludes the vertical scrollbar, so the comparison is real
+      setCompact(needed > document.documentElement.clientWidth);
     };
     check();
     window.addEventListener("resize", check);
     const ro = new ResizeObserver(check);
     ro.observe(el);
+    // The STAGE never changes size when the window is dragged, so observing
+    // it alone meant the panels only reacted to a browser resize or a reload.
+    // Observe the prototype window too.
+    const child = el.querySelector(".device, .surface");
+    if (child) ro.observe(child);
+    // …and the surface frame mutates its own size variable on every drag
+    // frame, which fires no resize event at all; poll it cheaply while the
+    // pointer is down on a resize handle.
+    const onPointer = () => check();
+    window.addEventListener("pointerup", onPointer);
+    // Backstop: some environments (embedded previews, docked devtools,
+    // programmatic viewport changes) change the layout WITHOUT firing a
+    // resize event or a ResizeObserver callback — the panels then only
+    // updated after a refresh. A 400ms poll costs a few arithmetic
+    // operations and makes the state impossible to leave stale.
+    const poll = window.setInterval(check, 400);
     return () => {
       window.removeEventListener("resize", check);
+      window.removeEventListener("pointerup", onPointer);
+      window.clearInterval(poll);
       ro.disconnect();
     };
   }, [leftPanel, rightPanel]);

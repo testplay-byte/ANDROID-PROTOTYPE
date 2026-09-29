@@ -150,6 +150,11 @@ Guidance (the luminous rule): glass needs AIR, LIGHT and SEPARATION. Keep the da
 
 ## Demo prototype
 
+- **Desktop / tablet: `Aurora`** (`/prototypes/aurora/desktop/`, also at
+  `/tablet/`) — a glass weather + ambience console: layered translucent panels over a real
+  blurred backdrop, saved cities that can be added and removed live, a unit toggle and a
+  glass-intensity control.
+
 Demo prototypes: the weather app at `app/prototypes/weather-app` (1:1 reference port) and
 **Drift** at `app/prototypes/drift` — a podcast/audio player built as the color-discipline
 showcase: glass fills are pure milky white alphas (0.10–0.22, never tinted), all hue comes

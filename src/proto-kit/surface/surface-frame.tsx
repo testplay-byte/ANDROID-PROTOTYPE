@@ -112,27 +112,49 @@ export function SurfaceFrame({
     };
   }, [surface, orientation, width, height, preset.w, preset.h]);
 
-  const key = `proto-kit-surface-size-${storageKey ?? windowTitle ?? style ?? surface}`;
+  // per SURFACE as well as per prototype: a tablet window keeps its own size
+  const key = `proto-kit-surface-size-${storageKey ?? windowTitle ?? style ?? "prototype"}-${surface}`;
   const [size, setSize] = useState(defaultSize);
   const [minimized, setMinimized] = useState(false);
   const [maximized, setMaximized] = useState(false);
   const [closed, setClosed] = useState(false);
+  const reopenRef = useRef<HTMLButtonElement>(null);
   const [tooSmall, setTooSmall] = useState(false);
   const restoreRef = useRef(defaultSize);
   const surfaceRef = useRef<HTMLDivElement>(null);
 
-  /* restore a dragged size */
+  // closing the window unmounts the app: move focus to Reopen and
+  // announce it, or a keyboard user is left at <body> in silence
   useEffect(() => {
+    if (closed) reopenRef.current?.focus();
+  }, [closed]);
+
+  /* Restore the dragged size for THIS surface. `useState` initialisers only
+     run on mount, so switching /desktop/ → /tablet/ keeps the desktop's
+     state unless we reset it here when the new surface has nothing stored. */
+  useEffect(() => {
+    let restored = false;
     try {
       const raw = localStorage.getItem(key);
       if (raw) {
         const v = JSON.parse(raw) as { w: number; h: number };
-        if (v?.w > 200 && v?.h > 200) setSize({ w: Math.round(v.w), h: Math.round(v.h) });
+        if (v?.w > 200 && v?.h > 200) {
+          setSize({ w: Math.round(v.w), h: Math.round(v.h) });
+          restored = true;
+        }
       }
     } catch {
       /* best-effort */
     }
-  }, [key]);
+    if (!restored) {
+      setSize(defaultSize);
+      setMinimized(false);
+      setClosed(false);
+      setMaximized(false);
+    }
+    // defaultSize is a new object each render — depend on its values instead
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [key, defaultSize.w, defaultSize.h]);
 
   /* a phone-sized browser cannot show a desktop/tablet app: say so
      instead of rendering a squashed window */
@@ -150,8 +172,22 @@ export function SurfaceFrame({
   useEffect(() => {
     const check = () => setTooSmall(window.innerWidth <= 520);
     check();
+    // A ResizeObserver on the document catches EVERY viewport change — a
+    // window resize event alone is not fired reliably (embedded panes, devtools
+    // docking, programmatic viewport changes), which used to leave the
+    // wrong-surface notice stuck on screen.
+    let ro: ResizeObserver | undefined;
+    if (typeof ResizeObserver !== "undefined") {
+      ro = new ResizeObserver(check);
+      ro.observe(document.documentElement);
+    }
     window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
+    window.addEventListener("orientationchange", check);
+    return () => {
+      window.removeEventListener("resize", check);
+      window.removeEventListener("orientationchange", check);
+      ro?.disconnect();
+    };
   }, []);
 
   const persist = useCallback(
@@ -192,7 +228,11 @@ export function SurfaceFrame({
   const onHandleUp = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (!dragRef.current) return;
     dragRef.current = null;
-    e.currentTarget.releasePointerCapture?.(e.pointerId);
+    try {
+      e.currentTarget.releasePointerCapture?.(e.pointerId);
+    } catch {
+      /* already released (pointercancel) */
+    }
     setSize((s) => {
       persist(s);
       return s;
@@ -212,12 +252,15 @@ export function SurfaceFrame({
     restoreRef.current = size;
     setMaximized(true);
     void surfaceRef.current?.requestFullscreen?.().catch(() => {
-      // fullscreen refused (iframe without allow) — fall back to filling
-      // the stage, which is still a believable "maximized" window
-      setSize({
+      // Fullscreen refused (an iframe without allow="fullscreen", some
+      // embeds). Fall back to filling the stage — and remember THAT as the
+      // restore target, or the user's own dragged size is lost for good.
+      const fallback = {
         w: Math.max(MIN[surface].w, window.innerWidth - 48),
         h: Math.max(MIN[surface].h, window.innerHeight - 48),
-      });
+      };
+      restoreRef.current = fallback;
+      setSize(fallback);
     });
   };
   /* Window buttons: minimize on the LEFT, maximize/exit-fullscreen in the
@@ -276,8 +319,8 @@ export function SurfaceFrame({
   if (closed) {
     return (
       <div className={`${styles.surface} ${styles.closedbox} surface`} data-surface={surface} data-theme={theme} data-style={style}>
-        <p>The window was closed — this is what a closed desktop app looks like.</p>
-        <button className={styles.closedbox__btn} type="button" onClick={() => setClosed(false)}>
+        <p>Window closed</p>
+        <button ref={reopenRef} className={styles.closedbox__btn} type="button" onClick={() => setClosed(false)}>
           Reopen window
         </button>
       </div>
@@ -316,7 +359,15 @@ export function SurfaceFrame({
         </div>
       )}
 
-      {!minimized && <div className={styles.body}>{children}</div>}
+      {minimized ? (
+        <button className={styles.minimized} type="button" onClick={() => setMinimized(false)}>
+          <span className={styles.minimized__icon} aria-hidden="true">▁</span>
+          {windowTitle ? `${windowTitle} — minimized` : "Window minimized"}
+          <span className={styles.minimized__hint}>press Enter to restore</span>
+        </button>
+      ) : (
+        <div className={styles.body}>{children}</div>
+      )}
 
       {draggable && !maximized && !minimized &&
         HANDLES.map((dir) => (

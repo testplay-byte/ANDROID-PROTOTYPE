@@ -257,7 +257,7 @@ function Shell() {
 
 export default function Page() {
   return (
-    <DeviceThemeProvider storageKey="gallery-theme" initialTheme="light">
+    <DeviceThemeProvider storageKey="gallery-app-theme" initialTheme="light">
       <GalleryProvider>
         <Shell />
       </GalleryProvider>

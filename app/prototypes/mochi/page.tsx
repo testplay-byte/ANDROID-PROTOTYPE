@@ -92,7 +92,7 @@ const NAV: { id: ViewId; label: string; icon: ReactNode }[] = [
 ];
 
 function Shell() {
-  useCanonicalSurface("mochi", "desktop");
+  const currentSurface = useCanonicalSurface("mochi");
   const { view, go, depth, setDepth, setPaletteOpen, toast, notify, habitProgress, budget, isWide, today } =
     useMochi();
   const { theme, setTheme } = useDeviceTheme();
@@ -117,7 +117,7 @@ function Shell() {
   return (
     <Stage
       surfaces={["desktop", "tablet"]}
-      currentSurface="desktop"
+      currentSurface={currentSurface}
       slug="mochi"
       fullscreen
       leftPanel={

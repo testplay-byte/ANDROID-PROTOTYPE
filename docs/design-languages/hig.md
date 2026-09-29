@@ -161,6 +161,9 @@ Every top-level tab screen uses the iOS large-title pattern (implemented by `Ios
 
 ## Demo prototype
 
+- **Desktop / tablet: `Quill`** (`/prototypes/quill/desktop/`, also at
+  `/tablet/`) — three-column window, a detail pane beside the list, a block editor with a metadata rail.
+
 Demo prototypes: the fitness tracker at `app/prototypes/fitness-tracker` (classic HIG)
 and **Wallet** at `app/prototypes/wallet` — the latter layers Apple's iOS 26/27
 **Liquid Glass** material on top of this style (floating glass tab/nav bars, the

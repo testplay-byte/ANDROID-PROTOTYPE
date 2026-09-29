@@ -110,6 +110,9 @@ Secondary is pink (`#f0a6ca` dark / `#c94f8c` light) — use it sparingly for pl
 
 ## Demo prototype
 
+- **Desktop / tablet: `Mochi`** (`/prototypes/mochi/desktop/`, also at
+  `/tablet/`) — planner with a live budget ring, habit checklist, editable limits, a clay-depth control.
+
 Demo prototypes: the kids learning game at `app/prototypes/kids-learning` and **Simmer**
 at `app/prototypes/simmer` — a recipes & cooking companion with generative clay dish art,
 triple-shadow puffy cards (outer lift + inner light + inner shade, >=0.28 alpha), press-in

@@ -101,6 +101,9 @@ Light:
 
 ## Demo prototype
 
+- **Desktop / tablet: `Atelier`** (`/prototypes/atelier/desktop/`, also at
+  `/tablet/`) — plate wall of geometric work cards, primary-colour kanban, a studio capacity view.
+
 Demo prototypes: **Gallery App** at `app/prototypes/gallery-app` (a museum) and
 **Linie** at `app/prototypes/linie` (a metro planner — the network drawn as geometry:
 right-angle SVG lines, circle stations, interchange rings) — built like a Bauhaus poster: generative CSS artwork (12 data-driven geometric compositions, no

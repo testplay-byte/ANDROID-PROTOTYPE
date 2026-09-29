@@ -56,6 +56,10 @@
   --color-warn-container: #3a2b13;
   --color-on-warn-container: #ffe0b8;
 
+  /* hairlines — without these a console surface inherits the M3 purple */
+  --color-outline: #2e3644;
+  --color-outline-variant: #1c222d;
+
   /* structure: hairline, squared, flat */
   --border-w: 1px;
   --shadow-1: none;
@@ -68,6 +72,14 @@
   --r-xl: 10px;
   --r-pill: 999px;
   --device-radius: 10px;
+
+  /* frame chrome (dark) — a bright M3 bezel around a near-black window
+     is exactly what this language must not look like */
+  --device-bezel: #0e1116;
+  --device-edge: #222a35;
+  --bezel-w: 2px;
+  --edge-w: 1px;
+  --frame-shadow: rgba(0, 0, 0, 0.85);
 
   /* chart grid + axis inks (read by chart components) */
   --chart-grid: color-mix(in srgb, #ffffff 8%, transparent);
@@ -116,6 +128,8 @@
   --color-on-warn-container: #3a2708;
 
   --shadow-inset: none;
+  --color-outline: #cfd5de;
+  --color-outline-variant: #e8ebf0;
   --device-bezel: #d8dde5;
   --device-edge: #c3cad4;
   --frame-shadow: rgba(20, 30, 45, 0.22);

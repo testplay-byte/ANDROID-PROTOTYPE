@@ -42,6 +42,46 @@
 }
 .surface[data-minimized] {
   height: auto;
+  min-height: 0;
+}
+
+/* Minimized: the title bar stays, and a labelled strip below it says so and
+   restores on click — a bare 38px bar reads as a broken window. */
+.minimized {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  height: 46px;
+  padding: 0 14px;
+  border: none;
+  border-bottom: 1px solid var(--color-outline-variant);
+  background: color-mix(in srgb, var(--color-surface-3) 70%, transparent);
+  color: var(--color-text-muted);
+  font: inherit;
+  font-size: var(--fs-label);
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+  transition: background var(--dur-2) var(--ease-standard), color var(--dur-2) var(--ease-standard);
+}
+.minimized:hover {
+  background: color-mix(in srgb, var(--color-surface-4) 80%, transparent);
+  color: var(--color-text);
+}
+.minimized__icon {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  border: 1px solid var(--color-outline);
+  border-radius: 4px;
+  font-size: 10px;
+}
+.minimized__hint {
+  margin-left: auto;
+  font-weight: 500;
+  color: var(--color-text-subtle, var(--color-text-muted));
 }
 .surface[data-maximized] {
   width: calc(100vw - 48px);
@@ -157,6 +197,11 @@
 .winbtn[data-win="min"]:hover {
   background: var(--color-warn, #f5a524);
   border-color: var(--color-warn, #f5a524);
+}
+.winbtn[data-win="max"]:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-fg);
 }
 .winbar__title {
   pointer-events: auto;
@@ -310,8 +355,10 @@
 .closedbox {
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  min-height: 320px;
+  gap: 10px;
+  min-height: 0;
+  height: auto;
+  padding: 26px 24px;
   text-align: center;
 }
 .closedbox p {

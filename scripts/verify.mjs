@@ -286,15 +286,21 @@ for (const p of targets) {
   process.stdout.write(`• ${p.name} (${isDesktop ? "desktop" : "phone"}) `);
   for (const w of widths) {
     try {
+      // Phone: the slug route. Desktop/tablet: the surface URL the gallery
+      // links to, so a missing /tablet/ route is a failure, not a 404 we
+      // never notice.
+      const url = isDesktop
+        ? `${BASE}/prototypes/${p.slug}/desktop/`
+        : `${BASE}/prototypes/${p.slug}/`;
       // Chrome occasionally refuses to boot when instances are spawned back to
       // back; one retry keeps a flaky launch from reading as a layout failure.
       let page;
       let shot;
       try {
-        ({ page, shot } = await cdp(`${BASE}/prototypes/${p.slug}/`, w, isDesktop ? 900 : 900));
+        ({ page, shot } = await cdp(url, w, 900));
       } catch (first) {
         await new Promise((r) => setTimeout(r, 900));
-        ({ page, shot } = await cdp(`${BASE}/prototypes/${p.slug}/`, w, isDesktop ? 900 : 900));
+        ({ page, shot } = await cdp(url, w, 900));
       }
       if (shot) writeFileSync(join(OUT, `${p.slug}-${w}.png`), shot);
       if (!page || page.fatal) {
