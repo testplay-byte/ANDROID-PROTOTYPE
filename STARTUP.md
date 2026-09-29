@@ -60,7 +60,7 @@ ANDROID-PROTOTYPE/
 │   ├── playbook.md       ← how to work here without wasting a cycle.
 │   ├── native-bridge.md  ← token → Compose / SwiftUI mapping.
 │   ├── style-selection-guide.md ← How to PICK a design language for a brief.
-│   ├── design-languages/   ← Style specs for the 11 design languages.
+│   ├── design-languages/   ← Style specs for the 12 design languages.
 │   ├── prototype-blueprint.md ← Step-by-step guide to build a new prototype.
 │   ├── repo-map.md         ← Visual annotated tree of the entire repo.
 │   ├── workflow.md         ← High-level prototype workflow.
@@ -146,7 +146,7 @@ Naming convention: `kebab-case`, descriptive. Example: `app/prototypes/food-deli
 
 ### 5a. Choose a design language (multi-style system)
 
-Prototypes are no longer limited to Material 3. The proto-kit style system supports **11 design languages**: M3 (default), HIG (Apple), IBM Carbon, Neumorphism, Glassmorphism, Brutalism, Claymorphism, Bauhaus, Minimalism, Bento Grid, Flat.
+Prototypes are no longer limited to Material 3. The proto-kit style system supports **12 design languages**: M3 (default), HIG (Apple), IBM Carbon, Neumorphism, Glassmorphism, Brutalism, Claymorphism, Bauhaus, Minimalism, Bento Grid, Flat Design, and Console (instrument UI for data — added with the Signal analytics prototype).
 
 1. **Pick a style** via [`docs/style-selection-guide.md`](./docs/style-selection-guide.md) — maps vibes ("soft and squishy" → neumorph), categories (banking → carbon) and reference apps (iOS Settings → hig) to a style id. Explicit user requests always win.
 2. **Read the style spec** in [`docs/design-languages/`](./docs/design-languages/navigation.md) — exact palette, must-use tokens, recommended `<BottomNav variant>` / `<TopBar variant>` combinations, common mistakes.

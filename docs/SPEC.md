@@ -120,6 +120,9 @@ phone and desktop** — the language travels, the layout does not.
 
 ### 4.3 Adding a design language (6 registration points)
 
+_(Exercised for real on 2026-09-28 when **Console** was added alongside the
+Signal prototype — all six points, no surprises.)_
+
 1. `src/proto-kit/styles/<style>.css` — the token contract for both themes.
 2. Register it in `src/proto-kit/styles/index.css`.
 3. Add the id + label to `src/proto-kit/styles/types.ts` (`DeviceStyle`, `DEVICE_STYLES`,
@@ -254,6 +257,35 @@ grid track minimums), writing screenshots to `.verify/`. Run it before asking fo
 review. Then read `docs/ui-failure-modes.md`'s checklist once more with your own eyes.
 
 ---
+
+## 8.5 The prototype inventory (what already exists)
+
+Do not rebuild one of these — study it first.
+
+**Phone (23)**: `bloom` (M3 reference), `anime-app`, `setup-wizard` (M3);
+`wallet`, `fitness-tracker` (HIG); `finance-hub`, `pulse` (Carbon);
+`music-player`, `still` (Neumorph); `weather-app`, `drift` (Glass);
+`streetwear-store`, `ruckus` (Brutalism); `kids-learning`, `simmer` (Clay);
+`linie`, `gallery-app` (Bauhaus); `nook`, `habit-tracker` (Minimal);
+`atlas`, `smart-home` (Bento); `hop`, `chat-app` (Flat).
+
+**Desktop & tablet (12) — one per language, each at `/prototypes/<slug>/desktop/`
+and `/tablet/`:**
+
+| Language | Prototype | Notes |
+|---|---|---|
+| m3 | **Meridian** | **the reference desktop build** — copy its shell for new desktop work |
+| hig | Quill | three-column window, detail beside the list |
+| carbon | Telemetry | dense table + sticky detail, incident flow |
+| console | **Signal** | reference for data-heavy UI: nine hand-built SVG charts |
+| neumorph | Halo | soft extruded device tiles, softness control |
+| glass | Aurora | layered translucency, unit + intensity controls |
+| brutalism | Stockyard | inventory console, density toggle |
+| clay | Mochi | planner, clay-depth control |
+| bauhaus | Atelier | plate wall, primary-colour kanban |
+| flat | Counter | booking app, schedule grid + conflicts |
+| bento | Facet | tile grid with real span cycling |
+| minimal | Thin | tasks + writing, type-scale control |
 
 ## 9. What is NOT here (and where it lives)
 

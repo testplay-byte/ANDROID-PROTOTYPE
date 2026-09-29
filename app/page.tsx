@@ -649,7 +649,7 @@ export default function Page() {
             </span>
             <span className="brand__text">
               <span className="brand__name">ANDROID-PROTOTYPE</span>
-              <span className="brand__sub">mobile UI · prototypes · design</span>
+              <span className="brand__sub">phone · tablet · desktop</span>
             </span>
           </a>
           <nav className="navpill" aria-label="Site">
@@ -681,7 +681,7 @@ export default function Page() {
       <main className="wrap">
         {/* =================== Hero =================== */}
         <section className="hero" id="top">
-          <h1 className="hero__title">Interactive mobile UI prototypes</h1>
+          <h1 className="hero__title">Interactive UI prototypes</h1>
           <p className="hero__subtitle">live in your browser.</p>
 
           <div className="stats">
@@ -743,7 +743,7 @@ export default function Page() {
                 <span className="stat__label">Last updated</span>
               </div>
               <div className="stat__value">
-                <span className="stat__num">2026-09-26</span>
+                <span className="stat__num">2026-09-28</span>
               </div>
             </div>
           </div>
@@ -829,7 +829,7 @@ export default function Page() {
               </svg>
             </a>
             <p className="cta__note">
-              Every prototype is a live, clickable phone-frame UI built in a distinct design language — filter below by style.
+              Every prototype is a live, clickable UI built in a distinct design language — pick a surface, then filter by style.
             </p>
           </div>
         </section>

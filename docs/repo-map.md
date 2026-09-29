@@ -48,8 +48,9 @@ ANDROID-PROTOTYPE/
 │   │   ├── index.ts            ← Barrel export.
 │   │   ├── tokens/
 │   │   │   └── tokens.css      ← SINGLE source of truth for all design tokens.
-│   │   ├── styles/             ← 10 design-language token layers (data-style) + types.ts.
-│   │   ├── device-frame/       ← Phone mockup (bezel, status bar, screen slot).
+│   │   ├── styles/             ← 12 design-language token layers (data-style) + types.ts.
+│   │   ├── device-frame/       ← Phone mockup (bezel, status bar, screen slot). Size comes from the device-settings store.
+│   │   ├── surface/           ← Tablet/desktop: SurfaceFrame (+ window chrome, drag-resize, fullscreen), DesktopSidebar/Rail/TopBar, SurfaceSwitcher, surface context.
 │   │   │   ├── device-frame.tsx
 │   │   │   ├── device-frame.module.css
 │   │   │   ├── fullscreen-button.tsx
@@ -155,7 +156,12 @@ ANDROID-PROTOTYPE/
 | `README.md` | Public face on GitHub | Visitors, new collaborators |
 | `navigation.md` | Master index of the repo | Any agent looking for something |
 | `CHANGELOG.md` | History of changes | Any agent wondering "what happened" |
-| `package.json` | Dependencies + scripts (`dev`, `build`, `start`) | Anyone building locally / CI |
+| `package.json` | Dependencies + scripts (`dev`, `build`, `start`, `verify`) | Anyone building locally / CI |
+| `scripts/verify.mjs` | Pre-review gate: every prototype at every supported size (overflow / clipping / forbidden CSS) | Agents + the user, before review |
+| `docs/SPEC.md` | **The authoritative system spec** — surfaces, tokens, components, adaptivity, targeting | Everyone; it wins every other doc |
+| `docs/playbook.md` | How to work here without burning a cycle | Agents |
+| `docs/native-bridge.md` | Token → Compose / SwiftUI mapping | Future native work |
+| `ROADMAP.md` | Expansion phases, the locked decisions, what is done | Sessions picking up mid-stream |
 | `package-lock.json` | Pinned dep versions — MUST be committed | CI (`npm ci` requires it) |
 | `next.config.ts` | Static export + basePath config | Anyone debugging URLs or build |
 | `tsconfig.json` | Path aliases + TS strictness | Anyone importing across `app/` ↔ `src/` |
@@ -175,6 +181,7 @@ ANDROID-PROTOTYPE/
 | `index.ts` | Barrel: `DeviceFrame`, `Screen`, `StatusBar`, `BottomNav`, `Stage`, `PanelBadge/Title/Desc/Head`, `DeviceThemeProvider`, `useDeviceTheme`, `useDeviceSettings`/`saveDeviceSettings` |
 | `tokens/tokens.css` | Single source of truth: type/spacing/radius/motion + M3 color roles + stage tokens |
 | `device-frame/` | `<DeviceFrame>` (bezel + screen) + `<StatusBar>` + `<Screen>` + `<FullscreenButton>` |
+| `surface/` | `<SurfaceFrame>` / `<SurfaceScreen>` (tablet + desktop window), `<DesktopSidebar>` / `<DesktopRail>` / `<DesktopTopBar>`, `<SurfaceSwitcher>`, `useCanonicalSurface` |
 | `device-settings/` | Configurable device chrome — camera cutout type (punch/pill/notch), position (center/left), pill size. Store + `useDeviceSettings()`; set from the dashboard Settings page (`app/settings/`), applied by `<StatusBar>` on every device |
 | `bottom-nav/` | `<BottomNav>` — floating pill, content-sized active item (42px pill / 58px bar) |
 | `stage/` | `<Stage>` — desktop layout with left/right info panels |

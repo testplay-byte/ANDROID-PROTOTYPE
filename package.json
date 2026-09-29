@@ -8,7 +8,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "serve-static": "npx serve out"
+    "serve-static": "npx serve out",
+    "verify": "node scripts/verify.mjs"
   },
   "dependencies": {
     "next": "16.0.0",
