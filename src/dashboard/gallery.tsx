@@ -57,6 +57,12 @@ export interface GalleryItem {
 
 type ViewMode = "detailed" | "grid";
 
+/** The remembered scroll position is per view mode — the detailed and
+ *  grid galleries have completely different heights. */
+function scrollKey(mode: ViewMode): string {
+  return `proto-kit-dashboard-scroll-${mode}`;
+}
+
 /** A card must open the prototype ON THE SURFACE YOU ARE LOOKING AT —
  *  viewing Claymorphism on tablet has to land on the tablet build, not the
  *  desktop one. */
@@ -352,40 +358,69 @@ export function Gallery({ items }: { items: GalleryItem[] }) {
     } catch {}
   }, [surface]);
 
-  /* …and return to the scroll position they left, not the top of the page. */
+  /* Returning to the dashboard should land where you left, in EITHER view —
+     so the position is remembered per view mode (the two lists have very
+     different heights) and flushed on the way out, not only on scroll. */
   useEffect(() => {
-    const KEY = "proto-kit-dashboard-scroll";
+    const KEY = scrollKey(mode);
     let frame = 0;
+    const write = () => {
+      try {
+        sessionStorage.setItem(KEY, String(Math.round(window.scrollY)));
+      } catch {}
+    };
     const save = () => {
       if (frame) return;
       frame = window.requestAnimationFrame(() => {
         frame = 0;
-        try {
-          sessionStorage.setItem(KEY, String(Math.round(window.scrollY)));
-        } catch {}
+        write();
       });
     };
+    // pagehide / visibilitychange catch the click that navigates away in the
+    // same frame as the last scroll — otherwise the final position is lost.
+    const flush = () => {
+      if (frame) {
+        window.cancelAnimationFrame(frame);
+        frame = 0;
+      }
+      write();
+    };
     window.addEventListener("scroll", save, { passive: true });
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", flush);
     return () => {
       window.removeEventListener("scroll", save);
-      if (frame) window.cancelAnimationFrame(frame);
+      window.removeEventListener("pagehide", flush);
+      document.removeEventListener("visibilitychange", flush);
+      flush();
     };
-  }, []);
-
-  /* Restore the position left behind on the dashboard — but read AND CLEAR the
-     key on every mount, whatever the view, or a stale offset from a previous
-     visit would hijack a much later grid switch. */
-  useEffect(() => {
-    const KEY = "proto-kit-dashboard-scroll";
-    let y = 0;
-    try {
-      y = Number(sessionStorage.getItem(KEY) ?? 0);
-      sessionStorage.removeItem(KEY);
-    } catch {}
-    if (!y || mode !== "grid") return;
-    const id = window.setTimeout(() => window.scrollTo({ top: y, behavior: "auto" }), 60);
-    return () => window.clearTimeout(id);
   }, [mode]);
+
+  /* Restore on arrival. The stored position belongs to the view that was
+     showing, which may not be the one React renders first (the mode is
+     restored from storage in an effect), so read the persisted view to pick
+     the right key. Two passes: the browser restores asynchronously after
+     load, so a single scrollTo can lose the race. */
+  useEffect(() => {
+    let view: ViewMode = mode;
+    try {
+      const saved = localStorage.getItem(VIEW_KEY) as ViewMode | null;
+      const hash = window.location.hash.replace(/^#/, "");
+      if (hash === "grid" || hash === "detailed") view = hash;
+      else if (saved === "grid" || saved === "detailed") view = saved;
+    } catch {}
+    const y = Number(sessionStorage.getItem(scrollKey(view)) ?? 0);
+    if (!y) return;
+    const go = () => window.scrollTo({ top: y, behavior: "auto" as ScrollBehavior });
+    const first = window.setTimeout(go, 30);
+    const second = window.setTimeout(go, 220);
+    return () => {
+      window.clearTimeout(first);
+      window.clearTimeout(second);
+    };
+    // once, on arrival
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Restore the persisted view preference (client only). A #grid / #detailed
   // hash on the page URL overrides it (deep-linkable view state).
