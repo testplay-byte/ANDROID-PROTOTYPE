@@ -36,10 +36,10 @@ export function InsightsScreen() {
 
   return (
     <div className="hl-view" data-density={density}>
-      <div className="hl-grid">
+      <div className="hl-bento">
         <ChartCard
           title="Output by region and hour"
-          tall
+          area={{ col: 6, row: 2 }}
           icon={<GridIcon size={16} />}
           aside={<span className="hl-tag">MWh</span>}
         >
@@ -53,11 +53,11 @@ export function InsightsScreen() {
           <HeatMap rows={HEAT_ROWS} cols={HEAT_COLS} values={HEAT} format={(v) => `${v} MWh`} />
         </ChartCard>
 
-        <ChartCard title="Capacity mix" tall icon={<LayersIcon size={16} />} aside={<span className="hl-tag">share</span>}>
+        <ChartCard title="Capacity mix" area={{ col: 3, row: 2 }} icon={<LayersIcon size={16} />} aside={<span className="hl-tag">share</span>}>
           <TreeMap nodes={TREE} height={240} />
         </ChartCard>
 
-        <ChartCard title="System shape" icon={<SignalIcon size={16} />} aside={<span className="hl-tag">vs target</span>}>
+        <ChartCard title="System shape" area={{ col: 3, row: 2 }} icon={<SignalIcon size={16} />} aside={<span className="hl-tag">vs target</span>}>
           <div className="hl-radarpair">
             <RadarChart axes={RADAR_AXES} series={RADAR_NOW} size={230} />
             <RadarChart axes={RADAR_AXES} series={RADAR_TARGET} size={230} color="var(--chart-series-2)" />
@@ -65,11 +65,11 @@ export function InsightsScreen() {
           <p className="hl-card__note">Now vs target across six system dimensions.</p>
         </ChartCard>
 
-        <ChartCard title="Resource use" icon={<GaugeIcon size={16} />}>
+        <ChartCard title="Resource use" area={{ col: 3, row: 2 }} icon={<GaugeIcon size={16} />}>
           <RadialBars rows={RADIAL} size={214} />
         </ChartCard>
 
-        <ChartCard title="Reserve margin" icon={<SignalIcon size={16} />}>
+        <ChartCard title="Reserve margin" area={{ col: 3, row: 2 }} icon={<SignalIcon size={16} />}>
           <RadialGauge pct={RESERVE.pct} centre={`${RESERVE.pct}%`} sub={RESERVE.sub} size={220} />
           <p className="hl-card__note">
             Trigger bands at 30% and 15%. Dispatch is standing by at 12% headroom.
@@ -78,6 +78,7 @@ export function InsightsScreen() {
 
         <ChartCard
           title="Seven-day trend"
+          area={{ col: 6, row: 2 }}
           icon={<LayersIcon size={16} />}
           aside={
             <button className="hl-select" type="button" onClick={() => notify("Range: 7 days") }>
@@ -98,12 +99,6 @@ export function InsightsScreen() {
             smooth
             height={120}
             label="Seven-day output"
-          />
-          <Sparkline
-            values={[1.4, 1.7, 1.9, 2.1, 2.2, 2.5, 2.7]}
-            color="var(--chart-series-2)"
-            height={90}
-            label="Previous week"
           />
           <p className="hl-card__note">
             Peak day Tuesday · {fmt(428)}k MWh delivered · {fmt(61)}% reserve held.

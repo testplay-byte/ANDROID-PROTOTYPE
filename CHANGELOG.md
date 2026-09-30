@@ -7,6 +7,20 @@
 
 ## [Unreleased]
 
+### 2026-09-28 — Helio layout rebuild: bento grid, fixed treemap and radial geometry
+
+- **The insights view is now a real bento**: 12 tracks x 4 fixed rows, six cards
+  tiling 6+3+3 / 3+3+6 — no dead space, no ragged row heights, and every card
+  fills its cell (verified: no card clips).
+- **The treemap algorithm was wrong** — it packed every node into one column,
+  because the aspect-ratio metric never got worse. Replaced with the textbook
+  squarified layout (Bruls et al.), verified standalone before it went in, and the
+  canvas is no longer stretched, because a stretched treemap lies about area.
+- **Radial bars now use equal slots**: previously the start angle advanced by
+  each value, so arcs bunched wherever a value was small.
+- Charts centre in their cell; the trend card was overflowing and is now trimmed
+  to fit its box.
+
 ### 2026-09-28 — Helio: new chart vocabulary, light mode, motion
 
 - **Six new chart marks**: `RadialBars`, `RadialGauge` (270° tick sweep with a

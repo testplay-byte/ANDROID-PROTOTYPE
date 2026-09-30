@@ -800,3 +800,44 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 4px;
 }
+
+/* ---- bento grid: fixed rows so cards tile with NO dead space ----
+   Six cards across four tracks: 6+3+3 / 3+3+6. Every card fills its
+   cell, so the composition reads as one surface instead of a ragged set. */
+.hl-bento {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-rows: 176px;
+  gap: 12px;
+}
+.hl-bento > .hl-card { min-width: 0; overflow: hidden; }
+.hl-bento .hl-card__body { justify-content: space-between; }
+@container view (max-width: 1100px) {
+  .hl-bento { grid-template-columns: repeat(6, minmax(0, 1fr)); grid-auto-rows: 170px; }
+  .hl-bento > .hl-card { grid-column: span 3 !important; grid-row: span 2 !important; }
+}
+@container view (max-width: 720px) {
+  .hl-bento { grid-template-columns: minmax(0, 1fr); grid-auto-rows: 200px; }
+  .hl-bento > .hl-card { grid-column: span 1 !important; grid-row: span 2 !important; }
+}
+
+/* ---- bento cards fill their cell instead of leaving a hole ---- */
+.hl-bento .hl-card__body { justify-content: flex-start; gap: 12px; }
+.hl-bento .hl-card__body > * { min-height: 0; }
+/* the plots grow to fill whatever height the bento row gives them */
+.hl-bento .hl-plot,
+.hl-bento .hl-heat,
+.hl-bento .hl-treemap,
+.hl-bento .hl-spark { flex: 1 1 auto; }
+.hl-bento .hl-heat { justify-content: center; }
+.hl-bento .hl-treemap { display: flex; }
+.hl-bento .hl-treemap svg { flex: 1 1 auto; }
+.hl-bento .hl-radar { align-self: center; }
+.hl-bento .hl-radial,
+.hl-bento .hl-rgauge { align-self: center; }
+.hl-bento .hl-card__note { flex: 0 0 auto; }
+
+/* centre the remaining plots in their bento cell */
+.hl-bento .hl-radarpair { margin: auto 0; }
+.hl-bento .hl-treemap svg { height: 100%; aspect-ratio: auto; }
+.hl-bento .hl-heat__cell { height: 30px; }

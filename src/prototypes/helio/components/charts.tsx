@@ -599,6 +599,7 @@ export function ChartCard({
   aside,
   children,
   tall,
+  area,
 }: {
   title: string;
   icon?: ReactNode;
@@ -606,9 +607,19 @@ export function ChartCard({
   aside?: ReactNode;
   children: ReactNode;
   tall?: boolean;
+  /** explicit placement inside a bento grid: how many tracks wide / tall */
+  area?: { col?: number; row?: number };
 }) {
   return (
-    <section className="hl-card" data-tall={tall || undefined}>
+    <section
+      className="hl-card"
+      data-tall={tall || undefined}
+      style={
+        area
+          ? { gridColumn: `span ${area.col ?? 3}`, gridRow: `span ${area.row ?? 1}` }
+          : undefined
+      }
+    >
       <header className="hl-card__head">
         {icon && <span className="hl-card__icon">{icon}</span>}
         <h3>{title}</h3>
@@ -652,25 +663,25 @@ export function RadialBars({
   return (
     <div className="hl-radial" style={{ width: size, height: size }}>
       <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size} role="img" aria-label="Radial progress">
-        {rows.map((row) => {
+        {rows.map((row, i) => {
           const frac = Math.max(0, Math.min(1, row.value / row.max));
-          const seg = (
-            <circle
-              key={row.label}
-              cx={size / 2}
-              cy={size / 2}
-              r={r}
-              fill="none"
-              stroke={row.color}
-              strokeWidth={thickness}
-              strokeLinecap="round"
-              strokeDasharray={`${Math.max(0, frac * c - gap)} ${c}`}
-              transform={`rotate(${offset - 90} ${size / 2} ${size / 2})`}
-              className="hl-radial__arc"
-            />
+          // one equal slot per row; the arc fills its own slot by the value
+          const slot = c / rows.length;
+          return (
+            <g key={row.label} transform={`rotate(${(i * 360) / rows.length - 90} ${size / 2} ${size / 2})`}>
+              <circle
+                cx={size / 2} cy={size / 2} r={r} fill="none"
+                stroke={INK.idle} strokeWidth={thickness} strokeLinecap="round"
+                strokeDasharray={`${Math.max(0, slot - gap)} ${c}`}
+              />
+              <circle
+                cx={size / 2} cy={size / 2} r={r} fill="none"
+                stroke={row.color} strokeWidth={thickness} strokeLinecap="round"
+                strokeDasharray={`${Math.max(0, frac * slot - gap)} ${c}`}
+                className="hl-radial__arc"
+              />
+            </g>
           );
-          offset += (frac * 360) / rows.length;
-          return seg;
         })}
       </svg>
       <div className="hl-radial__key">
@@ -878,8 +889,9 @@ export function TreeMap({ nodes, height = 230 }: { nodes: TreeNode[]; height?: n
   );
 }
 
-/** Squarified treemap (Bruls, Huizing & van Wijk) — a compact, correct-enough
- *  implementation: lay out rows greedily, minimising the worst aspect ratio. */
+/** Squarified treemap (Bruls, Huizing & van Wijk): lay out rows greedily,
+ *  each row minimising the worst cell aspect ratio. A treemap only means
+ *  something if the AREA is honest, so the layout is never stretched. */
 function squarify(
   nodes: TreeNode[],
   x: number,
@@ -895,50 +907,52 @@ function squarify(
   let ch = h;
   let i = 0;
   let remaining = sorted.reduce((a, n) => a + n.value, 0) || 1;
-  while (i < sorted.length && cw > 2 && ch > 2) {
+
+  const thicknessOf = (sum: number, horizontal: boolean) =>
+    (sum * cw * ch) / (remaining * (horizontal ? cw : ch));
+  const ratioOf = (vals: number[], horizontal: boolean) => {
+    const sum = vals.reduce((a, b) => a + b, 0);
+    if (sum <= 0) return Infinity;
+    const t = thicknessOf(sum, horizontal);
+    let worst = 0;
+    for (const v of vals) {
+      const len = (v / sum) * (horizontal ? cw : ch);
+      worst = Math.max(worst, len / t, t / len);
+    }
+    return worst;
+  };
+
+  while (i < sorted.length && cw > 1 && ch > 1) {
     const horizontal = cw >= ch;
-    const side = horizontal ? ch : cw;
     const row: TreeNode[] = [];
-    let sum = 0;
     while (i < sorted.length) {
-      const cand = sum + sorted[i].value;
-      if (row.length && worstRatio([...row.map((r) => r.value), sorted[i].value], side, cand, horizontal) >
-          worstRatio(row.map((r) => r.value), side, sum, horizontal)) {
-        break;
-      }
+      const cand = [...row.map((r) => r.value), sorted[i].value];
+      if (row.length && ratioOf(cand, horizontal) > ratioOf(row.map((r) => r.value), horizontal)) break;
       row.push(sorted[i]);
-      sum = cand;
       i++;
     }
-    const thickness = side * (sum / remaining);
+    const sum = row.reduce((a, r) => a + r.value, 0);
+    const t = thicknessOf(sum, horizontal);
     let off = 0;
     for (const node of row) {
-      const frac = node.value / sum;
-      const len = thickness * frac;
+      const len = (node.value / sum) * (horizontal ? cw : ch);
       out.push(
         horizontal
-          ? { node, x: cx + off, y: cy, w: len, h: ch }
-          : { node, x: cx, y: cy + off, w: cw, h: len }
+          ? { node, x: cx + off, y: cy, w: len, h: t }
+          : { node, x: cx, y: cy + off, w: t, h: len }
       );
       off += len;
     }
-    if (horizontal) { cx += thickness; cw -= thickness; } else { cy += thickness; ch -= thickness; }
+    if (horizontal) {
+      cy += t;
+      ch -= t;
+    } else {
+      cx += t;
+      cw -= t;
+    }
     remaining -= sum;
   }
   return out;
-}
-
-function worstRatio(vals: number[], side: number, other: number, horizontal: boolean): number {
-  if (other <= 0) return Infinity;
-  const s = vals.reduce((a, b) => a + b, 0);
-  const sideLen = horizontal ? s / other : side;
-  const otherLen = horizontal ? side : s / other;
-  const max = Math.max(...vals);
-  const min = Math.min(...vals);
-  const s2 = s * s;
-  const a = (sideLen * sideLen * max) / (otherLen * s2);
-  const b = (otherLen * otherLen * s) / (sideLen * s2);
-  return Math.max(a, b);
 }
 
 /* ================================================================== */
