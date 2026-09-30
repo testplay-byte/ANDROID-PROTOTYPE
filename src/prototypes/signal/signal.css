@@ -1432,3 +1432,35 @@
 .sig-app[data-motion="reduced"] *::after {
   transition-duration: 1ms !important;
 }
+
+/* ---- insights bento: 12 tracks, fixed rows, no dead space ----
+   The cards themselves come from the shared chart library
+   (proto-kit/charts); this only supplies the composition. */
+.sig-bento {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-auto-rows: 172px;
+  gap: 12px;
+}
+.sig-bento > .pk-card { min-width: 0; overflow: hidden; }
+.sig-bento .pk-card__body { justify-content: flex-start; gap: 10px; }
+.sig-bento .pk-heat,
+.sig-bento .pk-plot,
+.sig-bento .pk-treemap { flex: 1 1 auto; min-height: 0; }
+.sig-bento .pk-heat { justify-content: center; }
+.sig-bento .pk-heat__cell { height: 22px; }
+.sig-bento .pk-radar { align-self: center; }
+.sig-bento .pk-radial,
+.sig-bento .pk-rgauge { align-self: center; }
+.sig-bento .sig-note { flex: 0 0 auto; }
+@container view (max-width: 1100px) {
+  .sig-bento { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .sig-bento > .pk-card { grid-column: span 3 !important; grid-row: span 2 !important; }
+}
+@container view (max-width: 700px) {
+  .sig-bento { grid-template-columns: minmax(0, 1fr); }
+  .sig-bento > .pk-card { grid-column: span 1 !important; grid-row: span 2 !important; }
+}
+
+.sig-bento .pk-spark { min-height: 0; flex: 1 1 auto; }
+.sig-bento .pk-spark path { transition: none; }

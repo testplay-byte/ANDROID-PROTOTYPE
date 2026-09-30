@@ -46,7 +46,7 @@ import {
 
 export type { SortDir, SortKey } from "../data";
 
-export type ViewId = "overview" | "funnel" | "retention" | "explore" | "settings";
+export type ViewId = "overview" | "insights" | "funnel" | "retention" | "explore" | "settings";
 export type Density = "comfortable" | "compact";
 
 export const VIEWS: { id: ViewId; label: string; hint: string }[] = [

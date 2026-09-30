@@ -82,7 +82,7 @@ const CELL_MIN = 180;
 const SHEET_EDGE_PX = 4;
 
 const STYLE_ORDER: DeviceStyle[] = [
-  "m3", "hig", "carbon", "neumorph", "glass", "brutalism", "clay", "bauhaus", "minimal", "bento", "flat", "console",
+  "m3", "hig", "carbon", "neumorph", "glass", "brutalism", "clay", "bauhaus", "minimal", "bento", "flat",
 ];
 
 const VIEW_KEY = "gallery-view";

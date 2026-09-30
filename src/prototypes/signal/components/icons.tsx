@@ -164,3 +164,14 @@ export function AlertIcon({ size = 14, strokeWidth = 1.8 }: IconProps) {
     </svg>
   );
 }
+
+/** 24px stroke radar mark for the Insights nav item (proto-kit charts). */
+export function RadarIcon({ size = 20, strokeWidth = 1.7 }: { size?: number; strokeWidth?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+      <circle cx="12" cy="12" r="8.5" />
+      <circle cx="12" cy="12" r="4" />
+      <path d="M12 3.5v17M3.5 12h17M6 6l12 12M18 6 6 18" />
+    </svg>
+  );
+}

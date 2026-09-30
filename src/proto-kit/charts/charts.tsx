@@ -1,7 +1,11 @@
 "use client";
 
 /**
- * helio / components / charts — the dashboard's visual vocabulary.
+ * proto-kit / charts — the shared chart vocabulary.
+ *
+ * Promoted out of the Helio prototype: every mark here is token-driven and
+ * language-agnostic, so data-heavy prototypes inherit them instead of
+ * redrawing them. Import from `@/proto-kit/charts` and `@/proto-kit/charts/charts.css`.
  *
  * Every mark is hand-built SVG (no chart library). The rules this file
  * follows, taken from the reference system:
@@ -79,7 +83,7 @@ export function ComboChart({
   const line = compare?.map((v, i) => [i * step + step / 2, y(v)] as [number, number]);
 
   return (
-    <div className="hl-plot" style={{ height }}>
+    <div className="pk-plot" style={{ height }}>
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label="Production by hour with yesterday's comparison">
         {values.map((v, i) => {
           const active = i === highlight || i === hover;
@@ -93,7 +97,7 @@ export function ComboChart({
                 fill="transparent"
               />
               <rect
-                className="hl-col"
+                className="pk-col"
                 x={i * step + (step - bw) / 2}
                 y={y(v)}
                 width={bw}
@@ -117,7 +121,7 @@ export function ComboChart({
         {labels.map((l, i) => (
           <text
             key={l + i}
-            className="hl-axis-text"
+            className="pk-axis-text"
             x={i * step + step / 2}
             y={H - 6}
             textAnchor="middle"
@@ -129,7 +133,7 @@ export function ComboChart({
       </svg>
       {highlight >= 0 && (
         <span
-          className="hl-valuepill tnum"
+          className="pk-valuepill tnum"
           style={{ left: `${((highlight + 0.5) / values.length) * 100}%` }}
         >
           {valueFmt(values[highlight])}
@@ -161,7 +165,7 @@ export function Donut({
   const r = (size - stroke) / 2;
   const c = 2 * Math.PI * r;
   return (
-    <div className="hl-donut" style={{ width: size, height: size }}>
+    <div className="pk-donut" style={{ width: size, height: size }}>
       <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size} role="img" aria-label={`${pct}% complete`}>
         <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke={INK.idle} strokeWidth={stroke} />
         <circle
@@ -176,7 +180,7 @@ export function Donut({
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
       </svg>
-      <div className="hl-donut__centre">
+      <div className="pk-donut__centre">
         <strong className="tnum">{centre}</strong>
         <span>{sub}</span>
       </div>
@@ -201,16 +205,16 @@ export function SegmentedProgress({
 }) {
   const filled = Math.round((value / 100) * segments);
   return (
-    <div className="hl-seg" aria-hidden="true">
+    <div className="pk-seg" aria-hidden="true">
       {Array.from({ length: segments }, (_, i) => (
         <span
           key={i}
-          className="hl-seg__pill"
+          className="pk-seg__pill"
           style={{ background: i < filled ? color : undefined, opacity: i < filled ? 1 : 0.22 }}
         />
       ))}
       {trailing > 0 && (
-        <span className="hl-seg__pill" style={{ background: INK.s5, opacity: 0.55 }} />
+        <span className="pk-seg__pill" style={{ background: INK.s5, opacity: 0.55 }} />
       )}
     </div>
   );
@@ -241,7 +245,7 @@ export function Sparkline({
   const line = smooth ? smoothPath(pts) : pts.map((p, i) => `${i ? "L" : "M"} ${p[0]} ${p[1]}`).join(" ");
   const areaD = `${line} L ${W} ${H} L 0 ${H} Z`;
   return (
-    <svg className="hl-spark" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" height={H} role="img" aria-label={label}>
+    <svg className="pk-spark" viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" height={H} role="img" aria-label={label}>
       {area && <path d={areaD} fill={color} opacity={0.14} />}
       <path
         d={line}
@@ -278,7 +282,7 @@ export function StepTimeline({
   const bw = W / steps.length;
   const y = (l: number) => 14 + l * 26;
   return (
-    <div className="hl-plot">
+    <div className="pk-plot">
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" height={H} role="img" aria-label={`Load bands through the ${labels}`}>
         {steps.map((l, i) => {
           const next = steps[i + 1] ?? l;
@@ -288,7 +292,7 @@ export function StepTimeline({
           return (
             <rect
               key={i}
-              className="hl-step"
+              className="pk-step"
               x={i * bw + 1}
               y={on ? top - 2 : top}
               width={Math.max(1, bw - 2)}
@@ -302,18 +306,18 @@ export function StepTimeline({
           );
         })}
         {hover !== null && (
-          <line className="hl-crosshair" x1={hover * bw + bw / 2} x2={hover * bw + bw / 2} y1={6} y2={H - 20} />
+          <line className="pk-crosshair" x1={hover * bw + bw / 2} x2={hover * bw + bw / 2} y1={6} y2={H - 20} />
         )}
-        <text className="hl-axis-text" x={0} y={H - 4} fill={INK.axis}>
+        <text className="pk-axis-text" x={0} y={H - 4} fill={INK.axis}>
           {labels}
         </text>
-        <text className="hl-axis-text" x={W} y={H - 4} textAnchor="end" fill={INK.axis}>
+        <text className="pk-axis-text" x={W} y={H - 4} textAnchor="end" fill={INK.axis}>
           now
         </text>
       </svg>
       {hover !== null && (
         <div
-          className="hl-tip"
+          className="pk-tip"
           style={{ left: `${((hover + 0.5) / steps.length) * 100}%` }}
         >
           <span>{LEVEL_NAME[steps[hover]]}</span>
@@ -353,12 +357,12 @@ export function ColumnChart({
   const bw = Math.min(30, step * 0.56);
   const y = (v: number) => H - padB - (v / max) * (H - padB - 10);
   return (
-    <div className="hl-plot" style={{ height }}>
+    <div className="pk-plot" style={{ height }}>
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label="Weekly output">
         {avg !== undefined && (
           <>
-            <line className="hl-rule" x1={0} x2={W} y1={y(avg)} y2={y(avg)} />
-            <text className="hl-axis-text" x={2} y={y(avg) - 6} fill={INK.axis}>
+            <line className="pk-rule" x1={0} x2={W} y1={y(avg)} y2={y(avg)} />
+            <text className="pk-axis-text" x={2} y={y(avg) - 6} fill={INK.axis}>
               {avgLabel ?? `${format(avg)} AVG`}
             </text>
           </>
@@ -369,7 +373,7 @@ export function ColumnChart({
             <g key={d.label} onMouseEnter={() => setHover(i)} onMouseLeave={() => setHover(null)}>
               <rect x={i * step} y={0} width={step} height={H - padB} fill="transparent" />
               <rect
-                className="hl-col"
+                className="pk-col"
                 x={i * step + (step - bw) / 2}
                 y={y(d.value)}
                 width={bw}
@@ -383,7 +387,7 @@ export function ColumnChart({
         {data.map((d, i) => (
           <text
             key={d.label + i}
-            className="hl-axis-text"
+            className="pk-axis-text"
             x={i * step + step / 2}
             y={H - 6}
             textAnchor="middle"
@@ -393,7 +397,7 @@ export function ColumnChart({
           </text>
         ))}
       </svg>
-      {hover !== null && <span className="hl-hoverpill tnum">{format(data[hover].value)}</span>}
+      {hover !== null && <span className="pk-hoverpill tnum">{format(data[hover].value)}</span>}
     </div>
   );
 }
@@ -408,8 +412,8 @@ export function StackedBar({
 }) {
   const total = segments.reduce((a, s) => a + s.value, 0) || 1;
   return (
-    <div className="hl-stack" role="img" aria-label="Energy mix">
-      <div className="hl-stack__bar">
+    <div className="pk-stack" role="img" aria-label="Energy mix">
+      <div className="pk-stack__bar">
         {segments.map((s) => (
           <span
             key={s.label}
@@ -418,7 +422,7 @@ export function StackedBar({
           />
         ))}
       </div>
-      <ul className="hl-stack__legend">
+      <ul className="pk-stack__legend">
         {segments.map((s) => (
           <li key={s.label}>
             <i style={{ background: s.color }} />
@@ -451,7 +455,7 @@ export function HalfGauge({
   const r = (size - stroke) / 2;
   const c = Math.PI * r; // half circumference
   return (
-    <div className="hl-gauge" style={{ width: size, height: size / 2 + 34 }}>
+    <div className="pk-gauge" style={{ width: size, height: size / 2 + 34 }}>
       <svg viewBox={`0 0 ${size} ${size / 2 + 4}`} width={size} height={size / 2 + 4} role="img" aria-label={`${pct}%`}>
         <path
           d={`M ${stroke / 2} ${size / 2} A ${r} ${r} 0 0 1 ${size - stroke / 2} ${size / 2}`}
@@ -470,7 +474,7 @@ export function HalfGauge({
         />
         <circle cx={size / 2} cy={size / 2} r={5} fill="var(--color-text)" />
       </svg>
-      <div className="hl-gauge__readout">
+      <div className="pk-gauge__readout">
         <strong className="tnum">{centre}</strong>
         <span>{sub}</span>
       </div>
@@ -490,12 +494,12 @@ export function RankBars({
 }) {
   const max = Math.max(...rows.map((r) => r.value), 1);
   return (
-    <ul className="hl-rank">
+    <ul className="pk-rank">
       {rows.map((r) => (
         <li key={r.label}>
-          <span className="hl-rank__label">{r.label}</span>
-          <span className="hl-rank__track">
-            <span className="hl-rank__fill" style={{ width: `${(r.value / max) * 100}%` }} />
+          <span className="pk-rank__label">{r.label}</span>
+          <span className="pk-rank__track">
+            <span className="pk-rank__fill" style={{ width: `${(r.value / max) * 100}%` }} />
           </span>
           <b className="tnum">
             {format(r.value)}
@@ -531,10 +535,10 @@ export function AreaLine({
   const pts = values.map((v, i) => [(i / (values.length - 1)) * W, H - padB - ((v - min) / (max - min || 1)) * (H - padB - 12)] as [number, number]);
   const line = smoothPath(pts);
   return (
-    <div className="hl-plot" style={{ height }}>
+    <div className="pk-plot" style={{ height }}>
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="none" role="img" aria-label="Trend">
         {[0.25, 0.5, 0.75].map((f) => (
-          <line key={f} className="hl-grid" x1={0} x2={W} y1={H * f} y2={H * f} />
+          <line key={f} className="pk-grid" x1={0} x2={W} y1={H * f} y2={H * f} />
         ))}
         <path d={`${line} L ${W} ${H} L 0 ${H} Z`} fill={color} opacity={0.13} />
         <path
@@ -548,7 +552,7 @@ export function AreaLine({
         {emphasiseLast && <circle cx={pts[pts.length - 1][0]} cy={pts[pts.length - 1][1]} r={3.5} fill={color} />}
         {labels.map((l, i) =>
           i % Math.ceil(labels.length / 4) === 0 ? (
-            <text key={l + i} className="hl-axis-text" x={(i / (labels.length - 1)) * W} y={H - 5} textAnchor="middle" fill={INK.axis}>
+            <text key={l + i} className="pk-axis-text" x={(i / (labels.length - 1)) * W} y={H - 5} textAnchor="middle" fill={INK.axis}>
               {l}
             </text>
           ) : null
@@ -563,15 +567,15 @@ export function AreaLine({
 /* ------------------------------------------------------------------ */
 export function SiteMap({ points }: { points: { x: number; y: number; hot: boolean }[] }) {
   return (
-    <svg className="hl-map" viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Site map">
+    <svg className="pk-map" viewBox="0 0 400 260" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Site map">
       <defs>
-        <pattern id="hl-grid" width="26" height="26" patternUnits="userSpaceOnUse">
+        <pattern id="pk-grid" width="26" height="26" patternUnits="userSpaceOnUse">
           <path d="M 26 0 L 0 0 0 26" fill="none" stroke="var(--chart-grid)" strokeWidth="1" />
         </pattern>
       </defs>
-      <rect width="400" height="260" fill="url(#hl-grid)" />
+      <rect width="400" height="260" fill="url(#pk-grid)" />
       <path
-        className="hl-map__route"
+        className="pk-map__route"
         d="M 48 208 C 120 190, 140 120, 214 108 S 320 96, 358 52"
         fill="none"
         stroke="var(--chart-series-1)"
@@ -612,7 +616,7 @@ export function ChartCard({
 }) {
   return (
     <section
-      className="hl-card"
+      className="pk-card"
       data-tall={tall || undefined}
       style={
         area
@@ -620,11 +624,11 @@ export function ChartCard({
           : undefined
       }
     >
-      <header className="hl-card__head">
-        {icon && <span className="hl-card__icon">{icon}</span>}
+      <header className="pk-card__head">
+        {icon && <span className="pk-card__icon">{icon}</span>}
         <h3>{title}</h3>
         {legend && (
-          <ul className="hl-legend">
+          <ul className="pk-legend">
             {legend.map((l) => (
               <li key={l.label}>
                 <i style={{ background: l.color }} />
@@ -634,11 +638,11 @@ export function ChartCard({
           </ul>
         )}
         {aside}
-        <button className="hl-dots" type="button" aria-label={`More options for ${title}`}>
+        <button className="pk-dots" type="button" aria-label={`More options for ${title}`}>
           ···
         </button>
       </header>
-      <div className="hl-card__body">{children}</div>
+      <div className="pk-card__body">{children}</div>
     </section>
   );
 }
@@ -661,7 +665,7 @@ export function RadialBars({
   const c = 2 * Math.PI * r;
   let offset = 0;
   return (
-    <div className="hl-radial" style={{ width: size, height: size }}>
+    <div className="pk-radial" style={{ width: size, height: size }}>
       <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size} role="img" aria-label="Radial progress">
         {rows.map((row, i) => {
           const frac = Math.max(0, Math.min(1, row.value / row.max));
@@ -678,13 +682,13 @@ export function RadialBars({
                 cx={size / 2} cy={size / 2} r={r} fill="none"
                 stroke={row.color} strokeWidth={thickness} strokeLinecap="round"
                 strokeDasharray={`${Math.max(0, frac * slot - gap)} ${c}`}
-                className="hl-radial__arc"
+                className="pk-radial__arc"
               />
             </g>
           );
         })}
       </svg>
-      <div className="hl-radial__key">
+      <div className="pk-radial__key">
         {rows.map((row) => (
           <span key={row.label}>
             <i style={{ background: row.color }} />
@@ -729,7 +733,7 @@ export function RadialGauge({
   const angle = START + (pct / 100) * SWEEP;
   const [nx, ny] = polar(angle, r - 16);
   return (
-    <div className="hl-rgauge" style={{ width: w, height: h }}>
+    <div className="pk-rgauge" style={{ width: w, height: h }}>
       <svg viewBox={`0 0 ${w} ${h}`} width={w} height={h} role="img" aria-label={`${pct}%`}>
         {Array.from({ length: ticks }, (_, i) => {
           const deg = START + (i / (ticks - 1)) * SWEEP;
@@ -749,11 +753,11 @@ export function RadialGauge({
         <line
           x1={cx} y1={cy} x2={nx} y2={ny}
           stroke="var(--color-text)" strokeWidth={2.2} strokeLinecap="round"
-          className="hl-rgauge__needle"
+          className="pk-rgauge__needle"
         />
         <circle cx={cx} cy={cy} r={5.5} fill="var(--color-text)" />
       </svg>
-      <div className="hl-rgauge__readout">
+      <div className="pk-rgauge__readout">
         <strong className="tnum">{centre}</strong>
         <span>{sub}</span>
       </div>
@@ -782,11 +786,11 @@ export function HeatMap({
   const max = Math.max(...flat, 1);
   const min = Math.min(...flat, 0);
   return (
-    <div className="hl-heat">
-      <div className="hl-heat__grid" style={{ gridTemplateColumns: `48px repeat(${cols.length}, minmax(0, 1fr))` }}>
+    <div className="pk-heat">
+      <div className="pk-heat__grid" style={{ gridTemplateColumns: `48px repeat(${cols.length}, minmax(0, 1fr))` }}>
         <span />
         {cols.map((c) => (
-          <span className="hl-heat__axis" key={c}>{c}</span>
+          <span className="pk-heat__axis" key={c}>{c}</span>
         ))}
         {rows.map((r, ri) => (
           <FragmentRow
@@ -804,7 +808,7 @@ export function HeatMap({
         ))}
       </div>
       {hover && (
-        <span className="hl-heat__readout tnum">
+        <span className="pk-heat__readout tnum">
           {rows[hover.r]} · {cols[hover.c]} — <b>{format(values[hover.r][hover.c])}</b>
         </span>
       )}
@@ -822,7 +826,7 @@ function FragmentRow({
 }) {
   return (
     <>
-      <span className="hl-heat__axis">{label}</span>
+      <span className="pk-heat__axis">{label}</span>
       {cols.map((c, ci) => {
         const v = values[ri][ci];
         const t = (v - min) / (max - min || 1);
@@ -830,7 +834,7 @@ function FragmentRow({
         return (
           <span
             key={c}
-            className="hl-heat__cell"
+            className="pk-heat__cell"
             data-on={on || undefined}
             style={{ background: `color-mix(in srgb, ${color} ${Math.round(12 + t * 78)}%, transparent)` }}
             onMouseEnter={() => setHover({ r: ri, c: ci })}
@@ -854,7 +858,7 @@ export function TreeMap({ nodes, height = 230 }: { nodes: TreeNode[]; height?: n
   const H = height;
   const rects = squarify(nodes, 0, 0, W, H);
   return (
-    <div className="hl-treemap">
+    <div className="pk-treemap">
       <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label="Share by segment">
         {rects.map((r, i) => (
           <g key={r.node.label + i} onMouseEnter={() => setHover(r.node)} onMouseLeave={() => setHover(null)}>
@@ -871,7 +875,7 @@ export function TreeMap({ nodes, height = 230 }: { nodes: TreeNode[]; height?: n
               <text
                 x={r.x + 11}
                 y={r.y + 22}
-                className="hl-treemap__label"
+                className="pk-treemap__label"
                 style={{ fill: r.node.fg ?? "var(--color-primary-fg)" }}
               >
                 {r.node.label}
@@ -881,7 +885,7 @@ export function TreeMap({ nodes, height = 230 }: { nodes: TreeNode[]; height?: n
         ))}
       </svg>
       {hover && (
-        <span className="hl-treemap__readout">
+        <span className="pk-treemap__readout">
           {hover.label} · <b className="tnum">{hover.value}%</b>
         </span>
       )}
@@ -982,7 +986,7 @@ export function RadarChart({
   };
   const poly = series.map((v, i) => pt(i, v).join(",")).join(" ");
   return (
-    <svg className="hl-radar" viewBox={`0 0 ${size} ${size}`} width={size} height={size} role="img" aria-label="Radar chart">
+    <svg className="pk-radar" viewBox={`0 0 ${size} ${size}`} width={size} height={size} role="img" aria-label="Radar chart">
       {[0.25, 0.5, 0.75, 1].map((f) => (
         <polygon key={f} points={axes.map((_, i) => pt(i, max * f).join(",")).join(" ")} fill="none" stroke={INK.grid} strokeWidth={1} />
       ))}
@@ -990,7 +994,7 @@ export function RadarChart({
         const [x, y] = pt(i, max);
         return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke={INK.grid} strokeWidth={1} />;
       })}
-      <polygon points={poly} fill={color} fillOpacity={0.2} stroke={color} strokeWidth={2} strokeLinejoin="round" className="hl-radar__poly" />
+      <polygon points={poly} fill={color} fillOpacity={0.2} stroke={color} strokeWidth={2} strokeLinejoin="round" className="pk-radar__poly" />
       {series.map((v, i) => {
         const [x, y] = pt(i, v);
         return (
@@ -1009,13 +1013,13 @@ export function RadarChart({
       {axes.map((a, i) => {
         const [x, y] = pt(i, max * 1.18);
         return (
-          <text key={a} x={x} y={y} className="hl-radar__label" textAnchor="middle" dominantBaseline="middle">
+          <text key={a} x={x} y={y} className="pk-radar__label" textAnchor="middle" dominantBaseline="middle">
             {a}
           </text>
         );
       })}
       {hover !== null && (
-        <text x={cx} y={size - 2} className="hl-radar__readout" textAnchor="middle">
+        <text x={cx} y={size - 2} className="pk-radar__readout" textAnchor="middle">
           {axes[hover]} · {series[hover]}
         </text>
       )}

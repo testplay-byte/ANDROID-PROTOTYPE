@@ -12,7 +12,6 @@ import HaloPage from "./halo/page";
 import CounterPage from "./counter/page";
 import FacetPage from "./facet/page";
 import ThinPage from "./thin/page";
-import HelioPage from "./helio/page";
 
 /**
  * app/prototypes/_registry — which prototype exists on which surface.
@@ -98,11 +97,6 @@ export const PROTOTYPE_REGISTRY: Record<string, PrototypeEntry> = {
     name: "Thin",
     surfaces: ["desktop", "tablet"],
     views: { desktop: ThinPage, tablet: ThinPage },
-  },
-  helio: {
-    name: "Helio",
-    surfaces: ["desktop", "tablet"],
-    views: { desktop: HelioPage, tablet: HelioPage },
   },
 };
 

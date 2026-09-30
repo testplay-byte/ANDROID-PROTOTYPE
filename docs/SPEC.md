@@ -287,6 +287,16 @@ and `/tablet/`:**
 | bento | Facet | tile grid with real span cycling |
 | minimal | Thin | tasks + writing, type-scale control |
 
+### 8.5a The shared chart library
+
+`src/proto-kit/charts/` holds eighteen token-driven marks (combo chart, donut,
+segmented progress, sparkline, step timeline, column chart, stacked bar, half
+gauge, radial bars, radial gauge, heat map, tree map, radar, ranked bars, area
+line, site map, count-up). Data-heavy prototypes import them instead of
+redrawing: `import { RadarChart } from "@/proto-kit/charts"` plus the
+stylesheet. Because every mark is token-driven, they work in any design
+language and both themes.
+
 ## 8.6 Data & state (the rules every prototype follows)
 
 **Data is deterministic — this is the rule for every prototype written from

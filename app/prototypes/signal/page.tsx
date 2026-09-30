@@ -3,12 +3,13 @@
 /**
  * signal / page — "Signal" product analytics console.
  *
- * THE FLAGSHIP DESKTOP BUILD OF THE "console" DESIGN LANGUAGE.
+ * THE FLAGSHIP DESKTOP BUILD OF MATERIAL 3 — the data-dense app in the
+ * repo's default language.
  *
  * Shell (identical in structure to meridian, the reference desktop shell):
  *   DeviceThemeProvider (signal-theme, scoped to the SURFACE) → SignalProvider
  *   → Stage (preview panels, surface switcher, fullscreen — all OUTSIDE the
- *   app) → SurfaceFrame (surface="desktop", style="console", windowChrome,
+ *   app) → SurfaceFrame (surface="desktop", style="m3", windowChrome,
  *   menu bar, draggable, storageKey="signal") with:
  *     · DesktopSidebar — sectioned navigation
  *     · DesktopTopBar  — title + ⌘K search slot + actions
@@ -20,7 +21,7 @@
  * sidebar, a 12-column panel grid, charts that size to their container via
  * viewBox, a detail inspector that opens BESIDE the table, and a palette.
  *
- * Nothing in here names a colour — `style="console"` supplies the inks, and
+ * Nothing in here names a colour — `style="m3"` supplies the inks, and
  * the charts only ever reference `--chart-series-1…5`, `--chart-grid` and
  * `--chart-axis`.
  */
@@ -52,9 +53,11 @@ import {
   SearchIcon,
   SlidersIcon,
   TableIcon,
+  RadarIcon,
 } from "../../../src/prototypes/signal/components/icons";
 import { OverviewScreen } from "../../../src/prototypes/signal/screens/overview";
 import { FunnelScreen } from "../../../src/prototypes/signal/screens/funnel";
+import { InsightsScreen } from "../../../src/prototypes/signal/screens/insights";
 import { RetentionScreen } from "../../../src/prototypes/signal/screens/retention";
 import { ExploreScreen } from "../../../src/prototypes/signal/screens/explore";
 import { SettingsScreen } from "../../../src/prototypes/signal/screens/settings";
@@ -62,6 +65,7 @@ import { PLATFORMS, PLANS, RANGES } from "../../../src/prototypes/signal/data";
 
 const NAV: { id: ViewId; label: string; icon: ReactNode }[] = [
   { id: "overview", label: "Overview", icon: <GaugeIcon /> },
+  { id: "insights", label: "Insights", icon: <RadarIcon /> },
   { id: "funnel", label: "Funnel", icon: <FunnelIcon /> },
   { id: "retention", label: "Retention", icon: <GridIcon /> },
   { id: "explore", label: "Explore", icon: <TableIcon /> },
@@ -72,6 +76,10 @@ const SCREEN_INFO: Record<ViewId, { name: string; desc: string }> = {
   overview: {
     name: "Overview",
     desc: "The flagship screen: a five-card KPI row with deltas and sparklines, a large time series with a dashed comparison series and a drag-to-brush window, a stacked column chart, a revenue ring and a live activity feed. The range selector genuinely re-scales every number.",
+  },
+  insights: {
+    name: "Insights",
+    desc: "The visual vocabulary: an engagement heat map (when people are active), a revenue tree map (where it comes from), a balance radar, radial lifecycle bars and an activation gauge, plus sparklines — all drawn from the shared chart library in proto-kit.",
   },
   funnel: {
     name: "Funnel",
@@ -189,7 +197,7 @@ function Shell() {
     >
       <SurfaceFrame
         surface="desktop"
-        style="console"
+        style="m3"
         windowChrome
         windowTitle="Signal — Product analytics"
         menu={["Signal", "File", "View", "Dashboards", "Help"]}
@@ -312,7 +320,10 @@ function Shell() {
 
             <SurfaceScreen>
               {view === "overview" && <OverviewScreen />}
+              {view === "insights" && <InsightsScreen />}
+
               {view === "funnel" && <FunnelScreen />}
+
               {view === "retention" && <RetentionScreen />}
               {view === "explore" && <ExploreScreen />}
               {view === "settings" && <SettingsScreen />}

@@ -27,8 +27,7 @@ export type DeviceStyle =
   | "bauhaus" // Bauhaus geometric
   | "minimal" // Minimalism / monochrome
   | "bento" // Bento grid
-  | "flat" // Flat design 2.0
-  | "console"; // Console — the instrument language for data + charts
+  | "flat"; // Flat design 2.0
 
 /** All supported style ids — used by docs, dashboard badges and validation. */
 export const DEVICE_STYLES: readonly DeviceStyle[] = [
@@ -43,7 +42,6 @@ export const DEVICE_STYLES: readonly DeviceStyle[] = [
   "minimal",
   "bento",
   "flat",
-  "console",
 ] as const;
 
 /** Human-readable display names for the dashboard / side panels. */
@@ -59,5 +57,4 @@ export const STYLE_LABELS: Record<DeviceStyle, string> = {
   minimal: "Minimalism",
   bento: "Bento Grid",
   flat: "Flat Design",
-  console: "Console",
 };

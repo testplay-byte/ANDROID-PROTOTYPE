@@ -1,4 +1,4 @@
-# docs/design-languages/ — Style Guides for the 12 Design Languages
+# docs/design-languages/ — Style Guides for the 11 Design Languages
 
 > One spec per design language supported by the proto-kit style system
 > (`src/proto-kit/styles/`). Read [`../style-selection-guide.md`](../style-selection-guide.md)
@@ -22,7 +22,6 @@
 | [`minimal.md`](./minimal.md) | `minimal` | Minimalism / monochrome | floating / large |
 | [`bento.md`](./bento.md) | `bento` | Bento grid | floating / large |
 | [`flat.md`](./flat.md) | `flat` | Flat Design 2.0 | labeled / inline |
-| [`console.md`](./console.md) | `console` | Console (analytics / instrument UI) | — (desktop language) |
 
 The default `m3` language is documented in [`docs/design-systems/material-3-expressive/`](../design-systems/material-3-expressive/navigation.md)
 (tokens live in `src/proto-kit/tokens/tokens.css`; no `data-style` attribute needed).

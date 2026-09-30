@@ -7,6 +7,23 @@
 
 ## [Unreleased]
 
+### 2026-09-28 — Helio removed, its chart work promoted, Signal moved to M3
+
+- **Helio is deleted** (route, source, registry, gallery, docs) at the user's
+  request, and with it the ad-hoc "Console" design language — back to the
+  eleven real languages.
+- **The chart work was not thrown away**: eighteen marks now live in
+  `src/proto-kit/charts/` as a shared, token-driven library (combo chart,
+  donut, segmented progress, sparkline, step timeline, column, stacked bar,
+  half gauge, radial bars, radial gauge, heat map, tree map, radar, ranked
+  bars, area line, site map, count-up). The chart inks (--chart-series-*,
+  --chart-grid, --chart-axis) moved from a language layer into the APP token
+  layer, so any language can draw and restyle them.
+- **Signal moved to Material 3** and gained an **Insights** view built from the
+  shared library: engagement heat map, revenue tree map, balance radar,
+  lifecycle radial bars, an activation gauge and paired sparklines, in a
+  twelve-track bento with fixed rows.
+
 ### 2026-09-28 — Helio layout rebuild: bento grid, fixed treemap and radial geometry
 
 - **The insights view is now a real bento**: 12 tracks x 4 fixed rows, six cards
