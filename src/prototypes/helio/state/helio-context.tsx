@@ -18,12 +18,13 @@ import {
   type ReactNode,
 } from "react";
 
-export type ViewId = "overview" | "analytics" | "sites" | "tracker";
+export type ViewId = "overview" | "analytics" | "insights" | "sites" | "tracker";
 export type Density = "comfortable" | "compact";
 
 export const VIEWS: { id: ViewId; label: string; hint: string }[] = [
   { id: "overview", label: "Overview", hint: "Portfolio at a glance — the full grid" },
   { id: "analytics", label: "Analytics", hint: "Load bands, mix and weekly output" },
+  { id: "insights", label: "Insights", hint: "Heat map, tree map, radar, radial bars and gauge" },
   { id: "sites", label: "Sites", hint: "Every site, sortable, with status" },
   { id: "tracker", label: "Live", hint: "A live day: frequency, output, alerts" },
 ];
@@ -44,7 +45,7 @@ interface HelioState {
 }
 
 const Ctx = createContext<HelioState | null>(null);
-const ORDER: ViewId[] = ["overview", "analytics", "sites", "tracker"];
+const ORDER: ViewId[] = ["overview", "analytics", "insights", "sites", "tracker"];
 
 export function HelioProvider({ children }: { children: ReactNode }) {
   const [view, setView] = useState<ViewId>("overview");

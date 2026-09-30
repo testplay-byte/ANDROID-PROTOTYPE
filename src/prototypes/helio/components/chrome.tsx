@@ -10,25 +10,31 @@
 
 import type { ReactNode } from "react";
 import { VIEWS, useHelio, type ViewId } from "../state/helio-context";
+import { useDeviceTheme } from "@/proto-kit";
 import {
   BellIcon,
   BoltIcon,
   ChartIcon,
   GridIcon,
+  RadarIcon,
   SearchIcon,
   SignalIcon,
   SiteIcon,
+  SunIcon,
+  MoonIcon,
 } from "./icons";
 
 const ICONS: Record<ViewId, ReactNode> = {
   overview: <GridIcon size={17} />,
   analytics: <ChartIcon size={17} />,
   sites: <SiteIcon size={17} />,
+  insights: <RadarIcon size={17} />,
   tracker: <SignalIcon size={17} />,
 };
 
 export function TopBar() {
   const { view, go, density, setDensity, toggleLive, live, notify } = useHelio();
+  const { theme, toggleTheme } = useDeviceTheme();
 
   return (
     <header className="hl-topbar">
@@ -75,6 +81,14 @@ export function TopBar() {
           aria-label={`Density: ${density}`}
         >
           {density === "comfortable" ? "Roomy" : "Compact"}
+        </button>
+        <button
+          className="hl-iconbtn"
+          type="button"
+          aria-label={theme === "dark" ? "Switch to light" : "Switch to dark"}
+          onClick={toggleTheme}
+        >
+          {theme === "dark" ? <SunIcon size={16} /> : <MoonIcon size={16} />}
         </button>
         <button className="hl-iconbtn" type="button" aria-label="Search" onClick={() => notify("Search is on the Sites view") }>
           <SearchIcon size={16} />

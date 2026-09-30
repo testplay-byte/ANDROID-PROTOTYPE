@@ -114,3 +114,17 @@ export const ClockIcon = ({ size = 20, strokeWidth = 1.7 }: IconProps) => (
     <path d="M12 7.5V12l3 2" />
   </svg>
 );
+
+export const RadarIcon = ({ size = 20, strokeWidth = 1.7 }: IconProps) => (
+  <svg {...base(size, strokeWidth)}>
+    <circle cx="12" cy="12" r="8.5" />
+    <circle cx="12" cy="12" r="4" />
+    <path d="M12 3.5v17M3.5 12h17M6 6l12 12M18 6 6 18" />
+  </svg>
+);
+
+export const MoonIcon = ({ size = 20, strokeWidth = 1.7 }: IconProps) => (
+  <svg {...base(size, strokeWidth)}>
+    <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z" />
+  </svg>
+);

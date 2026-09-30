@@ -7,6 +7,21 @@
 
 ## [Unreleased]
 
+### 2026-09-28 — Helio: new chart vocabulary, light mode, motion
+
+- **Six new chart marks**: `RadialBars`, `RadialGauge` (270° tick sweep with a
+  needle), `HeatMap` (intensity grid with a hover readout), `TreeMap` (a real
+  squarified treemap), `RadarChart` (polygon grid) and `CountUp`.
+- **New Insights view** showing them together, so the marks can be compared
+  side by side.
+- **Light mode**: a sun/moon toggle in the top bar; `<SurfaceFrame>` takes its
+  theme from `useDeviceTheme()`, and every mark reads colour from tokens — all
+  eighteen charts flip with no override in chart code. The Console light
+  palette gained a bar-idle token plus shadow/depth adjustments.
+- **Motion layer**: columns grow from the baseline, arcs sweep, sparklines draw,
+  needles settle with an overshoot, figures count up, cards lift on hover —
+  all token-timed and all disabled under `prefers-reduced-motion`.
+
 ### 2026-09-28 — Helio: the chart-first desktop reference
 
 - New desktop prototype **Helio** (Console language) built from a supplied visual

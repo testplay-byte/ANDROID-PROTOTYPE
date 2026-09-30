@@ -14,7 +14,7 @@
  *   · every number is tabular; the ink comes from the token palette
  */
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 /* ------------------------------------------------------------------ */
 /* helpers                                                             */
@@ -629,5 +629,416 @@ export function ChartCard({
       </header>
       <div className="hl-card__body">{children}</div>
     </section>
+  );
+}
+
+/* ================================================================== */
+/* 13 · radial bars — concentric arcs, one per series                   */
+/* ================================================================== */
+export function RadialBars({
+  rows,
+  size = 210,
+  thickness = 13,
+  gap = 8,
+}: {
+  rows: { label: string; value: number; max: number; color: string }[];
+  size?: number;
+  thickness?: number;
+  gap?: number;
+}) {
+  const r = size / 2 - thickness / 2 - 3;
+  const c = 2 * Math.PI * r;
+  let offset = 0;
+  return (
+    <div className="hl-radial" style={{ width: size, height: size }}>
+      <svg viewBox={`0 0 ${size} ${size}`} width={size} height={size} role="img" aria-label="Radial progress">
+        {rows.map((row) => {
+          const frac = Math.max(0, Math.min(1, row.value / row.max));
+          const seg = (
+            <circle
+              key={row.label}
+              cx={size / 2}
+              cy={size / 2}
+              r={r}
+              fill="none"
+              stroke={row.color}
+              strokeWidth={thickness}
+              strokeLinecap="round"
+              strokeDasharray={`${Math.max(0, frac * c - gap)} ${c}`}
+              transform={`rotate(${offset - 90} ${size / 2} ${size / 2})`}
+              className="hl-radial__arc"
+            />
+          );
+          offset += (frac * 360) / rows.length;
+          return seg;
+        })}
+      </svg>
+      <div className="hl-radial__key">
+        {rows.map((row) => (
+          <span key={row.label}>
+            <i style={{ background: row.color }} />
+            <b className="tnum">{row.value}</b>
+            {row.label}
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================== */
+/* 14 · radial gauge — 270° sweep, tick ring, needle                  */
+/* ================================================================== */
+export function RadialGauge({
+  pct,
+  centre,
+  sub,
+  ticks = 40,
+  size = 200,
+  color = INK.s1,
+}: {
+  pct: number;
+  centre: string;
+  sub: string;
+  ticks?: number;
+  size?: number;
+  color?: string;
+}) {
+  const SWEEP = 270;
+  const START = 135;
+  const w = size;
+  const h = size * 0.84;
+  const cx = w / 2;
+  const cy = size / 2;
+  const r = size / 2 - 22;
+  const polar = (deg: number, rad: number) => {
+    const a = ((deg - 90) * Math.PI) / 180;
+    return [cx + rad * Math.cos(a), cy + rad * Math.sin(a)] as const;
+  };
+  const angle = START + (pct / 100) * SWEEP;
+  const [nx, ny] = polar(angle, r - 16);
+  return (
+    <div className="hl-rgauge" style={{ width: w, height: h }}>
+      <svg viewBox={`0 0 ${w} ${h}`} width={w} height={h} role="img" aria-label={`${pct}%`}>
+        {Array.from({ length: ticks }, (_, i) => {
+          const deg = START + (i / (ticks - 1)) * SWEEP;
+          const on = ((i / (ticks - 1)) * 100) <= pct;
+          const [x1, y1] = polar(deg, r);
+          const [x2, y2] = polar(deg, r - 8);
+          return (
+            <line
+              key={i}
+              x1={x1} y1={y1} x2={x2} y2={y2}
+              stroke={on ? color : INK.idle}
+              strokeWidth={2.4}
+              strokeLinecap="round"
+            />
+          );
+        })}
+        <line
+          x1={cx} y1={cy} x2={nx} y2={ny}
+          stroke="var(--color-text)" strokeWidth={2.2} strokeLinecap="round"
+          className="hl-rgauge__needle"
+        />
+        <circle cx={cx} cy={cy} r={5.5} fill="var(--color-text)" />
+      </svg>
+      <div className="hl-rgauge__readout">
+        <strong className="tnum">{centre}</strong>
+        <span>{sub}</span>
+      </div>
+    </div>
+  );
+}
+
+/* ================================================================== */
+/* 15 · heat map — intensity grid with a hover readout                */
+/* ================================================================== */
+export function HeatMap({
+  rows,
+  cols,
+  values,
+  format = (v: number) => String(v),
+  color = "var(--chart-series-1)",
+}: {
+  rows: string[];
+  cols: string[];
+  values: number[][];
+  format?: (v: number) => string;
+  color?: string;
+}) {
+  const [hover, setHover] = useState<{ r: number; c: number } | null>(null);
+  const flat = values.flat();
+  const max = Math.max(...flat, 1);
+  const min = Math.min(...flat, 0);
+  return (
+    <div className="hl-heat">
+      <div className="hl-heat__grid" style={{ gridTemplateColumns: `48px repeat(${cols.length}, minmax(0, 1fr))` }}>
+        <span />
+        {cols.map((c) => (
+          <span className="hl-heat__axis" key={c}>{c}</span>
+        ))}
+        {rows.map((r, ri) => (
+          <FragmentRow
+            key={r}
+            label={r}
+            ri={ri}
+            cols={cols}
+            values={values}
+            min={min}
+            max={max}
+            color={color}
+            hover={hover}
+            setHover={setHover}
+          />
+        ))}
+      </div>
+      {hover && (
+        <span className="hl-heat__readout tnum">
+          {rows[hover.r]} · {cols[hover.c]} — <b>{format(values[hover.r][hover.c])}</b>
+        </span>
+      )}
+    </div>
+  );
+}
+
+function FragmentRow({
+  label, ri, cols, values, min, max, color, hover, setHover,
+}: {
+  label: string; ri: number; cols: string[]; values: number[][];
+  min: number; max: number; color: string;
+  hover: { r: number; c: number } | null;
+  setHover: (v: { r: number; c: number } | null) => void;
+}) {
+  return (
+    <>
+      <span className="hl-heat__axis">{label}</span>
+      {cols.map((c, ci) => {
+        const v = values[ri][ci];
+        const t = (v - min) / (max - min || 1);
+        const on = hover?.r === ri && hover?.c === ci;
+        return (
+          <span
+            key={c}
+            className="hl-heat__cell"
+            data-on={on || undefined}
+            style={{ background: `color-mix(in srgb, ${color} ${Math.round(12 + t * 78)}%, transparent)` }}
+            onMouseEnter={() => setHover({ r: ri, c: ci })}
+            onMouseLeave={() => setHover(null)}
+          />
+        );
+      })}
+    </>
+  );
+}
+
+/* ================================================================== */
+/* 16 · tree map — squarified rectangles sized by value               */
+/* ================================================================== */
+export interface TreeNode { label: string; value: number; color: string; fg?: string }
+
+export function TreeMap({ nodes, height = 230 }: { nodes: TreeNode[]; height?: number }) {
+  const [hover, setHover] = useState<TreeNode | null>(null);
+  // keep the canvas near 3:2 — a tall narrow slot squashes the squarify
+  const W = 420;
+  const H = height;
+  const rects = squarify(nodes, 0, 0, W, H);
+  return (
+    <div className="hl-treemap">
+      <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" role="img" aria-label="Share by segment">
+        {rects.map((r, i) => (
+          <g key={r.node.label + i} onMouseEnter={() => setHover(r.node)} onMouseLeave={() => setHover(null)}>
+            <rect
+              x={r.x + 2}
+              y={r.y + 2}
+              width={Math.max(0, r.w - 4)}
+              height={Math.max(0, r.h - 4)}
+              rx={6}
+              fill={r.node.color}
+              opacity={hover && hover.label !== r.node.label ? 0.4 : 1}
+            />
+            {r.w > 62 && r.h > 28 && (
+              <text
+                x={r.x + 11}
+                y={r.y + 22}
+                className="hl-treemap__label"
+                style={{ fill: r.node.fg ?? "var(--color-primary-fg)" }}
+              >
+                {r.node.label}
+              </text>
+            )}
+          </g>
+        ))}
+      </svg>
+      {hover && (
+        <span className="hl-treemap__readout">
+          {hover.label} · <b className="tnum">{hover.value}%</b>
+        </span>
+      )}
+    </div>
+  );
+}
+
+/** Squarified treemap (Bruls, Huizing & van Wijk) — a compact, correct-enough
+ *  implementation: lay out rows greedily, minimising the worst aspect ratio. */
+function squarify(
+  nodes: TreeNode[],
+  x: number,
+  y: number,
+  w: number,
+  h: number
+): { node: TreeNode; x: number; y: number; w: number; h: number }[] {
+  const out: { node: TreeNode; x: number; y: number; w: number; h: number }[] = [];
+  const sorted = [...nodes].sort((a, b) => b.value - a.value);
+  let cx = x;
+  let cy = y;
+  let cw = w;
+  let ch = h;
+  let i = 0;
+  let remaining = sorted.reduce((a, n) => a + n.value, 0) || 1;
+  while (i < sorted.length && cw > 2 && ch > 2) {
+    const horizontal = cw >= ch;
+    const side = horizontal ? ch : cw;
+    const row: TreeNode[] = [];
+    let sum = 0;
+    while (i < sorted.length) {
+      const cand = sum + sorted[i].value;
+      if (row.length && worstRatio([...row.map((r) => r.value), sorted[i].value], side, cand, horizontal) >
+          worstRatio(row.map((r) => r.value), side, sum, horizontal)) {
+        break;
+      }
+      row.push(sorted[i]);
+      sum = cand;
+      i++;
+    }
+    const thickness = side * (sum / remaining);
+    let off = 0;
+    for (const node of row) {
+      const frac = node.value / sum;
+      const len = thickness * frac;
+      out.push(
+        horizontal
+          ? { node, x: cx + off, y: cy, w: len, h: ch }
+          : { node, x: cx, y: cy + off, w: cw, h: len }
+      );
+      off += len;
+    }
+    if (horizontal) { cx += thickness; cw -= thickness; } else { cy += thickness; ch -= thickness; }
+    remaining -= sum;
+  }
+  return out;
+}
+
+function worstRatio(vals: number[], side: number, other: number, horizontal: boolean): number {
+  if (other <= 0) return Infinity;
+  const s = vals.reduce((a, b) => a + b, 0);
+  const sideLen = horizontal ? s / other : side;
+  const otherLen = horizontal ? side : s / other;
+  const max = Math.max(...vals);
+  const min = Math.min(...vals);
+  const s2 = s * s;
+  const a = (sideLen * sideLen * max) / (otherLen * s2);
+  const b = (otherLen * otherLen * s) / (sideLen * s2);
+  return Math.max(a, b);
+}
+
+/* ================================================================== */
+/* 17 · radar chart — polygon grid with one series                    */
+/* ================================================================== */
+export function RadarChart({
+  axes,
+  series,
+  size = 230,
+  color = INK.s1,
+  max = 100,
+}: {
+  axes: string[];
+  series: number[];
+  size?: number;
+  color?: string;
+  max?: number;
+}) {
+  const [hover, setHover] = useState<number | null>(null);
+  const cx = size / 2;
+  const cy = size / 2;
+  const r = size / 2 - 34;
+  const pt = (i: number, v: number) => {
+    const a = ((i / axes.length) * 360 - 90) * (Math.PI / 180);
+    const rad = (v / max) * r;
+    return [cx + rad * Math.cos(a), cy + rad * Math.sin(a)] as const;
+  };
+  const poly = series.map((v, i) => pt(i, v).join(",")).join(" ");
+  return (
+    <svg className="hl-radar" viewBox={`0 0 ${size} ${size}`} width={size} height={size} role="img" aria-label="Radar chart">
+      {[0.25, 0.5, 0.75, 1].map((f) => (
+        <polygon key={f} points={axes.map((_, i) => pt(i, max * f).join(",")).join(" ")} fill="none" stroke={INK.grid} strokeWidth={1} />
+      ))}
+      {axes.map((_, i) => {
+        const [x, y] = pt(i, max);
+        return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke={INK.grid} strokeWidth={1} />;
+      })}
+      <polygon points={poly} fill={color} fillOpacity={0.2} stroke={color} strokeWidth={2} strokeLinejoin="round" className="hl-radar__poly" />
+      {series.map((v, i) => {
+        const [x, y] = pt(i, v);
+        return (
+          <circle
+            key={i}
+            cx={x}
+            cy={y}
+            r={hover === i ? 6 : 3.5}
+            fill={color}
+            onMouseEnter={() => setHover(i)}
+            onMouseLeave={() => setHover(null)}
+            style={{ transition: "r 120ms var(--ease-emphasized)" }}
+          />
+        );
+      })}
+      {axes.map((a, i) => {
+        const [x, y] = pt(i, max * 1.18);
+        return (
+          <text key={a} x={x} y={y} className="hl-radar__label" textAnchor="middle" dominantBaseline="middle">
+            {a}
+          </text>
+        );
+      })}
+      {hover !== null && (
+        <text x={cx} y={size - 2} className="hl-radar__readout" textAnchor="middle">
+          {axes[hover]} · {series[hover]}
+        </text>
+      )}
+    </svg>
+  );
+}
+
+/* ================================================================== */
+/* 18 · count-up number — entrance animation for every figure         */
+/* ================================================================== */
+export function CountUp({
+  value,
+  decimals = 0,
+  duration = 900,
+  suffix = "",
+}: {
+  value: number;
+  decimals?: number;
+  duration?: number;
+  suffix?: string;
+}) {
+  const [shown, setShown] = useState(0);
+  useEffect(() => {
+    let raf = 0;
+    const t0 = performance.now();
+    const step = (t: number) => {
+      const p = Math.min(1, (t - t0) / duration);
+      setShown(value * (1 - Math.pow(1 - p, 3)));
+      if (p < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [value, duration]);
+  return (
+    <>
+      {shown.toLocaleString("en-US", { minimumFractionDigits: decimals, maximumFractionDigits: decimals })}
+      {suffix}
+    </>
   );
 }

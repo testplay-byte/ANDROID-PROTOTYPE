@@ -25,10 +25,12 @@ import {
   SurfaceFrame,
   SurfaceScreen,
   useCanonicalSurface,
+  useDeviceTheme,
 } from "../../../src/proto-kit";
 import { HelioProvider, VIEWS, useHelio } from "../../../src/prototypes/helio/state/helio-context";
 import { TopBar } from "../../../src/prototypes/helio/components/chrome";
 import { OverviewScreen } from "../../../src/prototypes/helio/screens/overview";
+import { InsightsScreen } from "../../../src/prototypes/helio/screens/insights";
 import { AnalyticsScreen, SitesScreen, TrackerScreen } from "../../../src/prototypes/helio/screens/views";
 
 const SCREEN_INFO: Record<string, string> = {
@@ -45,6 +47,7 @@ const SCREEN_INFO: Record<string, string> = {
 function Shell() {
   const currentSurface = useCanonicalSurface("helio");
   const { view, toast } = useHelio();
+  const { theme } = useDeviceTheme();
   const info = SCREEN_INFO[view];
 
   useEffect(() => {
@@ -93,7 +96,7 @@ function Shell() {
       <SurfaceFrame
         surface="desktop"
         style="console"
-        theme="dark"
+        theme={theme}
         windowChrome
         windowTitle="Helio — Grid operations"
         menu={["Helio", "File", "Edit", "View", "Sites", "Help"]}
@@ -105,6 +108,7 @@ function Shell() {
             <SurfaceScreen>
               {view === "overview" && <OverviewScreen />}
               {view === "analytics" && <AnalyticsScreen />}
+              {view === "insights" && <InsightsScreen />}
               {view === "sites" && <SitesScreen />}
               {view === "tracker" && <TrackerScreen />}
             </SurfaceScreen>

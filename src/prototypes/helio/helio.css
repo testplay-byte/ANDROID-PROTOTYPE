@@ -611,3 +611,192 @@
 .hl-view[data-density="compact"] .hl-tiles { gap: 8px; }
 .hl-view[data-density="compact"] .hl-tile { padding: 9px 11px 10px; }
 .hl-view[data-density="compact"] .hl-tile strong { font-size: 21px; }
+
+/* =========================================================================
+   helio / helio.css (cont.) — the extended chart vocabulary, the light
+   theme, and the motion layer. Index continued from §10 above.
+    11. New marks .... .hl-radial, .hl-rgauge, .hl-heat, .hl-treemap, .hl-radar
+    12. Light mode .... [data-theme="light"] adjustments
+    13. Motion ........ @keyframes hl-draw, hl-grow, hl-sweep, hl-fade
+   ========================================================================= */
+
+/* ---------- 11. new marks ---------- */
+.hl-radial {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  margin: 0 auto;
+}
+.hl-radial__arc {
+  animation: hl-sweep 1100ms var(--ease-emphasized) both;
+  transform-origin: 50% 50%;
+}
+.hl-radial__key {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 3px 14px;
+  justify-content: center;
+  text-align: center;
+}
+.hl-radial__key span {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 4px;
+  font-size: 10px;
+  color: var(--color-text-muted);
+}
+.hl-radial__key i { width: 6px; height: 6px; border-radius: 50%; }
+.hl-radial__key b { font-size: 12px; color: var(--color-text); }
+
+.hl-rgauge {
+  position: relative;
+  display: grid;
+  place-items: center;
+  margin: 0 auto;
+}
+.hl-rgauge__needle {
+  transform-origin: center;
+  animation: hl-needle 1000ms var(--ease-emphasized) both;
+}
+.hl-rgauge__readout {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 4px;
+  display: grid;
+  justify-items: center;
+  gap: 1px;
+}
+.hl-rgauge__readout strong { font-size: 24px; font-weight: 700; letter-spacing: -0.02em; }
+.hl-rgauge__readout span { font-size: 10px; color: var(--color-text-muted); }
+
+.hl-heat { display: flex; flex-direction: column; gap: 8px; }
+.hl-heat__grid { display: grid; gap: 3px; }
+.hl-heat__axis {
+  font-size: 9.5px;
+  color: var(--color-text-subtle);
+  text-align: center;
+  align-self: center;
+}
+.hl-heat__cell {
+  height: 22px;
+  border-radius: 4px;
+  cursor: crosshair;
+  transition: transform var(--dur-2) var(--ease-emphasized), box-shadow var(--dur-2) var(--ease-emphasized);
+  animation: hl-fade var(--dur-4) var(--ease-emphasized) both;
+}
+.hl-heat__cell:hover,
+.hl-heat__cell[data-on] {
+  transform: scale(1.08);
+  box-shadow: 0 0 0 1.5px var(--color-text);
+}
+.hl-heat__readout {
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+.hl-heat__readout b { color: var(--color-text); }
+
+.hl-treemap { position: relative; }
+.hl-treemap svg { display: block; width: 100%; height: auto; aspect-ratio: 16 / 10; }
+.hl-treemap g rect {
+  animation: hl-fade var(--dur-4) var(--ease-emphasized) both;
+  transition: opacity var(--dur-2) var(--ease-standard);
+}
+.hl-treemap__label {
+  fill: var(--color-primary-fg);
+  font-size: 13px;
+  font-weight: 600;
+  pointer-events: none;
+}
+.hl-treemap__readout {
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  font-size: 11px;
+  color: var(--color-text-muted);
+}
+.hl-treemap__readout b { color: var(--color-text); }
+
+.hl-radar { display: block; width: 100%; max-width: 250px; height: auto; margin: 0 auto; }
+.hl-radar__poly { animation: hl-fade var(--dur-4) var(--ease-emphasized) both; }
+.hl-radar__label { font-size: 9.5px; fill: var(--color-text-subtle); }
+.hl-radar__readout { font-size: 10.5px; fill: var(--color-text-muted); }
+
+/* ---------- 12. light theme ---------- */
+/* The tokens already flip; these are the places where a tint that reads on
+   near-black turns muddy on paper, and where depth needs a shadow. */
+.surface[data-style="console"][data-theme="light"] {
+  --chart-bar-idle: color-mix(in srgb, #10151c 14%, transparent);
+}
+.surface[data-style="console"][data-theme="light"] .hl-card {
+  box-shadow: 0 1px 2px rgba(16, 21, 28, 0.05);
+}
+.surface[data-style="console"][data-theme="light"] .hl-card:hover {
+  box-shadow: 0 6px 18px -8px rgba(16, 21, 28, 0.16);
+}
+.surface[data-style="console"][data-theme="light"] .hl-heat__cell {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, #10151c 6%, transparent);
+}
+.surface[data-style="console"][data-theme="light"] .hl-treemap__label {
+  fill: #ffffff;
+}
+.surface[data-style="console"][data-theme="light"] .hl-tile {
+  box-shadow: 0 1px 2px rgba(16, 21, 28, 0.08);
+}
+
+/* ---------- 13. motion ---------- */
+@keyframes hl-sweep { from { stroke-dasharray: 0 1000; } }
+@keyframes hl-needle { from { transform: rotate(-118deg); } to { transform: rotate(0deg); } }
+@keyframes hl-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes hl-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+
+/* columns grow from the baseline; the selected/hovered one is instant */
+.hl-col {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: hl-grow 620ms var(--ease-emphasized-decel) both;
+}
+.hl-step {
+  transform-box: fill-box;
+  transform-origin: 50% 50%;
+  animation: hl-fade 700ms var(--ease-emphasized) both;
+}
+.hl-donut circle,
+.hl-gauge path {
+  animation: hl-fade 500ms var(--ease-standard) both;
+}
+.hl-spark path {
+  stroke-dasharray: 1200;
+  stroke-dashoffset: 1200;
+  animation: hl-draw 1200ms var(--ease-emphasized) forwards;
+}
+@keyframes hl-draw { to { stroke-dashoffset: 0; } }
+
+/* micro-interactions: a card that answers the pointer */
+.hl-card { transition: border-color var(--dur-2) var(--ease-standard), transform var(--dur-2) var(--ease-emphasized); }
+.hl-card:hover { transform: translateY(-1px); }
+.hl-tile { transition: transform var(--dur-2) var(--ease-emphasized), box-shadow var(--dur-2) var(--ease-standard); }
+.hl-tile:hover { transform: translateY(-2px); box-shadow: 0 8px 20px -10px rgba(0, 0, 0, 0.6); }
+.hl-tile:active { transform: translateY(0); }
+.hl-nav__pill:active { transform: scale(0.97); }
+.hl-btn:active, .hl-pillbtn:active, .hl-select:active, .hl-filter:active { transform: scale(0.97); }
+.hl-rank__fill, .hl-mixday__bar i, .hl-stack__bar span { transition: width var(--dur-3) var(--ease-emphasized); }
+
+@media (prefers-reduced-motion: reduce) {
+  .hl-col, .hl-step, .hl-donut circle, .hl-gauge path,
+  .hl-spark path, .hl-radial__arc, .hl-rgauge__needle,
+  .hl-treemap g rect, .hl-radar__poly, .hl-live-dot {
+    animation: none;
+    stroke-dashoffset: 0;
+    transform: none;
+  }
+  .hl-card:hover, .hl-tile:hover { transform: none; }
+}
+
+/* two radars share a row so the card stays one grid-row tall */
+.hl-radarpair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}

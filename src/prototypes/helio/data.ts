@@ -137,3 +137,33 @@ export const fmt = (n: number, d = 0) =>
 export const sum = (a: number[]) => a.reduce((x, y) => x + y, 0);
 export const totalCapacity = SITES.reduce((a, s) => a + s.capacityMw, 0);
 export const totalOutput = SITES.reduce((a, s) => a + s.outputMw, 0);
+
+/* ---- insights view: heat map, tree map, radar, radial bars, gauge ---- */
+
+export const HEAT_ROWS = ["Nord", "Ost", "West", "Coast"];
+export const HEAT_COLS = ["00", "04", "08", "12", "16", "20"];
+export const HEAT = HEAT_ROWS.map((_, r) =>
+  HEAT_COLS.map((__, c) => Math.round(18 + 74 * Math.abs(Math.sin((r + 1) * 1.3 + c * 0.9))))
+);
+
+export const TREE = [
+  { label: "Onshore wind", value: 34, color: "var(--chart-series-1)", fg: "var(--color-primary-fg)" },
+  { label: "Utility solar", value: 26, color: "var(--chart-series-3)", fg: "var(--color-tertiary-fg)" },
+  { label: "Offshore wind", value: 18, color: "var(--chart-series-4)", fg: "var(--color-primary-fg)" },
+  { label: "Storage", value: 12, color: "var(--chart-series-2)", fg: "var(--color-secondary-fg)" },
+  { label: "Demand response", value: 6, color: "var(--chart-series-5)", fg: "var(--color-error-fg)" },
+  { label: "Other", value: 4, color: "var(--color-surface-4)", fg: "var(--color-text)" },
+];
+
+export const RADAR_AXES = ["Yield", "Predictability", "Storage", "Coverage", "Flexibility", "Cost"];
+export const RADAR_NOW = [86, 71, 58, 92, 64, 77];
+export const RADAR_TARGET = [92, 88, 74, 95, 81, 84];
+
+export const RADIAL = [
+  { label: "Capacity", value: 1755, max: 2380, color: "var(--chart-series-1)" },
+  { label: "Storage", value: 318, max: 520, color: "var(--chart-series-2)" },
+  { label: "Reserve", value: 61, max: 100, color: "var(--chart-series-3)" },
+  { label: "Headroom", value: 44, max: 100, color: "var(--chart-series-4)" },
+];
+
+export const RESERVE = { pct: 61, sub: "reserve margin" };

@@ -61,6 +61,7 @@
   --color-outline-variant: #1c222d;
 
   /* structure: hairline, squared, flat */
+  --chart-bar-idle: color-mix(in srgb, #e8edf5 20%, transparent);
   --border-w: 1px;
   --shadow-1: none;
   --shadow-2: 0 18px 40px -20px rgba(0, 0, 0, 0.9);
