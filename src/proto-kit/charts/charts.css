@@ -4,7 +4,9 @@
 
 /* proto-kit / charts — the shared chart vocabulary (see charts.tsx).
    Colours come from tokens, so every mark works in every design */
-.helio {
+/* Optional shell for a chart screen: it establishes the `view` container
+   so chart-level media queries can be written once, for every consumer. */
+.pk-shell {
   display: flex;
   flex-direction: column;
   flex: 1;
